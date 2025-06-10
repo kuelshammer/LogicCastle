@@ -70,6 +70,7 @@
                 <button class="btn btn-primary" id="newGameBtn">Neues Spiel</button>
                 <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig</button>
                 <button class="btn btn-secondary" id="hintsToggle" style="display: none;">Hilfen An/Aus</button>
+                <button class="btn btn-info" id="helpBtn">Hilfe (F1)</button>
             </div>
 
             <div class="help-panel" id="helpPanel" style="display: none;">
@@ -84,6 +85,71 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal help-modal">
+            <h2>🎮 4 Gewinnt - Spielanleitung</h2>
+            
+            <div class="help-content">
+                <div class="help-section">
+                    <h3>🎯 Spielziel</h3>
+                    <p>Verbinde vier deiner Steine in einer Reihe (horizontal, vertikal oder diagonal), bevor dein Gegner es schafft!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🎮 Steuerung</h3>
+                    <div class="control-group">
+                        <h4>🖱️ Maus/Touch:</h4>
+                        <ul>
+                            <li><strong>1. Klick:</strong> Spalte auswählen (weiße Umrandung)</li>
+                            <li><strong>2. Klick:</strong> Stein in die Spalte fallen lassen</li>
+                            <li>Klicke auf Spalten-Nummer oder irgendwo in der Spalte</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h4>⌨️ Tastatur:</h4>
+                        <ul>
+                            <li><strong>1-7:</strong> Spalte auswählen</li>
+                            <li><strong>Leertaste:</strong> Stein fallen lassen</li>
+                            <li><strong>ESC:</strong> Auswahl zurücksetzen</li>
+                            <li><strong>F1:</strong> Diese Hilfe öffnen/schließen</li>
+                            <li><strong>Strg+R:</strong> Neues Spiel</li>
+                            <li><strong>Strg+Z:</strong> Zug rückgängig</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>🤖 Spielmodi</h3>
+                    <ul>
+                        <li><strong>2 Spieler:</strong> Spiele gegen einen Freund</li>
+                        <li><strong>2 Spieler mit Hilfen:</strong> Erhalte strategische Tipps</li>
+                        <li><strong>vs Bot (Einfach):</strong> KI macht zufällige Züge</li>
+                        <li><strong>vs Bot (Mittel):</strong> KI verwendet einfache Strategien</li>
+                        <li><strong>vs Bot (Schwer):</strong> KI nutzt erweiterte Algorithmen</li>
+                        <li><strong>vs Bot (Experte):</strong> Maximale KI-Schwierigkeit</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>💡 Strategietipps</h3>
+                    <ul>
+                        <li>Spiele in der Mitte (Spalte 4) für bessere Kontrolle</li>
+                        <li>Blockiere gegnerische Bedrohungen</li>
+                        <li>Versuche "Zwickmühlen" zu bauen (mehrere Gewinnmöglichkeiten gleichzeitig)</li>
+                        <li>Achte auf vertikale Fallen - baue nicht zu hoch in einer Spalte</li>
+                        <li>Plane mehrere Züge im Voraus</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="closeHelpBtn">Verstanden!</button>
+            </div>
+        </div>
     </div>
 
     <script src="js/game.js"></script>

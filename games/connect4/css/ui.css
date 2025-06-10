@@ -42,6 +42,18 @@
     box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
 }
 
+.btn-info {
+    background: linear-gradient(145deg, #17a2b8, #138496);
+    color: white;
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+}
+
+.btn-info:hover:not(:disabled) {
+    background: linear-gradient(145deg, #138496, #17a2b8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
+}
+
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -273,6 +285,51 @@
     }
 }
 
+/* Help Modal Styles */
+.help-modal {
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.help-section {
+    margin-bottom: 1.5rem;
+}
+
+.help-section h3 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.25rem;
+}
+
+.help-section h4 {
+    color: #555;
+    margin: 0.75rem 0 0.25rem 0;
+    font-size: 1rem;
+}
+
+.help-section ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.help-section li {
+    margin: 0.25rem 0;
+    line-height: 1.4;
+}
+
+.control-group {
+    margin-bottom: 1rem;
+}
+
+.control-group ul {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 0.75rem 1.5rem;
+    margin: 0.5rem 0;
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
     .modal {
@@ -286,5 +343,19 @@
     
     .modal p {
         color: #bdc3c7;
+    }
+    
+    .help-section h3 {
+        color: white;
+        border-bottom-color: #555;
+    }
+    
+    .help-section h4 {
+        color: #bdc3c7;
+    }
+    
+    .control-group ul {
+        background: #34495e;
+        color: white;
     }
 }

@@ -12,6 +12,9 @@ class Connect4UI {
         this.newGameBtn = null;
         this.undoBtn = null;
         this.hintsToggle = null;
+        this.helpBtn = null;
+        this.helpModal = null;
+        this.closeHelpBtn = null;
         this.gameMode = 'two-player';
         this.hintsEnabled = false;
         
@@ -27,6 +30,7 @@ class Connect4UI {
         this.handleUndo = this.handleUndo.bind(this);
         this.handleHintsToggle = this.handleHintsToggle.bind(this);
         this.handleModeChange = this.handleModeChange.bind(this);
+        this.handleHelp = this.handleHelp.bind(this);
     }
     
     /**
@@ -84,6 +88,9 @@ class Connect4UI {
         this.newGameBtn = document.getElementById('newGameBtn');
         this.undoBtn = document.getElementById('undoBtn');
         this.hintsToggle = document.getElementById('hintsToggle');
+        this.helpBtn = document.getElementById('helpBtn');
+        this.helpModal = document.getElementById('helpModal');
+        this.closeHelpBtn = document.getElementById('closeHelpBtn');
         this.gameModeSelect = document.getElementById('gameMode');
     }
     
@@ -111,6 +118,13 @@ class Connect4UI {
         if (this.hintsToggle) {
             this.hintsToggle.addEventListener('click', this.handleHintsToggle);
         }
+        this.helpBtn.addEventListener('click', this.handleHelp);
+        this.closeHelpBtn.addEventListener('click', this.handleHelp);
+        this.helpModal.addEventListener('click', (e) => {
+            if (e.target === this.helpModal) {
+                this.handleHelp();
+            }
+        });
         this.gameModeSelect.addEventListener('change', this.handleModeChange);
         
         // Board hover effects
@@ -131,7 +145,6 @@ class Connect4UI {
         if (this.selectedColumn === col) {
             // Second click on same column - make the move
             this.makePlayerMove(col);
-            this.clearColumnSelection();
         } else {
             // First click or different column - select it
             this.selectColumn(col);
@@ -153,7 +166,6 @@ class Connect4UI {
         if (this.selectedColumn === col) {
             // Second click on same column - make the move
             this.makePlayerMove(col);
-            this.clearColumnSelection();
         } else {
             // First click or different column - select it
             this.selectColumn(col);
@@ -180,7 +192,6 @@ class Connect4UI {
             e.preventDefault();
             if (this.selectedColumn !== null) {
                 this.makePlayerMove(this.selectedColumn);
-                this.clearColumnSelection();
             }
         }
         
@@ -204,6 +215,10 @@ class Connect4UI {
                 // Clear column selection
                 this.clearColumnSelection();
                 break;
+            case 'F1':
+                e.preventDefault();
+                this.handleHelp();
+                break;
         }
     }
     
@@ -217,6 +232,9 @@ class Connect4UI {
             this.showMessage(result.reason, 'error');
             return;
         }
+        
+        // Clear column selection after successful move
+        this.clearColumnSelection();
         
         // After player move, check if we need to make AI move
         if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
@@ -363,6 +381,13 @@ class Connect4UI {
         
         // Reset game for mode change
         this.game.resetGame();
+    }
+    
+    /**
+     * Handle help button/modal
+     */
+    handleHelp() {
+        this.helpModal.classList.toggle('active');
     }
     
     /**

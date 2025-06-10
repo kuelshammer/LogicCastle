@@ -167,11 +167,11 @@
 }
 
 .column-indicator.selected {
-    background: rgba(255, 255, 0, 0.8);
-    border-color: #ffff00;
+    background: rgba(255, 255, 255, 0.8);
+    border-color: white;
     color: #333;
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(255, 255, 0, 0.5);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.6);
     font-weight: bold;
 }
 
@@ -237,15 +237,15 @@
 .column-selected::before {
     content: '';
     position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    background: rgba(255, 255, 0, 0.3);
-    border: 2px solid #ffdd00;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 3px solid white;
     border-radius: 50%;
     pointer-events: none;
     z-index: 1;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
 }
 
 .game-board .cell {
