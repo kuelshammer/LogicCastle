@@ -17,6 +17,7 @@ class Connect4UI {
         
         this.isAnimating = false;
         this.aiThinking = false;
+        this.selectedColumn = null;
         
         // Bind methods
         this.handleColumnClick = this.handleColumnClick.bind(this);
@@ -122,7 +123,14 @@ class Connect4UI {
             return;
         }
         
-        this.makePlayerMove(col);
+        if (this.selectedColumn === col) {
+            // Second click on same column - make the move
+            this.makePlayerMove(col);
+            this.clearColumnSelection();
+        } else {
+            // First click or different column - select it
+            this.selectColumn(col);
+        }
     }
     
     /**
@@ -133,11 +141,20 @@ class Connect4UI {
             return;
         }
         
-        // Number keys 1-7 for columns
+        // Number keys 1-7 for column selection
         const key = parseInt(e.key);
         if (key >= 1 && key <= 7) {
             e.preventDefault();
-            this.makePlayerMove(key - 1);
+            this.selectColumn(key - 1);
+        }
+        
+        // Space bar to drop stone in selected column
+        if (e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            if (this.selectedColumn !== null) {
+                this.makePlayerMove(this.selectedColumn);
+                this.clearColumnSelection();
+            }
         }
         
         // Other shortcuts
@@ -155,6 +172,10 @@ class Connect4UI {
                     e.preventDefault();
                     this.handleUndo();
                 }
+                break;
+            case 'Escape':
+                // Clear column selection
+                this.clearColumnSelection();
                 break;
         }
     }
@@ -217,6 +238,26 @@ class Connect4UI {
      */
     isAIMode() {
         return this.gameMode.startsWith('vs-bot');
+    }
+    
+    /**
+     * Select a column for potential move
+     */
+    selectColumn(col) {
+        if (this.game.isColumnFull(col) || this.game.gameOver) {
+            return;
+        }
+        
+        this.selectedColumn = col;
+        this.updateColumnIndicators();
+    }
+    
+    /**
+     * Clear column selection
+     */
+    clearColumnSelection() {
+        this.selectedColumn = null;
+        this.updateColumnIndicators();
     }
     
     /**
@@ -327,6 +368,7 @@ class Connect4UI {
         this.clearBoard();
         this.clearWinHighlights();
         this.hideGameOverMessage();
+        this.clearColumnSelection();
         this.updateUI();
     }
     
@@ -401,8 +443,10 @@ class Connect4UI {
         this.columnIndicators.forEach((indicator, col) => {
             const isFull = this.game.isColumnFull(col);
             const isDisabled = this.game.gameOver || this.aiThinking;
+            const isSelected = this.selectedColumn === col;
             
             indicator.classList.toggle('disabled', isFull || isDisabled);
+            indicator.classList.toggle('selected', isSelected && !isFull && !isDisabled);
         });
     }
     

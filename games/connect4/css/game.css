@@ -139,9 +139,10 @@
 .column-indicators {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
+    gap: 8px;
     width: 100%;
     max-width: 490px;
+    margin-bottom: 0.5rem;
 }
 
 .column-indicator {
@@ -154,11 +155,22 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    font-weight: bold;
+    color: white;
+    font-size: 1.2rem;
+    border: 2px solid transparent;
 }
 
 .column-indicator:hover {
     background: rgba(255, 255, 255, 0.4);
     transform: translateY(-2px);
+}
+
+.column-indicator.selected {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
 .column-indicator.disabled {
@@ -169,13 +181,6 @@
 .column-indicator.disabled:hover {
     transform: none;
     background: rgba(255, 255, 255, 0.2);
-}
-
-.column-indicator::before {
-    content: attr(data-col);
-    font-weight: bold;
-    color: white;
-    opacity: 0.7;
 }
 
 .game-board {
