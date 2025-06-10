@@ -519,18 +519,17 @@ class Connect4UI {
             const highlight = document.createElement('div');
             highlight.className = 'column-highlight';
             
-            // Get all cells in the selected column to determine bounds
+            // Get the actual position of the selected column's top cell
             const topCell = this.getCellElement(0, this.selectedColumn);
-            const bottomCell = this.getCellElement(this.game.ROWS - 1, this.selectedColumn);
             
-            if (topCell && bottomCell) {
-                const topRect = topCell.getBoundingClientRect();
-                const bottomRect = bottomCell.getBoundingClientRect();
+            if (topCell) {
+                // Use the cell's actual position within the board for accurate placement
+                const cellRect = topCell.getBoundingClientRect();
                 const boardRect = this.boardElement.getBoundingClientRect();
                 
-                // Calculate exact column position and width
-                const leftPosition = topRect.left - boardRect.left - 8;
-                const width = topRect.width + 16;
+                // Calculate relative position within the board
+                const leftPosition = cellRect.left - boardRect.left - 5;
+                const width = cellRect.width + 10;
                 
                 highlight.style.left = `${leftPosition}px`;
                 highlight.style.width = `${width}px`;

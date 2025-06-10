@@ -1,0 +1,408 @@
+/* Gobang Game Board Styles */
+.game-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    color: white;
+}
+
+.game-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.back-button {
+    background: white;
+    color: #333;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.game-mode-selector select {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: #333;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.game-main {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.game-info {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    color: white;
+}
+
+.current-player {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.player-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.player-stone {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.player-stone.black {
+    background: radial-gradient(circle at 30% 30%, #555, #000);
+    border-color: #333;
+}
+
+.player-stone.white {
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+    border-color: #ccc;
+}
+
+.game-status {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.score-board {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.score {
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.score.black {
+    border-left: 4px solid #333;
+}
+
+.score.white {
+    border-left: 4px solid #fff;
+}
+
+.score-label {
+    font-size: 0.9rem;
+}
+
+.score-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.move-info {
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.move-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.move-label {
+    font-size: 0.9rem;
+}
+
+.move-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.game-board-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.board-coords {
+    display: flex;
+    color: white;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.board-coords.top,
+.board-coords.bottom {
+    gap: 1px;
+}
+
+.board-coords.left,
+.board-coords.right {
+    flex-direction: column;
+    gap: 1px;
+    justify-content: space-around;
+}
+
+.board-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.coord-cell {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.game-board {
+    background: linear-gradient(145deg, #DEB887, #CD853F);
+    border: 3px solid #8B4513;
+    border-radius: 8px;
+    padding: 13px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    width: 390px;
+    height: 390px;
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-template-rows: repeat(15, 1fr);
+    gap: 0;
+}
+
+/* Grid lines */
+.game-board::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(to right, transparent 0, transparent calc(100%/15 - 1px), #8B4513 calc(100%/15 - 1px), #8B4513 calc(100%/15)),
+        repeating-linear-gradient(to bottom, transparent 0, transparent calc(100%/15 - 1px), #8B4513 calc(100%/15 - 1px), #8B4513 calc(100%/15));
+    pointer-events: none;
+}
+
+.intersection {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.intersection::before {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.intersection:hover::before {
+    background: rgba(255, 255, 255, 0.3);
+    width: 8px;
+    height: 8px;
+}
+
+.intersection.occupied {
+    cursor: not-allowed;
+}
+
+.intersection.occupied::before {
+    display: none;
+}
+
+.stone {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.stone.black {
+    background: radial-gradient(circle at 30% 30%, #555, #000);
+    border: 1px solid #222;
+}
+
+.stone.white {
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+    border: 1px solid #ccc;
+}
+
+.stone.winning {
+    animation: winPulse 1s infinite alternate;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    border-color: gold;
+}
+
+.stone.last-move {
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.8);
+}
+
+.stone-place {
+    animation: stonePlace 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes stonePlace {
+    0% {
+        transform: scale(0);
+        opacity: 0.8;
+    }
+    70% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes winPulse {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+    to {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+    }
+}
+
+/* Star points (traditional Go board markings) */
+.intersection.star-point::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #8B4513;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.game-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .game-main {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .game-info,
+    .game-controls {
+        order: 2;
+    }
+    
+    .game-board-container {
+        order: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .game-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .game-header h1 {
+        font-size: 2rem;
+    }
+    
+    .game-board {
+        width: 300px;
+        height: 300px;
+        padding: 10px;
+    }
+    
+    .stone {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .coord-cell {
+        width: 20px;
+        height: 20px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-board {
+        width: 250px;
+        height: 250px;
+        padding: 8px;
+    }
+    
+    .stone {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .coord-cell {
+        width: 16px;
+        height: 16px;
+        font-size: 0.7rem;
+    }
+}

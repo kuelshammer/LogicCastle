@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogicCastle - Test Suite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .test-section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .test-results {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .test-case {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #ccc;
+        }
+        
+        .test-case.pass {
+            border-left-color: #4CAF50;
+        }
+        
+        .test-case.fail {
+            border-left-color: #f44336;
+        }
+        
+        .test-case h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+        
+        .test-case .result {
+            font-weight: bold;
+        }
+        
+        .test-case .error {
+            color: #ffcdd2;
+            font-family: monospace;
+            margin-top: 0.5rem;
+        }
+        
+        .summary {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .run-tests-btn {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .run-tests-btn:hover {
+            background: linear-gradient(145deg, #ff5252, #d32f2f);
+            transform: translateY(-2px);
+        }
+        
+        .back-button {
+            background: white;
+            color: #333;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        
+        .back-button:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-button">← Zurück zur Hauptseite</a>
+        
+        <h1>🧪 LogicCastle Test Suite</h1>
+        
+        <button class="run-tests-btn" onclick="runAllTests()">Alle Tests ausführen</button>
+        
+        <div class="test-section">
+            <h2>🔴 Connect4 Tests</h2>
+            <div id="connect4-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎲 Trio Tests</h2>
+            <div id="trio-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>⚫ Gobang Tests</h2>
+            <div id="gobang-results" class="test-results"></div>
+        </div>
+        
+        <div class="summary" id="test-summary" style="display: none;"></div>
+    </div>
+
+    <!-- Load game files for testing -->
+    <script src="../games/connect4/js/game.js"></script>
+    <script src="../games/connect4/js/ai.js"></script>
+    
+    <script src="../games/trio/js/game.js"></script>
+    <script src="../games/trio/js/ai.js"></script>
+    
+    <script src="../games/gobang/js/game.js"></script>
+    <script src="../games/gobang/js/ai.js"></script>
+    
+    <!-- Test framework -->
+    <script src="test-framework.js"></script>
+    
+    <!-- Game tests -->
+    <script src="connect4-tests.js"></script>
+    <script src="trio-tests.js"></script>
+    <script src="gobang-tests.js"></script>
+    
+    <script>
+        function runAllTests() {
+            const testSuite = new TestSuite();
+            
+            // Run all test suites
+            runConnect4Tests(testSuite);
+            runTrioTests(testSuite);
+            runGobangTests(testSuite);
+            
+            // Display results
+            displayResults(testSuite);
+        }
+        
+        function displayResults(testSuite) {
+            const results = testSuite.getResults();
+            
+            // Display individual game results
+            displayGameResults('connect4-results', results.filter(r => r.suite === 'Connect4'));
+            displayGameResults('trio-results', results.filter(r => r.suite === 'Trio'));
+            displayGameResults('gobang-results', results.filter(r => r.suite === 'Gobang'));
+            
+            // Display summary
+            const summary = testSuite.getSummary();
+            document.getElementById('test-summary').innerHTML = `
+                <div>Tests ausgeführt: ${summary.total}</div>
+                <div style="color: #4CAF50;">✅ Bestanden: ${summary.passed}</div>
+                <div style="color: #f44336;">❌ Fehlgeschlagen: ${summary.failed}</div>
+                <div>Erfolgsrate: ${Math.round((summary.passed / summary.total) * 100)}%</div>
+            `;
+            document.getElementById('test-summary').style.display = 'block';
+        }
+        
+        function displayGameResults(containerId, results) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            results.forEach(result => {
+                const testCase = document.createElement('div');
+                testCase.className = `test-case ${result.passed ? 'pass' : 'fail'}`;
+                
+                let html = `
+                    <h3>${result.name}</h3>
+                    <div class="result">${result.passed ? '✅ BESTANDEN' : '❌ FEHLGESCHLAGEN'}</div>
+                `;
+                
+                if (!result.passed && result.error) {
+                    html += `<div class="error">Fehler: ${result.error}</div>`;
+                }
+                
+                testCase.innerHTML = html;
+                container.appendChild(testCase);
+            });
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 500);
+        });
+    </script>
+</body>
+</html>

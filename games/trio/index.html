@@ -4,36 +4,123 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trio - LogicCastle</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-        }
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            color: #333;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .back-button:hover {
-            background: #f0f0f0;
-        }
-    </style>
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/ui.css">
 </head>
 <body>
-    <a href="../../index.html" class="back-button">← Zurück</a>
-    <h1>🎲 Trio</h1>
-    <p>Spiel wird bald implementiert...</p>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="../../index.html" class="back-button">← Zurück</a>
+            <h1>🎲 Trio</h1>
+            <div class="game-mode-selector">
+                <select id="gameMode">
+                    <option value="three-player">3 Spieler</option>
+                    <option value="vs-bot-easy">vs 2 Bots (Einfach)</option>
+                    <option value="vs-bot-medium">vs 2 Bots (Mittel)</option>
+                    <option value="vs-bot-hard">vs 2 Bots (Schwer)</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <div class="game-info">
+                <div class="current-player">
+                    <span class="player-indicator" id="currentPlayerIndicator">
+                        <span class="player-stone player1"></span>
+                        <span class="player-name">Spieler 1</span>
+                    </span>
+                </div>
+                <div class="game-status" id="gameStatus">Spiel läuft...</div>
+                <div class="score-board">
+                    <div class="score player1">
+                        <span class="score-label">Spieler 1:</span>
+                        <span class="score-value" id="player1Score">0</span>
+                    </div>
+                    <div class="score player2">
+                        <span class="score-label">Spieler 2:</span>
+                        <span class="score-value" id="player2Score">0</span>
+                    </div>
+                    <div class="score player3">
+                        <span class="score-label">Spieler 3:</span>
+                        <span class="score-value" id="player3Score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div class="game-board" id="gameBoard">
+                    <!-- 6x6 grid = 36 cells -->
+                    <!-- Generated dynamically by JavaScript -->
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn btn-primary" id="newGameBtn">Neues Spiel</button>
+                <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig</button>
+                <button class="btn btn-info" id="helpBtn">Hilfe (F1)</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal help-modal">
+            <h2>🎲 Trio - Spielanleitung</h2>
+            
+            <div class="help-content">
+                <div class="help-section">
+                    <h3>🎯 Spielziel</h3>
+                    <p>Platziere drei deiner Steine in einer geraden Linie (horizontal, vertikal oder diagonal) auf dem 6x6 Spielfeld!</p>
+                </div>
+
+                <div class="help-section">
+                    <h3>🎮 Spielablauf</h3>
+                    <ul>
+                        <li>Drei Spieler setzen abwechselnd ihre Steine</li>
+                        <li>Klicke auf ein leeres Feld, um deinen Stein zu setzen</li>
+                        <li>Der erste Spieler, der drei Steine in einer Reihe hat, gewinnt</li>
+                        <li>Blockiere deine Gegner und erschaffe gleichzeitig eigene Gewinnchancen</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>🎮 Steuerung</h3>
+                    <ul>
+                        <li><strong>Maus/Touch:</strong> Klicke auf ein leeres Feld</li>
+                        <li><strong>F1:</strong> Diese Hilfe öffnen/schließen</li>
+                        <li><strong>Strg+R:</strong> Neues Spiel</li>
+                        <li><strong>Strg+Z:</strong> Zug rückgängig</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3>💡 Strategietipps</h3>
+                    <ul>
+                        <li>Beginne in der Mitte des Spielfelds für mehr Möglichkeiten</li>
+                        <li>Achte auf beide Gegner gleichzeitig</li>
+                        <li>Erschaffe Situationen mit mehreren Gewinnmöglichkeiten</li>
+                        <li>Blockiere gefährliche Züge der Gegner</li>
+                        <li>Nutze die Diagonalen effektiv aus</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="closeHelpBtn">Verstanden!</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const game = new TrioGame();
+            const ui = new TrioUI(game);
+            ui.init();
+        });
+    </script>
 </body>
 </html>

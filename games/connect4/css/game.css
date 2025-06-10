@@ -191,12 +191,14 @@
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(6, 60px);
     gap: 8px;
     width: 100%;
     max-width: 490px;
     aspect-ratio: 7/6;
+    justify-content: center;
+    align-content: center;
 }
 
 .cell {
@@ -205,9 +207,6 @@
     border-radius: 50%;
     background: white;
     border: 3px solid #1565C0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
