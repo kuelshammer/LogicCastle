@@ -1,0 +1,242 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+header {
+    text-align: center;
+    padding: 2rem;
+    color: white;
+}
+
+header h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.game-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    outline: none;
+}
+
+.game-card:hover,
+.game-card:focus {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+}
+
+.game-card:focus {
+    border: 3px solid #667eea;
+}
+
+.game-number {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #667eea;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.game-card h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.game-preview {
+    margin: 1rem 0;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+/* Connect 4 Preview */
+.connect4-board {
+    background: #2196F3;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.connect4-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+}
+
+.cell {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 2px solid #1976D2;
+}
+
+.cell.empty {
+    background: white;
+}
+
+.cell.red {
+    background: #f44336;
+}
+
+.cell.yellow {
+    background: #ffeb3b;
+}
+
+/* Gobang Preview */
+.gobang-board {
+    background: #8B4513;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.gobang-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 2px;
+}
+
+.intersection {
+    width: 20px;
+    height: 20px;
+    background: #DEB887;
+    border: 1px solid #8B4513;
+    border-radius: 2px;
+    position: relative;
+}
+
+.intersection.black::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.intersection.white::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    background: white;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+}
+
+/* Trio Preview */
+.trio-board {
+    background: #fff;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+}
+
+.trio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+}
+
+.trio-tile {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
+    border-radius: 4px;
+}
+
+.trio-tile.red {
+    background: #e74c3c;
+}
+
+.trio-tile.blue {
+    background: #3498db;
+}
+
+.trio-tile.green {
+    background: #2ecc71;
+}
+
+.trio-tile.yellow {
+    background: #f1c40f;
+    color: #333;
+}
+
+.game-card p {
+    color: #666;
+    line-height: 1.4;
+    margin-top: 1rem;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: white;
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .game-grid {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .game-card {
+        padding: 1rem;
+    }
+}

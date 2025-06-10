@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogicCastle - Mathematische Spiele</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>🏰 LogicCastle</h1>
+        <p>Eine Sammlung mathematischer Spiele</p>
+    </header>
+
+    <main class="game-grid">
+        <div class="game-card" data-game="connect4" data-key="1" tabindex="0">
+            <div class="game-number">1</div>
+            <h2>4 Gewinnt</h2>
+            <div class="game-preview">
+                <div class="connect4-board">
+                    <div class="connect4-grid">
+                        <div class="cell empty"></div>
+                        <div class="cell empty"></div>
+                        <div class="cell empty"></div>
+                        <div class="cell empty"></div>
+                        <div class="cell red"></div>
+                        <div class="cell yellow"></div>
+                        <div class="cell red"></div>
+                        <div class="cell yellow"></div>
+                        <div class="cell red"></div>
+                        <div class="cell yellow"></div>
+                        <div class="cell red"></div>
+                        <div class="cell empty"></div>
+                    </div>
+                </div>
+            </div>
+            <p>Klassisches Strategiespiel - Verbinde vier Steine in einer Reihe!</p>
+        </div>
+
+        <div class="game-card" data-game="gobang" data-key="2" tabindex="0">
+            <div class="game-number">2</div>
+            <h2>5 Gewinnt (Gobang)</h2>
+            <div class="game-preview">
+                <div class="gobang-board">
+                    <div class="gobang-grid">
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection black"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection white"></div>
+                        <div class="intersection black"></div>
+                        <div class="intersection white"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection white"></div>
+                        <div class="intersection black"></div>
+                        <div class="intersection white"></div>
+                        <div class="intersection black"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection white"></div>
+                        <div class="intersection black"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                        <div class="intersection"></div>
+                    </div>
+                </div>
+            </div>
+            <p>Setze fünf Steine in eine Reihe auf dem Go-Brett!</p>
+        </div>
+
+        <div class="game-card" data-game="trio" data-key="3" tabindex="0">
+            <div class="game-number">3</div>
+            <h2>Trio</h2>
+            <div class="game-preview">
+                <div class="trio-board">
+                    <div class="trio-grid">
+                        <div class="trio-tile red">3</div>
+                        <div class="trio-tile blue">7</div>
+                        <div class="trio-tile green">2</div>
+                        <div class="trio-tile yellow">9</div>
+                        <div class="trio-tile red">5</div>
+                        <div class="trio-tile blue">1</div>
+                        <div class="trio-tile green">8</div>
+                        <div class="trio-tile yellow">4</div>
+                        <div class="trio-tile red">6</div>
+                    </div>
+                </div>
+            </div>
+            <p>Mathematisches Strategiespiel mit Zahlen und Farben!</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Verwende die Tasten 1-3 oder klicke auf ein Spiel zum Starten</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
