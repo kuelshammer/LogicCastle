@@ -4,36 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4 Gewinnt - LogicCastle</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-        }
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            color: #333;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .back-button:hover {
-            background: #f0f0f0;
-        }
-    </style>
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/ui.css">
 </head>
 <body>
-    <a href="../../index.html" class="back-button">← Zurück</a>
-    <h1>🔴 4 Gewinnt</h1>
-    <p>Spiel wird bald implementiert...</p>
+    <div class="game-container">
+        <header class="game-header">
+            <a href="../../index.html" class="back-button">← Zurück</a>
+            <h1>🔴 4 Gewinnt</h1>
+            <div class="game-mode-selector">
+                <select id="gameMode">
+                    <option value="two-player">2 Spieler</option>
+                    <option value="two-player-hints">2 Spieler mit Hilfen</option>
+                    <option value="vs-bot-easy">vs Bot (Einfach)</option>
+                    <option value="vs-bot-medium">vs Bot (Mittel)</option>
+                    <option value="vs-bot-hard">vs Bot (Schwer)</option>
+                    <option value="vs-bot-expert">vs Bot (Experte)</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <div class="game-info">
+                <div class="current-player">
+                    <span class="player-indicator" id="currentPlayerIndicator">
+                        <span class="player-stone red"></span>
+                        <span class="player-name">Spieler 1</span>
+                    </span>
+                </div>
+                <div class="game-status" id="gameStatus">Spiel läuft...</div>
+                <div class="score-board">
+                    <div class="score red">
+                        <span class="score-label">Rot:</span>
+                        <span class="score-value" id="redScore">0</span>
+                    </div>
+                    <div class="score yellow">
+                        <span class="score-label">Gelb:</span>
+                        <span class="score-value" id="yellowScore">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div class="column-indicators" id="columnIndicators">
+                    <div class="column-indicator" data-col="0"></div>
+                    <div class="column-indicator" data-col="1"></div>
+                    <div class="column-indicator" data-col="2"></div>
+                    <div class="column-indicator" data-col="3"></div>
+                    <div class="column-indicator" data-col="4"></div>
+                    <div class="column-indicator" data-col="5"></div>
+                    <div class="column-indicator" data-col="6"></div>
+                </div>
+                
+                <div class="game-board" id="gameBoard">
+                    <!-- 6 rows × 7 columns = 42 cells -->
+                    <!-- Generated dynamically by JavaScript -->
+                </div>
+
+                <div class="hints-overlay" id="hintsOverlay" style="display: none;">
+                    <!-- Hints will be shown here -->
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn btn-primary" id="newGameBtn">Neues Spiel</button>
+                <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig</button>
+                <button class="btn btn-secondary" id="hintsToggle" style="display: none;">Hilfen An/Aus</button>
+            </div>
+
+            <div class="help-panel" id="helpPanel" style="display: none;">
+                <h3>Hilfen</h3>
+                <div class="help-content">
+                    <div class="threat-warning" id="threatWarning" style="display: none;">
+                        ⚠️ Achtung: Gegner kann gewinnen!
+                    </div>
+                    <div class="strategy-hint" id="strategyHint" style="display: none;">
+                        💡 Tipp: Spiele in der Mitte für bessere Chancen
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/helpers.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        // Initialize game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const game = new Connect4Game();
+            const ui = new Connect4UI(game);
+            ui.init();
+        });
+    </script>
 </body>
 </html>
