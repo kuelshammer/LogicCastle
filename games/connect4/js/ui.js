@@ -21,6 +21,7 @@ class Connect4UI {
         
         // Bind methods
         this.handleColumnClick = this.handleColumnClick.bind(this);
+        this.handleCellClick = this.handleCellClick.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.handleNewGame = this.handleNewGame.bind(this);
         this.handleUndo = this.handleUndo.bind(this);
@@ -60,6 +61,10 @@ class Connect4UI {
                 cell.className = 'cell';
                 cell.dataset.row = row;
                 cell.dataset.col = col;
+                
+                // Add click handler for column selection
+                cell.addEventListener('click', () => this.handleCellClick(col));
+                
                 this.boardElement.appendChild(cell);
             }
         }
@@ -116,10 +121,32 @@ class Connect4UI {
     }
     
     /**
-     * Handle column click/selection
+     * Handle column click/selection (from column indicators)
      */
     handleColumnClick(col) {
         if (this.isAnimating || this.aiThinking || this.game.gameOver) {
+            return;
+        }
+        
+        if (this.selectedColumn === col) {
+            // Second click on same column - make the move
+            this.makePlayerMove(col);
+            this.clearColumnSelection();
+        } else {
+            // First click or different column - select it
+            this.selectColumn(col);
+        }
+    }
+    
+    /**
+     * Handle cell click in game board (for column selection)
+     */
+    handleCellClick(col) {
+        if (this.isAnimating || this.aiThinking || this.game.gameOver) {
+            return;
+        }
+        
+        if (this.game.isColumnFull(col)) {
             return;
         }
         
@@ -428,8 +455,13 @@ class Connect4UI {
                 const cell = this.getCellElement(row, col);
                 const player = this.game.board[row][col];
                 
-                // Remove existing player classes
-                cell.classList.remove('red', 'yellow');
+                // Remove existing player and selection classes
+                cell.classList.remove('red', 'yellow', 'column-selected');
+                
+                // Add selection highlight for the entire column
+                if (this.selectedColumn === col && !this.game.isColumnFull(col) && !this.game.gameOver) {
+                    cell.classList.add('column-selected');
+                }
                 
                 // Add appropriate class if cell is occupied
                 if (player !== this.game.EMPTY) {
