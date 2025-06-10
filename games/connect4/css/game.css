@@ -256,6 +256,23 @@
     cursor: not-allowed;
 }
 
+.game-board {
+    position: relative;
+}
+
+.column-highlight {
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    border: 3px solid white;
+    border-radius: 15px;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
 @keyframes winPulse {
     from {
         transform: scale(1);

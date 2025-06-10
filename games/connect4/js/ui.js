@@ -295,6 +295,7 @@ class Connect4UI {
         
         this.selectedColumn = col;
         this.updateColumnIndicators();
+        this.updateColumnHighlight();
     }
     
     /**
@@ -303,6 +304,7 @@ class Connect4UI {
     clearColumnSelection() {
         this.selectedColumn = null;
         this.updateColumnIndicators();
+        this.updateColumnHighlight();
     }
     
     /**
@@ -483,7 +485,7 @@ class Connect4UI {
                 // Remove existing player and selection classes
                 cell.classList.remove('red', 'yellow', 'column-selected');
                 
-                // Add selection highlight for the entire column
+                // Add selection highlight for individual cells
                 if (this.selectedColumn === col && !this.game.isColumnFull(col) && !this.game.gameOver) {
                     cell.classList.add('column-selected');
                 }
@@ -492,6 +494,48 @@ class Connect4UI {
                 if (player !== this.game.EMPTY) {
                     cell.classList.add(this.game.getPlayerColorClass(player));
                 }
+            }
+        }
+        
+        // Update column highlight overlay
+        this.updateColumnHighlight();
+    }
+    
+    /**
+     * Update the column highlight overlay
+     */
+    updateColumnHighlight() {
+        // Remove existing column highlight
+        const existingHighlight = this.boardElement.querySelector('.column-highlight');
+        if (existingHighlight) {
+            existingHighlight.remove();
+        }
+        
+        // Add new column highlight if column is selected
+        if (this.selectedColumn !== null && 
+            !this.game.isColumnFull(this.selectedColumn) && 
+            !this.game.gameOver) {
+            
+            const highlight = document.createElement('div');
+            highlight.className = 'column-highlight';
+            
+            // Get all cells in the selected column to determine bounds
+            const topCell = this.getCellElement(0, this.selectedColumn);
+            const bottomCell = this.getCellElement(this.game.ROWS - 1, this.selectedColumn);
+            
+            if (topCell && bottomCell) {
+                const topRect = topCell.getBoundingClientRect();
+                const bottomRect = bottomCell.getBoundingClientRect();
+                const boardRect = this.boardElement.getBoundingClientRect();
+                
+                // Calculate exact column position and width
+                const leftPosition = topRect.left - boardRect.left - 8;
+                const width = topRect.width + 16;
+                
+                highlight.style.left = `${leftPosition}px`;
+                highlight.style.width = `${width}px`;
+                
+                this.boardElement.appendChild(highlight);
             }
         }
     }
@@ -566,8 +610,14 @@ class Connect4UI {
     
     clearBoard() {
         this.boardElement.querySelectorAll('.cell').forEach(cell => {
-            cell.classList.remove('red', 'yellow', 'winning', 'stone-drop');
+            cell.classList.remove('red', 'yellow', 'winning', 'stone-drop', 'column-selected');
         });
+        
+        // Remove column highlight
+        const existingHighlight = this.boardElement.querySelector('.column-highlight');
+        if (existingHighlight) {
+            existingHighlight.remove();
+        }
     }
     
     removePieceFromBoard(row, col) {
