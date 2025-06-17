@@ -185,9 +185,60 @@ testScenario('Diagonal winning opportunity', (game) => {
     game.currentPlayer = game.PLAYER2; // Bot's turn
 });
 
+// Test 7: Level 2 - Bot avoids trap
+testScenario('Level 2: Bot avoids trap move', (game) => {
+    // Create a situation where some moves lead to traps
+    // Red has potential to create a winning setup if Yellow plays in wrong column
+    game.board[5][0] = game.PLAYER1; // Red
+    game.board[5][1] = game.PLAYER1; // Red
+    game.board[4][1] = game.PLAYER2; // Yellow (blocks vertical)
+    game.board[5][3] = game.PLAYER2; // Yellow
+    game.board[5][4] = game.PLAYER1; // Red
+    game.board[5][5] = game.PLAYER1; // Red
+    
+    // If Yellow plays column 2, Red can win immediately with column 2 or 6
+    // If Yellow plays column 6, Red can win immediately with column 6
+    // Column 0 might be safer for Yellow
+    
+    game.currentPlayer = game.PLAYER2; // Bot's turn
+});
+
+// Test 8: Level 2 - Trapped situation
+testScenario('Level 2: Bot recognizes trapped situation', (game) => {
+    // Create a situation where ALL moves lead to opponent wins
+    game.board[5][0] = game.PLAYER1; // Red
+    game.board[5][1] = game.PLAYER1; // Red
+    game.board[5][2] = game.PLAYER1; // Red
+    // Column 3 would let Red win immediately
+    
+    game.board[5][4] = game.PLAYER1; // Red
+    game.board[5][5] = game.PLAYER1; // Red
+    // Column 6 would let Red win immediately
+    
+    // Yellow is trapped - any move lets Red win
+    game.currentPlayer = game.PLAYER2; // Bot's turn
+});
+
+// Test 9: Level 2 - Safe moves only
+testScenario('Level 2: Bot chooses from safe moves only', (game) => {
+    // Setup where some moves are safe, others are traps
+    game.board[5][1] = game.PLAYER1; // Red
+    game.board[5][2] = game.PLAYER1; // Red
+    // Column 3 is blocked below, so if Yellow plays there, Red can't immediately win
+    game.board[5][3] = game.PLAYER2; // Yellow blocks
+    game.board[4][3] = game.PLAYER1; // Red above
+    
+    // Column 0 might create a trap for Yellow
+    // Columns 4, 5, 6 might be safer
+    
+    game.currentPlayer = game.PLAYER2; // Bot's turn
+});
+
 console.log('🏁 All tests completed!');
 console.log('\n📊 Expected behavior:');
 console.log('1. Bot should ALWAYS choose winning moves when available (Level 0)');
 console.log('2. Bot should BLOCK opponent threats when no win available (Level 1)');
-console.log('3. Bot should play RANDOMLY when no critical moves exist');
-console.log('4. Winning moves should take PRIORITY over blocking moves');
+console.log('3. Bot should AVOID TRAPS when no critical moves exist (Level 2)');
+console.log('4. Bot should play RANDOMLY only when no strategic moves found');
+console.log('5. Priority order: WIN > BLOCK > SAFE > RANDOM');
+console.log('6. Bot should recognize when trapped and show appropriate warning');

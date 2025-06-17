@@ -451,6 +451,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 80px; /* Ensure readable width for 4 columns */
 }
 
 .help-table th small {
@@ -602,6 +603,17 @@
     .game-board-container {
         order: 1;
     }
+    
+    /* Compact help table on tablets */
+    .help-table th,
+    .help-table td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .help-table th {
+        min-width: 70px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -632,6 +644,21 @@
     .column-indicators {
         grid-template-columns: repeat(7, 45px);
         gap: 6px;
+    }
+    
+    /* Very compact help table on mobile */
+    .help-table th,
+    .help-table td {
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .help-table th {
+        min-width: 60px;
+    }
+    
+    .help-table th small {
+        font-size: 0.7rem;
     }
 }
 

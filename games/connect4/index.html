@@ -72,6 +72,7 @@
                                 <th>Spieler</th>
                                 <th>Level 0<br><small>Gewinnzüge</small></th>
                                 <th>Level 1<br><small>Bedrohungen</small></th>
+                                <th>Level 2<br><small>Fallen</small></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,6 +93,12 @@
                                            tabindex="2" accesskey="2">
                                     <label for="helpPlayer1Level1" class="help-checkbox-label"></label>
                                 </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer1Level2" 
+                                           class="help-checkbox-input" 
+                                           tabindex="3" accesskey="3">
+                                    <label for="helpPlayer1Level2" class="help-checkbox-label"></label>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="player-label">
@@ -101,14 +108,20 @@
                                 <td class="help-cell">
                                     <input type="checkbox" id="helpPlayer2Level0" 
                                            class="help-checkbox-input" 
-                                           tabindex="3" accesskey="3">
+                                           tabindex="4" accesskey="4">
                                     <label for="helpPlayer2Level0" class="help-checkbox-label"></label>
                                 </td>
                                 <td class="help-cell">
                                     <input type="checkbox" id="helpPlayer2Level1" 
                                            class="help-checkbox-input" 
-                                           tabindex="4" accesskey="4">
+                                           tabindex="5" accesskey="5">
                                     <label for="helpPlayer2Level1" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer2Level2" 
+                                           class="help-checkbox-input" 
+                                           tabindex="6" accesskey="6">
+                                    <label for="helpPlayer2Level2" class="help-checkbox-label"></label>
                                 </td>
                             </tr>
                         </tbody>
@@ -120,14 +133,17 @@
                         <div class="legend-item">
                             <strong>Level 1:</strong> Blockiert gegnerische Bedrohungen
                         </div>
+                        <div class="legend-item">
+                            <strong>Level 2:</strong> Vermeidet Fallen (Look-ahead)
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="game-controls">
-                <button class="btn btn-primary" id="newGameBtn" tabindex="5">Neues Spiel</button>
-                <button class="btn btn-secondary" id="undoBtn" tabindex="6" disabled>Rückgängig</button>
-                <button class="btn btn-info" id="helpBtn" tabindex="7">Hilfe (F1)</button>
+                <button class="btn btn-primary" id="newGameBtn" tabindex="7">Neues Spiel</button>
+                <button class="btn btn-secondary" id="undoBtn" tabindex="8" disabled>Rückgängig</button>
+                <button class="btn btn-info" id="helpBtn" tabindex="9">Hilfe (F1)</button>
             </div>
 
             <div class="help-panel" id="helpPanel" style="display: none;">

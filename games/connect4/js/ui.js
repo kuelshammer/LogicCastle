@@ -23,18 +23,22 @@ class Connect4UI {
         this.playerHelpEnabled = {
             player1: {
                 level0: false,  // Winning opportunities
-                level1: false   // Block threats
+                level1: false,  // Block threats
+                level2: false   // Avoid traps
             },
             player2: {
                 level0: false,  // Winning opportunities  
-                level1: false   // Block threats
+                level1: false,  // Block threats
+                level2: false   // Avoid traps
             }
         };
         // New help table checkboxes
         this.helpPlayer1Level0 = null;
         this.helpPlayer1Level1 = null;
+        this.helpPlayer1Level2 = null;
         this.helpPlayer2Level0 = null;
         this.helpPlayer2Level1 = null;
+        this.helpPlayer2Level2 = null;
         
         this.isAnimating = false;
         this.aiThinking = false;
@@ -51,8 +55,10 @@ class Connect4UI {
         this.handleUndo = this.handleUndo.bind(this);
         this.handlePlayer1Level0Toggle = this.handlePlayer1Level0Toggle.bind(this);
         this.handlePlayer1Level1Toggle = this.handlePlayer1Level1Toggle.bind(this);
+        this.handlePlayer1Level2Toggle = this.handlePlayer1Level2Toggle.bind(this);
         this.handlePlayer2Level0Toggle = this.handlePlayer2Level0Toggle.bind(this);
         this.handlePlayer2Level1Toggle = this.handlePlayer2Level1Toggle.bind(this);
+        this.handlePlayer2Level2Toggle = this.handlePlayer2Level2Toggle.bind(this);
         this.handleHelp = this.handleHelp.bind(this);
         this.handleGameModeChange = this.handleGameModeChange.bind(this);
     }
@@ -121,8 +127,10 @@ class Connect4UI {
         this.closeHelpBtn = document.getElementById('closeHelpBtn');
         this.helpPlayer1Level0 = document.getElementById('helpPlayer1Level0');
         this.helpPlayer1Level1 = document.getElementById('helpPlayer1Level1');
+        this.helpPlayer1Level2 = document.getElementById('helpPlayer1Level2');
         this.helpPlayer2Level0 = document.getElementById('helpPlayer2Level0');
         this.helpPlayer2Level1 = document.getElementById('helpPlayer2Level1');
+        this.helpPlayer2Level2 = document.getElementById('helpPlayer2Level2');
         this.gameModeSelect = document.getElementById('gameModeSelect');
     }
     
@@ -158,8 +166,10 @@ class Connect4UI {
         // Help checkbox event listeners
         this.helpPlayer1Level0.addEventListener('change', this.handlePlayer1Level0Toggle);
         this.helpPlayer1Level1.addEventListener('change', this.handlePlayer1Level1Toggle);
+        this.helpPlayer1Level2.addEventListener('change', this.handlePlayer1Level2Toggle);
         this.helpPlayer2Level0.addEventListener('change', this.handlePlayer2Level0Toggle);
         this.helpPlayer2Level1.addEventListener('change', this.handlePlayer2Level1Toggle);
+        this.helpPlayer2Level2.addEventListener('change', this.handlePlayer2Level2Toggle);
         
         // Game mode selector
         this.gameModeSelect.addEventListener('change', this.handleGameModeChange);
@@ -194,6 +204,22 @@ class Connect4UI {
                 e.preventDefault();
                 this.helpPlayer2Level1.checked = !this.helpPlayer2Level1.checked;
                 this.handlePlayer2Level1Toggle();
+            }
+        });
+        
+        this.helpPlayer1Level2.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.helpPlayer1Level2.checked = !this.helpPlayer1Level2.checked;
+                this.handlePlayer1Level2Toggle();
+            }
+        });
+        
+        this.helpPlayer2Level2.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.helpPlayer2Level2.checked = !this.helpPlayer2Level2.checked;
+                this.handlePlayer2Level2Toggle();
             }
         });
         
@@ -389,9 +415,10 @@ class Connect4UI {
             const player2Row = this.helpPlayer2Level0.closest('tr');
             if (player2Row) player2Row.style.display = 'none';
             
-            // Bot automatically has Level 0 + 1 help enabled
+            // Bot automatically has Level 0 + 1 + 2 help enabled
             this.playerHelpEnabled.player2.level0 = true;
             this.playerHelpEnabled.player2.level1 = true;
+            this.playerHelpEnabled.player2.level2 = true;
         } else {
             // For two-player mode, show all help controls
             const player1Row = this.helpPlayer1Level0.closest('tr');
@@ -513,6 +540,24 @@ class Connect4UI {
     }
     
     /**
+     * Handle Player 1 Level 2 help toggle
+     */
+    handlePlayer1Level2Toggle() {
+        this.playerHelpEnabled.player1.level2 = this.helpPlayer1Level2.checked;
+        this.updateHelpers();
+        console.log('Player 1 Level 2 help:', this.playerHelpEnabled.player1.level2 ? 'enabled' : 'disabled');
+    }
+    
+    /**
+     * Handle Player 2 Level 2 help toggle
+     */
+    handlePlayer2Level2Toggle() {
+        this.playerHelpEnabled.player2.level2 = this.helpPlayer2Level2.checked;
+        this.updateHelpers();
+        console.log('Player 2 Level 2 help:', this.playerHelpEnabled.player2.level2 ? 'enabled' : 'disabled');
+    }
+    
+    /**
      * Update helpers system based on current player and their help settings
      */
     updateHelpers() {
@@ -520,7 +565,8 @@ class Connect4UI {
         
         // Determine the highest help level enabled for this player
         let helpLevel = -1;
-        if (currentPlayerHelp.level1) helpLevel = 1;
+        if (currentPlayerHelp.level2) helpLevel = 2;
+        if (currentPlayerHelp.level1) helpLevel = Math.max(helpLevel, 1);
         if (currentPlayerHelp.level0) helpLevel = Math.max(helpLevel, 0);
         
         if (helpLevel >= 0) {
@@ -548,7 +594,7 @@ class Connect4UI {
      */
     getCurrentPlayerHelpEnabled() {
         const settings = this.getCurrentPlayerHelpSettings();
-        return settings.level0 || settings.level1;
+        return settings.level0 || settings.level1 || settings.level2;
     }
     
     /**

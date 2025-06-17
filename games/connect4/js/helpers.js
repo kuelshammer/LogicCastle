@@ -73,6 +73,11 @@ class Connect4Helpers {
             this.checkForcedMoves();
         }
         
+        // Check for trap avoidance (Level 2+) - only if no higher priority moves found
+        if (this.helpLevel >= 2 && !this.forcedMoveMode) {
+            this.checkTrapAvoidance();
+        }
+        
         // Only analyze other hints if not in forced move mode
         if (!this.forcedMoveMode) {
             this.analyzeThreats();
@@ -214,6 +219,193 @@ class Connect4Helpers {
                 this.emit('forcedMoveDeactivated');
             }
         }
+    }
+
+    /**
+     * Check for trap avoidance (Level 2 help: avoid moves that allow opponent to win next turn)
+     */
+    checkTrapAvoidance() {
+        // Check if current player has help enabled
+        if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
+            return; // No help for this player
+        }
+        
+        const validMoves = this.game.getValidMoves();
+        const safeMoves = [];
+        const dangerousMoves = [];
+        
+        // Analyze each possible move for safety
+        for (const col of validMoves) {
+            if (this.isMoveUnsafe(col)) {
+                dangerousMoves.push({
+                    column: col,
+                    reason: 'Allows opponent to win next turn'
+                });
+            } else {
+                safeMoves.push({
+                    column: col,
+                    reason: 'Safe move - no immediate counter-threat'
+                });
+            }
+        }
+        
+        // Determine action based on safe moves availability
+        if (safeMoves.length === 0) {
+            // All moves are dangerous - player is trapped!
+            console.log('⚠️ Level 2: Player is TRAPPED - all moves lead to opponent wins');
+            this.handleTrappedSituation(dangerousMoves);
+        } else if (dangerousMoves.length > 0) {
+            // Some moves are dangerous - filter them out
+            console.log('🛡️ Level 2: Filtering out dangerous moves:', dangerousMoves.map(m => m.column));
+            this.forcedMoveMode = true;
+            this.requiredMoves = safeMoves.map(move => move.column);
+            
+            // Add these as safe move recommendations
+            this.currentHints.suggestions = [{
+                type: 'trap_avoidance',
+                message: `⚠️ Vermeide Spalten ${dangerousMoves.map(m => m.column + 1).join(', ')} - Gegnerfallen!`,
+                priority: 'medium',
+                safeMoves: this.requiredMoves
+            }];
+            
+            // Emit trap avoidance event for UI
+            this.emit('trapAvoidanceActivated', {
+                requiredMoves: this.requiredMoves,
+                dangerousMoves: dangerousMoves.map(m => m.column),
+                reason: 'Avoiding opponent traps'
+            });
+            
+            console.log('🎯 Level 2: Safe moves only:', this.requiredMoves);
+        } else {
+            // All moves are safe - no action needed
+            console.log('✅ Level 2: All moves are safe - no traps detected');
+        }
+    }
+    
+    /**
+     * Check if a move is unsafe (allows opponent to win on next turn)
+     * @param {number} col - Column to check
+     * @returns {boolean} - True if move is unsafe
+     */
+    isMoveUnsafe(col) {
+        // First, simulate our move
+        const result = this.game.simulateMove(col);
+        if (!result.success) {
+            return true; // Invalid move is unsafe
+        }
+        
+        if (result.wouldWin) {
+            return false; // Winning moves are always safe (Level 0 should handle this)
+        }
+        
+        // Create board state after our move
+        const boardCopy = this.copyBoard(this.game.board);
+        const row = this.getLowestEmptyRow(boardCopy, col);
+        if (row === -1) return true; // Column full
+        
+        // Place our piece
+        boardCopy[row][col] = this.game.currentPlayer;
+        
+        // Now check all possible opponent responses
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
+                         this.game.PLAYER2 : this.game.PLAYER1;
+        
+        const opponentMoves = this.getValidMovesForBoard(boardCopy);
+        
+        for (const opponentCol of opponentMoves) {
+            if (this.wouldMoveWinOnBoard(boardCopy, opponentCol, opponent)) {
+                return true; // Opponent can win - our move is unsafe
+            }
+        }
+        
+        return false; // No opponent winning responses - move is safe
+    }
+    
+    /**
+     * Handle situation where player is completely trapped
+     * @param {Array} dangerousMoves - All available moves (all dangerous)
+     */
+    handleTrappedSituation(dangerousMoves) {
+        // Player is trapped - still need to make a move
+        // Choose the "least bad" option or let them choose
+        this.forcedMoveMode = false; // Don't force specific moves when trapped
+        this.requiredMoves = [];
+        
+        // Add warning about trapped situation
+        this.currentHints.suggestions = [{
+            type: 'trapped_warning',
+            message: '🚨 GEFANGEN! Alle Züge erlauben dem Gegner zu gewinnen. Wähle den besten schlechten Zug.',
+            priority: 'critical',
+            trappedMoves: dangerousMoves.map(m => m.column)
+        }];
+        
+        // Emit trapped event for UI
+        this.emit('playerTrapped', {
+            dangerousMoves: dangerousMoves.map(m => m.column),
+            message: 'All moves lead to opponent wins'
+        });
+    }
+    
+    /**
+     * Copy game board
+     * @param {Array} board - Original board
+     * @returns {Array} - Copied board
+     */
+    copyBoard(board) {
+        return board.map(row => [...row]);
+    }
+    
+    /**
+     * Get valid moves for a given board state
+     * @param {Array} board - Board state
+     * @returns {Array} - Valid column indices
+     */
+    getValidMovesForBoard(board) {
+        const validMoves = [];
+        for (let col = 0; col < this.game.COLS; col++) {
+            if (board[0][col] === this.game.EMPTY) {
+                validMoves.push(col);
+            }
+        }
+        return validMoves;
+    }
+    
+    /**
+     * Get lowest empty row in column for given board
+     * @param {Array} board - Board state
+     * @param {number} col - Column index
+     * @returns {number} - Row index or -1 if column full
+     */
+    getLowestEmptyRow(board, col) {
+        for (let row = this.game.ROWS - 1; row >= 0; row--) {
+            if (board[row][col] === this.game.EMPTY) {
+                return row;
+            }
+        }
+        return -1;
+    }
+    
+    /**
+     * Check if a move would win on a given board state
+     * @param {Array} board - Board state
+     * @param {number} col - Column to check
+     * @param {number} player - Player making the move
+     * @returns {boolean} - True if move would win
+     */
+    wouldMoveWinOnBoard(board, col, player) {
+        const row = this.getLowestEmptyRow(board, col);
+        if (row === -1) return false; // Column full
+        
+        // Temporarily place piece
+        board[row][col] = player;
+        
+        // Check for win
+        const isWin = this.checkWinAtPosition(row, col, player);
+        
+        // Remove piece
+        board[row][col] = this.game.EMPTY;
+        
+        return isWin;
     }
     
     /**

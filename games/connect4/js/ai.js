@@ -102,11 +102,32 @@ class Connect4AI {
                 return chosenMove;
             }
             
+            // PRIORITY 3: Check Level 2 - Avoid traps (safe moves only)
+            helpers.setEnabled(true, 2);
+            helpers.updateHints(); // Force update to get trap analysis
+            
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🤖 Smart Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
+                
+                // IMPORTANT: Copy the moves array BEFORE restoring state
+                const safeMoves = [...helpers.requiredMoves];
+                console.log('🤖 Smart Bot: Copied safe moves:', safeMoves, 'length:', safeMoves.length);
+                
+                // Restore original helpers state
+                helpers.setEnabled(wasEnabled, wasLevel);
+                
+                // Choose randomly among safe moves if multiple exist
+                const randomIndex = Math.floor(Math.random() * safeMoves.length);
+                const chosenMove = safeMoves[randomIndex];
+                console.log('🤖 Smart Bot: Random safe move index:', randomIndex, 'chosen move:', chosenMove);
+                return chosenMove;
+            }
+            
             // Restore original helpers state
             helpers.setEnabled(wasEnabled, wasLevel);
         }
         
-        // PRIORITY 3: No winning moves or threats - make random move
+        // PRIORITY 4: No critical moves found - make random move
         console.log('🤖 Smart Bot: No critical moves, playing RANDOM');
         return this.getRandomMove(game);
     }
