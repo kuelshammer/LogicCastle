@@ -47,7 +47,7 @@ class Connect4Game {
     }
     
     /**
-     * Reset game to initial state
+     * Reset game to initial state (next game - loser starts)
      */
     resetGame() {
         this.initializeBoard();
@@ -67,6 +67,33 @@ class Connect4Game {
         this.winningCells = [];
         this.moveHistory = [];
         this.emit('gameReset');
+        this.emit('playerChanged', this.currentPlayer);
+        this.emit('boardStateChanged', {
+            board: this.getBoard(),
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver
+        });
+    }
+    
+    /**
+     * Full reset - scores back to 0:0, Red starts first
+     */
+    fullReset() {
+        this.initializeBoard();
+        
+        // Reset all game state
+        this.gameOver = false;
+        this.winner = null;
+        this.winningCells = [];
+        this.moveHistory = [];
+        
+        // Reset scores and player configuration
+        this.scores = { red: 0, yellow: 0, draws: 0 };
+        this.playerConfig.lastWinner = null;
+        this.playerConfig.startingPlayer = this.PLAYER1; // Red starts first
+        this.currentPlayer = this.PLAYER1;
+        
+        this.emit('fullReset');
         this.emit('playerChanged', this.currentPlayer);
         this.emit('boardStateChanged', {
             board: this.getBoard(),

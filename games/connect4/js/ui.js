@@ -10,6 +10,7 @@ class Connect4UI {
         this.gameStatus = null;
         this.scoreElements = {};
         this.newGameBtn = null;
+        this.resetScoreBtn = null;
         this.undoBtn = null;
         this.hintsToggle = null;
         this.helpBtn = null;
@@ -52,6 +53,7 @@ class Connect4UI {
         this.handleCellClick = this.handleCellClick.bind(this);
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.handleNewGame = this.handleNewGame.bind(this);
+        this.handleResetScore = this.handleResetScore.bind(this);
         this.handleUndo = this.handleUndo.bind(this);
         this.handlePlayer1Level0Toggle = this.handlePlayer1Level0Toggle.bind(this);
         this.handlePlayer1Level1Toggle = this.handlePlayer1Level1Toggle.bind(this);
@@ -79,6 +81,7 @@ class Connect4UI {
         this.game.on('gameDraw', () => this.onGameDraw());
         this.game.on('playerChanged', (player) => this.onPlayerChanged(player));
         this.game.on('gameReset', () => this.onGameReset());
+        this.game.on('fullReset', () => this.onFullReset());
         this.game.on('moveUndone', (move) => this.onMoveUndone(move));
         
         // Setup helpers event listeners
@@ -121,6 +124,7 @@ class Connect4UI {
             yellow: document.getElementById('yellowScore')
         };
         this.newGameBtn = document.getElementById('newGameBtn');
+        this.resetScoreBtn = document.getElementById('resetScoreBtn');
         this.undoBtn = document.getElementById('undoBtn');
         this.helpBtn = document.getElementById('helpBtn');
         this.helpModal = document.getElementById('helpModal');
@@ -154,6 +158,7 @@ class Connect4UI {
         
         // UI controls
         this.newGameBtn.addEventListener('click', this.handleNewGame);
+        this.resetScoreBtn.addEventListener('click', this.handleResetScore);
         this.undoBtn.addEventListener('click', this.handleUndo);
         this.helpBtn.addEventListener('click', this.handleHelp);
         this.closeHelpBtn.addEventListener('click', this.handleHelp);
@@ -483,12 +488,23 @@ class Connect4UI {
     }
     
     /**
-     * Handle new game button
+     * Handle new game button (next game - loser starts)
      */
     handleNewGame() {
         if (this.isAnimating) return;
         
         this.game.resetGame();
+        this.updateButtonTexts();
+    }
+    
+    /**
+     * Handle reset score button (full reset - scores 0:0, Red starts)
+     */
+    handleResetScore() {
+        if (this.isAnimating) return;
+        
+        this.game.fullReset();
+        this.updateButtonTexts();
     }
     
     /**
@@ -629,12 +645,14 @@ class Connect4UI {
         this.updateGameStatus(`${displayName} gewinnt!`);
         this.showGameOverMessage(`🎉 ${displayName} gewinnt!`);
         this.updateUI();
+        this.updateButtonTexts();
     }
     
     onGameDraw() {
         this.updateGameStatus('Unentschieden!');
         this.showGameOverMessage('🤝 Unentschieden!');
         this.updateUI();
+        this.updateButtonTexts();
     }
     
     onPlayerChanged(player) {
@@ -654,8 +672,23 @@ class Connect4UI {
         this.hideGameOverMessage();
         this.clearColumnSelection();
         this.updateUI();
+        this.updateButtonTexts();
         
         // Check if AI should make the first move after reset
+        if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+            setTimeout(() => this.makeAIMove(), 500);
+        }
+    }
+    
+    onFullReset() {
+        this.clearBoard();
+        this.clearWinHighlights();
+        this.hideGameOverMessage();
+        this.clearColumnSelection();
+        this.updateUI();
+        this.updateButtonTexts();
+        
+        // Check if AI should make the first move after full reset
         if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
             setTimeout(() => this.makeAIMove(), 500);
         }
@@ -723,6 +756,7 @@ class Connect4UI {
         this.updateGameStatus();
         this.updateScores();
         this.updateControls();
+        this.updateButtonTexts();
     }
     
     updateBoard() {
@@ -838,6 +872,22 @@ class Connect4UI {
     
     updateControls() {
         this.undoBtn.disabled = this.game.moveHistory.length === 0 || this.game.gameOver || this.aiThinking;
+    }
+    
+    /**
+     * Update button texts based on game state
+     */
+    updateButtonTexts() {
+        if (this.game.gameOver) {
+            // After game ended - offer next game
+            this.newGameBtn.textContent = 'Nächstes Spiel';
+        } else {
+            // During active game - offer new game
+            this.newGameBtn.textContent = 'Neues Spiel';
+        }
+        
+        // Reset button is always the same
+        this.resetScoreBtn.textContent = 'Score zurücksetzen';
     }
     
     /**

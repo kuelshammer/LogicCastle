@@ -32,11 +32,11 @@
                 <div class="game-status" id="gameStatus">Spiel läuft...</div>
                 <div class="score-board">
                     <div class="score red">
-                        <span class="score-label">🔴:</span>
+                        <span class="score-label">🔴</span>
                         <span class="score-value" id="redScore">0</span>
                     </div>
                     <div class="score yellow">
-                        <span class="score-label">🟡:</span>
+                        <span class="score-label">🟡</span>
                         <span class="score-value" id="yellowScore">0</span>
                     </div>
                 </div>
@@ -140,8 +140,9 @@
 
             <div class="game-controls">
                 <button class="btn btn-primary" id="newGameBtn" tabindex="7">Neues Spiel</button>
-                <button class="btn btn-secondary" id="undoBtn" tabindex="8" disabled>Rückgängig</button>
-                <button class="btn btn-info" id="helpBtn" tabindex="9">Hilfe (F1)</button>
+                <button class="btn btn-outline" id="resetScoreBtn" tabindex="8">Score zurücksetzen</button>
+                <button class="btn btn-secondary" id="undoBtn" tabindex="9" disabled>Rückgängig</button>
+                <button class="btn btn-info" id="helpBtn" tabindex="10">Hilfe (F1)</button>
             </div>
 
             <div class="help-panel" id="helpPanel" style="display: none;">
