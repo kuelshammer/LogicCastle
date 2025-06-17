@@ -19,14 +19,14 @@ class Connect4UI {
         this.gameMode = 'two-player';
         this.ai = null;
         
-        // Individual help settings per player and level
+        // Individual help settings per color and level
         this.playerHelpEnabled = {
-            player1: {
+            red: {
                 level0: false,  // Winning opportunities
                 level1: false,  // Block threats
                 level2: false   // Avoid traps
             },
-            player2: {
+            yellow: {
                 level0: false,  // Winning opportunities  
                 level1: false,  // Block threats
                 level2: false   // Avoid traps
@@ -411,20 +411,20 @@ class Connect4UI {
     updateGameModeUI() {
         // Update help controls visibility and settings based on mode
         if (this.gameMode === 'vs-bot-smart') {
-            // For bot mode, hide Player 2 help controls since bot manages its own help
-            const player2Row = this.helpPlayer2Level0.closest('tr');
-            if (player2Row) player2Row.style.display = 'none';
+            // For bot mode, hide Yellow (Player 2) help controls since bot manages its own help
+            const yellowRow = this.helpPlayer2Level0.closest('tr');
+            if (yellowRow) yellowRow.style.display = 'none';
             
             // Bot automatically has Level 0 + 1 + 2 help enabled
-            this.playerHelpEnabled.player2.level0 = true;
-            this.playerHelpEnabled.player2.level1 = true;
-            this.playerHelpEnabled.player2.level2 = true;
+            this.playerHelpEnabled.yellow.level0 = true;
+            this.playerHelpEnabled.yellow.level1 = true;
+            this.playerHelpEnabled.yellow.level2 = true;
         } else {
             // For two-player mode, show all help controls
-            const player1Row = this.helpPlayer1Level0.closest('tr');
-            const player2Row = this.helpPlayer2Level0.closest('tr');
-            if (player1Row) player1Row.style.display = '';
-            if (player2Row) player2Row.style.display = '';
+            const redRow = this.helpPlayer1Level0.closest('tr');
+            const yellowRow = this.helpPlayer2Level0.closest('tr');
+            if (redRow) redRow.style.display = '';
+            if (yellowRow) yellowRow.style.display = '';
         }
         
         this.updateHelpers();
@@ -504,57 +504,57 @@ class Connect4UI {
     }
     
     /**
-     * Handle Player 1 Level 0 help toggle
+     * Handle Red Player Level 0 help toggle
      */
     handlePlayer1Level0Toggle() {
-        this.playerHelpEnabled.player1.level0 = this.helpPlayer1Level0.checked;
+        this.playerHelpEnabled.red.level0 = this.helpPlayer1Level0.checked;
         this.updateHelpers();
-        console.log('Player 1 Level 0 help:', this.playerHelpEnabled.player1.level0 ? 'enabled' : 'disabled');
+        console.log('Red Level 0 help:', this.playerHelpEnabled.red.level0 ? 'enabled' : 'disabled');
     }
     
     /**
-     * Handle Player 1 Level 1 help toggle
+     * Handle Red Player Level 1 help toggle
      */
     handlePlayer1Level1Toggle() {
-        this.playerHelpEnabled.player1.level1 = this.helpPlayer1Level1.checked;
+        this.playerHelpEnabled.red.level1 = this.helpPlayer1Level1.checked;
         this.updateHelpers();
-        console.log('Player 1 Level 1 help:', this.playerHelpEnabled.player1.level1 ? 'enabled' : 'disabled');
+        console.log('Red Level 1 help:', this.playerHelpEnabled.red.level1 ? 'enabled' : 'disabled');
     }
     
     /**
-     * Handle Player 2 Level 0 help toggle
+     * Handle Yellow Player Level 0 help toggle
      */
     handlePlayer2Level0Toggle() {
-        this.playerHelpEnabled.player2.level0 = this.helpPlayer2Level0.checked;
+        this.playerHelpEnabled.yellow.level0 = this.helpPlayer2Level0.checked;
         this.updateHelpers();
-        console.log('Player 2 Level 0 help:', this.playerHelpEnabled.player2.level0 ? 'enabled' : 'disabled');
+        console.log('Yellow Level 0 help:', this.playerHelpEnabled.yellow.level0 ? 'enabled' : 'disabled');
     }
     
     /**
-     * Handle Player 2 Level 1 help toggle
+     * Handle Yellow Player Level 1 help toggle
      */
     handlePlayer2Level1Toggle() {
-        this.playerHelpEnabled.player2.level1 = this.helpPlayer2Level1.checked;
+        this.playerHelpEnabled.yellow.level1 = this.helpPlayer2Level1.checked;
         this.updateHelpers();
-        console.log('Player 2 Level 1 help:', this.playerHelpEnabled.player2.level1 ? 'enabled' : 'disabled');
+        console.log('Yellow Level 1 help:', this.playerHelpEnabled.yellow.level1 ? 'enabled' : 'disabled');
     }
     
     /**
-     * Handle Player 1 Level 2 help toggle
+     * Handle Red Player Level 2 help toggle
      */
     handlePlayer1Level2Toggle() {
-        this.playerHelpEnabled.player1.level2 = this.helpPlayer1Level2.checked;
+        this.playerHelpEnabled.red.level2 = this.helpPlayer1Level2.checked;
         this.updateHelpers();
-        console.log('Player 1 Level 2 help:', this.playerHelpEnabled.player1.level2 ? 'enabled' : 'disabled');
+        console.log('Red Level 2 help:', this.playerHelpEnabled.red.level2 ? 'enabled' : 'disabled');
     }
     
     /**
-     * Handle Player 2 Level 2 help toggle
+     * Handle Yellow Player Level 2 help toggle
      */
     handlePlayer2Level2Toggle() {
-        this.playerHelpEnabled.player2.level2 = this.helpPlayer2Level2.checked;
+        this.playerHelpEnabled.yellow.level2 = this.helpPlayer2Level2.checked;
         this.updateHelpers();
-        console.log('Player 2 Level 2 help:', this.playerHelpEnabled.player2.level2 ? 'enabled' : 'disabled');
+        console.log('Yellow Level 2 help:', this.playerHelpEnabled.yellow.level2 ? 'enabled' : 'disabled');
     }
     
     /**
@@ -585,8 +585,8 @@ class Connect4UI {
      */
     getCurrentPlayerHelpSettings() {
         return this.game.currentPlayer === this.game.PLAYER1 
-            ? this.playerHelpEnabled.player1 
-            : this.playerHelpEnabled.player2;
+            ? this.playerHelpEnabled.red 
+            : this.playerHelpEnabled.yellow;
     }
     
     /**
@@ -602,7 +602,7 @@ class Connect4UI {
      */
     getPlayerDisplayName(player) {
         if (this.gameMode === 'vs-bot-smart') {
-            return player === this.game.PLAYER1 ? 'Spieler 1' : '🤖 Smart Bot';
+            return player === this.game.PLAYER1 ? this.game.getPlayerName(player) : this.game.getPlayerName(player) + '🤖';
         } else {
             return this.game.getPlayerName(player);
         }
@@ -819,10 +819,10 @@ class Connect4UI {
     
     updateScores() {
         if (this.scoreElements.red) {
-            this.scoreElements.red.textContent = this.game.scores.player1;
+            this.scoreElements.red.textContent = this.game.scores.red;
         }
         if (this.scoreElements.yellow) {
-            this.scoreElements.yellow.textContent = this.game.scores.player2;
+            this.scoreElements.yellow.textContent = this.game.scores.yellow;
         }
     }
     

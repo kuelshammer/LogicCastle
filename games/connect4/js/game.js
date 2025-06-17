@@ -6,8 +6,8 @@ class Connect4Game {
         this.ROWS = 6;
         this.COLS = 7;
         this.EMPTY = 0;
-        this.PLAYER1 = 1; // Red
-        this.PLAYER2 = 2; // Yellow
+        this.PLAYER1 = 1; // Internal constant for red pieces
+        this.PLAYER2 = 2; // Internal constant for yellow pieces
         
         this.board = [];
         this.currentPlayer = this.PLAYER1;
@@ -15,7 +15,17 @@ class Connect4Game {
         this.winner = null;
         this.winningCells = [];
         this.moveHistory = [];
-        this.scores = { player1: 0, player2: 0, draws: 0 };
+        
+        // New flexible player configuration
+        this.playerConfig = {
+            redPlayer: '🔴',      // Player name for red pieces
+            yellowPlayer: '🟡',   // Player name for yellow pieces
+            lastWinner: null,     // Who won the last game
+            startingPlayer: this.PLAYER1 // Who starts the current game
+        };
+        
+        // Color-based scoring instead of player-number-based
+        this.scores = { red: 0, yellow: 0, draws: 0 };
         
         this.initializeBoard();
         
@@ -41,7 +51,17 @@ class Connect4Game {
      */
     resetGame() {
         this.initializeBoard();
-        this.currentPlayer = this.PLAYER1;
+        
+        // Determine starting player: loser of previous game starts, or configured starting player
+        if (this.playerConfig.lastWinner !== null) {
+            // Loser starts next game
+            this.currentPlayer = this.playerConfig.lastWinner === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+            this.playerConfig.startingPlayer = this.currentPlayer;
+        } else {
+            // First game or no previous winner (draw) - use configured starting player
+            this.currentPlayer = this.playerConfig.startingPlayer;
+        }
+        
         this.gameOver = false;
         this.winner = null;
         this.winningCells = [];
@@ -93,7 +113,12 @@ class Connect4Game {
         if (this.checkWin(row, col)) {
             this.gameOver = true;
             this.winner = this.currentPlayer;
-            this.scores[this.currentPlayer === this.PLAYER1 ? 'player1' : 'player2']++;
+            
+            // Update color-based scoring and track winner for next game
+            const winnerColor = this.currentPlayer === this.PLAYER1 ? 'red' : 'yellow';
+            this.scores[winnerColor]++;
+            this.playerConfig.lastWinner = this.currentPlayer;
+            
             this.emit('gameWon', { winner: this.winner, winningCells: this.winningCells });
             return { success: true, row, col, gameWon: true, winner: this.winner };
         }
@@ -102,6 +127,7 @@ class Connect4Game {
         if (this.isDraw()) {
             this.gameOver = true;
             this.scores.draws++;
+            // For draws, don't change lastWinner - keep current starting player for next game
             this.emit('gameDraw');
             return { success: true, row, col, gameDraw: true };
         }
@@ -390,8 +416,8 @@ class Connect4Game {
      * @returns {string} - Player name
      */
     getPlayerName(player) {
-        if (player === this.PLAYER1) return 'Spieler 1 (Rot)';
-        if (player === this.PLAYER2) return 'Spieler 2 (Gelb)';
+        if (player === this.PLAYER1) return this.playerConfig.redPlayer;
+        if (player === this.PLAYER2) return this.playerConfig.yellowPlayer;
         return 'Unbekannt';
     }
     
