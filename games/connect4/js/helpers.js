@@ -2,27 +2,52 @@
  * Connect4Helpers - Helper system for Connect 4 game
  */
 class Connect4Helpers {
-    constructor(game) {
+    constructor(game, ui = null) {
         this.game = game;
+        this.ui = ui; // Reference to UI for player help checking
         this.enabled = false;
         this.threatIndicators = [];
         this.opportunityIndicators = [];
+        this.helpLevel = 0; // 0=none, 1=critical, 2=warnings, 3=strategic, 4=full
+        this.forcedMoveMode = false;
+        this.requiredMoves = [];
         this.currentHints = {
             threats: [],
             opportunities: [],
             suggestions: []
         };
+        
+        // Auto-update when board state changes
+        this.game.on('boardStateChanged', (data) => {
+            if (this.enabled && !data.gameOver) {
+                this.updateHints();
+            }
+        });
+        
+        // Clear hints when game resets
+        this.game.on('gameReset', () => {
+            this.clearAllHints();
+            this.forcedMoveMode = false;
+            this.requiredMoves = [];
+        });
+        
+        // Event system for UI communication
+        this.eventListeners = {};
     }
     
     /**
      * Enable or disable the hints system
      * @param {boolean} enabled - Whether hints should be enabled
+     * @param {number} helpLevel - Level of help (0-4)
      */
-    setEnabled(enabled) {
+    setEnabled(enabled, helpLevel = 0) {
         this.enabled = enabled;
+        this.helpLevel = helpLevel;
         
         if (!enabled) {
             this.clearAllHints();
+            this.forcedMoveMode = false;
+            this.requiredMoves = [];
         } else {
             this.updateHints();
         }
@@ -38,13 +63,230 @@ class Connect4Helpers {
         
         this.clearAllHints();
         
-        // Analyze current position
-        this.analyzeThreats();
-        this.analyzeOpportunities();
-        this.generateStrategicSuggestions();
+        // Check for winning opportunities first (Level 0+)
+        if (this.helpLevel >= 0) {
+            this.checkWinningOpportunities();
+        }
         
-        // Display hints
-        this.displayHints();
+        // Check for critical defensive situations (Level 1+)
+        if (this.helpLevel >= 1) {
+            this.checkForcedMoves();
+        }
+        
+        // Only analyze other hints if not in forced move mode
+        if (!this.forcedMoveMode) {
+            this.analyzeThreats();
+            this.analyzeOpportunities();
+            this.generateStrategicSuggestions();
+            
+            // Display hints only for non-forced situations
+            this.displayHints();
+        }
+        // Note: For Level 1, we only use column blocking, no visual overlays
+    }
+    
+    /**
+     * Check for winning opportunities (Level 0 help: find own winning moves)
+     */
+    checkWinningOpportunities() {
+        this.forcedMoveMode = false;
+        this.requiredMoves = [];
+        
+        // Check if current player has help enabled
+        if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
+            return; // No help for this player
+        }
+        
+        const validMoves = this.game.getValidMoves();
+        const winningMoves = [];
+        
+        // Check each valid move to see if current player can win there
+        for (const col of validMoves) {
+            const result = this.game.simulateMove(col);
+            if (result.success && result.wouldWin) {
+                winningMoves.push({
+                    column: col,
+                    row: result.row,
+                    reason: 'Winning move available'
+                });
+            }
+        }
+        
+        // If there are winning moves, enter forced move mode for offensive play
+        if (winningMoves.length > 0) {
+            this.forcedMoveMode = true;
+            this.requiredMoves = winningMoves.map(move => move.column);
+            
+            // Add these as winning opportunities
+            this.currentHints.opportunities = winningMoves.map(move => ({
+                column: move.column,
+                row: move.row,
+                type: 'winning_opportunity',
+                message: 'Du kannst hier GEWINNEN!',
+                priority: 'critical'
+            }));
+            
+            // Emit winning opportunity event for UI
+            this.emit('winningOpportunityActivated', {
+                requiredMoves: this.requiredMoves,
+                opportunities: this.currentHints.opportunities
+            });
+            
+            console.log('🎯 Level 0: Winning opportunity detected at columns', this.requiredMoves);
+        } else {
+            // No winning moves found
+            if (this.forcedMoveMode) {
+                this.forcedMoveMode = false;
+                this.requiredMoves = [];
+                this.emit('winningOpportunityDeactivated');
+            }
+        }
+    }
+
+    /**
+     * Check for forced moves (Level 1 help: must block opponent's winning threats)
+     * Only called if Level 0 didn't find winning opportunities
+     */
+    checkForcedMoves() {
+        // Don't override if Level 0 already found winning moves
+        if (this.forcedMoveMode && this.requiredMoves.length > 0) {
+            console.log('🎯 Level 1: Skipping threat check - Level 0 winning move takes priority');
+            return;
+        }
+        
+        this.forcedMoveMode = false;
+        this.requiredMoves = [];
+        
+        // Check if current player has help enabled
+        if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
+            return; // No help for this player
+        }
+        
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
+                         this.game.PLAYER2 : this.game.PLAYER1;
+        
+        const validMoves = this.game.getValidMoves();
+        const blockingMoves = [];
+        
+        // Check each valid move to see if opponent could win there
+        for (const col of validMoves) {
+            if (this.wouldOpponentWinAt(col, opponent)) {
+                // Find the row where the opponent piece would land
+                let row = this.game.ROWS - 1;
+                while (row >= 0 && this.game.board[row][col] !== this.game.EMPTY) {
+                    row--;
+                }
+                
+                if (row >= 0) {
+                    blockingMoves.push({
+                        column: col,
+                        row: row,
+                        reason: 'Blocks opponent win'
+                    });
+                }
+            }
+        }
+        
+        // If there are moves that must be blocked, enter forced move mode
+        if (blockingMoves.length > 0) {
+            this.forcedMoveMode = true;
+            this.requiredMoves = blockingMoves.map(move => move.column);
+            
+            // Add these as critical threats
+            this.currentHints.threats = blockingMoves.map(move => ({
+                column: move.column,
+                row: move.row,
+                type: 'forced_block',
+                message: 'Du MUSST hier spielen um zu verhindern, dass der Gegner gewinnt!',
+                priority: 'critical'
+            }));
+            
+            // Emit forced move event for UI
+            this.emit('forcedMoveActivated', {
+                requiredMoves: this.requiredMoves,
+                threats: this.currentHints.threats
+            });
+        } else {
+            // No forced moves - deactivate if previously active
+            if (this.forcedMoveMode) {
+                this.forcedMoveMode = false;
+                this.requiredMoves = [];
+                this.emit('forcedMoveDeactivated');
+            }
+        }
+    }
+    
+    /**
+     * Check if opponent would win by playing in the given column
+     * @param {number} col - Column to check
+     * @param {number} opponent - Opponent player number
+     * @returns {boolean} - True if opponent would win
+     */
+    wouldOpponentWinAt(col, opponent) {
+        // Find where the piece would land
+        let row = this.game.ROWS - 1;
+        while (row >= 0 && this.game.board[row][col] !== this.game.EMPTY) {
+            row--;
+        }
+        
+        if (row < 0) return false; // Column full
+        
+        // Temporarily place opponent's piece
+        this.game.board[row][col] = opponent;
+        
+        // Check if this creates a win
+        const isWin = this.checkWinAtPosition(row, col, opponent);
+        
+        // Remove the piece
+        this.game.board[row][col] = this.game.EMPTY;
+        
+        return isWin;
+    }
+    
+    /**
+     * Check if there's a win at the given position for the given player
+     * @param {number} row - Row position
+     * @param {number} col - Column position  
+     * @param {number} player - Player to check for
+     * @returns {boolean} - True if there's a win
+     */
+    checkWinAtPosition(row, col, player) {
+        const directions = [
+            [0, 1],   // Horizontal
+            [1, 0],   // Vertical
+            [1, 1],   // Diagonal /
+            [1, -1]   // Diagonal \
+        ];
+        
+        for (const [deltaRow, deltaCol] of directions) {
+            let count = 1; // Count the placed piece
+            
+            // Check positive direction
+            let r = row + deltaRow;
+            let c = col + deltaCol;
+            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
+                   this.game.board[r][c] === player) {
+                count++;
+                r += deltaRow;
+                c += deltaCol;
+            }
+            
+            // Check negative direction
+            r = row - deltaRow;
+            c = col - deltaCol;
+            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
+                   this.game.board[r][c] === player) {
+                count++;
+                r -= deltaRow;
+                c -= deltaCol;
+            }
+            
+            if (count >= 4) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     /**
@@ -338,16 +580,23 @@ class Connect4Helpers {
         const hintsOverlay = document.getElementById('hintsOverlay');
         if (!hintsOverlay) return;
         
+        // For Level 1, we don't show visual overlays - only column blocking
+        if (this.helpLevel <= 1) {
+            hintsOverlay.innerHTML = '';
+            hintsOverlay.style.display = 'none';
+            return;
+        }
+        
         hintsOverlay.innerHTML = '';
         hintsOverlay.style.display = 'block';
         
-        // Show threat indicators
+        // Show threat indicators (only for Level 2+)
         this.currentHints.threats.forEach(threat => {
             const indicator = this.createHintIndicator(threat.row, threat.column, 'threat');
             hintsOverlay.appendChild(indicator);
         });
         
-        // Show opportunity indicators
+        // Show opportunity indicators (only for Level 2+)
         this.currentHints.opportunities.forEach(opportunity => {
             const indicator = this.createHintIndicator(opportunity.row, opportunity.column, 'opportunity');
             hintsOverlay.appendChild(indicator);
@@ -428,7 +677,7 @@ class Connect4Helpers {
      * Clear all visual and textual hints
      */
     clearAllHints() {
-        // Clear visual hints
+        // Always hide visual hints overlay for Level 1
         const hintsOverlay = document.getElementById('hintsOverlay');
         if (hintsOverlay) {
             hintsOverlay.innerHTML = '';
@@ -529,5 +778,27 @@ class Connect4Helpers {
         }
         
         return analysis;
+    }
+    
+    /**
+     * Event system methods for UI communication
+     */
+    on(event, callback) {
+        if (!this.eventListeners[event]) {
+            this.eventListeners[event] = [];
+        }
+        this.eventListeners[event].push(callback);
+    }
+    
+    off(event, callback) {
+        if (this.eventListeners[event]) {
+            this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
+        }
+    }
+    
+    emit(event, data) {
+        if (this.eventListeners[event]) {
+            this.eventListeners[event].forEach(callback => callback(data));
+        }
     }
 }

@@ -38,14 +38,49 @@
     transform: translateY(-2px);
 }
 
-.game-mode-selector select {
-    padding: 0.75rem 1rem;
+.game-mode-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.game-mode-selector label {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.mode-select {
+    padding: 0.5rem 1rem;
     border: none;
     border-radius: 8px;
     background: white;
     color: #333;
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mode-select:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mode-select:focus {
+    outline: 3px solid white;
+    outline-offset: 2px;
+}
+
+.game-mode-title h2 {
+    margin: 0;
+    color: white;
+    font-size: 1.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .game-main {
@@ -138,11 +173,10 @@
 
 .column-indicators {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, 60px);
     gap: 8px;
-    width: 100%;
-    max-width: 490px;
-    margin-bottom: 0.5rem;
+    width: max-content;
+    margin: 0 auto 0.5rem auto;
 }
 
 .column-indicator {
@@ -185,6 +219,44 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
+.column-indicator.blocked {
+    background: rgba(255, 0, 0, 0.3);
+    border-color: #ff0000;
+    color: white;
+    position: relative;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.column-indicator.blocked::before {
+    content: '✕';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff0000;
+    z-index: 2;
+}
+
+.column-indicator.blocked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: #ff0000;
+    transform: translateY(-50%) rotate(-15deg);
+    z-index: 1;
+}
+
+.column-indicator.blocked:hover {
+    transform: none;
+    background: rgba(255, 0, 0, 0.3);
+}
+
 .game-board {
     background: linear-gradient(145deg, #2196F3, #1976D2);
     border-radius: 15px;
@@ -194,11 +266,12 @@
     grid-template-columns: repeat(7, 60px);
     grid-template-rows: repeat(6, 60px);
     gap: 8px;
-    width: 100%;
-    max-width: 490px;
-    aspect-ratio: 7/6;
-    justify-content: center;
-    align-content: center;
+    width: max-content;
+    margin: 0 auto;
+    
+    /* CSS Custom Properties for responsive design */
+    --cell-size: 60px;
+    --gap-size: 8px;
 }
 
 .cell {
@@ -208,7 +281,7 @@
     background: white;
     border: 3px solid #1565C0;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     transition: all 0.3s ease;
 }
 
@@ -229,11 +302,7 @@
     border-width: 4px;
 }
 
-.column-selected {
-    position: relative;
-}
-
-.column-selected::before {
+.cell.column-highlighted::before {
     content: '';
     position: absolute;
     top: -3px;
@@ -243,8 +312,21 @@
     border: 3px solid white;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 1;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    z-index: 3;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    animation: columnPulse 2s infinite ease-in-out;
+}
+
+@keyframes columnPulse {
+    0%, 100% { 
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 25px rgba(255, 255, 255, 1);
+        transform: scale(1.02);
+    }
 }
 
 .game-board .cell {
@@ -259,18 +341,6 @@
     position: relative;
 }
 
-.column-highlight {
-    position: absolute;
-    top: -5px;
-    bottom: -5px;
-    border: 3px solid white;
-    border-radius: 15px;
-    pointer-events: none;
-    z-index: 2;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
-}
 
 @keyframes winPulse {
     from {
@@ -344,6 +414,144 @@
     50% { opacity: 0.8; transform: scale(1.05); }
 }
 
+.help-controls {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.help-controls h3 {
+    margin: 0 0 1rem 0;
+    color: white;
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.help-table-container {
+    width: 100%;
+}
+
+.help-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.help-table th {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.help-table th small {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
+.help-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.help-table tr:last-child td {
+    border-bottom: none;
+}
+
+.help-table tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.player-label {
+    color: white;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.player-icon {
+    font-size: 1.2rem;
+}
+
+.help-cell {
+    text-align: center;
+    position: relative;
+}
+
+.help-checkbox-input {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.help-checkbox-input:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.help-checkbox-input:focus {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.help-checkbox-input:checked {
+    background: #ffffff;
+    border-color: #ffffff;
+}
+
+.help-checkbox-input:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.help-checkbox-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.help-legend {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.legend-item {
+    margin-bottom: 0.25rem;
+}
+
+.legend-item strong {
+    color: white;
+}
+
 .game-controls {
     display: flex;
     flex-direction: column;
@@ -407,34 +615,43 @@
         font-size: 2rem;
     }
     
+    .game-board {
+        --cell-size: 45px;
+        --gap-size: 6px;
+        grid-template-columns: repeat(7, 45px);
+        grid-template-rows: repeat(6, 45px);
+        gap: 6px;
+        padding: 15px;
+    }
+    
     .cell {
         width: 45px;
         height: 45px;
     }
     
-    .game-board {
-        max-width: 350px;
-        padding: 15px;
-    }
-    
     .column-indicators {
-        max-width: 350px;
+        grid-template-columns: repeat(7, 45px);
+        gap: 6px;
     }
 }
 
 @media (max-width: 480px) {
+    .game-board {
+        --cell-size: 35px;
+        --gap-size: 4px;
+        grid-template-columns: repeat(7, 35px);
+        grid-template-rows: repeat(6, 35px);
+        gap: 4px;
+        padding: 10px;
+    }
+    
     .cell {
         width: 35px;
         height: 35px;
     }
     
-    .game-board {
-        max-width: 280px;
-        padding: 10px;
-        gap: 4px;
-    }
-    
     .column-indicators {
-        max-width: 280px;
+        grid-template-columns: repeat(7, 35px);
+        gap: 4px;
     }
 }

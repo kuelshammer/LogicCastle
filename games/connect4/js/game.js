@@ -48,6 +48,11 @@ class Connect4Game {
         this.moveHistory = [];
         this.emit('gameReset');
         this.emit('playerChanged', this.currentPlayer);
+        this.emit('boardStateChanged', {
+            board: this.getBoard(),
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver
+        });
     }
     
     /**
@@ -104,6 +109,13 @@ class Connect4Game {
         // Switch players
         this.currentPlayer = this.currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
         this.emit('playerChanged', this.currentPlayer);
+        
+        // Emit board state changed for helpers system
+        this.emit('boardStateChanged', {
+            board: this.getBoard(),
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver
+        });
         
         return { success: true, row, col };
     }

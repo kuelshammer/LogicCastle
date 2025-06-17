@@ -13,13 +13,10 @@
             <a href="../../index.html" class="back-button">← Zurück</a>
             <h1>🔴 4 Gewinnt</h1>
             <div class="game-mode-selector">
-                <select id="gameMode">
+                <label for="gameModeSelect">Spielmodus:</label>
+                <select id="gameModeSelect" class="mode-select">
                     <option value="two-player">2 Spieler</option>
-                    <option value="two-player-hints">2 Spieler mit Hilfen</option>
-                    <option value="vs-bot-easy">vs Bot (Einfach)</option>
-                    <option value="vs-bot-medium">vs Bot (Mittel)</option>
-                    <option value="vs-bot-hard">vs Bot (Schwer)</option>
-                    <option value="vs-bot-expert">vs Bot (Experte)</option>
+                    <option value="vs-bot-smart">vs Smart Bot</option>
                 </select>
             </div>
         </header>
@@ -66,11 +63,71 @@
                 </div>
             </div>
 
+            <div class="help-controls">
+                <h3>Spielhilfen</h3>
+                <div class="help-table-container">
+                    <table class="help-table">
+                        <thead>
+                            <tr>
+                                <th>Spieler</th>
+                                <th>Level 0<br><small>Gewinnzüge</small></th>
+                                <th>Level 1<br><small>Bedrohungen</small></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="player-label">
+                                    <span class="player-icon">🔴</span>
+                                    Spieler 1
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer1Level0" 
+                                           class="help-checkbox-input" 
+                                           tabindex="1" accesskey="1">
+                                    <label for="helpPlayer1Level0" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer1Level1" 
+                                           class="help-checkbox-input" 
+                                           tabindex="2" accesskey="2">
+                                    <label for="helpPlayer1Level1" class="help-checkbox-label"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="player-label">
+                                    <span class="player-icon">🟡</span>
+                                    Spieler 2
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer2Level0" 
+                                           class="help-checkbox-input" 
+                                           tabindex="3" accesskey="3">
+                                    <label for="helpPlayer2Level0" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer2Level1" 
+                                           class="help-checkbox-input" 
+                                           tabindex="4" accesskey="4">
+                                    <label for="helpPlayer2Level1" class="help-checkbox-label"></label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="help-legend">
+                        <div class="legend-item">
+                            <strong>Level 0:</strong> Erkennt eigene Gewinnchancen
+                        </div>
+                        <div class="legend-item">
+                            <strong>Level 1:</strong> Blockiert gegnerische Bedrohungen
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="game-controls">
-                <button class="btn btn-primary" id="newGameBtn">Neues Spiel</button>
-                <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig</button>
-                <button class="btn btn-secondary" id="hintsToggle" style="display: none;">Hilfen An/Aus</button>
-                <button class="btn btn-info" id="helpBtn">Hilfe (F1)</button>
+                <button class="btn btn-primary" id="newGameBtn" tabindex="5">Neues Spiel</button>
+                <button class="btn btn-secondary" id="undoBtn" tabindex="6" disabled>Rückgängig</button>
+                <button class="btn btn-info" id="helpBtn" tabindex="7">Hilfe (F1)</button>
             </div>
 
             <div class="help-panel" id="helpPanel" style="display: none;">
@@ -159,9 +216,15 @@
     <script>
         // Initialize game when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            const game = new Connect4Game();
-            const ui = new Connect4UI(game);
-            ui.init();
+            window.game = new Connect4Game();
+            window.ui = new Connect4UI(window.game);
+            window.ui.init();
+            
+            // Debug info
+            console.log('🎮 Connect4 initialized');
+            console.log('Game:', window.game);
+            console.log('UI:', window.ui);
+            console.log('Helpers:', window.ui.helpers);
         });
     </script>
 </body>

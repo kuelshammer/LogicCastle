@@ -24,12 +24,15 @@ class Connect4AI {
     /**
      * Get the best move for the current game state
      * @param {Connect4Game} game - Current game instance
+     * @param {Connect4Helpers} helpers - Optional helpers instance for smart random mode
      * @returns {number} - Column index for the best move
      */
-    getBestMove(game) {
+    getBestMove(game, helpers = null) {
         switch (this.difficulty) {
             case 'easy':
                 return this.getRandomMove(game);
+            case 'smart-random':
+                return this.getSmartRandomMove(game, helpers);
             case 'medium':
                 return this.getRuleBasedMove(game);
             case 'hard':
@@ -40,6 +43,74 @@ class Connect4AI {
         }
     }
     
+    /**
+     * Smart Random AI: Uses Level 1 help system to block threats, otherwise random
+     * @param {Connect4Game} game - Current game instance  
+     * @param {Connect4Helpers} helpers - Helpers instance for threat detection
+     * @returns {number} - Column index for the move
+     */
+    getSmartRandomMove(game, helpers) {
+        const validMoves = game.getValidMoves();
+        
+        if (validMoves.length === 0) return null;
+        
+        // Use helpers system for Level 0 + 1 analysis
+        if (helpers) {
+            // Store original helpers state
+            const wasEnabled = helpers.enabled;
+            const wasLevel = helpers.helpLevel;
+            
+            // PRIORITY 1: Check Level 0 - Own winning opportunities
+            helpers.setEnabled(true, 0);
+            helpers.updateHints(); // Force update to get current state
+            
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🤖 Smart Bot: WINNING at columns', helpers.requiredMoves);
+                
+                // IMPORTANT: Copy the moves array BEFORE restoring state
+                const winningMoves = [...helpers.requiredMoves];
+                console.log('🤖 Smart Bot: Copied winning moves:', winningMoves, 'length:', winningMoves.length);
+                
+                // Restore original helpers state
+                helpers.setEnabled(wasEnabled, wasLevel);
+                
+                // Choose randomly among winning moves if multiple exist
+                const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                const chosenMove = winningMoves[randomIndex];
+                console.log('🤖 Smart Bot: Random index:', randomIndex, 'chosen move:', chosenMove);
+                return chosenMove;
+            }
+            
+            // PRIORITY 2: Check Level 1 - Block opponent's threats
+            helpers.setEnabled(true, 1);
+            helpers.updateHints(); // Force update to get current threats
+            
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🤖 Smart Bot: BLOCKING threat at columns', helpers.requiredMoves);
+                
+                // IMPORTANT: Copy the moves array BEFORE restoring state
+                const blockingMoves = [...helpers.requiredMoves];
+                console.log('🤖 Smart Bot: Copied blocking moves:', blockingMoves, 'length:', blockingMoves.length);
+                
+                // Restore original helpers state
+                helpers.setEnabled(wasEnabled, wasLevel);
+                
+                // Choose randomly among required blocking moves if multiple exist
+                const randomIndex = Math.floor(Math.random() * blockingMoves.length);
+                const chosenMove = blockingMoves[randomIndex];
+                console.log('🤖 Smart Bot: Random index:', randomIndex, 'chosen move:', chosenMove);
+                return chosenMove;
+            }
+            
+            // Restore original helpers state
+            helpers.setEnabled(wasEnabled, wasLevel);
+        }
+        
+        // PRIORITY 3: No winning moves or threats - make random move
+        console.log('🤖 Smart Bot: No critical moves, playing RANDOM');
+        return this.getRandomMove(game);
+    }
+
     /**
      * Easy AI: Random moves with basic blocking
      */

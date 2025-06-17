@@ -15,12 +15,33 @@ class Connect4UI {
         this.helpBtn = null;
         this.helpModal = null;
         this.closeHelpBtn = null;
+        this.gameModeSelect = null;
         this.gameMode = 'two-player';
-        this.hintsEnabled = false;
+        this.ai = null;
+        
+        // Individual help settings per player and level
+        this.playerHelpEnabled = {
+            player1: {
+                level0: false,  // Winning opportunities
+                level1: false   // Block threats
+            },
+            player2: {
+                level0: false,  // Winning opportunities  
+                level1: false   // Block threats
+            }
+        };
+        // New help table checkboxes
+        this.helpPlayer1Level0 = null;
+        this.helpPlayer1Level1 = null;
+        this.helpPlayer2Level0 = null;
+        this.helpPlayer2Level1 = null;
         
         this.isAnimating = false;
         this.aiThinking = false;
         this.selectedColumn = null;
+        
+        // Initialize helpers system (will set UI reference after construction)
+        this.helpers = new Connect4Helpers(this.game, this);
         
         // Bind methods
         this.handleColumnClick = this.handleColumnClick.bind(this);
@@ -28,9 +49,12 @@ class Connect4UI {
         this.handleKeyPress = this.handleKeyPress.bind(this);
         this.handleNewGame = this.handleNewGame.bind(this);
         this.handleUndo = this.handleUndo.bind(this);
-        this.handleHintsToggle = this.handleHintsToggle.bind(this);
-        this.handleModeChange = this.handleModeChange.bind(this);
+        this.handlePlayer1Level0Toggle = this.handlePlayer1Level0Toggle.bind(this);
+        this.handlePlayer1Level1Toggle = this.handlePlayer1Level1Toggle.bind(this);
+        this.handlePlayer2Level0Toggle = this.handlePlayer2Level0Toggle.bind(this);
+        this.handlePlayer2Level1Toggle = this.handlePlayer2Level1Toggle.bind(this);
         this.handleHelp = this.handleHelp.bind(this);
+        this.handleGameModeChange = this.handleGameModeChange.bind(this);
     }
     
     /**
@@ -40,6 +64,7 @@ class Connect4UI {
         this.createBoard();
         this.bindElements();
         this.attachEventListeners();
+        this.updateGameModeUI(); // Initialize UI for current mode
         this.updateUI();
         
         // Setup game event listeners
@@ -49,6 +74,10 @@ class Connect4UI {
         this.game.on('playerChanged', (player) => this.onPlayerChanged(player));
         this.game.on('gameReset', () => this.onGameReset());
         this.game.on('moveUndone', (move) => this.onMoveUndone(move));
+        
+        // Setup helpers event listeners
+        this.helpers.on('forcedMoveActivated', (data) => this.onForcedMoveActivated(data));
+        this.helpers.on('forcedMoveDeactivated', () => this.onForcedMoveDeactivated());
     }
     
     /**
@@ -87,11 +116,14 @@ class Connect4UI {
         };
         this.newGameBtn = document.getElementById('newGameBtn');
         this.undoBtn = document.getElementById('undoBtn');
-        this.hintsToggle = document.getElementById('hintsToggle');
         this.helpBtn = document.getElementById('helpBtn');
         this.helpModal = document.getElementById('helpModal');
         this.closeHelpBtn = document.getElementById('closeHelpBtn');
-        this.gameModeSelect = document.getElementById('gameMode');
+        this.helpPlayer1Level0 = document.getElementById('helpPlayer1Level0');
+        this.helpPlayer1Level1 = document.getElementById('helpPlayer1Level1');
+        this.helpPlayer2Level0 = document.getElementById('helpPlayer2Level0');
+        this.helpPlayer2Level1 = document.getElementById('helpPlayer2Level1');
+        this.gameModeSelect = document.getElementById('gameModeSelect');
     }
     
     /**
@@ -115,9 +147,6 @@ class Connect4UI {
         // UI controls
         this.newGameBtn.addEventListener('click', this.handleNewGame);
         this.undoBtn.addEventListener('click', this.handleUndo);
-        if (this.hintsToggle) {
-            this.hintsToggle.addEventListener('click', this.handleHintsToggle);
-        }
         this.helpBtn.addEventListener('click', this.handleHelp);
         this.closeHelpBtn.addEventListener('click', this.handleHelp);
         this.helpModal.addEventListener('click', (e) => {
@@ -125,7 +154,48 @@ class Connect4UI {
                 this.handleHelp();
             }
         });
-        this.gameModeSelect.addEventListener('change', this.handleModeChange);
+        
+        // Help checkbox event listeners
+        this.helpPlayer1Level0.addEventListener('change', this.handlePlayer1Level0Toggle);
+        this.helpPlayer1Level1.addEventListener('change', this.handlePlayer1Level1Toggle);
+        this.helpPlayer2Level0.addEventListener('change', this.handlePlayer2Level0Toggle);
+        this.helpPlayer2Level1.addEventListener('change', this.handlePlayer2Level1Toggle);
+        
+        // Game mode selector
+        this.gameModeSelect.addEventListener('change', this.handleGameModeChange);
+        
+        // Keyboard accessibility for checkboxes
+        this.helpPlayer1Level0.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.helpPlayer1Level0.checked = !this.helpPlayer1Level0.checked;
+                this.handlePlayer1Level0Toggle();
+            }
+        });
+        
+        this.helpPlayer1Level1.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.helpPlayer1Level1.checked = !this.helpPlayer1Level1.checked;
+                this.handlePlayer1Level1Toggle();
+            }
+        });
+        
+        this.helpPlayer2Level0.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.helpPlayer2Level0.checked = !this.helpPlayer2Level0.checked;
+                this.handlePlayer2Level0Toggle();
+            }
+        });
+        
+        this.helpPlayer2Level1.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.helpPlayer2Level1.checked = !this.helpPlayer2Level1.checked;
+                this.handlePlayer2Level1Toggle();
+            }
+        });
         
         // Board hover effects
         this.columnIndicators.forEach((indicator, col) => {
@@ -251,7 +321,7 @@ class Connect4UI {
         }
         
         this.aiThinking = true;
-        this.updateGameStatus('KI denkt nach...');
+        this.updateGameStatus('🤖 Smart Bot denkt nach...');
         
         // Simulate thinking time
         await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 700));
@@ -268,14 +338,20 @@ class Connect4UI {
     }
     
     /**
-     * Get AI move (placeholder)
+     * Get AI move based on current game mode
      */
     getAIMove() {
         const validMoves = this.game.getValidMoves();
         if (validMoves.length === 0) return null;
         
-        // Simple random move for now
-        return validMoves[Math.floor(Math.random() * validMoves.length)];
+        // Initialize AI if not done yet
+        if (!this.ai) {
+            const difficulty = this.gameMode === 'vs-bot-smart' ? 'smart-random' : 'easy';
+            this.ai = new Connect4AI(difficulty);
+        }
+        
+        // Use AI to get best move, pass helpers for smart-random mode
+        return this.ai.getBestMove(this.game, this.helpers);
     }
     
     /**
@@ -286,10 +362,59 @@ class Connect4UI {
     }
     
     /**
+     * Handle game mode change
+     */
+    handleGameModeChange() {
+        this.gameMode = this.gameModeSelect.value;
+        
+        // Reset AI when mode changes
+        this.ai = null;
+        
+        // Update UI for the new mode
+        this.updateGameModeUI();
+        
+        // Start new game with new mode
+        this.game.resetGame();
+        
+        console.log('Game mode changed to:', this.gameMode);
+    }
+    
+    /**
+     * Update UI elements based on current game mode
+     */
+    updateGameModeUI() {
+        // Update help controls visibility and settings based on mode
+        if (this.gameMode === 'vs-bot-smart') {
+            // For bot mode, hide Player 2 help controls since bot manages its own help
+            const player2Row = this.helpPlayer2Level0.closest('tr');
+            if (player2Row) player2Row.style.display = 'none';
+            
+            // Bot automatically has Level 0 + 1 help enabled
+            this.playerHelpEnabled.player2.level0 = true;
+            this.playerHelpEnabled.player2.level1 = true;
+        } else {
+            // For two-player mode, show all help controls
+            const player1Row = this.helpPlayer1Level0.closest('tr');
+            const player2Row = this.helpPlayer2Level0.closest('tr');
+            if (player1Row) player1Row.style.display = '';
+            if (player2Row) player2Row.style.display = '';
+        }
+        
+        this.updateHelpers();
+        this.updateUI();
+    }
+    
+    /**
      * Select a column for potential move
      */
     selectColumn(col) {
         if (this.game.isColumnFull(col) || this.game.gameOver) {
+            return;
+        }
+        
+        // Check if column is blocked by forced move mode
+        if (this.helpers.forcedMoveMode && !this.helpers.requiredMoves.includes(col)) {
+            this.showMessage('Du musst einen der markierten Züge spielen!', 'warning');
             return;
         }
         
@@ -352,37 +477,89 @@ class Connect4UI {
     }
     
     /**
-     * Handle hints toggle
+     * Handle Player 1 Level 0 help toggle
      */
-    handleHintsToggle() {
-        this.hintsEnabled = !this.hintsEnabled;
-        this.hintsToggle.textContent = this.hintsEnabled ? 'Hilfen Aus' : 'Hilfen An';
-        this.hintsToggle.classList.toggle('active', this.hintsEnabled);
-        
-        if (this.hintsEnabled) {
-            this.showHints();
-        } else {
-            this.hideHints();
-        }
+    handlePlayer1Level0Toggle() {
+        this.playerHelpEnabled.player1.level0 = this.helpPlayer1Level0.checked;
+        this.updateHelpers();
+        console.log('Player 1 Level 0 help:', this.playerHelpEnabled.player1.level0 ? 'enabled' : 'disabled');
     }
     
     /**
-     * Handle game mode change
+     * Handle Player 1 Level 1 help toggle
      */
-    handleModeChange() {
-        this.gameMode = this.gameModeSelect.value;
+    handlePlayer1Level1Toggle() {
+        this.playerHelpEnabled.player1.level1 = this.helpPlayer1Level1.checked;
+        this.updateHelpers();
+        console.log('Player 1 Level 1 help:', this.playerHelpEnabled.player1.level1 ? 'enabled' : 'disabled');
+    }
+    
+    /**
+     * Handle Player 2 Level 0 help toggle
+     */
+    handlePlayer2Level0Toggle() {
+        this.playerHelpEnabled.player2.level0 = this.helpPlayer2Level0.checked;
+        this.updateHelpers();
+        console.log('Player 2 Level 0 help:', this.playerHelpEnabled.player2.level0 ? 'enabled' : 'disabled');
+    }
+    
+    /**
+     * Handle Player 2 Level 1 help toggle
+     */
+    handlePlayer2Level1Toggle() {
+        this.playerHelpEnabled.player2.level1 = this.helpPlayer2Level1.checked;
+        this.updateHelpers();
+        console.log('Player 2 Level 1 help:', this.playerHelpEnabled.player2.level1 ? 'enabled' : 'disabled');
+    }
+    
+    /**
+     * Update helpers system based on current player and their help settings
+     */
+    updateHelpers() {
+        const currentPlayerHelp = this.getCurrentPlayerHelpSettings();
         
-        // Show/hide hints toggle based on mode
-        if (this.gameMode === 'two-player-hints') {
-            this.hintsToggle.style.display = 'inline-block';
+        // Determine the highest help level enabled for this player
+        let helpLevel = -1;
+        if (currentPlayerHelp.level1) helpLevel = 1;
+        if (currentPlayerHelp.level0) helpLevel = Math.max(helpLevel, 0);
+        
+        if (helpLevel >= 0) {
+            this.helpers.setEnabled(true, helpLevel);
+            console.log(`🎯 Help enabled for current player at level ${helpLevel}`);
         } else {
-            this.hintsToggle.style.display = 'none';
-            this.hintsEnabled = false;
-            this.hideHints();
+            this.helpers.setEnabled(false, 0);
+            console.log('🎯 Help disabled for current player');
         }
         
-        // Reset game for mode change
-        this.game.resetGame();
+        this.updateUI();
+    }
+    
+    /**
+     * Get help settings for current player
+     */
+    getCurrentPlayerHelpSettings() {
+        return this.game.currentPlayer === this.game.PLAYER1 
+            ? this.playerHelpEnabled.player1 
+            : this.playerHelpEnabled.player2;
+    }
+    
+    /**
+     * Check if current player has ANY help enabled (legacy method for helpers.js)
+     */
+    getCurrentPlayerHelpEnabled() {
+        const settings = this.getCurrentPlayerHelpSettings();
+        return settings.level0 || settings.level1;
+    }
+    
+    /**
+     * Get display name for player based on current game mode
+     */
+    getPlayerDisplayName(player) {
+        if (this.gameMode === 'vs-bot-smart') {
+            return player === this.game.PLAYER1 ? 'Spieler 1' : '🤖 Smart Bot';
+        } else {
+            return this.game.getPlayerName(player);
+        }
     }
     
     /**
@@ -402,8 +579,9 @@ class Connect4UI {
     
     onGameWon(data) {
         this.highlightWinningCells(data.winningCells);
-        this.updateGameStatus(`${this.game.getPlayerName(data.winner)} gewinnt!`);
-        this.showGameOverMessage(`🎉 ${this.game.getPlayerName(data.winner)} gewinnt!`);
+        const displayName = this.getPlayerDisplayName(data.winner);
+        this.updateGameStatus(`${displayName} gewinnt!`);
+        this.showGameOverMessage(`🎉 ${displayName} gewinnt!`);
         this.updateUI();
     }
     
@@ -416,6 +594,7 @@ class Connect4UI {
     onPlayerChanged(player) {
         this.updateCurrentPlayerIndicator(player);
         this.updateGameStatus();
+        this.updateHelpers(); // Update help system when player changes
     }
     
     onGameReset() {
@@ -431,6 +610,20 @@ class Connect4UI {
         this.clearWinHighlights();
         this.hideGameOverMessage();
         this.updateUI();
+    }
+    
+    /**
+     * Helpers event handlers
+     */
+    onForcedMoveActivated(data) {
+        console.log('🚨 Forced move activated:', data);
+        this.updateColumnIndicators();
+        this.showMessage(`⚠️ Du MUSST Spalte ${data.requiredMoves.map(col => col + 1).join(' oder ')} spielen!`, 'warning');
+    }
+    
+    onForcedMoveDeactivated() {
+        console.log('✅ Forced move deactivated');
+        this.updateColumnIndicators();
     }
     
     /**
@@ -482,13 +675,8 @@ class Connect4UI {
                 const cell = this.getCellElement(row, col);
                 const player = this.game.board[row][col];
                 
-                // Remove existing player and selection classes
-                cell.classList.remove('red', 'yellow', 'column-selected');
-                
-                // Add selection highlight for individual cells
-                if (this.selectedColumn === col && !this.game.isColumnFull(col) && !this.game.gameOver) {
-                    cell.classList.add('column-selected');
-                }
+                // Remove existing player classes
+                cell.classList.remove('red', 'yellow');
                 
                 // Add appropriate class if cell is occupied
                 if (player !== this.game.EMPTY) {
@@ -505,36 +693,24 @@ class Connect4UI {
      * Update the column highlight overlay
      */
     updateColumnHighlight() {
-        // Remove existing column highlight
-        const existingHighlight = this.boardElement.querySelector('.column-highlight');
-        if (existingHighlight) {
-            existingHighlight.remove();
-        }
+        // Remove existing column highlights from all cells
+        this.boardElement.querySelectorAll('.cell').forEach(cell => {
+            cell.classList.remove('column-highlighted');
+        });
         
         // Add new column highlight if column is selected
         if (this.selectedColumn !== null && 
             !this.game.isColumnFull(this.selectedColumn) && 
             !this.game.gameOver) {
             
-            const highlight = document.createElement('div');
-            highlight.className = 'column-highlight';
-            
-            // Get the actual position of the selected column's top cell
-            const topCell = this.getCellElement(0, this.selectedColumn);
-            
-            if (topCell) {
-                // Use the cell's actual position within the board for accurate placement
-                const cellRect = topCell.getBoundingClientRect();
-                const boardRect = this.boardElement.getBoundingClientRect();
-                
-                // Calculate relative position within the board
-                const leftPosition = cellRect.left - boardRect.left - 5;
-                const width = cellRect.width + 10;
-                
-                highlight.style.left = `${leftPosition}px`;
-                highlight.style.width = `${width}px`;
-                
-                this.boardElement.appendChild(highlight);
+            // Highlight only empty cells in the selected column
+            for (let row = 0; row < this.game.ROWS; row++) {
+                if (this.game.board[row][this.selectedColumn] === this.game.EMPTY) {
+                    const cell = this.getCellElement(row, this.selectedColumn);
+                    if (cell) {
+                        cell.classList.add('column-highlighted');
+                    }
+                }
             }
         }
     }
@@ -545,8 +721,13 @@ class Connect4UI {
             const isDisabled = this.game.gameOver || this.aiThinking;
             const isSelected = this.selectedColumn === col;
             
-            indicator.classList.toggle('disabled', isFull || isDisabled);
-            indicator.classList.toggle('selected', isSelected && !isFull && !isDisabled);
+            // Check if this column is blocked by forced move mode
+            const isBlocked = this.helpers.forcedMoveMode && 
+                            !this.helpers.requiredMoves.includes(col);
+            
+            indicator.classList.toggle('disabled', isFull || isDisabled || isBlocked);
+            indicator.classList.toggle('selected', isSelected && !isFull && !isDisabled && !isBlocked);
+            indicator.classList.toggle('blocked', isBlocked);
         });
     }
     
@@ -562,7 +743,8 @@ class Connect4UI {
         }
         
         if (playerName) {
-            playerName.textContent = this.game.getPlayerName(this.game.currentPlayer);
+            const displayName = this.getPlayerDisplayName(this.game.currentPlayer);
+            playerName.textContent = displayName;
         }
     }
     
@@ -576,14 +758,16 @@ class Connect4UI {
         
         if (this.game.gameOver) {
             if (this.game.winner) {
-                this.gameStatus.textContent = `${this.game.getPlayerName(this.game.winner)} hat gewonnen!`;
+                const displayName = this.getPlayerDisplayName(this.game.winner);
+                this.gameStatus.textContent = `${displayName} hat gewonnen!`;
             } else {
                 this.gameStatus.textContent = 'Unentschieden!';
             }
         } else if (this.aiThinking) {
-            this.gameStatus.textContent = 'KI denkt nach...';
+            this.gameStatus.textContent = '🤖 Smart Bot denkt nach...';
         } else {
-            this.gameStatus.textContent = `${this.game.getPlayerName(this.game.currentPlayer)} ist am Zug`;
+            const displayName = this.getPlayerDisplayName(this.game.currentPlayer);
+            this.gameStatus.textContent = `${displayName} ist am Zug`;
         }
     }
     
@@ -609,14 +793,8 @@ class Connect4UI {
     
     clearBoard() {
         this.boardElement.querySelectorAll('.cell').forEach(cell => {
-            cell.classList.remove('red', 'yellow', 'winning', 'stone-drop', 'column-selected');
+            cell.classList.remove('red', 'yellow', 'winning', 'stone-drop', 'column-selected', 'column-highlighted');
         });
-        
-        // Remove column highlight
-        const existingHighlight = this.boardElement.querySelector('.column-highlight');
-        if (existingHighlight) {
-            existingHighlight.remove();
-        }
     }
     
     removePieceFromBoard(row, col) {
@@ -625,7 +803,22 @@ class Connect4UI {
     }
     
     showMessage(message, type = 'info') {
-        // Simple message display - could be enhanced with toast notifications
+        // Display message in game status temporarily
+        const originalStatus = this.gameStatus?.textContent;
+        
+        if (this.gameStatus) {
+            this.gameStatus.textContent = message;
+            this.gameStatus.className = `game-status ${type}`;
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                if (this.gameStatus) {
+                    this.gameStatus.className = 'game-status';
+                    this.updateGameStatus();
+                }
+            }, 3000);
+        }
+        
         console.log(`${type.toUpperCase()}: ${message}`);
     }
     
@@ -638,13 +831,4 @@ class Connect4UI {
         // Hide any game over dialogs
     }
     
-    showHints() {
-        // Placeholder for hints system
-        console.log('Hints enabled');
-    }
-    
-    hideHints() {
-        // Placeholder for hints system
-        console.log('Hints disabled');
-    }
 }
