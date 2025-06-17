@@ -641,6 +641,11 @@ class Connect4UI {
         this.updateCurrentPlayerIndicator(player);
         this.updateGameStatus();
         this.updateHelpers(); // Update help system when player changes
+        
+        // Check if AI should make a move after player change
+        if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+            setTimeout(() => this.makeAIMove(), 300);
+        }
     }
     
     onGameReset() {
@@ -649,6 +654,11 @@ class Connect4UI {
         this.hideGameOverMessage();
         this.clearColumnSelection();
         this.updateUI();
+        
+        // Check if AI should make the first move after reset
+        if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+            setTimeout(() => this.makeAIMove(), 500);
+        }
     }
     
     onMoveUndone(move) {
