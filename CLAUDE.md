@@ -109,6 +109,21 @@ games/{game-name}/
 **See PLAN.md for current development plan and implementation status.**
 
 Current focus: Connect4 "Neues Spiel" vs "Reset" Unterscheidung & UI-Verbesserungen
-- Implementing separate next game vs full reset functionality
-- Removing unnecessary colons from emoji labels
-- Adding contextual button behavior
+- ✅ Implementing separate next game vs full reset functionality
+- ✅ Removing unnecessary colons from emoji labels  
+- ✅ Adding contextual button behavior
+
+**🚨 CRITICAL BUG DISCOVERED:**
+Turn order is broken in bot mode! After Red makes first move vs Bot:
+- Bot (Yellow) places stone in SAME column as Red
+- Turn sequence becomes chaotic
+- Red can place more stones than Yellow
+- Game logic completely broken
+
+**Root Cause Analysis Needed:**
+- Check makePlayerMove() vs makeAIMove() coordination
+- Verify currentPlayer switching after each move
+- Test bot move timing and game state synchronization
+- Ensure proper move validation in bot mode
+
+**Priority:** URGENT FIX REQUIRED

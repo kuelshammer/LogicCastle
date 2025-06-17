@@ -63,3 +63,31 @@ Alle ":" nach Emojis entfernen:
 - `js/ui.js` - Button-Handler & Kontext-Logik
 - `index.html` - Neuer Button & Doppelpunkt-Entfernung
 - `css/ui.css` - btn-outline Styling
+
+---
+
+## 🚨 CRITICAL BUG DISCOVERED
+
+### **Problem:** Turn Order Chaos in Bot Mode
+**Datum:** 2025-01-17 (nach Implementierung)
+
+#### **Symptome:**
+- Red macht ersten Zug vs Bot
+- Bot (Yellow) setzt Stein in GLEICHE Spalte wie Red
+- Zugreihenfolge wird chaotisch
+- Red kann mehr Steine setzen als Yellow
+- Spiellogik komplett kaputt
+
+#### **Vermutete Ursachen:**
+1. `makePlayerMove()` und `makeAIMove()` Koordinationsfehler
+2. `currentPlayer` switching nach Zügen defekt
+3. Bot-Move timing Probleme
+4. Move validation in Bot-Modus fehlerhaft
+
+#### **Analyse erforderlich:**
+- [ ] Player-Turn-Management prüfen
+- [ ] AI-Trigger-Logik analysieren  
+- [ ] Move-Sequencing debuggen
+- [ ] Game-State Synchronisation testen
+
+#### **Priorität:** 🔥 URGENT - Spiel unspielbar
