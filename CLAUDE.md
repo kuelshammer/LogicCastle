@@ -113,17 +113,16 @@ Current focus: Connect4 "Neues Spiel" vs "Reset" Unterscheidung & UI-Verbesserun
 - ✅ Removing unnecessary colons from emoji labels  
 - ✅ Adding contextual button behavior
 
-**🚨 CRITICAL BUG DISCOVERED:**
-Turn order is broken in bot mode! After Red makes first move vs Bot:
-- Bot (Yellow) places stone in SAME column as Red
-- Turn sequence becomes chaotic
-- Red can place more stones than Yellow
-- Game logic completely broken
+**✅ CRITICAL BUG RESOLVED:**
+Turn order chaos in bot mode was caused by double AI-triggering:
+- Fixed by removing AI trigger from onPlayerChanged() event handler (ui.js:663-665)
+- AI now only triggered in makePlayerMove() and reset functions
+- Turn sequence now works correctly: Red → Yellow → Red → Yellow
+- Validated with comprehensive test suite in test-turn-order-fix.js
 
-**Root Cause Analysis Needed:**
-- Check makePlayerMove() vs makeAIMove() coordination
-- Verify currentPlayer switching after each move
-- Test bot move timing and game state synchronization
-- Ensure proper move validation in bot mode
+**Root Cause:** 
+- onPlayerChanged() was triggered after every move, including AI moves
+- Led to multiple bot moves per player turn
+- Caused bots to place stones in same column due to parallel AI calls
 
-**Priority:** URGENT FIX REQUIRED
+**Status:** FIXED ✅

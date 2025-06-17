@@ -660,10 +660,8 @@ class Connect4UI {
         this.updateGameStatus();
         this.updateHelpers(); // Update help system when player changes
         
-        // Check if AI should make a move after player change
-        if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
-            setTimeout(() => this.makeAIMove(), 300);
-        }
+        // NOTE: AI moves are triggered in makePlayerMove() and onGameReset()/onFullReset()
+        // Do NOT trigger AI here to avoid double-triggering
     }
     
     onGameReset() {

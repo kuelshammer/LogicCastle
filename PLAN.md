@@ -85,9 +85,26 @@ Alle ":" nach Emojis entfernen:
 4. Move validation in Bot-Modus fehlerhaft
 
 #### **Analyse erforderlich:**
-- [ ] Player-Turn-Management prüfen
-- [ ] AI-Trigger-Logik analysieren  
-- [ ] Move-Sequencing debuggen
-- [ ] Game-State Synchronisation testen
+- [x] Player-Turn-Management prüfen
+- [x] AI-Trigger-Logik analysieren  
+- [x] Move-Sequencing debuggen
+- [x] Game-State Synchronisation testen
 
-#### **Priorität:** 🔥 URGENT - Spiel unspielbar
+#### **✅ LÖSUNG GEFUNDEN UND IMPLEMENTIERT:**
+**Root Cause:** Doppelte AI-Triggering durch `onPlayerChanged()` und `makePlayerMove()`
+- `onPlayerChanged()` wurde bei jedem Spielerwechsel getriggert, auch nach AI-Zügen
+- Führte zu mehrfachen Bot-Zügen pro Spieler-Zug
+- Bot setzte Steine in gleiche Spalte, da mehrere parallele AI-Calls
+
+**Fix:** 
+- Entfernt AI-Triggering aus `onPlayerChanged()` Event Handler (ui.js:663-665)
+- Kommentar hinzugefügt um zukünftige Bugs zu vermeiden  
+- AI wird nur noch getriggert in `makePlayerMove()` und `onGameReset()/onFullReset()`
+
+**Test-Validierung:**
+- ✅ Kein doppeltes AI-Triggering mehr
+- ✅ Bot setzt Steine in verschiedene Spalten 
+- ✅ Korrekte Zugreihenfolge: Rot → Gelb → Rot → Gelb
+
+#### **Status:** ✅ BEHOBEN
+#### **Datum:** 2025-01-17
