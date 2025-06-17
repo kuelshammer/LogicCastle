@@ -44,6 +44,7 @@ class Connect4UI {
         this.isAnimating = false;
         this.aiThinking = false;
         this.selectedColumn = null;
+        this.aiMoveTimeout = null; // Track active AI move timeout to prevent race conditions
         
         // Initialize helpers system (will set UI reference after construction)
         this.helpers = new Connect4Helpers(this.game, this);
@@ -337,17 +338,46 @@ class Connect4UI {
         // Clear column selection after successful move
         this.clearColumnSelection();
         
-        // After player move, check if we need to make AI move
+        // After player move, check if we need to make AI move  
+        // Use setTimeout to ensure game state is fully updated
         if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
-            setTimeout(() => this.makeAIMove(), 500);
+            setTimeout(() => {
+                // Double-check conditions after state update
+                if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+                    this.scheduleAIMove('after player move');
+                }
+            }, 10); // Small delay to ensure game state is updated
         }
+    }
+    
+    /**
+     * Schedule an AI move with race condition protection
+     */
+    scheduleAIMove(reason = 'unknown') {
+        // Don't schedule if AI is already thinking or a move is already scheduled
+        if (this.aiThinking) {
+            return;
+        }
+        
+        // Cancel any existing AI move timeout to prevent race conditions
+        if (this.aiMoveTimeout) {
+            clearTimeout(this.aiMoveTimeout);
+            this.aiMoveTimeout = null;
+        }
+        
+        // Schedule new AI move
+        this.aiMoveTimeout = setTimeout(() => {
+            this.aiMoveTimeout = null; // Clear timeout reference
+            this.makeAIMove();
+        }, 500);
     }
     
     /**
      * Make an AI move
      */
     async makeAIMove() {
-        if (this.game.gameOver || !this.isAIMode()) {
+        // Guard against parallel calls
+        if (this.game.gameOver || !this.isAIMode() || this.aiThinking) {
             return;
         }
         
@@ -357,11 +387,11 @@ class Connect4UI {
         // Simulate thinking time
         await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 700));
         
-        // Get AI move (placeholder - will be implemented in ai.js)
+        // Get AI move with current game state
         const aiMove = this.getAIMove();
         
         if (aiMove !== null) {
-            this.game.makeMove(aiMove);
+            const result = this.game.makeMove(aiMove);
         }
         
         this.aiThinking = false;
@@ -674,7 +704,7 @@ class Connect4UI {
         
         // Check if AI should make the first move after reset
         if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
-            setTimeout(() => this.makeAIMove(), 500);
+            this.scheduleAIMove('after game reset');
         }
     }
     
@@ -688,7 +718,7 @@ class Connect4UI {
         
         // Check if AI should make the first move after full reset
         if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
-            setTimeout(() => this.makeAIMove(), 500);
+            this.scheduleAIMove('after full reset');
         }
     }
     

@@ -57,7 +57,6 @@ class Connect4AI {
         // PRIORITY 0: If board is empty, play center column (best opening move)
         const totalMoves = game.moveHistory.length;
         if (totalMoves === 0) {
-            console.log('🤖 Smart Bot: Empty board - playing CENTER (column 3)');
             return 3; // Center column (0-indexed)
         }
         
