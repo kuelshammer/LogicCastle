@@ -1,6 +1,6 @@
-/* Trio Game Board Styles */
+/* Trio Mathematical Game Styles */
 .game-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 1rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -49,10 +49,41 @@
 }
 
 .game-main {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 2rem;
-    align-items: start;
+    align-items: center;
+}
+
+/* Target Display */
+.target-display {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+}
+
+.target-label {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.target-number {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #2196F3;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0.5rem 0;
+}
+
+.target-subtitle {
+    font-size: 1rem;
+    color: #666;
+    font-style: italic;
 }
 
 .game-info {
@@ -143,6 +174,7 @@
     font-weight: bold;
 }
 
+/* Number Grid for 7x7 mathematical game */
 .game-board-container {
     display: flex;
     flex-direction: column;
@@ -150,71 +182,100 @@
     gap: 1rem;
 }
 
-.game-board {
-    background: linear-gradient(145deg, #2196F3, #1976D2);
+.number-grid {
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     display: grid;
-    grid-template-columns: repeat(6, 60px);
-    grid-template-rows: repeat(6, 60px);
-    gap: 8px;
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(7, 60px);
+    gap: 6px;
     width: fit-content;
     justify-content: center;
     align-content: center;
 }
 
-.cell {
+.number-cell {
     width: 60px;
     height: 60px;
-    border-radius: 50%;
-    background: white;
-    border: 3px solid #1565C0;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border: 2px solid #dee2e6;
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    user-select: none;
 }
 
-.cell:hover:not(.occupied) {
-    background: rgba(255, 255, 255, 0.8);
-    transform: scale(1.05);
+.number-cell:hover {
+    background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+    border-color: #2196F3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
-.cell.occupied {
-    cursor: not-allowed;
+.number-cell.selected {
+    background: linear-gradient(145deg, #2196F3, #1976D2);
+    border-color: #0d47a1;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.5);
 }
 
-.cell.player1 {
-    background: linear-gradient(145deg, #ff4757, #c44569);
-    border-color: #c44569;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+.number-cell.selected-1 {
+    background: linear-gradient(145deg, #4caf50, #388e3c);
+    border-color: #1b5e20;
 }
 
-.cell.player2 {
-    background: linear-gradient(145deg, #3742fa, #2f3542);
-    border-color: #2f3542;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+.number-cell.selected-2 {
+    background: linear-gradient(145deg, #ff9800, #f57c00);
+    border-color: #e65100;
 }
 
-.cell.player3 {
-    background: linear-gradient(145deg, #2ed573, #1e90ff);
-    border-color: #1e90ff;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+.number-cell.selected-3 {
+    background: linear-gradient(145deg, #e91e63, #c2185b);
+    border-color: #880e4f;
 }
 
-.cell.winning {
-    animation: winPulse 1s infinite alternate;
-    border-width: 4px;
+/* Add selection order indicators */
+.number-cell.selected::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: inherit;
 }
 
-.cell.preview {
-    background: rgba(255, 255, 255, 0.5);
-    border-color: currentColor;
-    border-width: 2px;
-    border-style: dashed;
+.number-cell.selected-1::after {
+    content: '1';
+    color: #1b5e20;
+}
+
+.number-cell.selected-2::after {
+    content: '2';
+    color: #e65100;
+}
+
+.number-cell.selected-3::after {
+    content: '3';
+    color: #880e4f;
 }
 
 @keyframes winPulse {
@@ -246,26 +307,295 @@
     }
 }
 
+/* Solution Panel */
+.solution-panel {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-top: 1rem;
+    min-width: 400px;
+}
+
+.selected-numbers {
+    margin-bottom: 1.5rem;
+}
+
+.selection-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.selected-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 10px;
+    border: 2px solid rgba(33, 150, 243, 0.2);
+}
+
+.selected-number {
+    min-width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.selected-number:not(:empty) {
+    background: linear-gradient(145deg, #2196F3, #1976D2);
+    border-color: #0d47a1;
+    color: white;
+}
+
+.operator {
+    color: #666;
+    font-size: 1.8rem;
+}
+
+.equals {
+    color: #666;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.result {
+    min-width: 60px;
+    height: 50px;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.result.valid {
+    background: linear-gradient(145deg, #4caf50, #388e3c);
+    border-color: #1b5e20;
+    color: white;
+    animation: validPulse 0.5s ease;
+}
+
+.result.invalid {
+    background: linear-gradient(145deg, #f44336, #c62828);
+    border-color: #b71c1c;
+    color: white;
+}
+
+@keyframes validPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.solution-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+/* Game Controls */
 .game-controls {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 1rem;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+/* Game Info Layout */
+.game-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+.score-board, .game-status {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.score-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.scores-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+}
+
+.player-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.chip-count {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #2196F3;
+}
+
+.status-text {
+    font-size: 1.1rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.chips-remaining {
+    text-align: center;
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Player Setup */
+.player-setup {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin: 1rem 0;
+    max-width: 400px;
+}
+
+.player-input {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.player-input input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.players-list {
+    margin: 1rem 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 8px;
+}
+
+.remove-player {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* Solution History */
+.solution-history {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    margin-top: 1rem;
+    max-width: 600px;
+}
+
+.history-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+}
+
+.solution-formula {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #333;
+}
+
+.solution-player {
+    font-size: 0.9rem;
+    color: #666;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-    .game-main {
+    .game-info {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
     }
     
-    .game-info,
-    .game-controls {
-        order: 2;
+    .solution-panel {
+        min-width: auto;
+        width: 100%;
     }
     
-    .game-board-container {
-        order: 1;
+    .number-grid {
+        grid-template-columns: repeat(7, 50px);
+        grid-template-rows: repeat(7, 50px);
+        gap: 4px;
+        padding: 15px;
+    }
+    
+    .number-cell {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
     }
 }
 
@@ -280,28 +610,91 @@
         font-size: 2rem;
     }
     
-    .cell {
-        width: 45px;
-        height: 45px;
+    .target-number {
+        font-size: 3rem;
     }
     
-    .game-board {
-        grid-template-columns: repeat(6, 45px);
-        grid-template-rows: repeat(6, 45px);
-        padding: 15px;
+    .number-grid {
+        grid-template-columns: repeat(7, 45px);
+        grid-template-rows: repeat(7, 45px);
+        gap: 3px;
+        padding: 10px;
+    }
+    
+    .number-cell {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+    
+    .selected-display {
+        font-size: 1.5rem;
+        gap: 0.5rem;
+    }
+    
+    .selected-number, .result {
+        min-width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .game-controls {
+        flex-direction: column;
+        align-items: center;
     }
 }
 
 @media (max-width: 480px) {
-    .cell {
-        width: 35px;
-        height: 35px;
+    .game-container {
+        padding: 0.5rem;
     }
     
-    .game-board {
-        grid-template-columns: repeat(6, 35px);
-        grid-template-rows: repeat(6, 35px);
-        padding: 10px;
-        gap: 4px;
+    .target-display {
+        padding: 1rem;
+    }
+    
+    .target-number {
+        font-size: 2.5rem;
+    }
+    
+    .number-grid {
+        grid-template-columns: repeat(7, 35px);
+        grid-template-rows: repeat(7, 35px);
+        gap: 2px;
+        padding: 8px;
+    }
+    
+    .number-cell {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+    
+    .number-cell.selected::after {
+        width: 16px;
+        height: 16px;
+        font-size: 0.7rem;
+        top: -6px;
+        right: -6px;
+    }
+    
+    .solution-panel {
+        padding: 1rem;
+    }
+    
+    .selected-display {
+        font-size: 1.2rem;
+        padding: 0.5rem;
+    }
+    
+    .selected-number, .result {
+        min-width: 35px;
+        height: 35px;
+        font-size: 1rem;
+    }
+    
+    .operator, .equals {
+        font-size: 1.3rem;
     }
 }

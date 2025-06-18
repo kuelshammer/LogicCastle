@@ -1,286 +1,358 @@
 /**
- * TrioGame - Core game logic for Trio (3-in-a-row with 3 players)
+ * TrioGame - Core game logic for Trio mathematical game by Ravensburger
+ * Find three numbers in a 7x7 grid that solve: target = a×b+c or target = a×b-c
  */
 class TrioGame {
     constructor() {
-        this.ROWS = 6;
-        this.COLS = 6;
-        this.EMPTY = 0;
-        this.PLAYER1 = 1; // Red
-        this.PLAYER2 = 2; // Blue
-        this.PLAYER3 = 3; // Green
+        this.ROWS = 7;
+        this.COLS = 7;
+        this.TOTAL_CARDS = 49;
         
-        this.board = [];
-        this.currentPlayer = this.PLAYER1;
+        // Game state
+        this.numberGrid = [];
+        this.targetChips = [];
+        this.currentTarget = null;
+        this.usedChips = [];
         this.gameOver = false;
         this.winner = null;
-        this.winningCells = [];
-        this.moveHistory = [];
-        this.scores = { player1: 0, player2: 0, player3: 0, draws: 0 };
         
-        this.initializeBoard();
+        // Player management
+        this.players = [];
+        this.currentPlayerIndex = 0;
+        this.scores = {}; // playerId: chipCount
+        
+        // Game configuration
+        this.gameMode = 'multiplayer'; // 'multiplayer', 'single', 'vs-ai'
+        this.difficulty = 'medium';
+        this.timeLimit = 30; // seconds per round
+        
+        this.initializeGame();
         
         // Event system
         this.eventListeners = {};
     }
     
     /**
-     * Initialize empty game board
+     * Initialize the complete game
      */
-    initializeBoard() {
-        this.board = [];
+    initializeGame() {
+        this.generateNumberGrid();
+        this.generateTargetChips();
+        this.resetGameState();
+    }
+    
+    /**
+     * Generate a 7x7 grid with numbers 1-9
+     */
+    generateNumberGrid() {
+        this.numberGrid = [];
+        
+        // Create array with appropriate distribution of numbers 1-9
+        const numbers = [];
+        for (let i = 1; i <= 9; i++) {
+            // Each number appears 5-6 times to fill 49 slots
+            const count = i <= 4 ? 6 : 5; // Numbers 1-4 appear 6 times, 5-9 appear 5 times
+            for (let j = 0; j < count; j++) {
+                numbers.push(i);
+            }
+        }
+        
+        // Shuffle the numbers
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        
+        // Fill the 7x7 grid
+        let index = 0;
         for (let row = 0; row < this.ROWS; row++) {
-            this.board[row] = [];
+            this.numberGrid[row] = [];
             for (let col = 0; col < this.COLS; col++) {
-                this.board[row][col] = this.EMPTY;
+                this.numberGrid[row][col] = numbers[index++];
             }
         }
     }
     
     /**
-     * Reset game to initial state
+     * Generate target number chips for the game
      */
-    resetGame() {
-        this.initializeBoard();
-        this.currentPlayer = this.PLAYER1;
-        this.gameOver = false;
-        this.winner = null;
-        this.winningCells = [];
-        this.moveHistory = [];
-        this.emit('gameReset');
-        this.emit('playerChanged', this.currentPlayer);
-    }
-    
-    /**
-     * Make a move at the specified position
-     * @param {number} row - Row index (0-5)
-     * @param {number} col - Column index (0-5)
-     * @returns {Object} - Move result with success status and position
-     */
-    makeMove(row, col) {
-        if (this.gameOver) {
-            return { success: false, reason: 'Game is over' };
-        }
+    generateTargetChips() {
+        this.targetChips = [];
         
-        if (row < 0 || row >= this.ROWS || col < 0 || col >= this.COLS) {
-            return { success: false, reason: 'Invalid position' };
-        }
-        
-        if (this.board[row][col] !== this.EMPTY) {
-            return { success: false, reason: 'Position is occupied' };
-        }
-        
-        // Place the piece
-        this.board[row][col] = this.currentPlayer;
-        
-        // Record the move
-        const move = { row, col, player: this.currentPlayer };
-        this.moveHistory.push(move);
-        
-        // Emit move event
-        this.emit('moveMade', move);
-        
-        // Check for win
-        if (this.checkWin(row, col)) {
-            this.gameOver = true;
-            this.winner = this.currentPlayer;
-            this.scores[`player${this.currentPlayer}`]++;
-            this.emit('gameWon', { winner: this.winner, winningCells: this.winningCells });
-            return { success: true, row, col, gameWon: true, winner: this.winner };
-        }
-        
-        // Check for draw
-        if (this.isDraw()) {
-            this.gameOver = true;
-            this.scores.draws++;
-            this.emit('gameDraw');
-            return { success: true, row, col, gameDraw: true };
-        }
-        
-        // Switch to next player
-        this.currentPlayer = this.getNextPlayer(this.currentPlayer);
-        this.emit('playerChanged', this.currentPlayer);
-        
-        return { success: true, row, col };
-    }
-    
-    /**
-     * Get the next player in sequence
-     * @param {number} currentPlayer - Current player number
-     * @returns {number} - Next player number
-     */
-    getNextPlayer(currentPlayer) {
-        switch (currentPlayer) {
-            case this.PLAYER1: return this.PLAYER2;
-            case this.PLAYER2: return this.PLAYER3;
-            case this.PLAYER3: return this.PLAYER1;
-            default: return this.PLAYER1;
-        }
-    }
-    
-    /**
-     * Undo the last move
-     * @returns {Object} - Undo result
-     */
-    undoMove() {
-        if (this.moveHistory.length === 0) {
-            return { success: false, reason: 'No moves to undo' };
-        }
-        
-        const lastMove = this.moveHistory.pop();
-        this.board[lastMove.row][lastMove.col] = this.EMPTY;
-        
-        // Reset game state
-        this.gameOver = false;
-        this.winner = null;
-        this.winningCells = [];
-        this.currentPlayer = lastMove.player;
-        
-        this.emit('moveUndone', lastMove);
-        this.emit('playerChanged', this.currentPlayer);
-        
-        return { success: true, move: lastMove };
-    }
-    
-    /**
-     * Check if the current move results in a win
-     * @param {number} row - Row of the last placed piece
-     * @param {number} col - Column of the last placed piece
-     * @returns {boolean} - True if win condition is met
-     */
-    checkWin(row, col) {
-        const player = this.board[row][col];
-        const directions = [
-            [0, 1],   // Horizontal
-            [1, 0],   // Vertical
-            [1, 1],   // Diagonal /
-            [1, -1]   // Diagonal \
+        // Generate various target numbers that have solutions in the grid
+        const possibleTargets = [
+            // Easy targets (small numbers)
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+            // Medium targets
+            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+            // Harder targets
+            31, 32, 33, 34, 35, 36, 40, 42, 45, 48, 50, 54, 56, 60, 63, 72, 81
         ];
         
-        for (const [deltaRow, deltaCol] of directions) {
-            const cells = this.getConnectedCells(row, col, deltaRow, deltaCol, player);
-            if (cells.length >= 3) {
-                this.winningCells = cells;
-                return true;
-            }
+        // Select random subset for this game
+        const chipCount = Math.min(20, possibleTargets.length);
+        for (let i = 0; i < chipCount; i++) {
+            const randomIndex = Math.floor(Math.random() * possibleTargets.length);
+            const target = possibleTargets.splice(randomIndex, 1)[0];
+            this.targetChips.push(target);
         }
         
-        return false;
+        // Sort chips by difficulty (ascending)
+        this.targetChips.sort((a, b) => a - b);
     }
     
     /**
-     * Get connected cells in a specific direction
-     * @param {number} row - Starting row
-     * @param {number} col - Starting column
-     * @param {number} deltaRow - Row direction
-     * @param {number} deltaCol - Column direction
-     * @param {number} player - Player number
-     * @returns {Array} - Array of connected cell positions
+     * Reset game state for new game
      */
-    getConnectedCells(row, col, deltaRow, deltaCol, player) {
-        const cells = [{ row, col }];
+    resetGameState() {
+        this.usedChips = [];
+        this.currentTarget = null;
+        this.gameOver = false;
+        this.winner = null;
+        this.currentPlayerIndex = 0;
         
-        // Check positive direction
-        let r = row + deltaRow;
-        let c = col + deltaCol;
-        while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
-            cells.push({ row: r, col: c });
-            r += deltaRow;
-            c += deltaCol;
-        }
+        // Reset scores
+        this.players.forEach(player => {
+            this.scores[player.id] = 0;
+        });
         
-        // Check negative direction
-        r = row - deltaRow;
-        c = col - deltaCol;
-        while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
-            cells.unshift({ row: r, col: c });
-            r -= deltaRow;
-            c -= deltaCol;
-        }
-        
-        return cells;
+        this.emit('gameReset');
     }
     
     /**
-     * Check if the game is a draw (board full)
-     * @returns {boolean} - True if draw condition is met
+     * Add a player to the game
      */
-    isDraw() {
-        for (let row = 0; row < this.ROWS; row++) {
-            for (let col = 0; col < this.COLS; col++) {
-                if (this.board[row][col] === this.EMPTY) {
-                    return false;
-                }
-            }
+    addPlayer(playerId, playerName, isAI = false) {
+        const player = {
+            id: playerId,
+            name: playerName,
+            isAI: isAI,
+            chips: []
+        };
+        
+        this.players.push(player);
+        this.scores[playerId] = 0;
+        
+        this.emit('playerAdded', player);
+        return player;
+    }
+    
+    /**
+     * Start a new round with a target number
+     */
+    startNewRound() {
+        if (this.targetChips.length === 0) {
+            this.endGame();
+            return false;
         }
+        
+        // Get next target chip
+        this.currentTarget = this.targetChips.shift();
+        this.emit('newRound', { target: this.currentTarget });
+        
         return true;
     }
     
     /**
-     * Check if a position is occupied
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     * @returns {boolean} - True if position is occupied
+     * Submit a solution attempt
      */
-    isPositionOccupied(row, col) {
-        return this.board[row][col] !== this.EMPTY;
-    }
-    
-    /**
-     * Get valid moves (empty positions)
-     * @returns {Array} - Array of valid position objects
-     */
-    getValidMoves() {
-        const validMoves = [];
-        for (let row = 0; row < this.ROWS; row++) {
-            for (let col = 0; col < this.COLS; col++) {
-                if (!this.isPositionOccupied(row, col)) {
-                    validMoves.push({ row, col });
-                }
+    submitSolution(playerId, positions) {
+        if (!this.currentTarget || this.gameOver) {
+            return { success: false, reason: 'No active round' };
+        }
+        
+        // Validate that we have exactly 3 positions
+        if (positions.length !== 3) {
+            return { success: false, reason: 'Must select exactly 3 numbers' };
+        }
+        
+        // Get the three numbers
+        const numbers = positions.map(pos => this.numberGrid[pos.row][pos.col]);
+        const [a, b, c] = numbers;
+        
+        // Check if solution is valid
+        const solution = this.validateSolution(a, b, c, this.currentTarget);
+        
+        if (solution.isValid) {
+            // Award chip to player
+            const player = this.players.find(p => p.id === playerId);
+            if (player) {
+                player.chips.push(this.currentTarget);
+                this.scores[playerId]++;
+                
+                this.usedChips.push({
+                    target: this.currentTarget,
+                    solution: solution,
+                    positions: positions,
+                    playerId: playerId
+                });
+                
+                this.emit('solutionFound', {
+                    playerId: playerId,
+                    target: this.currentTarget,
+                    solution: solution,
+                    positions: positions
+                });
+                
+                // Start next round
+                this.currentTarget = null;
+                setTimeout(() => this.startNewRound(), 2000);
+                
+                return { success: true, solution: solution };
             }
         }
-        return validMoves;
+        
+        return { success: false, reason: 'Invalid solution', attempted: solution };
     }
     
     /**
-     * Get a copy of the current board
-     * @returns {Array} - 2D array representing the board
+     * Validate if three numbers solve the target using a×b+c or a×b-c
      */
-    getBoard() {
-        return this.board.map(row => [...row]);
-    }
-    
-    /**
-     * Get game state information
-     * @returns {Object} - Current game state
-     */
-    getGameState() {
+    validateSolution(a, b, c, target) {
+        // Try all permutations of the three numbers
+        const numbers = [a, b, c];
+        const permutations = this.getPermutations(numbers);
+        
+        for (const [x, y, z] of permutations) {
+            // Try x×y+z = target
+            if (x * y + z === target) {
+                return {
+                    isValid: true,
+                    formula: `${x} × ${y} + ${z} = ${target}`,
+                    operation: 'multiplication_addition',
+                    numbers: [x, y, z]
+                };
+            }
+            
+            // Try x×y-z = target  
+            if (x * y - z === target) {
+                return {
+                    isValid: true,
+                    formula: `${x} × ${y} - ${z} = ${target}`,
+                    operation: 'multiplication_subtraction',
+                    numbers: [x, y, z]
+                };
+            }
+        }
+        
         return {
-            board: this.getBoard(),
-            currentPlayer: this.currentPlayer,
-            gameOver: this.gameOver,
-            winner: this.winner,
-            winningCells: [...this.winningCells],
-            moveHistory: [...this.moveHistory],
-            scores: { ...this.scores },
-            validMoves: this.getValidMoves()
+            isValid: false,
+            attempted: `No valid formula found for ${a}, ${b}, ${c} = ${target}`
         };
     }
     
     /**
-     * Load game state from object
-     * @param {Object} state - Game state to load
+     * Get all permutations of an array
      */
-    loadGameState(state) {
-        this.board = state.board.map(row => [...row]);
-        this.currentPlayer = state.currentPlayer;
-        this.gameOver = state.gameOver;
-        this.winner = state.winner;
-        this.winningCells = [...state.winningCells];
-        this.moveHistory = [...state.moveHistory];
-        this.scores = { ...state.scores };
+    getPermutations(arr) {
+        if (arr.length <= 1) return [arr];
         
-        this.emit('gameLoaded', state);
+        const permutations = [];
+        for (let i = 0; i < arr.length; i++) {
+            const current = arr[i];
+            const remaining = arr.slice(0, i).concat(arr.slice(i + 1));
+            const remainingPermutations = this.getPermutations(remaining);
+            
+            for (const perm of remainingPermutations) {
+                permutations.push([current, ...perm]);
+            }
+        }
+        
+        return permutations;
+    }
+    
+    /**
+     * Find all possible solutions for a target number
+     */
+    findAllSolutions(target) {
+        const solutions = [];
+        
+        // Check all possible combinations of 3 numbers from the grid
+        for (let r1 = 0; r1 < this.ROWS; r1++) {
+            for (let c1 = 0; c1 < this.COLS; c1++) {
+                for (let r2 = 0; r2 < this.ROWS; r2++) {
+                    for (let c2 = 0; c2 < this.COLS; c2++) {
+                        for (let r3 = 0; r3 < this.ROWS; r3++) {
+                            for (let c3 = 0; c3 < this.COLS; c3++) {
+                                // Skip if positions are the same
+                                if ((r1 === r2 && c1 === c2) || 
+                                    (r1 === r3 && c1 === c3) || 
+                                    (r2 === r3 && c2 === c3)) {
+                                    continue;
+                                }
+                                
+                                const positions = [
+                                    { row: r1, col: c1 },
+                                    { row: r2, col: c2 },
+                                    { row: r3, col: c3 }
+                                ];
+                                
+                                const numbers = positions.map(pos => this.numberGrid[pos.row][pos.col]);
+                                const solution = this.validateSolution(numbers[0], numbers[1], numbers[2], target);
+                                
+                                if (solution.isValid) {
+                                    solutions.push({
+                                        positions: positions,
+                                        numbers: numbers,
+                                        solution: solution
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return solutions;
+    }
+    
+    /**
+     * End the game and determine winner
+     */
+    endGame() {
+        this.gameOver = true;
+        
+        // Find winner (player with most chips)
+        let maxChips = 0;
+        let winner = null;
+        
+        this.players.forEach(player => {
+            if (this.scores[player.id] > maxChips) {
+                maxChips = this.scores[player.id];
+                winner = player;
+            }
+        });
+        
+        this.winner = winner;
+        this.emit('gameEnded', { winner: winner, scores: this.scores });
+    }
+    
+    /**
+     * Get current game state
+     */
+    getGameState() {
+        return {
+            numberGrid: this.numberGrid.map(row => [...row]),
+            currentTarget: this.currentTarget,
+            targetChips: [...this.targetChips],
+            usedChips: [...this.usedChips],
+            players: [...this.players],
+            scores: { ...this.scores },
+            gameOver: this.gameOver,
+            winner: this.winner,
+            currentPlayerIndex: this.currentPlayerIndex
+        };
+    }
+    
+    /**
+     * Get number at specific position
+     */
+    getNumberAt(row, col) {
+        if (row >= 0 && row < this.ROWS && col >= 0 && col < this.COLS) {
+            return this.numberGrid[row][col];
+        }
+        return null;
     }
     
     /**
@@ -303,147 +375,5 @@ class TrioGame {
         if (this.eventListeners[event]) {
             this.eventListeners[event].forEach(callback => callback(data));
         }
-    }
-    
-    /**
-     * Utility methods for AI and analysis
-     */
-    
-    /**
-     * Simulate a move without modifying the actual game state
-     * @param {number} row - Row to simulate move in
-     * @param {number} col - Column to simulate move in
-     * @returns {Object} - Simulation result
-     */
-    simulateMove(row, col) {
-        if (this.isPositionOccupied(row, col)) {
-            return { success: false, reason: 'Position is occupied' };
-        }
-        
-        // Create a copy of the board with the simulated move
-        const simulatedBoard = this.getBoard();
-        simulatedBoard[row][col] = this.currentPlayer;
-        
-        // Check if this move would win
-        const wouldWin = this.checkWinOnBoard(simulatedBoard, row, col, this.currentPlayer);
-        
-        return {
-            success: true,
-            row,
-            col,
-            player: this.currentPlayer,
-            wouldWin,
-            board: simulatedBoard
-        };
-    }
-    
-    /**
-     * Check win condition on a specific board
-     * @param {Array} board - 2D board array
-     * @param {number} row - Row to check from
-     * @param {number} col - Column to check from
-     * @param {number} player - Player to check for
-     * @returns {boolean} - True if win condition is met
-     */
-    checkWinOnBoard(board, row, col, player) {
-        const directions = [
-            [0, 1],   // Horizontal
-            [1, 0],   // Vertical
-            [1, 1],   // Diagonal /
-            [1, -1]   // Diagonal \
-        ];
-        
-        for (const [deltaRow, deltaCol] of directions) {
-            let count = 1; // Count the placed piece
-            
-            // Check positive direction
-            let r = row + deltaRow;
-            let c = col + deltaCol;
-            while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && board[r][c] === player) {
-                count++;
-                r += deltaRow;
-                c += deltaCol;
-            }
-            
-            // Check negative direction
-            r = row - deltaRow;
-            c = col - deltaCol;
-            while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && board[r][c] === player) {
-                count++;
-                r -= deltaRow;
-                c -= deltaCol;
-            }
-            
-            if (count >= 3) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Get player name
-     * @param {number} player - Player number
-     * @returns {string} - Player name
-     */
-    getPlayerName(player) {
-        switch (player) {
-            case this.PLAYER1: return 'Spieler 1 (Rot)';
-            case this.PLAYER2: return 'Spieler 2 (Blau)';
-            case this.PLAYER3: return 'Spieler 3 (Grün)';
-            default: return 'Unbekannt';
-        }
-    }
-    
-    /**
-     * Get player color class
-     * @param {number} player - Player number
-     * @returns {string} - CSS class name
-     */
-    getPlayerColorClass(player) {
-        switch (player) {
-            case this.PLAYER1: return 'player1';
-            case this.PLAYER2: return 'player2';
-            case this.PLAYER3: return 'player3';
-            default: return '';
-        }
-    }
-    
-    /**
-     * Evaluate position for AI
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     * @param {number} player - Player to evaluate for
-     * @returns {number} - Position score
-     */
-    evaluatePosition(row, col, player) {
-        if (this.isPositionOccupied(row, col)) {
-            return -1000; // Invalid move
-        }
-        
-        let score = 0;
-        
-        // Center positions are generally better
-        const centerDistance = Math.abs(row - 2.5) + Math.abs(col - 2.5);
-        score += (7 - centerDistance) * 2;
-        
-        // Check for immediate win
-        if (this.simulateMove(row, col).wouldWin) {
-            score += 1000;
-        }
-        
-        // Check for blocking opponent wins
-        const opponents = [this.PLAYER1, this.PLAYER2, this.PLAYER3].filter(p => p !== player);
-        for (const opponent of opponents) {
-            const originalPlayer = this.currentPlayer;
-            this.currentPlayer = opponent;
-            if (this.simulateMove(row, col).wouldWin) {
-                score += 500; // High priority to block
-            }
-            this.currentPlayer = originalPlayer;
-        }
-        
-        return score;
     }
 }

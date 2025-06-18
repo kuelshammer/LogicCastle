@@ -1,351 +1,271 @@
 /**
- * TrioAI - AI player for Trio game
+ * TrioAI - AI system for Trio mathematical game
+ * Finds solutions for target numbers using a×b+c or a×b-c formulas
  */
 class TrioAI {
     constructor(difficulty = 'medium') {
         this.difficulty = difficulty;
-        this.maxDepth = this.getMaxDepth();
+        this.searchDepth = this.getSearchDepth(difficulty);
+        this.cache = new Map();
     }
     
     /**
-     * Get maximum search depth based on difficulty
-     * @returns {number} - Maximum depth
+     * Get search parameters based on difficulty
      */
-    getMaxDepth() {
-        switch (this.difficulty) {
-            case 'easy': return 1;
-            case 'medium': return 2;
-            case 'hard': return 3;
-            default: return 2;
+    getSearchDepth(difficulty) {
+        switch (difficulty) {
+            case 'easy': return { maxSolutions: 1, timeLimit: 500 };
+            case 'medium': return { maxSolutions: 3, timeLimit: 1000 };
+            case 'hard': return { maxSolutions: 5, timeLimit: 2000 };
+            default: return { maxSolutions: 3, timeLimit: 1000 };
         }
     }
     
     /**
-     * Get the best move for the current player
-     * @param {TrioGame} game - Game instance
-     * @returns {Object} - Best move {row, col}
+     * Find the best solution for a target number
+     * @param {TrioGame} game - Current game instance
+     * @param {number} target - Target number to solve
+     * @returns {Object|null} - Best solution or null if none found
      */
-    getBestMove(game) {
-        const validMoves = game.getValidMoves();
-        
-        if (validMoves.length === 0) {
+    findBestSolution(game, target) {
+        if (!target || !game.numberGrid) {
             return null;
         }
         
+        // Check cache first
+        const cacheKey = `${target}_${this.gridHash(game.numberGrid)}`;
+        if (this.cache.has(cacheKey)) {
+            return this.cache.get(cacheKey);
+        }
+        
+        const startTime = Date.now();
+        const solutions = [];
+        
+        // Find all possible solutions
+        for (let r1 = 0; r1 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r1++) {
+            for (let c1 = 0; c1 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c1++) {
+                for (let r2 = 0; r2 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r2++) {
+                    for (let c2 = 0; c2 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c2++) {
+                        for (let r3 = 0; r3 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r3++) {
+                            for (let c3 = 0; c3 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c3++) {
+                                // Skip if positions are the same
+                                if ((r1 === r2 && c1 === c2) || 
+                                    (r1 === r3 && c1 === c3) || 
+                                    (r2 === r3 && c2 === c3)) {
+                                    continue;
+                                }
+                                
+                                // Check time limit
+                                if (Date.now() - startTime > this.searchDepth.timeLimit) {
+                                    break;
+                                }
+                                
+                                const positions = [
+                                    { row: r1, col: c1 },
+                                    { row: r2, col: c2 },
+                                    { row: r3, col: c3 }
+                                ];
+                                
+                                const numbers = positions.map(pos => game.numberGrid[pos.row][pos.col]);
+                                const solution = game.validateSolution(numbers[0], numbers[1], numbers[2], target);
+                                
+                                if (solution.isValid) {
+                                    solutions.push({
+                                        positions: positions,
+                                        numbers: numbers,
+                                        solution: solution,
+                                        score: this.scoreSolution(solution, numbers, positions)
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (solutions.length === 0) {
+            this.cache.set(cacheKey, null);
+            return null;
+        }
+        
+        // Sort solutions by score and pick the best one based on difficulty
+        solutions.sort((a, b) => b.score - a.score);
+        
+        const bestSolution = this.selectSolutionByDifficulty(solutions);
+        this.cache.set(cacheKey, bestSolution);
+        
+        return bestSolution;
+    }
+    
+    /**
+     * Score a solution based on various factors
+     */
+    scoreSolution(solution, numbers, positions) {
+        let score = 0;
+        
+        // Prefer simpler operations (addition over subtraction)
+        if (solution.operation === 'multiplication_addition') {
+            score += 10;
+        } else {
+            score += 5;
+        }
+        
+        // Prefer smaller numbers (easier to spot)
+        const avgNumber = numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
+        score += Math.max(0, 10 - avgNumber);
+        
+        // Prefer positions that are closer together (easier to see pattern)
+        const distance = this.calculatePositionDistance(positions);
+        score += Math.max(0, 10 - distance);
+        
+        // Add some randomness to avoid predictable patterns
+        score += Math.random() * 3;
+        
+        return score;
+    }
+    
+    /**
+     * Calculate average distance between positions
+     */
+    calculatePositionDistance(positions) {
+        let totalDistance = 0;
+        let pairCount = 0;
+        
+        for (let i = 0; i < positions.length; i++) {
+            for (let j = i + 1; j < positions.length; j++) {
+                const dx = positions[i].col - positions[j].col;
+                const dy = positions[i].row - positions[j].row;
+                totalDistance += Math.sqrt(dx * dx + dy * dy);
+                pairCount++;
+            }
+        }
+        
+        return pairCount > 0 ? totalDistance / pairCount : 0;
+    }
+    
+    /**
+     * Select solution based on AI difficulty
+     */
+    selectSolutionByDifficulty(solutions) {
+        if (solutions.length === 0) return null;
+        
         switch (this.difficulty) {
             case 'easy':
-                return this.getRandomMove(validMoves);
+                // Pick a random solution from top 50%
+                const easyIndex = Math.floor(Math.random() * Math.ceil(solutions.length / 2));
+                return solutions[easyIndex];
+                
             case 'medium':
-                return this.getMediumMove(game, validMoves);
+                // Pick a random solution from top 25%
+                const mediumIndex = Math.floor(Math.random() * Math.ceil(solutions.length / 4));
+                return solutions[mediumIndex];
+                
             case 'hard':
-                return this.getHardMove(game, validMoves);
+                // Always pick the best solution
+                return solutions[0];
+                
             default:
-                return this.getMediumMove(game, validMoves);
+                return solutions[0];
         }
     }
     
     /**
-     * Get a random valid move (easy difficulty)
-     * @param {Array} validMoves - Array of valid moves
-     * @returns {Object} - Random move
+     * Generate a simple hash of the grid for caching
      */
-    getRandomMove(validMoves) {
-        const randomIndex = Math.floor(Math.random() * validMoves.length);
-        return validMoves[randomIndex];
+    gridHash(grid) {
+        return grid.flat().join(',');
     }
     
     /**
-     * Get a move using simple heuristics (medium difficulty)
-     * @param {TrioGame} game - Game instance
-     * @param {Array} validMoves - Array of valid moves
-     * @returns {Object} - Best move found
+     * Make an AI move (find and submit a solution)
+     * @param {TrioGame} game - Current game instance
+     * @param {string} playerId - AI player ID
+     * @returns {Object} - Result of the move attempt
      */
-    getMediumMove(game, validMoves) {
-        let bestMove = null;
-        let bestScore = -Infinity;
-        
-        for (const move of validMoves) {
-            const score = this.evaluateMove(game, move.row, move.col);
-            
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = move;
-            }
+    makeMove(game, playerId) {
+        if (!game.currentTarget) {
+            return { success: false, reason: 'No active target' };
         }
         
-        return bestMove || this.getRandomMove(validMoves);
-    }
-    
-    /**
-     * Get a move using minimax algorithm (hard difficulty)
-     * @param {TrioGame} game - Game instance
-     * @param {Array} validMoves - Array of valid moves
-     * @returns {Object} - Best move found
-     */
-    getHardMove(game, validMoves) {
-        let bestMove = null;
-        let bestScore = -Infinity;
+        // Add some thinking delay for realism
+        const thinkingTime = this.getThinkingTime();
         
-        const currentPlayer = game.currentPlayer;
-        
-        for (const move of validMoves) {
-            // Create a copy of the game state
-            const gameState = game.getGameState();
-            const testGame = new TrioGame();
-            testGame.loadGameState(gameState);
-            
-            // Make the move
-            testGame.makeMove(move.row, move.col);
-            
-            // Evaluate using minimax
-            const score = this.minimax(testGame, this.maxDepth - 1, false, currentPlayer, -Infinity, Infinity);
-            
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = move;
-            }
-        }
-        
-        return bestMove || this.getRandomMove(validMoves);
-    }
-    
-    /**
-     * Evaluate a single move
-     * @param {TrioGame} game - Game instance
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     * @returns {number} - Move score
-     */
-    evaluateMove(game, row, col) {
-        const currentPlayer = game.currentPlayer;
-        let score = 0;
-        
-        // Check for immediate win
-        const simulation = game.simulateMove(row, col);
-        if (simulation.wouldWin) {
-            return 1000;
-        }
-        
-        // Check for blocking opponent wins
-        const opponents = this.getOpponents(currentPlayer);
-        for (const opponent of opponents) {
-            // Temporarily change current player to check opponent's winning moves
-            const originalPlayer = game.currentPlayer;
-            game.currentPlayer = opponent;
-            const opponentSimulation = game.simulateMove(row, col);
-            game.currentPlayer = originalPlayer;
-            
-            if (opponentSimulation.wouldWin) {
-                score += 500; // High priority to block
-            }
-        }
-        
-        // Positional scoring
-        score += this.getPositionalScore(row, col, game);
-        
-        // Pattern recognition
-        score += this.getPatternScore(game, row, col, currentPlayer);
-        
-        return score;
-    }
-    
-    /**
-     * Get opponents for a given player
-     * @param {number} player - Player number
-     * @returns {Array} - Array of opponent player numbers
-     */
-    getOpponents(player) {
-        const allPlayers = [1, 2, 3];
-        return allPlayers.filter(p => p !== player);
-    }
-    
-    /**
-     * Get positional score for a move
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     * @param {TrioGame} game - Game instance
-     * @returns {number} - Positional score
-     */
-    getPositionalScore(row, col, game) {
-        let score = 0;
-        
-        // Center positions are generally better
-        const centerDistance = Math.abs(row - 2.5) + Math.abs(col - 2.5);
-        score += (7 - centerDistance) * 5;
-        
-        // Corner and edge bonuses
-        if ((row === 0 || row === 5) && (col === 0 || col === 5)) {
-            score += 3; // Corner bonus
-        } else if (row === 0 || row === 5 || col === 0 || col === 5) {
-            score += 1; // Edge bonus
-        }
-        
-        return score;
-    }
-    
-    /**
-     * Get pattern score for building lines
-     * @param {TrioGame} game - Game instance
-     * @param {number} row - Row index
-     * @param {number} col - Column index
-     * @param {number} player - Player number
-     * @returns {number} - Pattern score
-     */
-    getPatternScore(game, row, col, player) {
-        let score = 0;
-        const board = game.getBoard();
-        const directions = [
-            [0, 1],   // Horizontal
-            [1, 0],   // Vertical
-            [1, 1],   // Diagonal /
-            [1, -1]   // Diagonal \
-        ];
-        
-        for (const [deltaRow, deltaCol] of directions) {
-            const lineScore = this.evaluateLine(board, row, col, deltaRow, deltaCol, player);
-            score += lineScore;
-        }
-        
-        return score;
-    }
-    
-    /**
-     * Evaluate a line for pattern formation
-     * @param {Array} board - Game board
-     * @param {number} row - Starting row
-     * @param {number} col - Starting column
-     * @param {number} deltaRow - Row direction
-     * @param {number} deltaCol - Column direction
-     * @param {number} player - Player number
-     * @returns {number} - Line score
-     */
-    evaluateLine(board, row, col, deltaRow, deltaCol, player) {
-        let score = 0;
-        let playerCount = 0;
-        let emptyCount = 0;
-        let opponentCount = 0;
-        
-        // Check a 3-cell window around the position
-        for (let i = -1; i <= 1; i++) {
-            const r = row + i * deltaRow;
-            const c = col + i * deltaCol;
-            
-            if (r >= 0 && r < 6 && c >= 0 && c < 6) {
-                if (i === 0) {
-                    playerCount++; // The move we're evaluating
-                } else if (board[r][c] === player) {
-                    playerCount++;
-                } else if (board[r][c] === 0) {
-                    emptyCount++;
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const solution = this.findBestSolution(game, game.currentTarget);
+                
+                if (solution) {
+                    const result = game.submitSolution(playerId, solution.positions);
+                    resolve(result);
                 } else {
-                    opponentCount++;
+                    // AI couldn't find a solution - this shouldn't happen if target chips are valid
+                    console.warn(`AI couldn't find solution for target ${game.currentTarget}`);
+                    resolve({ success: false, reason: 'No solution found' });
                 }
-            }
-        }
-        
-        // Score based on potential
-        if (opponentCount === 0) {
-            if (playerCount === 3) {
-                score += 100; // Winning line
-            } else if (playerCount === 2) {
-                score += 10; // Two in a row
-            }
-        }
-        
-        return score;
+            }, thinkingTime);
+        });
     }
     
     /**
-     * Minimax algorithm with alpha-beta pruning
-     * @param {TrioGame} game - Game instance
-     * @param {number} depth - Current depth
-     * @param {boolean} maximizing - Whether this is a maximizing player
-     * @param {number} originalPlayer - The original AI player
-     * @param {number} alpha - Alpha value for pruning
-     * @param {number} beta - Beta value for pruning
-     * @returns {number} - Best score
+     * Get AI thinking time based on difficulty
      */
-    minimax(game, depth, maximizing, originalPlayer, alpha, beta) {
-        if (depth === 0 || game.gameOver) {
-            return this.evaluateGameState(game, originalPlayer);
-        }
+    getThinkingTime() {
+        const baseTime = {
+            'easy': 1000,
+            'medium': 2000, 
+            'hard': 3000
+        }[this.difficulty] || 2000;
         
-        const validMoves = game.getValidMoves();
-        
-        if (maximizing) {
-            let maxScore = -Infinity;
-            
-            for (const move of validMoves) {
-                const gameState = game.getGameState();
-                const testGame = new TrioGame();
-                testGame.loadGameState(gameState);
-                
-                testGame.makeMove(move.row, move.col);
-                
-                const score = this.minimax(testGame, depth - 1, false, originalPlayer, alpha, beta);
-                maxScore = Math.max(maxScore, score);
-                
-                alpha = Math.max(alpha, score);
-                if (beta <= alpha) {
-                    break; // Alpha-beta pruning
-                }
-            }
-            
-            return maxScore;
-        } else {
-            let minScore = Infinity;
-            
-            for (const move of validMoves) {
-                const gameState = game.getGameState();
-                const testGame = new TrioGame();
-                testGame.loadGameState(gameState);
-                
-                testGame.makeMove(move.row, move.col);
-                
-                const score = this.minimax(testGame, depth - 1, true, originalPlayer, alpha, beta);
-                minScore = Math.min(minScore, score);
-                
-                beta = Math.min(beta, score);
-                if (beta <= alpha) {
-                    break; // Alpha-beta pruning
-                }
-            }
-            
-            return minScore;
-        }
+        // Add random variation
+        return baseTime + Math.random() * 1000;
     }
     
     /**
-     * Evaluate the current game state
-     * @param {TrioGame} game - Game instance
-     * @param {number} player - Player to evaluate for
-     * @returns {number} - Game state score
+     * Analyze the current game state
+     * @param {TrioGame} game - Current game instance
+     * @returns {Object} - Analysis results
      */
-    evaluateGameState(game, player) {
-        if (game.gameOver) {
-            if (game.winner === player) {
-                return 1000;
-            } else if (game.winner !== null) {
-                return -1000;
-            } else {
-                return 0; // Draw
+    analyzeGameState(game) {
+        const analysis = {
+            totalSolutions: 0,
+            averageDifficulty: 0,
+            recommendedStrategy: 'balanced'
+        };
+        
+        // Analyze remaining target chips
+        game.targetChips.forEach(target => {
+            const solutions = game.findAllSolutions(target);
+            analysis.totalSolutions += solutions.length;
+        });
+        
+        if (game.targetChips.length > 0) {
+            analysis.averageDifficulty = analysis.totalSolutions / game.targetChips.length;
+            
+            if (analysis.averageDifficulty < 2) {
+                analysis.recommendedStrategy = 'aggressive'; // Few solutions, need to be fast
+            } else if (analysis.averageDifficulty > 5) {
+                analysis.recommendedStrategy = 'patient'; // Many solutions, can take time
             }
         }
         
-        // Evaluate based on position control and threats
-        let score = 0;
-        const board = game.getBoard();
-        
-        for (let row = 0; row < 6; row++) {
-            for (let col = 0; col < 6; col++) {
-                if (board[row][col] === player) {
-                    score += this.getPositionalScore(row, col, game);
-                } else if (board[row][col] !== 0) {
-                    score -= this.getPositionalScore(row, col, game) * 0.5;
-                }
-            }
-        }
-        
-        return score;
+        return analysis;
+    }
+    
+    /**
+     * Clear the solution cache
+     */
+    clearCache() {
+        this.cache.clear();
+    }
+    
+    /**
+     * Get cache statistics
+     */
+    getCacheStats() {
+        return {
+            size: this.cache.size,
+            hitRate: this.cacheHits / (this.cacheHits + this.cacheMisses) || 0
+        };
     }
 }
