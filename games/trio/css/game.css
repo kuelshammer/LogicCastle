@@ -573,6 +573,217 @@
     color: #666;
 }
 
+/* Solution Display Styles */
+.solutions-header {
+    text-align: center;
+    padding: 1rem;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 1rem;
+}
+
+.solutions-header h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.solutions-header p {
+    margin: 0 0 1rem 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+.close-solutions-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.close-solutions-btn:hover {
+    background: #d32f2f;
+}
+
+.solution-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: rgba(33, 150, 243, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #2196F3;
+    position: relative;
+}
+
+.solution-item .solution-formula {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.solution-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.solution-numbers {
+    font-weight: 600;
+    color: #2196F3;
+}
+
+.solution-positions {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+.show-solution-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.show-solution-btn:hover {
+    background: #388e3c;
+    transform: translateY(-1px);
+}
+
+/* Solution Statistics */
+.solution-stats {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(33, 150, 243, 0.2);
+}
+
+.solution-stats p {
+    margin: 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+/* Enhanced Solution Items */
+.solution-count {
+    display: block;
+    font-weight: 600;
+    color: #4caf50;
+    margin-top: 0.25rem;
+}
+
+.solution-positions details {
+    margin-top: 0.5rem;
+}
+
+.solution-positions summary {
+    cursor: pointer;
+    color: #2196F3;
+    font-size: 0.9rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.solution-positions summary:hover {
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+.positions-list {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #666;
+    word-break: break-all;
+}
+
+.solution-buttons {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+}
+
+.show-first-btn {
+    background: #ff9800;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.show-first-btn:hover {
+    background: #f57c00;
+    transform: translateY(-1px);
+}
+
+/* Multiple Solution Highlighting */
+.number-cell.multiple-solution {
+    border-width: 3px;
+    font-weight: bold;
+    animation: solutionPulse 0.5s ease;
+}
+
+@keyframes solutionPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Different colors for multiple solutions */
+.number-cell.solution-1 {
+    background: linear-gradient(145deg, #4caf50, #388e3c);
+    border-color: #1b5e20;
+    color: white;
+}
+
+.number-cell.solution-2 {
+    background: linear-gradient(145deg, #ff9800, #f57c00);
+    border-color: #e65100;
+    color: white;
+}
+
+.number-cell.solution-3 {
+    background: linear-gradient(145deg, #e91e63, #c2185b);
+    border-color: #880e4f;
+    color: white;
+}
+
+.number-cell.solution-4 {
+    background: linear-gradient(145deg, #9c27b0, #7b1fa2);
+    border-color: #4a148c;
+    color: white;
+}
+
+.number-cell.solution-5 {
+    background: linear-gradient(145deg, #607d8b, #455a64);
+    border-color: #263238;
+    color: white;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .game-info {

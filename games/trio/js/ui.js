@@ -111,31 +111,65 @@ class TrioUI {
      */
     attachEventListeners() {
         // Game controls
-        this.elements.startGameBtn.addEventListener('click', this.handleStartGame);
-        this.elements.newRoundBtn.addEventListener('click', this.handleNewRound);
-        this.elements.showSolutionBtn.addEventListener('click', this.handleShowSolution);
-        this.elements.newGameBtn.addEventListener('click', this.handleNewGame);
+        if (this.elements.startGameBtn) {
+            this.elements.startGameBtn.addEventListener('click', this.handleStartGame);
+        }
+        
+        if (this.elements.newRoundBtn) {
+            this.elements.newRoundBtn.addEventListener('click', this.handleNewRound);
+        }
+        
+        if (this.elements.showSolutionBtn) {
+            this.elements.showSolutionBtn.addEventListener('click', this.handleShowSolution);
+        }
+        
+        if (this.elements.newGameBtn) {
+            this.elements.newGameBtn.addEventListener('click', this.handleNewGame);
+        }
         
         // Solution controls
-        this.elements.submitSolutionBtn.addEventListener('click', this.handleSubmitSolution);
-        this.elements.clearSelectionBtn.addEventListener('click', this.handleClearSelection);
+        if (this.elements.submitSolutionBtn) {
+            this.elements.submitSolutionBtn.addEventListener('click', this.handleSubmitSolution);
+        }
         
-        // Player setup
-        this.elements.addPlayerBtn.addEventListener('click', this.handleAddPlayer);
-        this.elements.startWithPlayersBtn.addEventListener('click', this.handleStartWithPlayers);
-        this.elements.playerNameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleAddPlayer();
-        });
+        if (this.elements.clearSelectionBtn) {
+            this.elements.clearSelectionBtn.addEventListener('click', this.handleClearSelection);
+        }
+        
+        // Player setup (optional elements)
+        if (this.elements.addPlayerBtn) {
+            this.elements.addPlayerBtn.addEventListener('click', this.handleAddPlayer);
+        }
+        
+        if (this.elements.startWithPlayersBtn) {
+            this.elements.startWithPlayersBtn.addEventListener('click', this.handleStartWithPlayers);
+        }
+        
+        if (this.elements.playerNameInput) {
+            this.elements.playerNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') this.handleAddPlayer();
+            });
+        }
         
         // Help and modal
-        this.elements.helpBtn.addEventListener('click', this.handleHelp);
-        this.elements.closeHelpBtn.addEventListener('click', this.handleHelp);
-        this.elements.helpModal.addEventListener('click', (e) => {
-            if (e.target === this.elements.helpModal) this.handleHelp();
-        });
+        if (this.elements.helpBtn) {
+            this.elements.helpBtn.addEventListener('click', this.handleHelp);
+        }
+        
+        if (this.elements.closeHelpBtn) {
+            this.elements.closeHelpBtn.addEventListener('click', this.handleHelp);
+        }
+        
+        if (this.elements.helpModal) {
+            this.elements.helpModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.helpModal) this.handleHelp();
+            });
+        }
         
         // Game mode
-        this.elements.gameMode.addEventListener('change', this.handleGameModeChange);
+        if (this.elements.gameMode) {
+            this.elements.gameMode.addEventListener('change', this.handleGameModeChange);
+        }
         
         // Keyboard controls
         document.addEventListener('keydown', this.handleKeyPress);
@@ -196,15 +230,6 @@ class TrioUI {
         }
         
         console.log(`Created ${this.game.ROWS}x${this.game.COLS} number grid with ${this.elements.numberGrid.children.length} cells`);
-        
-        // Add visible test to verify grid is displayed
-        if (this.elements.numberGrid.children.length > 0) {
-            console.log('✅ Number grid created successfully!');
-            console.log('First cell content:', this.elements.numberGrid.children[0].textContent);
-            console.log('Grid visible:', this.elements.numberGrid.offsetHeight > 0);
-        } else {
-            console.error('❌ Number grid is empty!');
-        }
     }
     
     /**
@@ -392,20 +417,192 @@ class TrioUI {
         
         const solutions = this.game.findAllSolutions(this.game.currentTarget);
         if (solutions.length > 0) {
-            const solution = solutions[0];
-            this.showMessage(`Lösungsbeispiel: ${solution.solution.formula}`, 'info');
-            
-            // Highlight solution briefly
-            this.selectedPositions = solution.positions;
-            this.updateGridSelection();
-            this.updateSelectedDisplay();
-            
-            setTimeout(() => {
-                this.handleClearSelection();
-            }, 3000);
+            this.displayAllSolutions(solutions);
+            this.showMessage(`${solutions.length} Lösung(en) für Zielzahl ${this.game.currentTarget} gefunden!`, 'info');
         } else {
             this.showMessage('Keine Lösung für diese Zielzahl gefunden!', 'warning');
         }
+    }
+    
+    /**
+     * Display all solutions for current target
+     */
+    displayAllSolutions(solutions) {
+        if (!this.elements.solutionHistory || !this.elements.historyList) {
+            console.warn('Solution history elements not found');
+            return;
+        }
+        
+        // Clear existing solutions
+        this.elements.historyList.innerHTML = '';
+        
+        // Create header with solution count and target
+        const header = document.createElement('div');
+        header.className = 'solutions-header';
+        header.innerHTML = `
+            <h3>Alle Lösungen für Zielzahl ${this.game.currentTarget}</h3>
+            <p>${solutions.length} Lösung(en) gefunden:</p>
+            <button class="btn btn-outline close-solutions-btn">Lösungen schließen</button>
+        `;
+        
+        // Add close button functionality
+        const closeBtn = header.querySelector('.close-solutions-btn');
+        closeBtn.addEventListener('click', () => {
+            this.elements.solutionHistory.style.display = 'none';
+        });
+        
+        this.elements.historyList.appendChild(header);
+        
+        // Group solutions by formula, keeping all positions
+        const groupedSolutions = this.groupSolutionsByFormula(solutions);
+        
+        // Add statistics
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'solution-stats';
+        statsDiv.innerHTML = `
+            <p><strong>${groupedSolutions.length}</strong> einzigartige Formeln, 
+            <strong>${solutions.length}</strong> verschiedene Positionen insgesamt</p>
+        `;
+        this.elements.historyList.appendChild(statsDiv);
+        
+        // Display each grouped solution
+        groupedSolutions.forEach((group, index) => {
+            const solutionItem = document.createElement('div');
+            solutionItem.className = 'solution-item';
+            
+            // Create position text for all positions of this formula
+            const allPositionsText = group.positions.map(posArray => 
+                posArray.map(pos => `(${pos.row + 1},${pos.col + 1})`).join(',')
+            ).join(' | ');
+            
+            solutionItem.innerHTML = `
+                <div class="solution-formula">${group.formula}</div>
+                <div class="solution-details">
+                    <span class="solution-numbers">Zahlen: ${group.numbers.join(', ')}</span>
+                    <span class="solution-count">${group.positions.length} Position(en) verfügbar</span>
+                    <div class="solution-positions">
+                        <details>
+                            <summary>Alle Positionen anzeigen</summary>
+                            <div class="positions-list">${allPositionsText}</div>
+                        </details>
+                    </div>
+                </div>
+                <div class="solution-buttons">
+                    <button class="btn btn-small show-solution-btn" data-solution-index="${index}">
+                        Alle zeigen
+                    </button>
+                    <button class="btn btn-small show-first-btn" data-solution-index="${index}">
+                        Erste zeigen
+                    </button>
+                </div>
+            `;
+            
+            // Add show all button functionality
+            const showAllBtn = solutionItem.querySelector('.show-solution-btn');
+            showAllBtn.addEventListener('click', () => {
+                this.highlightAllPositions(group);
+            });
+            
+            // Add show first button functionality
+            const showFirstBtn = solutionItem.querySelector('.show-first-btn');
+            showFirstBtn.addEventListener('click', () => {
+                this.highlightSolution(group.allSolutions[0]);
+            });
+            
+            this.elements.historyList.appendChild(solutionItem);
+        });
+        
+        // Show the solution history
+        this.elements.solutionHistory.style.display = 'block';
+        
+        // Scroll to solutions
+        this.elements.solutionHistory.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'nearest' 
+        });
+    }
+    
+    /**
+     * Group solutions by formula, keeping all positions for each formula
+     */
+    groupSolutionsByFormula(solutions) {
+        const groupedSolutions = new Map();
+        
+        solutions.forEach(sol => {
+            const formula = sol.solution.formula;
+            if (!groupedSolutions.has(formula)) {
+                groupedSolutions.set(formula, {
+                    formula: formula,
+                    operation: sol.solution.operation,
+                    numbers: sol.numbers,
+                    positions: [],
+                    allSolutions: []
+                });
+            }
+            
+            groupedSolutions.get(formula).positions.push(sol.positions);
+            groupedSolutions.get(formula).allSolutions.push(sol);
+        });
+        
+        return Array.from(groupedSolutions.values());
+    }
+    
+    /**
+     * Highlight a specific solution on the grid
+     */
+    highlightSolution(solution) {
+        // Clear current selection
+        this.handleClearSelection();
+        
+        // Set new selection
+        this.selectedPositions = solution.positions;
+        this.updateGridSelection();
+        this.updateSelectedDisplay();
+        
+        // Clear selection after 3 seconds
+        setTimeout(() => {
+            this.handleClearSelection();
+        }, 3000);
+        
+        // Show brief message
+        this.showMessage(`Lösung markiert: ${solution.solution.formula}`, 'info');
+    }
+    
+    /**
+     * Highlight all positions for a formula group
+     */
+    highlightAllPositions(group) {
+        // Clear current selection
+        this.handleClearSelection();
+        
+        // Clear existing highlights
+        this.elements.numberGrid.querySelectorAll('.number-cell').forEach(cell => {
+            cell.classList.remove('multiple-solution', 'solution-1', 'solution-2', 'solution-3', 'solution-4', 'solution-5');
+        });
+        
+        // Highlight all positions with different colors/styles
+        group.positions.forEach((positionSet, setIndex) => {
+            const colorClass = `solution-${(setIndex % 5) + 1}`;
+            
+            positionSet.forEach(pos => {
+                const cell = this.elements.numberGrid.querySelector(
+                    `[data-row="${pos.row}"][data-col="${pos.col}"]`
+                );
+                if (cell) {
+                    cell.classList.add('multiple-solution', colorClass);
+                }
+            });
+        });
+        
+        // Show message with count
+        this.showMessage(`${group.positions.length} Positionen für "${group.formula}" markiert`, 'info');
+        
+        // Clear highlights after 5 seconds
+        setTimeout(() => {
+            this.elements.numberGrid.querySelectorAll('.number-cell').forEach(cell => {
+                cell.classList.remove('multiple-solution', 'solution-1', 'solution-2', 'solution-3', 'solution-4', 'solution-5');
+            });
+        }, 5000);
     }
     
     /**
@@ -540,21 +737,25 @@ class TrioUI {
     }
     
     updateChipsRemaining() {
-        this.elements.chipsRemaining.textContent = this.game.targetChips.length;
+        if (this.elements.chipsRemaining) {
+            this.elements.chipsRemaining.textContent = this.game.targetChips.length;
+        }
     }
     
     updateScores() {
-        this.elements.scoresList.innerHTML = '';
-        
-        this.game.players.forEach(player => {
-            const scoreItem = document.createElement('div');
-            scoreItem.className = 'score-item';
-            scoreItem.innerHTML = `
-                <span class="player-name">${player.name}:</span>
-                <span class="chip-count">${this.game.scores[player.id] || 0} 🏆</span>
-            `;
-            this.elements.scoresList.appendChild(scoreItem);
-        });
+        if (this.elements.scoresList) {
+            this.elements.scoresList.innerHTML = '';
+            
+            this.game.players.forEach(player => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+                scoreItem.innerHTML = `
+                    <span class="player-name">${player.name}:</span>
+                    <span class="chip-count">${this.game.scores[player.id] || 0} 🏆</span>
+                `;
+                this.elements.scoresList.appendChild(scoreItem);
+            });
+        }
     }
     
     updatePlayersList() {
