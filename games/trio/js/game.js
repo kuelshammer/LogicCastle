@@ -22,8 +22,8 @@ class TrioGame {
         this.scores = {}; // playerId: chipCount
         
         // Game configuration
-        this.gameMode = 'multiplayer'; // 'multiplayer', 'single', 'vs-ai'
-        this.difficulty = 'medium';
+        this.gameMode = 'single'; // Single player mode
+        this.difficulty = 'kinderfreundlich'; // Default to child-friendly mode
         this.timeLimit = 30; // seconds per round
         
         // Event system (must be initialized before initializeGame)
@@ -178,6 +178,30 @@ class TrioGame {
         
         console.log(`Generating target chips for difficulty: ${this.difficulty}`);
         
+        // For initial load, use simple generation to avoid blocking UI
+        if (!this.numberGrid || this.numberGrid.length === 0) {
+            console.log('Grid not ready, using fallback generation');
+            switch (this.difficulty) {
+                case 'kinderfreundlich':
+                case 'strategisch':
+                    for (let i = 0; i < 15; i++) {
+                        this.targetChips.push(Math.floor(Math.random() * 50) + 1);
+                    }
+                    break;
+                case 'vollspektrum':
+                case 'analytisch':
+                default:
+                    for (let i = 0; i < 15; i++) {
+                        this.targetChips.push(Math.floor(Math.random() * 90) + 1);
+                    }
+                    break;
+            }
+            
+            this.targetChips.sort((a, b) => a - b);
+            console.log(`Generated ${this.targetChips.length} fallback target chips:`, this.targetChips);
+            return;
+        }
+        
         switch (this.difficulty) {
             case 'kinderfreundlich':
                 // Generate 15 random numbers 1-50
@@ -194,17 +218,31 @@ class TrioGame {
                 break;
                 
             case 'strategisch':
-                // Generate strategic targets based on current grid
-                const strategicTargets = this.findStrategicTargets(this.numberGrid, 15);
-                this.targetChips = strategicTargets.length > 0 ? strategicTargets : 
-                    Array.from({length: 15}, () => Math.floor(Math.random() * 50) + 1);
+                try {
+                    // Generate strategic targets based on current grid
+                    const strategicTargets = this.findStrategicTargets(this.numberGrid, 15);
+                    this.targetChips = strategicTargets.length > 0 ? strategicTargets : 
+                        Array.from({length: 15}, () => Math.floor(Math.random() * 50) + 1);
+                } catch (error) {
+                    console.warn('Error generating strategic targets, using fallback:', error);
+                    for (let i = 0; i < 15; i++) {
+                        this.targetChips.push(Math.floor(Math.random() * 50) + 1);
+                    }
+                }
                 break;
                 
             case 'analytisch':
-                // Generate analytical targets based on current grid
-                const analyticalTargets = this.findAnalyticalTargets(this.numberGrid, 15);
-                this.targetChips = analyticalTargets.length > 0 ? analyticalTargets :
-                    Array.from({length: 15}, () => Math.floor(Math.random() * 90) + 1);
+                try {
+                    // Generate analytical targets based on current grid
+                    const analyticalTargets = this.findAnalyticalTargets(this.numberGrid, 15);
+                    this.targetChips = analyticalTargets.length > 0 ? analyticalTargets :
+                        Array.from({length: 15}, () => Math.floor(Math.random() * 90) + 1);
+                } catch (error) {
+                    console.warn('Error generating analytical targets, using fallback:', error);
+                    for (let i = 0; i < 15; i++) {
+                        this.targetChips.push(Math.floor(Math.random() * 90) + 1);
+                    }
+                }
                 break;
                 
             default:
@@ -228,13 +266,19 @@ class TrioGame {
         
         console.log(`Generated ${this.targetChips.length} target chips for ${this.difficulty} difficulty:`, this.targetChips);
         
-        // Debug: Show analysis for first few targets
+        // Debug: Show analysis for first few targets (async to avoid blocking)
         if (this.difficulty === 'strategisch' || this.difficulty === 'analytisch') {
-            console.log('Target analysis for first 3 chips:');
-            this.targetChips.slice(0, 3).forEach(target => {
-                const analysis = this.calculateDifficultyRatio(target);
-                console.log(`Target ${target}: ${analysis.realizedCount}/${analysis.theoreticalCount} combinations (${(analysis.ratio * 100).toFixed(1)}%) - ${analysis.difficulty}`);
-            });
+            setTimeout(() => {
+                console.log('Target analysis for first 3 chips:');
+                this.targetChips.slice(0, 3).forEach(target => {
+                    try {
+                        const analysis = this.calculateDifficultyRatio(target);
+                        console.log(`Target ${target}: ${analysis.realizedCount}/${analysis.theoreticalCount} combinations (${(analysis.ratio * 100).toFixed(1)}%) - ${analysis.difficulty}`);
+                    } catch (error) {
+                        console.warn(`Error analyzing target ${target}:`, error);
+                    }
+                });
+            }, 100);
         }
     }
     

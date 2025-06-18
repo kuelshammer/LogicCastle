@@ -166,7 +166,12 @@ class TrioUI {
         // Ensure game has a number grid
         if (!this.game.numberGrid || this.game.numberGrid.length === 0) {
             console.log('Generating number grid...');
-            this.game.generateNumberGrid();
+            try {
+                this.game.generateNumberGrid();
+            } catch (error) {
+                console.error('Error generating number grid:', error);
+                return;
+            }
         }
         
         for (let row = 0; row < this.game.ROWS; row++) {
