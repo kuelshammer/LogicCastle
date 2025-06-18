@@ -319,30 +319,18 @@ class TrioUI {
      * Handle start game button
      */
     handleStartGame() {
-        if (this.gameMode === 'multiplayer') {
-            this.elements.playerSetup.style.display = 'block';
-            this.elements.playerNameInput.focus();
-        } else {
-            this.startGame();
-        }
+        this.startGame();
     }
     
     /**
-     * Start the actual game
+     * Start the actual game (single player only)
      */
     startGame() {
-        // Setup AI if needed
-        if (this.gameMode.startsWith('vs-ai')) {
-            const difficulty = this.gameMode.split('-')[2]; // 'easy', 'medium', 'hard'
-            this.ai = new TrioAI(difficulty);
-            this.game.addPlayer('ai', `AI (${difficulty})`, true);
-        }
-        
         this.elements.startGameBtn.disabled = true;
         this.elements.newRoundBtn.disabled = false;
         this.elements.showSolutionBtn.disabled = false;
         
-        this.updateGameStatus('Spiel gestartet! Klicke "Nächste Runde" für die erste Aufgabe.');
+        this.updateGameStatus(`Spiel gestartet! Schwierigkeit: ${this.game.difficulty.toUpperCase()}. Klicke "Nächste Runde" für die erste Aufgabe.`);
         this.updateUI();
     }
     
@@ -442,8 +430,21 @@ class TrioUI {
      * Handle game mode change
      */
     handleGameModeChange() {
-        this.gameMode = this.elements.gameMode.value;
-        this.handleNewGame();
+        const newDifficulty = this.elements.gameMode.value;
+        console.log('Difficulty changed to:', newDifficulty);
+        
+        // Update game difficulty
+        this.game.difficulty = newDifficulty;
+        
+        // Regenerate target chips with new difficulty
+        this.game.generateTargetChips();
+        
+        // Reset game state
+        this.game.resetGameState();
+        
+        // Update UI
+        this.updateUI();
+        this.updateGameStatus('Neue Schwierigkeit gewählt! Klicke "Spiel starten".');
     }
     
     /**

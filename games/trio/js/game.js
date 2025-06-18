@@ -74,31 +74,48 @@ class TrioGame {
     }
     
     /**
-     * Generate target number chips for the game
+     * Generate target number chips based on difficulty mode
      */
     generateTargetChips() {
         this.targetChips = [];
         
-        // Generate various target numbers that have solutions in the grid
-        const possibleTargets = [
-            // Easy targets (small numbers)
-            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-            // Medium targets
-            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-            // Harder targets
-            31, 32, 33, 34, 35, 36, 40, 42, 45, 48, 50, 54, 56, 60, 63, 72, 81
-        ];
+        // Define target pools by difficulty
+        const targetPools = {
+            easy: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+            medium: [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36],
+            hard: [25, 30, 35, 40, 42, 45, 48, 50, 54, 56, 60, 63, 70, 72, 81, 90]
+        };
         
-        // Select random subset for this game
-        const chipCount = Math.min(20, possibleTargets.length);
-        for (let i = 0; i < chipCount; i++) {
-            const randomIndex = Math.floor(Math.random() * possibleTargets.length);
-            const target = possibleTargets.splice(randomIndex, 1)[0];
-            this.targetChips.push(target);
+        // Get target pool based on current difficulty
+        let possibleTargets;
+        switch (this.difficulty) {
+            case 'easy':
+                possibleTargets = [...targetPools.easy];
+                break;
+            case 'hard':
+                possibleTargets = [...targetPools.hard];
+                break;
+            case 'medium':
+            default:
+                possibleTargets = [...targetPools.medium];
+                break;
         }
         
-        // Sort chips by difficulty (ascending)
+        // For single player mode, select all targets from the chosen difficulty
+        const chipCount = Math.min(15, possibleTargets.length);
+        
+        // Shuffle and take the required amount
+        for (let i = possibleTargets.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [possibleTargets[i], possibleTargets[j]] = [possibleTargets[j], possibleTargets[i]];
+        }
+        
+        this.targetChips = possibleTargets.slice(0, chipCount);
+        
+        // Sort chips by value for progression feel
         this.targetChips.sort((a, b) => a - b);
+        
+        console.log(`Generated ${chipCount} target chips for ${this.difficulty} difficulty:`, this.targetChips);
     }
     
     /**

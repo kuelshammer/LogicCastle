@@ -14,11 +14,9 @@
             <h1>🧮 Trio - Rechenspiel</h1>
             <div class="game-mode-selector">
                 <select id="gameMode">
-                    <option value="single">Einzelspieler</option>
-                    <option value="multiplayer">Mehrspieler (2-6)</option>
-                    <option value="vs-ai-easy">vs AI (Einfach)</option>
-                    <option value="vs-ai-medium">vs AI (Mittel)</option>
-                    <option value="vs-ai-hard">vs AI (Schwer)</option>
+                    <option value="easy">Einfach (2-15)</option>
+                    <option value="medium" selected>Mittel (8-36)</option>
+                    <option value="hard">Schwer (25-90)</option>
                 </select>
             </div>
         </header>
@@ -39,16 +37,6 @@
                 <button class="btn btn-outline" id="newGameBtn" tabindex="4">Neues Spiel</button>
             </div>
 
-            <!-- Player Setup (initially hidden) -->
-            <div class="player-setup" id="playerSetup" style="display: none;">
-                <h3>Spieler hinzufügen:</h3>
-                <div class="player-input">
-                    <input type="text" id="playerNameInput" placeholder="Spielername eingeben..." maxlength="20">
-                    <button class="btn btn-small" id="addPlayerBtn">Hinzufügen</button>
-                </div>
-                <div class="players-list" id="playersList"></div>
-                <button class="btn btn-primary" id="startWithPlayersBtn" disabled>Spiel mit Spielern starten</button>
-            </div>
 
             <!-- Game Board Container -->
             <div class="game-board-container">
