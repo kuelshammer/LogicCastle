@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trio Grid Test</title>
+    <style>
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 60px);
+            grid-template-rows: repeat(7, 60px);
+            gap: 6px;
+            background: #f0f0f0;
+            padding: 20px;
+            margin: 20px;
+        }
+        .number-cell {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .number-cell:hover {
+            background: #e3f2fd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trio Grid Test</h1>
+    <div class="number-grid" id="numberGrid">
+        <!-- Grid will be generated here -->
+    </div>
+    
+    <script src="js/game.js"></script>
+    <script>
+        console.log('Starting grid test...');
+        
+        // Test if TrioGame works
+        const game = new TrioGame();
+        console.log('Game created:', game);
+        console.log('Number grid:', game.numberGrid);
+        console.log('Grid dimensions:', game.ROWS, 'x', game.COLS);
+        
+        // Test grid generation
+        const gridElement = document.getElementById('numberGrid');
+        console.log('Grid element:', gridElement);
+        
+        if (game.numberGrid && game.numberGrid.length > 0) {
+            console.log('Creating test grid...');
+            
+            for (let row = 0; row < game.ROWS; row++) {
+                for (let col = 0; col < game.COLS; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'number-cell';
+                    cell.textContent = game.getNumberAt(row, col);
+                    cell.addEventListener('click', () => {
+                        console.log('Clicked cell:', row, col, 'value:', game.getNumberAt(row, col));
+                    });
+                    gridElement.appendChild(cell);
+                }
+            }
+            
+            console.log('✅ Test grid created with', gridElement.children.length, 'cells');
+        } else {
+            console.error('❌ Game number grid is empty or null');
+        }
+    </script>
+</body>
+</html>

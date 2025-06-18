@@ -46,6 +46,7 @@ class TrioUI {
      * Bind DOM elements
      */
     bindElements() {
+        console.log('Binding DOM elements...');
         this.elements = {
             // Game board
             numberGrid: document.getElementById('numberGrid'),
@@ -92,6 +93,14 @@ class TrioUI {
             // Game mode
             gameMode: document.getElementById('gameMode')
         };
+        
+        // Debug: Check if critical elements were found
+        console.log('numberGrid element:', this.elements.numberGrid);
+        console.log('targetNumber element:', this.elements.targetNumber);
+        
+        if (!this.elements.numberGrid) {
+            console.error('CRITICAL: numberGrid element not found!');
+        }
     }
     
     /**
@@ -144,7 +153,18 @@ class TrioUI {
      * Create the 7x7 number grid
      */
     createNumberGrid() {
+        if (!this.elements.numberGrid) {
+            console.warn('Number grid element not found');
+            return;
+        }
+        
         this.elements.numberGrid.innerHTML = '';
+        
+        // Ensure game has a number grid
+        if (!this.game.numberGrid || this.game.numberGrid.length === 0) {
+            console.log('Generating number grid...');
+            this.game.generateNumberGrid();
+        }
         
         for (let row = 0; row < this.game.ROWS; row++) {
             for (let col = 0; col < this.game.COLS; col++) {
@@ -154,12 +174,28 @@ class TrioUI {
                 cell.dataset.col = col;
                 
                 const number = this.game.getNumberAt(row, col);
-                cell.textContent = number;
+                if (number !== null) {
+                    cell.textContent = number;
+                } else {
+                    cell.textContent = '?';
+                    console.warn(`No number found at position ${row},${col}`);
+                }
                 
                 cell.addEventListener('click', () => this.handleCellClick(row, col));
                 
                 this.elements.numberGrid.appendChild(cell);
             }
+        }
+        
+        console.log(`Created ${this.game.ROWS}x${this.game.COLS} number grid with ${this.elements.numberGrid.children.length} cells`);
+        
+        // Add visible test to verify grid is displayed
+        if (this.elements.numberGrid.children.length > 0) {
+            console.log('✅ Number grid created successfully!');
+            console.log('First cell content:', this.elements.numberGrid.children[0].textContent);
+            console.log('Grid visible:', this.elements.numberGrid.offsetHeight > 0);
+        } else {
+            console.error('❌ Number grid is empty!');
         }
     }
     
