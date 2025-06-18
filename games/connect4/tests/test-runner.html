@@ -159,6 +159,16 @@
                 this.assertEqual(game.gameOver, false, 'Game should not be over initially');
                 this.assertEqual(game.winner, null, 'There should be no winner initially');
                 
+                // Test new player configuration
+                this.assertEqual(game.playerConfig.redPlayer, 'Rot', 'Red player should be "Rot"');
+                this.assertEqual(game.playerConfig.yellowPlayer, 'Gelb', 'Yellow player should be "Gelb"');
+                this.assertEqual(game.playerConfig.lastWinner, null, 'No last winner initially');
+                
+                // Test color-based scoring
+                this.assertEqual(game.scores.red, 0, 'Red score should start at 0');
+                this.assertEqual(game.scores.yellow, 0, 'Yellow score should start at 0');
+                this.assertEqual(game.scores.draws, 0, 'Draw count should start at 0');
+                
                 // Test board initialization
                 for (let row = 0; row < game.ROWS; row++) {
                     for (let col = 0; col < game.COLS; col++) {
@@ -449,6 +459,64 @@
                 });
             }
 
+            testLoserStartsLogic() {
+                console.log('Testing loser starts logic...');
+                
+                const game = new Connect4Game();
+                
+                // First game starts with PLAYER1
+                this.assertEqual(game.currentPlayer, game.PLAYER1, 'First game should start with Red');
+                
+                // Simulate Player 1 winning
+                game.playerConfig.lastWinner = game.PLAYER1;
+                
+                // Reset game - Player 2 (loser) should start
+                game.resetGame();
+                this.assertEqual(game.currentPlayer, game.PLAYER2, 'After Red wins, Yellow should start next game');
+                
+                // Simulate Player 2 winning
+                game.playerConfig.lastWinner = game.PLAYER2;
+                
+                // Reset game - Player 1 (loser) should start
+                game.resetGame();
+                this.assertEqual(game.currentPlayer, game.PLAYER1, 'After Yellow wins, Red should start next game');
+                
+                // Test draw scenario - starting player shouldn't change
+                const prevStartingPlayer = game.currentPlayer;
+                game.playerConfig.lastWinner = null; // Draw
+                game.resetGame();
+                this.assertEqual(game.currentPlayer, prevStartingPlayer, 'After draw, same player should start');
+            }
+
+            testPlayerNames() {
+                console.log('Testing player names...');
+                
+                const game = new Connect4Game();
+                
+                this.assertEqual(game.getPlayerName(game.PLAYER1), 'Rot', 'Player 1 should be called "Rot"');
+                this.assertEqual(game.getPlayerName(game.PLAYER2), 'Gelb', 'Player 2 should be called "Gelb"');
+                this.assertEqual(game.getPlayerName(99), 'Unbekannt', 'Invalid player should return "Unbekannt"');
+            }
+
+            testColorBasedScoring() {
+                console.log('Testing color-based scoring...');
+                
+                const game = new Connect4Game();
+                
+                // Simulate a win for Red (Player 1)
+                game.currentPlayer = game.PLAYER1;
+                game.board[5][0] = game.PLAYER1;
+                game.board[5][1] = game.PLAYER1;
+                game.board[5][2] = game.PLAYER1;
+                
+                const result = game.makeMove(3); // Winning move
+                
+                this.assert(result.gameWon, 'Game should be won');
+                this.assertEqual(game.scores.red, 1, 'Red score should be 1');
+                this.assertEqual(game.scores.yellow, 0, 'Yellow score should still be 0');
+                this.assertEqual(game.playerConfig.lastWinner, game.PLAYER1, 'Last winner should be Red');
+            }
+
             // Helper Tests
             testHelpersSystem() {
                 console.log('Testing helpers system...');
@@ -489,6 +557,11 @@
                 this.testDiagonalWin();
                 this.testDrawCondition();
                 this.testUndoFunctionality();
+                
+                // New Player System Tests
+                this.testLoserStartsLogic();
+                this.testPlayerNames();
+                this.testColorBasedScoring();
                 
                 // AI Tests
                 this.testAIInitialization();

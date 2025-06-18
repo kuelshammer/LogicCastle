@@ -2,7 +2,7 @@
  * Connect4AI - AI opponents for Connect 4 game
  */
 class Connect4AI {
-    constructor(difficulty = 'medium') {
+    constructor(difficulty = 'smart-random') {
         this.difficulty = difficulty;
         this.maxDepth = this.getMaxDepth(difficulty);
         this.cache = new Map();
@@ -13,11 +13,8 @@ class Connect4AI {
      */
     getMaxDepth(difficulty) {
         switch (difficulty) {
-            case 'easy': return 1;
-            case 'medium': return 3;
-            case 'hard': return 5;
-            case 'expert': return 7;
-            default: return 3;
+            case 'smart-random': return 2; // Light lookahead for trap avoidance
+            default: return 2;
         }
     }
     
@@ -28,19 +25,8 @@ class Connect4AI {
      * @returns {number} - Column index for the best move
      */
     getBestMove(game, helpers = null) {
-        switch (this.difficulty) {
-            case 'easy':
-                return this.getRandomMove(game);
-            case 'smart-random':
-                return this.getSmartRandomMove(game, helpers);
-            case 'medium':
-                return this.getRuleBasedMove(game);
-            case 'hard':
-            case 'expert':
-                return this.getMinimaxMove(game);
-            default:
-                return this.getRuleBasedMove(game);
-        }
+        // Smart Bot always uses smart-random strategy with helpers system
+        return this.getSmartRandomMove(game, helpers);
     }
     
     /**
@@ -138,104 +124,17 @@ class Connect4AI {
         return this.getRandomMove(game);
     }
 
+    
     /**
-     * Easy AI: Random moves with basic blocking
+     * Simple random move (used as fallback by smart-random AI)
      */
     getRandomMove(game) {
         const validMoves = game.getValidMoves();
         
         if (validMoves.length === 0) return null;
         
-        // 30% chance to block immediate threats
-        if (Math.random() < 0.3) {
-            const blockingMove = this.findBlockingMove(game);
-            if (blockingMove !== null) return blockingMove;
-        }
-        
-        // Otherwise random move
+        // Random move
         return validMoves[Math.floor(Math.random() * validMoves.length)];
-    }
-    
-    /**
-     * Medium AI: Rule-based strategy
-     */
-    getRuleBasedMove(game) {
-        const validMoves = game.getValidMoves();
-        
-        if (validMoves.length === 0) return null;
-        
-        // 1. Check for winning moves
-        const winningMove = this.findWinningMove(game, game.currentPlayer);
-        if (winningMove !== null) return winningMove;
-        
-        // 2. Block opponent's winning moves
-        const blockingMove = this.findBlockingMove(game);
-        if (blockingMove !== null) return blockingMove;
-        
-        // 3. Create threats (moves that create multiple win opportunities)
-        const threatMove = this.findThreatMove(game);
-        if (threatMove !== null) return threatMove;
-        
-        // 4. Control center columns (prioritize 3, 2, 4, 1, 5, 0, 6)
-        const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => 
-            validMoves.includes(col)
-        );
-        
-        if (centerMoves.length > 0) {
-            return centerMoves[0];
-        }
-        
-        // 5. Fallback to random
-        return validMoves[Math.floor(Math.random() * validMoves.length)];
-    }
-    
-    /**
-     * Hard/Expert AI: Minimax with alpha-beta pruning
-     */
-    getMinimaxMove(game) {
-        const validMoves = game.getValidMoves();
-        
-        if (validMoves.length === 0) return null;
-        
-        // Quick wins/blocks first
-        const winningMove = this.findWinningMove(game, game.currentPlayer);
-        if (winningMove !== null) return winningMove;
-        
-        const blockingMove = this.findBlockingMove(game);
-        if (blockingMove !== null) return blockingMove;
-        
-        // Use minimax for deeper analysis
-        let bestMove = null;
-        let bestScore = -Infinity;
-        
-        // Order moves from center out for better pruning
-        const orderedMoves = this.orderMoves(validMoves);
-        
-        for (const col of orderedMoves) {
-            const boardCopy = this.copyBoard(game.board);
-            const row = this.simulateMove(boardCopy, col, game.currentPlayer);
-            
-            if (row !== -1) {
-                const score = this.minimax(
-                    boardCopy, 
-                    this.maxDepth - 1, 
-                    false, 
-                    -Infinity, 
-                    Infinity, 
-                    game
-                );
-                
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestMove = col;
-                }
-                
-                // Undo simulated move
-                boardCopy[row][col] = game.EMPTY;
-            }
-        }
-        
-        return bestMove || validMoves[0];
     }
     
     /**
