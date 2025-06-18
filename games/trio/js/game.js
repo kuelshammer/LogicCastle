@@ -26,10 +26,10 @@ class TrioGame {
         this.difficulty = 'medium';
         this.timeLimit = 30; // seconds per round
         
-        this.initializeGame();
-        
-        // Event system
+        // Event system (must be initialized before initializeGame)
         this.eventListeners = {};
+        
+        this.initializeGame();
     }
     
     /**
