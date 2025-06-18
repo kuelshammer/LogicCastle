@@ -74,48 +74,168 @@ class TrioGame {
     }
     
     /**
-     * Generate target number chips based on difficulty mode
+     * Find strategic targets: few theoretical combinations, many realized on current grid
+     * @param {Array} grid - Current 7×7 number grid (optional)
+     * @param {number} count - Number of targets to find (default: 15)
+     * @returns {Array} - Array of strategic target numbers
+     */
+    findStrategicTargets(grid = null, count = 15) {
+        const candidates = [];
+        
+        // Test numbers 1-90 for strategic potential
+        for (let target = 1; target <= 90; target++) {
+            const analysis = this.calculateDifficultyRatio(target, grid);
+            
+            // Strategic: few theoretical (≤8), high realization ratio (≥0.4), at least 2 realized
+            if (analysis.theoreticalCount <= 8 && analysis.ratio >= 0.4 && analysis.realizedCount >= 2) {
+                candidates.push({
+                    target: target,
+                    score: analysis.ratio * analysis.realizedCount, // Prioritize high ratio + many realized
+                    analysis: analysis
+                });
+            }
+        }
+        
+        // Sort by score (best strategic targets first)
+        candidates.sort((a, b) => b.score - a.score);
+        
+        return candidates.slice(0, count).map(c => c.target);
+    }
+    
+    /**
+     * Find analytical targets: many theoretical combinations, few realized on current grid
+     * @param {Array} grid - Current 7×7 number grid (optional)
+     * @param {number} count - Number of targets to find (default: 15)
+     * @returns {Array} - Array of analytical target numbers
+     */
+    findAnalyticalTargets(grid = null, count = 15) {
+        const candidates = [];
+        
+        // Test numbers 1-90 for analytical potential
+        for (let target = 1; target <= 90; target++) {
+            const analysis = this.calculateDifficultyRatio(target, grid);
+            
+            // Analytical: many theoretical (≥12), low realization ratio (≤0.25), at least 1 realized
+            if (analysis.theoreticalCount >= 12 && analysis.ratio <= 0.25 && analysis.realizedCount >= 1) {
+                candidates.push({
+                    target: target,
+                    score: analysis.theoreticalCount * (1 - analysis.ratio), // Prioritize many theoretical + low ratio
+                    analysis: analysis
+                });
+            }
+        }
+        
+        // Sort by score (best analytical targets first)
+        candidates.sort((a, b) => b.score - a.score);
+        
+        return candidates.slice(0, count).map(c => c.target);
+    }
+    
+    /**
+     * Select target number based on difficulty mode and current grid
+     * @param {string} mode - Difficulty mode
+     * @param {Array} grid - Current 7×7 number grid (optional)
+     * @returns {number} - Selected target number
+     */
+    selectTargetByDifficulty(mode, grid = null) {
+        switch (mode) {
+            case 'kinderfreundlich':
+                // Random number 1-50
+                return Math.floor(Math.random() * 50) + 1;
+                
+            case 'vollspektrum':
+                // Random number 1-90
+                return Math.floor(Math.random() * 90) + 1;
+                
+            case 'strategisch':
+                // Find strategic targets and pick one randomly
+                const strategicTargets = this.findStrategicTargets(grid, 10);
+                if (strategicTargets.length > 0) {
+                    return strategicTargets[Math.floor(Math.random() * strategicTargets.length)];
+                }
+                // Fallback to random 1-50
+                return Math.floor(Math.random() * 50) + 1;
+                
+            case 'analytisch':
+                // Find analytical targets and pick one randomly  
+                const analyticalTargets = this.findAnalyticalTargets(grid, 10);
+                if (analyticalTargets.length > 0) {
+                    return analyticalTargets[Math.floor(Math.random() * analyticalTargets.length)];
+                }
+                // Fallback to random 1-90
+                return Math.floor(Math.random() * 90) + 1;
+                
+            default:
+                return Math.floor(Math.random() * 50) + 1;
+        }
+    }
+    
+    /**
+     * Generate target number chips based on intelligent difficulty mode
      */
     generateTargetChips() {
         this.targetChips = [];
         
-        // Define target pools by difficulty
-        const targetPools = {
-            easy: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-            medium: [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36],
-            hard: [25, 30, 35, 40, 42, 45, 48, 50, 54, 56, 60, 63, 70, 72, 81, 90]
-        };
+        console.log(`Generating target chips for difficulty: ${this.difficulty}`);
         
-        // Get target pool based on current difficulty
-        let possibleTargets;
         switch (this.difficulty) {
-            case 'easy':
-                possibleTargets = [...targetPools.easy];
+            case 'kinderfreundlich':
+                // Generate 15 random numbers 1-50
+                for (let i = 0; i < 15; i++) {
+                    this.targetChips.push(Math.floor(Math.random() * 50) + 1);
+                }
                 break;
-            case 'hard':
-                possibleTargets = [...targetPools.hard];
+                
+            case 'vollspektrum':
+                // Generate 15 random numbers 1-90
+                for (let i = 0; i < 15; i++) {
+                    this.targetChips.push(Math.floor(Math.random() * 90) + 1);
+                }
                 break;
-            case 'medium':
+                
+            case 'strategisch':
+                // Generate strategic targets based on current grid
+                const strategicTargets = this.findStrategicTargets(this.numberGrid, 15);
+                this.targetChips = strategicTargets.length > 0 ? strategicTargets : 
+                    Array.from({length: 15}, () => Math.floor(Math.random() * 50) + 1);
+                break;
+                
+            case 'analytisch':
+                // Generate analytical targets based on current grid
+                const analyticalTargets = this.findAnalyticalTargets(this.numberGrid, 15);
+                this.targetChips = analyticalTargets.length > 0 ? analyticalTargets :
+                    Array.from({length: 15}, () => Math.floor(Math.random() * 90) + 1);
+                break;
+                
             default:
-                possibleTargets = [...targetPools.medium];
-                break;
+                // Fallback: kinderfreundlich
+                for (let i = 0; i < 15; i++) {
+                    this.targetChips.push(Math.floor(Math.random() * 50) + 1);
+                }
         }
         
-        // For single player mode, select all targets from the chosen difficulty
-        const chipCount = Math.min(15, possibleTargets.length);
-        
-        // Shuffle and take the required amount
-        for (let i = possibleTargets.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [possibleTargets[i], possibleTargets[j]] = [possibleTargets[j], possibleTargets[i]];
+        // Remove duplicates and ensure minimum count
+        this.targetChips = [...new Set(this.targetChips)];
+        while (this.targetChips.length < 10) {
+            const newTarget = this.selectTargetByDifficulty(this.difficulty, this.numberGrid);
+            if (!this.targetChips.includes(newTarget)) {
+                this.targetChips.push(newTarget);
+            }
         }
-        
-        this.targetChips = possibleTargets.slice(0, chipCount);
         
         // Sort chips by value for progression feel
         this.targetChips.sort((a, b) => a - b);
         
-        console.log(`Generated ${chipCount} target chips for ${this.difficulty} difficulty:`, this.targetChips);
+        console.log(`Generated ${this.targetChips.length} target chips for ${this.difficulty} difficulty:`, this.targetChips);
+        
+        // Debug: Show analysis for first few targets
+        if (this.difficulty === 'strategisch' || this.difficulty === 'analytisch') {
+            console.log('Target analysis for first 3 chips:');
+            this.targetChips.slice(0, 3).forEach(target => {
+                const analysis = this.calculateDifficultyRatio(target);
+                console.log(`Target ${target}: ${analysis.realizedCount}/${analysis.theoreticalCount} combinations (${(analysis.ratio * 100).toFixed(1)}%) - ${analysis.difficulty}`);
+            });
+        }
     }
     
     /**
@@ -370,6 +490,138 @@ class TrioGame {
             return this.numberGrid[row][col];
         }
         return null;
+    }
+    
+    /**
+     * Calculate all theoretically possible a×b±c combinations for a target number
+     * @param {number} target - Target number to analyze
+     * @returns {Array} - Array of all possible {a, b, c, operation} combinations
+     */
+    calculateAllPossibleCombinations(target) {
+        const combinations = [];
+        
+        // Check all possible combinations of a, b, c from 1-9
+        for (let a = 1; a <= 9; a++) {
+            for (let b = 1; b <= 9; b++) {
+                for (let c = 1; c <= 9; c++) {
+                    // Check a×b+c = target
+                    if (a * b + c === target) {
+                        combinations.push({ a, b, c, operation: 'addition', formula: `${a}×${b}+${c}=${target}` });
+                    }
+                    
+                    // Check a×b-c = target
+                    if (a * b - c === target) {
+                        combinations.push({ a, b, c, operation: 'subtraction', formula: `${a}×${b}-${c}=${target}` });
+                    }
+                }
+            }
+        }
+        
+        return combinations;
+    }
+    
+    /**
+     * Calculate how many combinations are actually realizable on current grid
+     * @param {number} target - Target number to analyze
+     * @param {Array} grid - Current 7×7 number grid (optional, uses this.numberGrid if not provided)
+     * @returns {Array} - Array of realizable combinations with positions
+     */
+    calculateRealizedCombinations(target, grid = null) {
+        const currentGrid = grid || this.numberGrid;
+        const realizedCombinations = [];
+        
+        if (!currentGrid || currentGrid.length === 0) {
+            return realizedCombinations;
+        }
+        
+        // Check all possible combinations of 3 positions from the grid
+        for (let r1 = 0; r1 < this.ROWS; r1++) {
+            for (let c1 = 0; c1 < this.COLS; c1++) {
+                for (let r2 = 0; r2 < this.ROWS; r2++) {
+                    for (let c2 = 0; c2 < this.COLS; c2++) {
+                        for (let r3 = 0; r3 < this.ROWS; r3++) {
+                            for (let c3 = 0; c3 < this.COLS; c3++) {
+                                // Skip if positions are the same
+                                if ((r1 === r2 && c1 === c2) || 
+                                    (r1 === r3 && c1 === c3) || 
+                                    (r2 === r3 && c2 === c3)) {
+                                    continue;
+                                }
+                                
+                                const positions = [
+                                    { row: r1, col: c1 },
+                                    { row: r2, col: c2 },
+                                    { row: r3, col: c3 }
+                                ];
+                                
+                                const numbers = positions.map(pos => currentGrid[pos.row][pos.col]);
+                                const [a, b, c] = numbers;
+                                
+                                // Check if this combination solves the target
+                                if (a * b + c === target) {
+                                    realizedCombinations.push({
+                                        a, b, c,
+                                        operation: 'addition',
+                                        formula: `${a}×${b}+${c}=${target}`,
+                                        positions: positions
+                                    });
+                                }
+                                
+                                if (a * b - c === target) {
+                                    realizedCombinations.push({
+                                        a, b, c,
+                                        operation: 'subtraction', 
+                                        formula: `${a}×${b}-${c}=${target}`,
+                                        positions: positions
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return realizedCombinations;
+    }
+    
+    /**
+     * Calculate difficulty ratio for a target number
+     * @param {number} target - Target number to analyze
+     * @param {Array} grid - Current 7×7 number grid (optional)
+     * @returns {Object} - Analysis object with theoretical, realized counts and ratio
+     */
+    calculateDifficultyRatio(target, grid = null) {
+        const theoretical = this.calculateAllPossibleCombinations(target);
+        const realized = this.calculateRealizedCombinations(target, grid);
+        
+        const ratio = theoretical.length > 0 ? realized.length / theoretical.length : 0;
+        
+        return {
+            target: target,
+            theoreticalCount: theoretical.length,
+            realizedCount: realized.length,
+            ratio: ratio,
+            difficulty: this.categorizeDifficulty(theoretical.length, realized.length, ratio),
+            theoretical: theoretical,
+            realized: realized
+        };
+    }
+    
+    /**
+     * Categorize difficulty based on theoretical vs realized combinations
+     * @param {number} theoreticalCount - Number of theoretical combinations
+     * @param {number} realizedCount - Number of realized combinations  
+     * @param {number} ratio - Realized/theoretical ratio
+     * @returns {string} - Difficulty category
+     */
+    categorizeDifficulty(theoreticalCount, realizedCount, ratio) {
+        if (realizedCount === 0) return 'impossible';
+        if (theoreticalCount <= 5 && ratio >= 0.6) return 'strategic'; // Few theoretical, many realized
+        if (theoreticalCount >= 15 && ratio <= 0.3) return 'analytical'; // Many theoretical, few realized
+        if (ratio >= 0.5) return 'easy';
+        if (ratio >= 0.25) return 'medium';
+        return 'hard';
     }
     
     /**

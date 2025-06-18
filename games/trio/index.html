@@ -14,9 +14,10 @@
             <h1>🧮 Trio - Rechenspiel</h1>
             <div class="game-mode-selector">
                 <select id="gameMode">
-                    <option value="easy">Einfach (2-15)</option>
-                    <option value="medium" selected>Mittel (8-36)</option>
-                    <option value="hard">Schwer (25-90)</option>
+                    <option value="kinderfreundlich">Kinderfreundlich (1-50)</option>
+                    <option value="vollspektrum" selected>Vollspektrum (1-90)</option>
+                    <option value="strategisch">Strategisch (wenig theoretisch, viel realisiert)</option>
+                    <option value="analytisch">Analytisch (viel theoretisch, wenig realisiert)</option>
                 </select>
             </div>
         </header>
@@ -27,6 +28,9 @@
                 <div class="target-label">Zielzahl:</div>
                 <div class="target-number" id="targetNumber">--</div>
                 <div class="target-subtitle">Finde drei Zahlen: a×b+c oder a×b-c</div>
+                <div class="target-analysis" id="targetAnalysis" style="display: none;">
+                    <small>Kombinationen: <span id="realizedCount">0</span> von <span id="theoreticalCount">0</span> verfügbar</small>
+                </div>
             </div>
 
             <!-- Game Controls -->

@@ -54,6 +54,9 @@ class TrioUI {
             // Target display
             targetDisplay: document.getElementById('targetDisplay'),
             targetNumber: document.getElementById('targetNumber'),
+            targetAnalysis: document.getElementById('targetAnalysis'),
+            realizedCount: document.getElementById('realizedCount'),
+            theoreticalCount: document.getElementById('theoreticalCount'),
             
             // Controls
             startGameBtn: document.getElementById('startGameBtn'),
@@ -488,6 +491,18 @@ class TrioUI {
         this.elements.targetNumber.textContent = data.target;
         this.updateGameStatus(`Neue Runde! Finde eine Lösung für: ${data.target}`);
         this.handleClearSelection();
+        
+        // Show analysis for strategic and analytical modes
+        if (this.game.difficulty === 'strategisch' || this.game.difficulty === 'analytisch') {
+            const analysis = this.game.calculateDifficultyRatio(data.target);
+            this.elements.realizedCount.textContent = analysis.realizedCount;
+            this.elements.theoreticalCount.textContent = analysis.theoreticalCount;
+            this.elements.targetAnalysis.style.display = 'block';
+            console.log(`Target ${data.target} analysis:`, analysis);
+        } else {
+            this.elements.targetAnalysis.style.display = 'none';
+        }
+        
         this.updateUI();
     }
     
