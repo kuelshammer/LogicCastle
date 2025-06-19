@@ -97,19 +97,50 @@ class Connect4UI {
     createBoard() {
         this.boardElement = document.getElementById('gameBoard');
         console.log('🎮 Creating board, found element:', this.boardElement);
+        
+        if (!this.boardElement) {
+            console.error('❌ gameBoard element not found!');
+            return;
+        }
+        
+        // Force board styling
+        this.boardElement.style.cssText = `
+            background: linear-gradient(145deg, #2196F3, #1976D2) !important;
+            border-radius: 15px !important;
+            padding: 20px !important;
+            display: grid !important;
+            grid-template-columns: repeat(7, 60px) !important;
+            grid-template-rows: repeat(6, 60px) !important;
+            gap: 8px !important;
+            width: max-content !important;
+            margin: 0 auto !important;
+            min-height: 400px !important;
+            border: 3px solid red !important;
+        `;
+        
         this.boardElement.innerHTML = '';
         
-        // Create cells
+        // Create cells with forced styling
         let cellCount = 0;
         for (let row = 0; row < this.game.ROWS; row++) {
             for (let col = 0; col < this.game.COLS; col++) {
                 const cell = document.createElement('div');
-                cell.className = 'cell';
+                cell.className = 'board-cell'; // Different class name to avoid conflicts
                 cell.dataset.row = row;
                 cell.dataset.col = col;
                 
-                // Debug: Add visible content to cells
-                cell.style.cssText = 'width: 60px !important; height: 60px !important; background: white !important; border: 3px solid #1565C0 !important; border-radius: 50% !important; display: block !important;';
+                // Force cell styling with inline styles
+                cell.style.cssText = `
+                    width: 60px !important;
+                    height: 60px !important;
+                    background: white !important;
+                    border: 3px solid #1565C0 !important;
+                    border-radius: 50% !important;
+                    display: block !important;
+                    box-sizing: border-box !important;
+                    cursor: pointer !important;
+                    position: relative !important;
+                `;
                 
                 // Add click handler for column selection
                 cell.addEventListener('click', () => this.handleCellClick(col));
@@ -122,6 +153,21 @@ class Connect4UI {
         console.log(`✅ Created ${cellCount} cells (${this.game.ROWS}x${this.game.COLS})`);
         console.log('Board children count:', this.boardElement.children.length);
         console.log('First cell:', this.boardElement.children[0]);
+        
+        // Verify cells are actually visible
+        setTimeout(() => {
+            const firstCell = this.boardElement.querySelector('.board-cell');
+            if (firstCell) {
+                const styles = window.getComputedStyle(firstCell);
+                console.log('First cell computed styles:', {
+                    width: styles.width,
+                    height: styles.height,
+                    background: styles.background,
+                    display: styles.display,
+                    borderRadius: styles.borderRadius
+                });
+            }
+        }, 100);
     }
     
     /**
@@ -811,7 +857,7 @@ class Connect4UI {
     }
     
     clearWinHighlights() {
-        this.boardElement.querySelectorAll('.cell.winning').forEach(cell => {
+        this.boardElement.querySelectorAll('.board-cell.winning').forEach(cell => {
             cell.classList.remove('winning');
         });
     }
@@ -854,7 +900,7 @@ class Connect4UI {
      */
     updateColumnHighlight() {
         // Remove existing column highlights from all cells
-        this.boardElement.querySelectorAll('.cell').forEach(cell => {
+        this.boardElement.querySelectorAll('.board-cell').forEach(cell => {
             cell.classList.remove('column-highlighted');
         });
         
@@ -968,7 +1014,7 @@ class Connect4UI {
     }
     
     clearBoard() {
-        this.boardElement.querySelectorAll('.cell').forEach(cell => {
+        this.boardElement.querySelectorAll('.board-cell').forEach(cell => {
             cell.classList.remove('red', 'yellow', 'winning', 'stone-drop', 'column-selected', 'column-highlighted');
         });
     }
