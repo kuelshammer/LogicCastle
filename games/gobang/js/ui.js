@@ -5,6 +5,7 @@ class GobangUI {
     constructor(game) {
         this.game = game;
         this.ai = null;
+        this.helpers = null;
         this.gameMode = 'two-player';
         this.isProcessingMove = false;
         
@@ -14,6 +15,12 @@ class GobangUI {
         // Settings
         this.animationDuration = 400;
         this.aiThinkingDelay = 800;
+        
+        // Helper settings for each player
+        this.helpSettings = {
+            player1: { level0: false, level1: false, level2: false },
+            player2: { level0: false, level1: false, level2: false }
+        };
     }
     
     /**
@@ -25,6 +32,7 @@ class GobangUI {
         this.setupKeyboardControls();
         this.createBoard();
         this.createCoordinates();
+        this.initializeHelpers();
         this.updateDisplay();
         this.updateGameMode();
     }
@@ -42,14 +50,25 @@ class GobangUI {
             moveCounter: document.getElementById('moveCounter'),
             newGameBtn: document.getElementById('newGameBtn'),
             undoBtn: document.getElementById('undoBtn'),
+            resetScoreBtn: document.getElementById('resetScoreBtn'),
             helpBtn: document.getElementById('helpBtn'),
+            gameHelpBtn: document.getElementById('gameHelpBtn'),
             helpModal: document.getElementById('helpModal'),
+            gameHelpModal: document.getElementById('gameHelpModal'),
             closeHelpBtn: document.getElementById('closeHelpBtn'),
+            closeGameHelpBtn: document.getElementById('closeGameHelpBtn'),
             gameMode: document.getElementById('gameMode'),
             topCoords: document.getElementById('topCoords'),
             bottomCoords: document.getElementById('bottomCoords'),
             leftCoords: document.getElementById('leftCoords'),
-            rightCoords: document.getElementById('rightCoords')
+            rightCoords: document.getElementById('rightCoords'),
+            // Helper checkboxes
+            helpPlayer1Level0: document.getElementById('helpPlayer1Level0'),
+            helpPlayer1Level1: document.getElementById('helpPlayer1Level1'),
+            helpPlayer1Level2: document.getElementById('helpPlayer1Level2'),
+            helpPlayer2Level0: document.getElementById('helpPlayer2Level0'),
+            helpPlayer2Level1: document.getElementById('helpPlayer2Level1'),
+            helpPlayer2Level2: document.getElementById('helpPlayer2Level2')
         };
     }
     
@@ -68,16 +87,28 @@ class GobangUI {
         // UI controls
         this.elements.newGameBtn.addEventListener('click', () => this.newGame());
         this.elements.undoBtn.addEventListener('click', () => this.undoMove());
+        this.elements.resetScoreBtn.addEventListener('click', () => this.resetScore());
         this.elements.helpBtn.addEventListener('click', () => this.toggleHelp());
+        this.elements.gameHelpBtn.addEventListener('click', () => this.toggleGameHelp());
         this.elements.closeHelpBtn.addEventListener('click', () => this.toggleHelp());
+        this.elements.closeGameHelpBtn.addEventListener('click', () => this.toggleGameHelp());
         this.elements.gameMode.addEventListener('change', () => this.updateGameMode());
         
-        // Modal overlay click
+        // Modal overlay clicks
         this.elements.helpModal.addEventListener('click', (e) => {
             if (e.target === this.elements.helpModal) {
                 this.toggleHelp();
             }
         });
+        
+        this.elements.gameHelpModal.addEventListener('click', (e) => {
+            if (e.target === this.elements.gameHelpModal) {
+                this.toggleGameHelp();
+            }
+        });
+        
+        // Helper checkboxes
+        this.setupHelperCheckboxes();
     }
     
     /**
@@ -94,10 +125,40 @@ class GobangUI {
                 return;
             }
             
+            if (this.elements.gameHelpModal.classList.contains('active')) {
+                if (e.key === 'Escape' || e.key === 'F2') {
+                    e.preventDefault();
+                    this.toggleGameHelp();
+                }
+                return;
+            }
+            
             switch (e.key) {
                 case 'F1':
                     e.preventDefault();
                     this.toggleHelp();
+                    break;
+                case 'F2':
+                    e.preventDefault();
+                    this.toggleGameHelp();
+                    break;
+                case 'F3':
+                    e.preventDefault();
+                    this.resetScore();
+                    break;
+                case 'n':
+                case 'N':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.newGame();
+                    }
+                    break;
+                case 'u':
+                case 'U':
+                    if (!e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                        this.undoMove();
+                    }
                     break;
                 case 'r':
                 case 'R':
@@ -235,6 +296,17 @@ class GobangUI {
             return;
         }
         
+        // Check if this move is required by helpers
+        if (this.helpers && this.helpers.forcedMoveMode) {
+            const isRequiredMove = this.helpers.requiredMoves.some(move => 
+                move.row === row && move.col === col);
+            
+            if (!isRequiredMove) {
+                console.log('⚠️ Move not allowed - must play one of the highlighted moves');
+                return;
+            }
+        }
+        
         this.makeMove(row, col);
     }
     
@@ -316,7 +388,7 @@ class GobangUI {
         // Add thinking delay for better UX
         await new Promise(resolve => setTimeout(resolve, this.aiThinkingDelay));
         
-        const move = this.ai.getBestMove(this.game);
+        const move = this.ai.getBestMove(this.game, this.helpers);
         
         this.hideThinkingIndicator();
         
@@ -435,45 +507,6 @@ class GobangUI {
      * Event handlers
      */
     
-    onMoveMade(move) {
-        const intersection = this.getIntersection(move.row, move.col);
-        
-        // Remove any preview stones
-        const previewStone = intersection.querySelector('.stone.preview');
-        if (previewStone) {
-            previewStone.remove();
-        }
-        
-        // Create and add the actual stone
-        const stone = document.createElement('div');
-        stone.className = `stone ${this.game.getPlayerColorClass(move.player)} stone-place`;
-        
-        // Add last move indicator
-        this.clearLastMoveIndicators();
-        stone.classList.add('last-move');
-        
-        intersection.appendChild(stone);
-        intersection.classList.add('occupied');
-        
-        // Add move indicator for notation
-        const moveIndicator = document.createElement('div');
-        moveIndicator.className = 'move-indicator';
-        moveIndicator.title = `${move.moveNumber}. ${this.game.positionToNotation(move.row, move.col)}`;
-        stone.appendChild(moveIndicator);
-        
-        // Remove animation class after animation completes
-        setTimeout(() => {
-            stone.classList.remove('stone-place');
-            this.isProcessingMove = false;
-            
-            // Process AI move if needed
-            if (this.isAITurn() && !this.game.gameOver) {
-                setTimeout(() => this.processAIMove(), 100);
-            }
-        }, this.animationDuration);
-        
-        this.updateDisplay();
-    }
     
     onGameWon(data) {
         // Highlight winning stones
@@ -494,20 +527,7 @@ class GobangUI {
         this.showMessage('Unentschieden! Das Spielfeld ist voll.', 'draw');
     }
     
-    onGameReset() {
-        this.createBoard();
-        this.updateDisplay();
-        this.hideThinkingIndicator();
-    }
     
-    onPlayerChanged(player) {
-        this.updateDisplay();
-        
-        // Process AI move if needed
-        if (this.isAITurn() && !this.game.gameOver) {
-            setTimeout(() => this.processAIMove(), 100);
-        }
-    }
     
     onMoveUndone(move) {
         const intersection = this.getIntersection(move.row, move.col);
@@ -569,6 +589,184 @@ class GobangUI {
     
     toggleHelp() {
         this.elements.helpModal.classList.toggle('active');
+    }
+    
+    toggleGameHelp() {
+        this.elements.gameHelpModal.classList.toggle('active');
+    }
+    
+    resetScore() {
+        this.game.resetScores();
+        this.updateScores();
+    }
+    
+    /**
+     * Initialize helpers system
+     */
+    initializeHelpers() {
+        this.helpers = new GobangHelpers(this.game, this);
+        
+        // Listen to helper events
+        this.helpers.on('forcedMoveActivated', (data) => this.onForcedMoveActivated(data));
+        this.helpers.on('forcedMoveDeactivated', () => this.onForcedMoveDeactivated());
+    }
+    
+    /**
+     * Setup helper checkboxes
+     */
+    setupHelperCheckboxes() {
+        // Player 1 (Black) checkboxes
+        this.elements.helpPlayer1Level0.addEventListener('change', (e) => 
+            this.updateHelperSettings('player1', 'level0', e.target.checked));
+        this.elements.helpPlayer1Level1.addEventListener('change', (e) => 
+            this.updateHelperSettings('player1', 'level1', e.target.checked));
+        this.elements.helpPlayer1Level2.addEventListener('change', (e) => 
+            this.updateHelperSettings('player1', 'level2', e.target.checked));
+            
+        // Player 2 (White) checkboxes
+        this.elements.helpPlayer2Level0.addEventListener('change', (e) => 
+            this.updateHelperSettings('player2', 'level0', e.target.checked));
+        this.elements.helpPlayer2Level1.addEventListener('change', (e) => 
+            this.updateHelperSettings('player2', 'level1', e.target.checked));
+        this.elements.helpPlayer2Level2.addEventListener('change', (e) => 
+            this.updateHelperSettings('player2', 'level2', e.target.checked));
+    }
+    
+    /**
+     * Update helper settings for a player
+     */
+    updateHelperSettings(player, level, enabled) {
+        this.helpSettings[player][level] = enabled;
+        this.updateCurrentPlayerHelpers();
+    }
+    
+    /**
+     * Update helpers based on current player
+     */
+    updateCurrentPlayerHelpers() {
+        if (!this.helpers) return;
+        
+        const currentPlayerKey = this.game.currentPlayer === this.game.BLACK ? 'player1' : 'player2';
+        const settings = this.helpSettings[currentPlayerKey];
+        
+        // Determine the highest enabled level
+        let enabledLevel = -1;
+        if (settings.level2) enabledLevel = 2;
+        else if (settings.level1) enabledLevel = 1;
+        else if (settings.level0) enabledLevel = 0;
+        
+        if (enabledLevel >= 0) {
+            this.helpers.setEnabled(true, enabledLevel);
+        } else {
+            this.helpers.setEnabled(false);
+        }
+    }
+    
+    /**
+     * Handle forced move activation
+     */
+    onForcedMoveActivated(data) {
+        console.log(`🎯 Forced moves activated for level ${data.level}:`, data.requiredMoves);
+        
+        // Highlight required moves on the board
+        this.clearHintHighlights();
+        
+        data.requiredMoves.forEach(move => {
+            const intersection = this.getIntersection(move.row, move.col);
+            if (intersection) {
+                intersection.classList.add('hint-move', `hint-level-${data.level}`);
+            }
+        });
+    }
+    
+    /**
+     * Handle forced move deactivation
+     */
+    onForcedMoveDeactivated() {
+        console.log('🎯 Forced moves deactivated');
+        this.clearHintHighlights();
+    }
+    
+    /**
+     * Clear hint highlights
+     */
+    clearHintHighlights() {
+        document.querySelectorAll('.intersection.hint-move').forEach(intersection => {
+            intersection.classList.remove('hint-move', 'hint-level-0', 'hint-level-1', 'hint-level-2');
+        });
+    }
+    
+    /**
+     * Override player change handler to update helpers
+     */
+    onPlayerChanged(player) {
+        this.updateDisplay();
+        this.updateCurrentPlayerHelpers();
+        
+        // Process AI move if needed
+        if (this.isAITurn() && !this.game.gameOver) {
+            setTimeout(() => this.processAIMove(), 100);
+        }
+    }
+    
+    /**
+     * Override move made handler to update helpers
+     */
+    onMoveMade(move) {
+        const intersection = this.getIntersection(move.row, move.col);
+        
+        // Remove any preview stones
+        const previewStone = intersection.querySelector('.stone.preview');
+        if (previewStone) {
+            previewStone.remove();
+        }
+        
+        // Clear hint highlights
+        this.clearHintHighlights();
+        
+        // Create and add the actual stone
+        const stone = document.createElement('div');
+        stone.className = `stone ${this.game.getPlayerColorClass(move.player)} stone-place`;
+        
+        // Add last move indicator
+        this.clearLastMoveIndicators();
+        stone.classList.add('last-move');
+        
+        intersection.appendChild(stone);
+        intersection.classList.add('occupied');
+        
+        // Add move indicator for notation
+        const moveIndicator = document.createElement('div');
+        moveIndicator.className = 'move-indicator';
+        moveIndicator.title = `${move.moveNumber}. ${this.game.positionToNotation(move.row, move.col)}`;
+        stone.appendChild(moveIndicator);
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+            stone.classList.remove('stone-place');
+            this.isProcessingMove = false;
+            
+            // Update helpers for new player
+            this.updateCurrentPlayerHelpers();
+            
+            // Process AI move if needed
+            if (this.isAITurn() && !this.game.gameOver) {
+                setTimeout(() => this.processAIMove(), 100);
+            }
+        }, this.animationDuration);
+        
+        this.updateDisplay();
+    }
+    
+    /**
+     * Override game reset handler
+     */
+    onGameReset() {
+        this.createBoard();
+        this.clearHintHighlights();
+        this.updateDisplay();
+        this.hideThinkingIndicator();
+        this.updateCurrentPlayerHelpers();
     }
     
     /**

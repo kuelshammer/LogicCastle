@@ -54,6 +54,32 @@
     box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
 }
 
+.btn-success {
+    background: linear-gradient(145deg, #28a745, #218838);
+    color: white;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover:not(:disabled) {
+    background: linear-gradient(145deg, #218838, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #6c757d;
+    border: 2px solid #6c757d;
+    box-shadow: none;
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+}
+
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -268,6 +294,53 @@
     50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
 }
 
+/* Hint highlighting for forced moves */
+.intersection.hint-move::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+    animation: hintPulse 1.5s infinite ease-in-out;
+}
+
+/* Level 0: Winning moves - Green */
+.intersection.hint-level-0::after {
+    border: 3px solid #00ff00;
+    background: rgba(0, 255, 0, 0.15);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}
+
+/* Level 1: Blocking moves - Orange */
+.intersection.hint-level-1::after {
+    border: 3px solid #ff8c00;
+    background: rgba(255, 140, 0, 0.15);
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+}
+
+/* Level 2: Safe moves - Blue */
+.intersection.hint-level-2::after {
+    border: 3px solid #0080ff;
+    background: rgba(0, 128, 255, 0.15);
+    box-shadow: 0 0 15px rgba(0, 128, 255, 0.3);
+}
+
+@keyframes hintPulse {
+    0%, 100% { 
+        opacity: 0.6; 
+        transform: translate(-50%, -50%) scale(0.9); 
+    }
+    50% { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1.1); 
+    }
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -285,6 +358,98 @@
     outline-offset: 2px;
 }
 
+/* Game Help Modal Styles */
+.game-help-modal {
+    max-width: 500px;
+}
+
+.help-table-container {
+    margin: 1rem 0;
+}
+
+.help-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.help-table th,
+.help-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.help-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.help-table .player-label {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: #fafafa;
+}
+
+.help-cell {
+    background: #fff;
+    position: relative;
+}
+
+.help-checkbox-input {
+    display: none;
+}
+
+.help-checkbox-label {
+    display: block;
+    width: 30px;
+    height: 30px;
+    background: #f0f0f0;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 auto;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.help-checkbox-label:hover {
+    border-color: #007acc;
+    background: #f8f9fa;
+}
+
+.help-checkbox-input:checked + .help-checkbox-label {
+    background: #007acc;
+    border-color: #007acc;
+}
+
+.help-checkbox-input:checked + .help-checkbox-label::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.help-legend {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.legend-item {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
     .stone {
@@ -297,6 +462,14 @@
     
     .intersection::before {
         border: 1px solid;
+    }
+    
+    .help-table {
+        border: 2px solid #000;
+    }
+    
+    .help-checkbox-label {
+        border-width: 3px;
     }
 }
 
@@ -321,6 +494,34 @@
     }
     
     .help-section h4 {
+        color: #bdc3c7;
+    }
+    
+    .help-table th {
+        background: #34495e;
+        color: white;
+    }
+    
+    .help-table .player-label {
+        background: #34495e;
+        color: white;
+    }
+    
+    .help-cell {
+        background: #2c3e50;
+    }
+    
+    .help-checkbox-label {
+        background: #34495e;
+        border-color: #555;
+    }
+    
+    .help-legend {
+        background: #34495e;
+        color: #bdc3c7;
+    }
+    
+    .legend-item {
         color: #bdc3c7;
     }
 }

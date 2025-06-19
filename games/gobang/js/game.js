@@ -51,6 +51,14 @@ class GobangGame {
     }
     
     /**
+     * Reset only the scores
+     */
+    resetScores() {
+        this.scores = { black: 0, white: 0 };
+        this.emit('scoresReset');
+    }
+    
+    /**
      * Make a move at the specified position
      * @param {number} row - Row index (0-14)
      * @param {number} col - Column index (0-14)
