@@ -265,16 +265,29 @@
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    display: grid;
-    grid-template-columns: repeat(7, 60px);
-    grid-template-rows: repeat(6, 60px);
+    display: grid !important;
+    grid-template-columns: repeat(7, 60px) !important;
+    grid-template-rows: repeat(6, 60px) !important;
     gap: 8px;
     width: max-content;
     margin: 0 auto;
+    min-height: 400px;
     
     /* CSS Custom Properties for responsive design */
     --cell-size: 60px;
     --gap-size: 8px;
+}
+
+/* Debug: Ensure board is visible */
+#gameBoard {
+    background: linear-gradient(145deg, #2196F3, #1976D2) !important;
+    border: 3px solid red !important; /* Temporary debug border */
+    min-height: 400px !important;
+    min-width: 500px !important;
+    display: grid !important;
+    grid-template-columns: repeat(7, 60px) !important;
+    grid-template-rows: repeat(6, 60px) !important;
+    gap: 8px !important;
 }
 
 .cell {
