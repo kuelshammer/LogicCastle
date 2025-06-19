@@ -85,9 +85,10 @@
 
 .game-main {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-columns: 300px 1fr 300px;
     gap: 2rem;
     align-items: start;
+    justify-content: center;
 }
 
 .game-info {
@@ -169,6 +170,8 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    min-width: 500px;
+    justify-self: center;
 }
 
 .column-indicators {
@@ -588,10 +591,22 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+    .game-main {
+        grid-template-columns: 250px 1fr 250px;
+        gap: 1.5rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .game-main {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+    }
+    
+    .game-board-container {
+        min-width: unset;
+        width: 100%;
     }
     
     .game-info,
