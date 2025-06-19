@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Gewinnt - LogicCastle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        h1 {
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-controls {
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .game-board {
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: repeat(7, 70px);
+            grid-template-rows: repeat(6, 70px);
+            gap: 10px;
+            width: fit-content;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .cell {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            border: 3px solid #1565C0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .cell:hover {
+            background: #f0f0f0;
+        }
+        
+        .cell.red {
+            background: linear-gradient(145deg, #ff4757, #c44569);
+            border-color: #c44569;
+        }
+        
+        .cell.yellow {
+            background: linear-gradient(145deg, #ffdd00, #ffc107);
+            border-color: #ffc107;
+        }
+        
+        .cell.winning {
+            box-shadow: 0 0 20px #00ff00;
+            animation: winPulse 1s infinite;
+        }
+        
+        @keyframes winPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .column-indicators {
+            display: grid;
+            grid-template-columns: repeat(7, 70px);
+            gap: 10px;
+            margin-bottom: 10px;
+            justify-content: center;
+        }
+        
+        .column-indicator {
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .column-indicator:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .status {
+            color: white;
+            font-size: 18px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .scores {
+            color: white;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+        
+        .close-btn {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔴 4 Gewinnt</h1>
+        
+        <div class="game-controls">
+            <button class="btn" onclick="newGame()">Neues Spiel</button>
+            <button class="btn" onclick="undoMove()" id="undoBtn" disabled>Rückgängig</button>
+            <button class="btn" onclick="showHelp()">Spielanleitung</button>
+            <button class="btn" onclick="resetScore()">Score zurücksetzen</button>
+        </div>
+        
+        <div class="status" id="status">Rot ist am Zug</div>
+        <div class="scores" id="scores">Rot: 0 | Gelb: 0</div>
+        
+        <div class="column-indicators">
+            <div class="column-indicator" onclick="dropPiece(0)">1</div>
+            <div class="column-indicator" onclick="dropPiece(1)">2</div>
+            <div class="column-indicator" onclick="dropPiece(2)">3</div>
+            <div class="column-indicator" onclick="dropPiece(3)">4</div>
+            <div class="column-indicator" onclick="dropPiece(4)">5</div>
+            <div class="column-indicator" onclick="dropPiece(5)">6</div>
+            <div class="column-indicator" onclick="dropPiece(6)">7</div>
+        </div>
+        
+        <div class="game-board" id="gameBoard">
+            <!-- Cells will be generated by JavaScript -->
+        </div>
+    </div>
+    
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeHelp()">&times;</span>
+            <h2>🎮 Spielanleitung</h2>
+            <h3>🎯 Ziel</h3>
+            <p>Verbinde vier deiner Steine in einer Reihe (horizontal, vertikal oder diagonal)!</p>
+            
+            <h3>🎮 Spielregeln</h3>
+            <ul>
+                <li>Rot beginnt</li>
+                <li>Klicke auf eine Spalte um einen Stein fallen zu lassen</li>
+                <li>Die Steine fallen nach unten bis sie auf einen anderen Stein oder den Boden treffen</li>
+                <li>Wer zuerst 4 Steine in einer Reihe hat, gewinnt</li>
+            </ul>
+            
+            <h3>⌨️ Shortcuts</h3>
+            <ul>
+                <li><strong>1-7:</strong> Stein in Spalte fallen lassen</li>
+                <li><strong>N:</strong> Neues Spiel</li>
+                <li><strong>U:</strong> Rückgängig</li>
+                <li><strong>F1:</strong> Diese Hilfe</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let board = Array(6).fill().map(() => Array(7).fill(0));
+        let currentPlayer = 1; // 1 = red, 2 = yellow
+        let gameOver = false;
+        let moveHistory = [];
+        let scores = { red: 0, yellow: 0 };
+        
+        // Initialize board
+        function initBoard() {
+            const boardElement = document.getElementById('gameBoard');
+            boardElement.innerHTML = '';
+            
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 7; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.onclick = () => dropPiece(col);
+                    boardElement.appendChild(cell);
+                }
+            }
+            
+            console.log('✅ Board initialized with', boardElement.children.length, 'cells');
+        }
+        
+        // Drop piece in column
+        function dropPiece(col) {
+            if (gameOver) return;
+            
+            // Find lowest empty row
+            for (let row = 5; row >= 0; row--) {
+                if (board[row][col] === 0) {
+                    // Place piece
+                    board[row][col] = currentPlayer;
+                    moveHistory.push({ row, col, player: currentPlayer });
+                    
+                    // Update visual
+                    updateBoard();
+                    
+                    // Check for win
+                    if (checkWin(row, col)) {
+                        gameOver = true;
+                        const winner = currentPlayer === 1 ? 'Rot' : 'Gelb';
+                        document.getElementById('status').textContent = `${winner} hat gewonnen! 🎉`;
+                        scores[currentPlayer === 1 ? 'red' : 'yellow']++;
+                        updateScores();
+                        highlightWinningCells();
+                    } else if (moveHistory.length === 42) {
+                        gameOver = true;
+                        document.getElementById('status').textContent = 'Unentschieden! 🤝';
+                    } else {
+                        // Switch player
+                        currentPlayer = currentPlayer === 1 ? 2 : 1;
+                        const nextPlayer = currentPlayer === 1 ? 'Rot' : 'Gelb';
+                        document.getElementById('status').textContent = `${nextPlayer} ist am Zug`;
+                    }
+                    
+                    updateUndoButton();
+                    return;
+                }
+            }
+        }
+        
+        // Update visual board
+        function updateBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                const value = board[row][col];
+                
+                cell.className = 'cell';
+                if (value === 1) cell.classList.add('red');
+                if (value === 2) cell.classList.add('yellow');
+            });
+        }
+        
+        // Check for win
+        function checkWin(row, col) {
+            const player = board[row][col];
+            const directions = [
+                [0, 1],   // Horizontal
+                [1, 0],   // Vertical
+                [1, 1],   // Diagonal /
+                [1, -1]   // Diagonal \
+            ];
+            
+            for (const [deltaRow, deltaCol] of directions) {
+                let count = 1;
+                
+                // Check positive direction
+                let r = row + deltaRow;
+                let c = col + deltaCol;
+                while (r >= 0 && r < 6 && c >= 0 && c < 7 && board[r][c] === player) {
+                    count++;
+                    r += deltaRow;
+                    c += deltaCol;
+                }
+                
+                // Check negative direction
+                r = row - deltaRow;
+                c = col - deltaCol;
+                while (r >= 0 && r < 6 && c >= 0 && c < 7 && board[r][c] === player) {
+                    count++;
+                    r -= deltaRow;
+                    c -= deltaCol;
+                }
+                
+                if (count >= 4) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // Highlight winning cells
+        function highlightWinningCells() {
+            // Simple implementation - just highlight last move area
+            const lastMove = moveHistory[moveHistory.length - 1];
+            if (lastMove) {
+                const cell = document.querySelector(`[data-row="${lastMove.row}"][data-col="${lastMove.col}"]`);
+                if (cell) cell.classList.add('winning');
+            }
+        }
+        
+        // New game
+        function newGame() {
+            board = Array(6).fill().map(() => Array(7).fill(0));
+            currentPlayer = 1;
+            gameOver = false;
+            moveHistory = [];
+            document.getElementById('status').textContent = 'Rot ist am Zug';
+            updateBoard();
+            updateUndoButton();
+        }
+        
+        // Undo last move
+        function undoMove() {
+            if (moveHistory.length === 0) return;
+            
+            const lastMove = moveHistory.pop();
+            board[lastMove.row][lastMove.col] = 0;
+            currentPlayer = lastMove.player;
+            gameOver = false;
+            
+            const playerName = currentPlayer === 1 ? 'Rot' : 'Gelb';
+            document.getElementById('status').textContent = `${playerName} ist am Zug`;
+            
+            updateBoard();
+            updateUndoButton();
+        }
+        
+        // Update undo button
+        function updateUndoButton() {
+            document.getElementById('undoBtn').disabled = moveHistory.length === 0;
+        }
+        
+        // Update scores
+        function updateScores() {
+            document.getElementById('scores').textContent = `Rot: ${scores.red} | Gelb: ${scores.yellow}`;
+        }
+        
+        // Reset scores
+        function resetScore() {
+            scores = { red: 0, yellow: 0 };
+            updateScores();
+        }
+        
+        // Show help
+        function showHelp() {
+            document.getElementById('helpModal').classList.add('active');
+        }
+        
+        // Close help
+        function closeHelp() {
+            document.getElementById('helpModal').classList.remove('active');
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            switch(e.key) {
+                case '1': case '2': case '3': case '4': case '5': case '6': case '7':
+                    e.preventDefault();
+                    dropPiece(parseInt(e.key) - 1);
+                    break;
+                case 'n': case 'N':
+                    e.preventDefault();
+                    newGame();
+                    break;
+                case 'u': case 'U':
+                    e.preventDefault();
+                    undoMove();
+                    break;
+                case 'F1':
+                    e.preventDefault();
+                    showHelp();
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    closeHelp();
+                    break;
+            }
+        });
+        
+        // Click outside modal to close
+        document.getElementById('helpModal').onclick = function(e) {
+            if (e.target === this) {
+                closeHelp();
+            }
+        };
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initBoard();
+            updateScores();
+            console.log('🎮 Connect4 loaded successfully!');
+        });
+    </script>
+</body>
+</html>

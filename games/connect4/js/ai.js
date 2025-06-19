@@ -177,19 +177,19 @@ class Connect4AI {
         // Create weighted list: add each column 'score' times to the list
         const weightedList = [];
         
-        for (const eval of evaluations) {
+        for (const evalItem of evaluations) {
             // Ensure minimum weight of 1 (so all moves are at least possible)
-            const weight = Math.max(1, eval.score);
+            const weight = Math.max(1, evalItem.score);
             
             for (let i = 0; i < weight; i++) {
-                weightedList.push(eval.col);
+                weightedList.push(evalItem.col);
             }
         }
         
         console.log('🎯 Smart Bot weighted selection:');
-        evaluations.forEach(eval => {
-            const weight = Math.max(1, eval.score);
-            console.log(`  Column ${eval.col + 1}: Score ${eval.score} → Weight ${weight}`);
+        evaluations.forEach(evalItem => {
+            const weight = Math.max(1, evalItem.score);
+            console.log(`  Column ${evalItem.col + 1}: Score ${evalItem.score} → Weight ${weight}`);
         });
         console.log('🎯 Weighted list:', weightedList.map(c => c + 1));
         
