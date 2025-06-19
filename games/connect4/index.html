@@ -242,12 +242,14 @@
     <script src="js/game.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/helpers.js"></script>
+    <script src="js/evaluation.js"></script>
     <script src="js/ui.js"></script>
     <script>
         // Initialize game when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             window.game = new Connect4Game();
             window.ui = new Connect4UI(window.game);
+            window.evaluation = new Connect4Evaluation();
             window.ui.init();
             
             // Debug info
@@ -255,6 +257,13 @@
             console.log('Game:', window.game);
             console.log('UI:', window.ui);
             console.log('Helpers:', window.ui.helpers);
+            console.log('Evaluation:', window.evaluation);
+            
+            // Debug functions for testing evaluation
+            window.debugEval = () => window.evaluation.debugEvaluations(window.game);
+            window.getBestMove = () => window.evaluation.getBestMove(window.game);
+            
+            console.log('💡 Try: debugEval() or getBestMove() in console to test evaluation!');
         });
     </script>
 </body>

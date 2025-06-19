@@ -13,12 +13,10 @@
             <a href="../../index.html" class="back-button">← Zurück</a>
             <h1>⚫ 5 Gewinnt (Gobang)</h1>
             <div class="game-mode-selector">
+                <label for="gameMode">Spielmodus:</label>
                 <select id="gameMode">
                     <option value="two-player">2 Spieler</option>
-                    <option value="vs-bot-easy">vs Bot (Einfach)</option>
-                    <option value="vs-bot-medium">vs Bot (Mittel)</option>
-                    <option value="vs-bot-hard">vs Bot (Schwer)</option>
-                    <option value="vs-bot-expert">vs Bot (Experte)</option>
+                    <option value="vs-bot-smart">vs Smart Bot</option>
                 </select>
             </div>
         </header>
@@ -72,9 +70,11 @@
             </div>
 
             <div class="game-controls">
-                <button class="btn btn-primary" id="newGameBtn">Neues Spiel</button>
-                <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig</button>
-                <button class="btn btn-info" id="helpBtn">Hilfe (F1)</button>
+                <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
+                <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
+                <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
+                <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
+                <button class="btn btn-success" id="gameHelpBtn">Spielhilfen (F2)</button>
             </div>
         </main>
     </div>
@@ -103,11 +103,32 @@
 
                 <div class="help-section">
                     <h3>🎮 Steuerung</h3>
+                    <div class="control-group">
+                        <h4>🖱️ Maus/Touch:</h4>
+                        <ul>
+                            <li><strong>Klick:</strong> Stein auf Schnittpunkt setzen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h4>⌨️ Tastatur:</h4>
+                        <ul>
+                            <li><strong>N:</strong> Neues Spiel</li>
+                            <li><strong>U:</strong> Zug rückgängig</li>
+                            <li><strong>F1:</strong> Spielanleitung öffnen/schließen</li>
+                            <li><strong>F2:</strong> Spielhilfen öffnen/schließen</li>
+                            <li><strong>F3:</strong> Score zurücksetzen</li>
+                            <li><strong>Strg+R:</strong> Neues Spiel (Alternative)</li>
+                            <li><strong>Strg+Z:</strong> Zug rückgängig (Alternative)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3>🤖 Spielmodi</h3>
                     <ul>
-                        <li><strong>Maus/Touch:</strong> Klicke auf einen Schnittpunkt</li>
-                        <li><strong>F1:</strong> Diese Hilfe öffnen/schließen</li>
-                        <li><strong>Strg+R:</strong> Neues Spiel</li>
-                        <li><strong>Strg+Z:</strong> Zug rückgängig</li>
+                        <li><strong>2 Spieler:</strong> Spiele gegen einen Freund</li>
+                        <li><strong>vs Smart Bot:</strong> Spiele gegen eine intelligente KI, die strategische Entscheidungen trifft und Bedrohungen erkennt</li>
                     </ul>
                 </div>
 
@@ -140,8 +161,97 @@
         </div>
     </div>
 
+    <!-- Game Help Modal (Spielhilfen) -->
+    <div class="modal-overlay" id="gameHelpModal">
+        <div class="modal game-help-modal">
+            <h2>🎯 Spielhilfen</h2>
+            
+            <div class="help-content">
+                <p>Aktiviere verschiedene Hilfe-Level für bessere Spielunterstützung:</p>
+                
+                <div class="help-table-container">
+                    <table class="help-table">
+                        <thead>
+                            <tr>
+                                <th>Farbe</th>
+                                <th>Level 0<br><small>Gewinnzüge</small></th>
+                                <th>Level 1<br><small>Bedrohungen</small></th>
+                                <th>Level 2<br><small>Fallen</small></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="player-label">
+                                    ⚫
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer1Level0" 
+                                           class="help-checkbox-input" 
+                                           tabindex="1" accesskey="1">
+                                    <label for="helpPlayer1Level0" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer1Level1" 
+                                           class="help-checkbox-input" 
+                                           tabindex="2" accesskey="2">
+                                    <label for="helpPlayer1Level1" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer1Level2" 
+                                           class="help-checkbox-input" 
+                                           tabindex="3" accesskey="3">
+                                    <label for="helpPlayer1Level2" class="help-checkbox-label"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="player-label">
+                                    ⚪
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer2Level0" 
+                                           class="help-checkbox-input" 
+                                           tabindex="4" accesskey="4">
+                                    <label for="helpPlayer2Level0" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer2Level1" 
+                                           class="help-checkbox-input" 
+                                           tabindex="5" accesskey="5">
+                                    <label for="helpPlayer2Level1" class="help-checkbox-label"></label>
+                                </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="helpPlayer2Level2" 
+                                           class="help-checkbox-input" 
+                                           tabindex="6" accesskey="6">
+                                    <label for="helpPlayer2Level2" class="help-checkbox-label"></label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="help-legend">
+                        <div class="legend-item">
+                            <strong>Level 0:</strong> Erkennt eigene Gewinnchancen (5er vollenden)
+                        </div>
+                        <div class="legend-item">
+                            <strong>Level 1:</strong> Blockiert gegnerische Bedrohungen (4er blockieren)
+                        </div>
+                        <div class="legend-item">
+                            <strong>Level 2:</strong> Vermeidet Fallen (Look-ahead für sichere Züge)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn btn-primary" id="closeGameHelpBtn">Verstanden!</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/game.js"></script>
     <script src="js/ai.js"></script>
+    <script src="js/helpers.js"></script>
+    <script src="js/evaluation.js"></script>
     <script src="js/ui.js"></script>
     <script>
         // Initialize game when DOM is loaded
