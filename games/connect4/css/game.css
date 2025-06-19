@@ -291,14 +291,27 @@
 }
 
 .cell {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: white;
-    border: 3px solid #1565C0;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: white !important;
+    border: 3px solid #1565C0 !important;
     position: relative;
     overflow: visible;
     transition: all 0.3s ease;
+    display: block !important;
+    box-sizing: border-box !important;
+}
+
+/* Debug: Ensure cells are visible */
+#gameBoard .cell {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    background: white !important;
+    border: 3px solid #1565C0 !important;
+    display: block !important;
+    box-sizing: border-box !important;
 }
 
 .cell.red {

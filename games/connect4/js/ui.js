@@ -96,9 +96,11 @@ class Connect4UI {
      */
     createBoard() {
         this.boardElement = document.getElementById('gameBoard');
+        console.log('🎮 Creating board, found element:', this.boardElement);
         this.boardElement.innerHTML = '';
         
         // Create cells
+        let cellCount = 0;
         for (let row = 0; row < this.game.ROWS; row++) {
             for (let col = 0; col < this.game.COLS; col++) {
                 const cell = document.createElement('div');
@@ -106,12 +108,20 @@ class Connect4UI {
                 cell.dataset.row = row;
                 cell.dataset.col = col;
                 
+                // Debug: Add visible content to cells
+                cell.style.cssText = 'width: 60px !important; height: 60px !important; background: white !important; border: 3px solid #1565C0 !important; border-radius: 50% !important; display: block !important;';
+                
                 // Add click handler for column selection
                 cell.addEventListener('click', () => this.handleCellClick(col));
                 
                 this.boardElement.appendChild(cell);
+                cellCount++;
             }
         }
+        
+        console.log(`✅ Created ${cellCount} cells (${this.game.ROWS}x${this.game.COLS})`);
+        console.log('Board children count:', this.boardElement.children.length);
+        console.log('First cell:', this.boardElement.children[0]);
     }
     
     /**
