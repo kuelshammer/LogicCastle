@@ -204,6 +204,97 @@ class Connect4AI {
     }
 
     /**
+     * Evaluate the potential of a position for creating 4-in-a-row combinations
+     * Returns the number of potential 4-in-a-row patterns this move could contribute to
+     */
+    evaluatePositionPotential(game, col, player) {
+        // Find where the piece would land
+        let row = game.ROWS - 1;
+        while (row >= 0 && game.board[row][col] !== game.EMPTY) {
+            row--;
+        }
+
+        if (row < 0) {
+            return 0; // Column full
+        }
+
+        let potential = 0;
+        const directions = [
+            [0, 1],   // Horizontal
+            [1, 0],   // Vertical
+            [1, 1],   // Diagonal /
+            [1, -1]   // Diagonal \
+        ];
+
+        // Check each direction for potential 4-in-a-row patterns
+        for (const [deltaRow, deltaCol] of directions) {
+            potential += this.countPotentialInDirection(game, row, col, player, deltaRow, deltaCol);
+        }
+
+        return potential;
+    }
+
+    /**
+     * Count potential 4-in-a-row patterns in a specific direction
+     */
+    countPotentialInDirection(game, row, col, player, deltaRow, deltaCol) {
+        let potential = 0;
+
+        // Check all possible 4-cell windows that include this position
+        for (let startOffset = -3; startOffset <= 0; startOffset++) {
+            const startRow = row + startOffset * deltaRow;
+            const startCol = col + startOffset * deltaCol;
+
+            // Check if this 4-cell window is valid (within board bounds)
+            const endRow = startRow + 3 * deltaRow;
+            const endCol = startCol + 3 * deltaCol;
+
+            if (startRow >= 0 && startRow < game.ROWS &&
+                startCol >= 0 && startCol < game.COLS &&
+                endRow >= 0 && endRow < game.ROWS &&
+                endCol >= 0 && endCol < game.COLS) {
+
+                // Check if this window could potentially form a 4-in-a-row
+                if (this.isWindowViable(game, startRow, startCol, deltaRow, deltaCol, player)) {
+                    potential++;
+                }
+            }
+        }
+
+        return potential;
+    }
+
+    /**
+     * Check if a 4-cell window is viable for the player (no opponent pieces blocking)
+     */
+    isWindowViable(game, startRow, startCol, deltaRow, deltaCol, player) {
+        const opponent = player === game.PLAYER1 ? game.PLAYER2 : game.PLAYER1;
+
+        for (let i = 0; i < 4; i++) {
+            const checkRow = startRow + i * deltaRow;
+            const checkCol = startCol + i * deltaCol;
+
+            // If there's an opponent piece in this window, it's not viable
+            if (game.board[checkRow][checkCol] === opponent) {
+                return false;
+            }
+
+            // For vertical direction, check if position is reachable
+            if (deltaRow === 1 && deltaCol === 0) {
+                // Check if this cell is reachable (no floating pieces)
+                if (game.board[checkRow][checkCol] === game.EMPTY) {
+                    // Check if there's support below (or it's the bottom row)
+                    if (checkRow < game.ROWS - 1 && game.board[checkRow + 1][checkCol] === game.EMPTY) {
+                        return false; // Would be floating
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Hard/Expert AI: Minimax with alpha-beta pruning
      */
     getMinimaxMove(game) {

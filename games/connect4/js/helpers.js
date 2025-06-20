@@ -61,6 +61,12 @@ class Connect4Helpers {
             return;
         }
 
+        // Check if current player has help enabled - if not, clear everything and exit
+        if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
+            this.clearAllHints();
+            return; // No help for this player
+        }
+
         this.clearAllHints();
 
         // Check for winning opportunities first (Level 0+)
@@ -540,127 +546,10 @@ class Connect4Helpers {
                 });
             }
         }
-
-        // Look for setup moves (moves that create multiple threats)
-        this.analyzeSetupMoves();
     }
 
-    /**
-     * Analyze setup moves that create multiple win opportunities
-     */
-    analyzeSetupMoves() {
-        const validMoves = this.game.getValidMoves();
 
-        for (const col of validMoves) {
-            const threats = this.countThreatsAfterMove(col);
 
-            if (threats >= 2) {
-                // Find the row where the piece would land
-                let row = this.game.ROWS - 1;
-                while (row >= 0 && this.game.board[row][col] !== this.game.EMPTY) {
-                    row--;
-                }
-
-                this.currentHints.opportunities.push({
-                    column: col,
-                    row: row,
-                    type: 'setup_move',
-                    message: `Zwickmühle möglich! (${threats} Bedrohungen)`,
-                    priority: 'medium'
-                });
-            }
-        }
-    }
-
-    /**
-     * Count how many threats would be created after a move
-     */
-    countThreatsAfterMove(col) {
-        // Create a copy of the game state
-        const boardCopy = this.game.getBoard();
-
-        // Find where the piece would land
-        let row = this.game.ROWS - 1;
-        while (row >= 0 && boardCopy[row][col] !== this.game.EMPTY) {
-            row--;
-        }
-
-        if (row < 0) {
-            return 0;
-        } // Column full
-
-        // Place the piece
-        boardCopy[row][col] = this.game.currentPlayer;
-
-        // Count potential wins from this new state
-        let threats = 0;
-
-        for (let testCol = 0; testCol < this.game.COLS; testCol++) {
-            if (boardCopy[0][testCol] === this.game.EMPTY) {
-                // Find where a piece would land in this column
-                let testRow = this.game.ROWS - 1;
-                while (testRow >= 0 && boardCopy[testRow][testCol] !== this.game.EMPTY) {
-                    testRow--;
-                }
-
-                if (testRow >= 0) {
-                    // Test if placing a piece here would win
-                    if (this.wouldWinAtPosition(boardCopy, testRow, testCol, this.game.currentPlayer)) {
-                        threats++;
-                    }
-                }
-            }
-        }
-
-        return threats;
-    }
-
-    /**
-     * Check if placing a piece at a position would result in a win
-     */
-    wouldWinAtPosition(board, row, col, player) {
-        // Temporarily place the piece
-        board[row][col] = player;
-
-        const directions = [
-            [0, 1],   // Horizontal
-            [1, 0],   // Vertical
-            [1, 1],   // Diagonal /
-            [1, -1]   // Diagonal \
-        ];
-
-        for (const [deltaRow, deltaCol] of directions) {
-            let count = 1;
-
-            // Check positive direction
-            let r = row + deltaRow;
-            let c = col + deltaCol;
-            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
-                count++;
-                r += deltaRow;
-                c += deltaCol;
-            }
-
-            // Check negative direction
-            r = row - deltaRow;
-            c = col - deltaCol;
-            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
-                count++;
-                r -= deltaRow;
-                c -= deltaCol;
-            }
-
-            if (count >= 4) {
-                // Remove the temporarily placed piece
-                board[row][col] = this.game.EMPTY;
-                return true;
-            }
-        }
-
-        // Remove the temporarily placed piece
-        board[row][col] = this.game.EMPTY;
-        return false;
-    }
 
     /**
      * Generate strategic suggestions
@@ -687,14 +576,6 @@ class Connect4Helpers {
             });
         }
 
-        // Priority 3: Create setup moves
-        if (this.currentHints.opportunities.some(opp => opp.type === 'setup_move')) {
-            this.currentHints.suggestions.push({
-                type: 'strategic_advice',
-                message: '⚡ Zwickmühle möglich - schaffe mehrere Bedrohungen!',
-                priority: 'medium'
-            });
-        }
 
         // General strategic advice based on game state
         this.addGeneralStrategicAdvice();
@@ -782,7 +663,14 @@ class Connect4Helpers {
             return;
         }
 
-        // For Level 1, we don't show visual overlays - only column blocking
+        // Double-check: Only show visual hints if current player has help enabled
+        if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
+            hintsOverlay.innerHTML = '';
+            hintsOverlay.style.display = 'none';
+            return;
+        }
+
+        // For Level 1 and below, we don't show visual overlays - only column blocking
         if (this.helpLevel <= 1) {
             hintsOverlay.innerHTML = '';
             hintsOverlay.style.display = 'none';
