@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot vs Bot Test - Automation</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .board-display {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-line;
+            border: 1px solid #dee2e6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .result.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background-color 0.3s;
+            background-color: #2c5aa0;
+            color: white;
+        }
+        
+        button:hover {
+            background-color: #1a4480;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Bot vs Bot Automation Test</h1>
+        
+        <div class="test-section">
+            <h3>🎮 Test Controls</h3>
+            <button onclick="runSingleBotGame()" id="singleBtn">Run Single Bot vs Bot Game</button>
+            <button onclick="runMultipleBotGames()" id="multipleBtn">Run 5 Games (Stress Test)</button>
+            <button onclick="testBotMoveExecution()" id="moveBtn">Test Bot Move Execution</button>
+            <button onclick="clearResults()" id="clearBtn">Clear Results</button>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-box">
+                <div class="stat-value" id="totalGames">0</div>
+                <div class="stat-label">Games Played</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="avgMoves">0</div>
+                <div class="stat-label">Avg Moves</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="botStatus">?</div>
+                <div class="stat-label">Bot Status</div>
+            </div>
+        </div>
+        
+        <div id="log" class="log" style="display: none;"></div>
+        
+        <div id="results"></div>
+    </div>
+
+    <!-- Load game classes -->
+    <script src="../games/connect4/js/game.js"></script>
+    <script src="../games/connect4/js/helpers.js"></script>
+    <script src="../games/connect4/js/ai.js"></script>
+
+    <script>
+        // Test results storage
+        let testResults = [];
+        let isRunning = false;
+        
+        /**
+         * Mock UI for testing
+         */
+        class MockUI {
+            constructor() {
+                this.gameMode = 'vs-bot-smart';
+                this.playerHelpEnabled = {
+                    red: { level0: false, level1: false, level2: false },
+                    yellow: { level0: true, level1: true, level2: true }
+                };
+            }
+            
+            isAIMode() {
+                return this.gameMode.startsWith('vs-bot');
+            }
+            
+            getCurrentPlayerHelpEnabled() {
+                // Always allow helper analysis for bot testing
+                return true;
+            }
+        }
+        
+        /**
+         * Log messages to the console and UI
+         */
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('log');
+            logElement.style.display = 'block';
+            
+            const color = type === 'error' ? '#e74c3c' : 
+                         type === 'success' ? '#27ae60' : 
+                         type === 'warning' ? '#f39c12' : '#ecf0f1';
+            
+            logElement.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+            
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        /**
+         * Convert game board to ASCII
+         */
+        function boardToAscii(game) {
+            let ascii = '';
+            for (let row = 0; row < game.ROWS; row++) {
+                let line = '';
+                for (let col = 0; col < game.COLS; col++) {
+                    const cell = game.board[row][col];
+                    if (cell === game.EMPTY) {
+                        line += '. ';
+                    } else if (cell === game.PLAYER1) {
+                        line += 'R ';
+                    } else if (cell === game.PLAYER2) {
+                        line += 'Y ';
+                    }
+                }
+                ascii += line + '\\n';
+            }
+            return ascii;
+        }
+        
+        /**
+         * Test Bot move execution capability
+         */
+        async function testBotMoveExecution() {
+            if (isRunning) return;
+            isRunning = true;
+            setButtonStates(false);
+            
+            log('🧪 Testing Bot Move Execution...', 'info');
+            
+            try {
+                const game = new Connect4Game();
+                const mockUI = new MockUI();
+                const helpers = new Connect4Helpers(game, mockUI);
+                const ai = new Connect4AI('smart-random');
+                
+                // Test 1: Bot can get a move on empty board
+                log('Test 1: Bot move on empty board');
+                const move1 = ai.getBestMove(game, helpers);
+                if (move1 === null) {
+                    log('❌ Bot returned null on empty board!', 'error');
+                    return false;
+                }
+                log(`✅ Bot chose column ${move1 + 1} on empty board`, 'success');
+                
+                // Test 2: Bot can execute the move
+                const result1 = game.makeMove(move1);
+                if (!result1.success) {
+                    log(`❌ Bot move failed: ${result1.reason}`, 'error');
+                    return false;
+                }
+                log('✅ Bot move executed successfully', 'success');
+                
+                // Test 3: Bot can respond to human move
+                game.makeMove(2); // Human plays column 3
+                const move2 = ai.getBestMove(game, helpers);
+                if (move2 === null) {
+                    log('❌ Bot returned null after human move!', 'error');
+                    return false;
+                }
+                log(`✅ Bot responded with column ${move2 + 1}`, 'success');
+                
+                log('🎉 Bot move execution test PASSED!', 'success');
+                return true;
+                
+            } catch (error) {
+                log(`❌ Bot execution test failed: ${error.message}`, 'error');
+                return false;
+            } finally {
+                isRunning = false;
+                setButtonStates(true);
+            }
+        }
+        
+        /**
+         * Run a single Bot vs Bot game
+         */
+        async function runSingleBotGame() {
+            if (isRunning) return;
+            isRunning = true;
+            setButtonStates(false);
+            
+            log('🤖 Starting Bot vs Bot Game...', 'info');
+            
+            try {
+                const result = await simulateBotGame();
+                
+                displayGameResult(result);
+                testResults.push(result);
+                updateStats();
+                
+                if (result.success) {
+                    log(`🎉 Game completed successfully! ${result.moveCount} moves`, 'success');
+                } else {
+                    log(`❌ Game failed: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Game error: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+                setButtonStates(true);
+            }
+        }
+        
+        /**
+         * Run multiple Bot vs Bot games
+         */
+        async function runMultipleBotGames() {
+            if (isRunning) return;
+            isRunning = true;
+            setButtonStates(false);
+            
+            const numGames = 5;
+            log(`🤖 Starting ${numGames} Bot vs Bot games...`, 'info');
+            
+            try {
+                for (let i = 0; i < numGames; i++) {
+                    log(`\\n🎮 Game ${i + 1}/${numGames}`, 'info');
+                    
+                    const result = await simulateBotGame(false); // Less verbose
+                    testResults.push(result);
+                    
+                    if (!result.success) {
+                        log(`❌ Game ${i + 1} failed, stopping test`, 'error');
+                        break;
+                    }
+                    
+                    // Small delay between games
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                
+                updateStats();
+                log(`🏁 Completed ${numGames} games stress test`, 'success');
+                
+            } catch (error) {
+                log(`❌ Multiple games error: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+                setButtonStates(true);
+            }
+        }
+        
+        /**
+         * Simulate a complete Bot vs Bot game
+         */
+        async function simulateBotGame(verbose = true) {
+            const game = new Connect4Game();
+            const mockUI = new MockUI();
+            const helpers = new Connect4Helpers(game, mockUI);
+            const redBot = new Connect4AI('smart-random');
+            const yellowBot = new Connect4AI('smart-random');
+            
+            let moveCount = 0;
+            const maxMoves = 42;
+            const moves = [];
+            
+            if (verbose) {
+                log('Initial board:\\n' + boardToAscii(game));
+            }
+            
+            while (!game.gameOver && moveCount < maxMoves) {
+                const currentPlayer = game.currentPlayer;
+                const playerName = currentPlayer === game.PLAYER1 ? 'Red Bot' : 'Yellow Bot';
+                const bot = currentPlayer === game.PLAYER1 ? redBot : yellowBot;
+                
+                try {
+                    // Get bot move
+                    const botMove = bot.getBestMove(game, helpers);
+                    
+                    if (botMove === null) {
+                        throw new Error(`${playerName} returned null move`);
+                    }
+                    
+                    if (verbose) {
+                        log(`🤖 ${playerName} chose column ${botMove + 1}`);
+                    }
+                    
+                    // Make the move
+                    const result = game.makeMove(botMove);
+                    
+                    if (!result.success) {
+                        throw new Error(`Move failed: ${result.reason}`);
+                    }
+                    
+                    moves.push({ player: currentPlayer, column: botMove });
+                    moveCount++;
+                    
+                    if (verbose && game.gameOver) {
+                        log('Final board:\\n' + boardToAscii(game));
+                    }
+                    
+                    // Small delay to prevent browser freezing
+                    if (moveCount % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                    
+                } catch (error) {
+                    return {
+                        success: false,
+                        error: error.message,
+                        moveCount: moveCount,
+                        moves: moves
+                    };
+                }
+            }
+            
+            return {
+                success: game.gameOver || moveCount > 10,
+                moveCount: moveCount,
+                winner: game.winner,
+                gameOver: game.gameOver,
+                moves: moves,
+                error: null
+            };
+        }
+        
+        /**
+         * Display game result
+         */
+        function displayGameResult(result) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-section';
+            
+            const status = result.success ? '✅' : '❌';
+            const resultClass = result.success ? 'success' : 'error';
+            
+            let content = `
+                <h4>${status} Bot vs Bot Game</h4>
+                <div class="result ${resultClass}">
+                    ${result.success ? 'Game completed successfully' : 'Game failed'}
+                    <br>Moves: ${result.moveCount}
+                    ${result.gameOver ? (result.winner ? `<br>Winner: Player ${result.winner}` : '<br>Result: Draw') : ''}
+                    ${result.error ? `<br>Error: ${result.error}` : ''}
+                </div>
+            `;
+            
+            if (result.moves && result.moves.length > 0) {
+                const moveList = result.moves.map((move, i) => 
+                    `${i + 1}. P${move.player} → Col ${move.column + 1}`
+                ).join(', ');
+                content += `<div class="board-display">Moves: ${moveList}</div>`;
+            }
+            
+            resultDiv.innerHTML = content;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        /**
+         * Update statistics display
+         */
+        function updateStats() {
+            const statsElement = document.getElementById('stats');
+            statsElement.style.display = 'grid';
+            
+            const totalGames = testResults.length;
+            const successfulGames = testResults.filter(r => r.success).length;
+            const successRate = totalGames > 0 ? Math.round((successfulGames / totalGames) * 100) : 0;
+            const avgMoves = totalGames > 0 ? Math.round(testResults.reduce((sum, r) => sum + r.moveCount, 0) / totalGames) : 0;
+            const botStatus = successRate >= 80 ? '✅' : successRate >= 50 ? '⚠️' : '❌';
+            
+            document.getElementById('totalGames').textContent = totalGames;
+            document.getElementById('successRate').textContent = successRate + '%';
+            document.getElementById('avgMoves').textContent = avgMoves;
+            document.getElementById('botStatus').textContent = botStatus;
+        }
+        
+        /**
+         * Set button enabled/disabled state
+         */
+        function setButtonStates(enabled) {
+            ['singleBtn', 'multipleBtn', 'moveBtn', 'clearBtn'].forEach(id => {
+                document.getElementById(id).disabled = !enabled;
+            });
+        }
+        
+        /**
+         * Clear all results
+         */
+        function clearResults() {
+            testResults = [];
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('log').style.display = 'none';
+            document.getElementById('stats').style.display = 'none';
+            log('🧹 Results cleared', 'info');
+        }
+        
+        // Initialize
+        log('🤖 Bot vs Bot Test Environment Ready', 'success');
+        log('Click "Test Bot Move Execution" to verify basic functionality', 'info');
+    </script>
+</body>
+</html>
