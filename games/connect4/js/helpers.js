@@ -878,6 +878,32 @@ class Connect4Helpers {
     }
 
     /**
+     * Count threats after making a specific move
+     * @param {number} col - Column to analyze
+     * @returns {number} - Number of threats created
+     */
+    countThreatsAfterMove(col) {
+        // Simulate the move
+        const result = this.game.simulateMove(col);
+        if (!result.success) {
+            return 0; // Invalid move
+        }
+
+        // Count how many ways current player can win from this new position
+        let threats = 0;
+        const validMoves = this.game.getValidMoves();
+
+        for (const checkCol of validMoves) {
+            const checkResult = this.game.simulateMove(checkCol);
+            if (checkResult.success && checkResult.wouldWin) {
+                threats++;
+            }
+        }
+
+        return threats;
+    }
+
+    /**
      * Event system methods for UI communication
      */
     on(event, callback) {
