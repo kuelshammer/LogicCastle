@@ -16,25 +16,25 @@ class Connect4Helpers {
             opportunities: [],
             suggestions: []
         };
-        
+
         // Auto-update when board state changes
         this.game.on('boardStateChanged', (data) => {
             if (this.enabled && !data.gameOver) {
                 this.updateHints();
             }
         });
-        
+
         // Clear hints when game resets
         this.game.on('gameReset', () => {
             this.clearAllHints();
             this.forcedMoveMode = false;
             this.requiredMoves = [];
         });
-        
+
         // Event system for UI communication
         this.eventListeners = {};
     }
-    
+
     /**
      * Enable or disable the hints system
      * @param {boolean} enabled - Whether hints should be enabled
@@ -43,7 +43,7 @@ class Connect4Helpers {
     setEnabled(enabled, helpLevel = 0) {
         this.enabled = enabled;
         this.helpLevel = helpLevel;
-        
+
         if (!enabled) {
             this.clearAllHints();
             this.forcedMoveMode = false;
@@ -52,7 +52,7 @@ class Connect4Helpers {
             this.updateHints();
         }
     }
-    
+
     /**
      * Update all hints for the current game state
      */
@@ -60,51 +60,51 @@ class Connect4Helpers {
         if (!this.enabled || this.game.gameOver) {
             return;
         }
-        
+
         this.clearAllHints();
-        
+
         // Check for winning opportunities first (Level 0+)
         if (this.helpLevel >= 0) {
             this.checkWinningOpportunities();
         }
-        
+
         // Check for critical defensive situations (Level 1+)
         if (this.helpLevel >= 1) {
             this.checkForcedMoves();
         }
-        
+
         // Check for trap avoidance (Level 2+) - only if no higher priority moves found
         if (this.helpLevel >= 2 && !this.forcedMoveMode) {
             this.checkTrapAvoidance();
         }
-        
+
         // Only analyze other hints if not in forced move mode
         if (!this.forcedMoveMode) {
             this.analyzeThreats();
             this.analyzeOpportunities();
             this.generateStrategicSuggestions();
-            
+
             // Display hints only for non-forced situations
             this.displayHints();
         }
         // Note: For Level 1, we only use column blocking, no visual overlays
     }
-    
+
     /**
      * Check for winning opportunities (Level 0 help: find own winning moves)
      */
     checkWinningOpportunities() {
         this.forcedMoveMode = false;
         this.requiredMoves = [];
-        
+
         // Check if current player has help enabled
         if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
             return; // No help for this player
         }
-        
+
         const validMoves = this.game.getValidMoves();
         const winningMoves = [];
-        
+
         // Check each valid move to see if current player can win there
         for (const col of validMoves) {
             const result = this.game.simulateMove(col);
@@ -116,12 +116,12 @@ class Connect4Helpers {
                 });
             }
         }
-        
+
         // If there are winning moves, enter forced move mode for offensive play
         if (winningMoves.length > 0) {
             this.forcedMoveMode = true;
             this.requiredMoves = winningMoves.map(move => move.column);
-            
+
             // Add these as winning opportunities
             this.currentHints.opportunities = winningMoves.map(move => ({
                 column: move.column,
@@ -130,13 +130,13 @@ class Connect4Helpers {
                 message: 'Du kannst hier GEWINNEN!',
                 priority: 'critical'
             }));
-            
+
             // Emit winning opportunity event for UI
             this.emit('winningOpportunityActivated', {
                 requiredMoves: this.requiredMoves,
                 opportunities: this.currentHints.opportunities
             });
-            
+
             console.log('🎯 Level 0: Winning opportunity detected at columns', this.requiredMoves);
         } else {
             // No winning moves found
@@ -158,21 +158,21 @@ class Connect4Helpers {
             console.log('🎯 Level 1: Skipping threat check - Level 0 winning move takes priority');
             return;
         }
-        
+
         this.forcedMoveMode = false;
         this.requiredMoves = [];
-        
+
         // Check if current player has help enabled
         if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
             return; // No help for this player
         }
-        
-        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
-                         this.game.PLAYER2 : this.game.PLAYER1;
-        
+
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
+            this.game.PLAYER2 : this.game.PLAYER1;
+
         const validMoves = this.game.getValidMoves();
         const blockingMoves = [];
-        
+
         // Check each valid move to see if opponent could win there
         for (const col of validMoves) {
             if (this.wouldOpponentWinAt(col, opponent)) {
@@ -181,7 +181,7 @@ class Connect4Helpers {
                 while (row >= 0 && this.game.board[row][col] !== this.game.EMPTY) {
                     row--;
                 }
-                
+
                 if (row >= 0) {
                     blockingMoves.push({
                         column: col,
@@ -191,12 +191,12 @@ class Connect4Helpers {
                 }
             }
         }
-        
+
         // If there are moves that must be blocked, enter forced move mode
         if (blockingMoves.length > 0) {
             this.forcedMoveMode = true;
             this.requiredMoves = blockingMoves.map(move => move.column);
-            
+
             // Add these as critical threats
             this.currentHints.threats = blockingMoves.map(move => ({
                 column: move.column,
@@ -205,7 +205,7 @@ class Connect4Helpers {
                 message: 'Du MUSST hier spielen um zu verhindern, dass der Gegner gewinnt!',
                 priority: 'critical'
             }));
-            
+
             // Emit forced move event for UI
             this.emit('forcedMoveActivated', {
                 requiredMoves: this.requiredMoves,
@@ -229,11 +229,11 @@ class Connect4Helpers {
         if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
             return; // No help for this player
         }
-        
+
         const validMoves = this.game.getValidMoves();
         const safeMoves = [];
         const dangerousMoves = [];
-        
+
         // Analyze each possible move for safety
         for (const col of validMoves) {
             if (this.isMoveUnsafe(col)) {
@@ -248,7 +248,7 @@ class Connect4Helpers {
                 });
             }
         }
-        
+
         // Determine action based on safe moves availability
         if (safeMoves.length === 0) {
             // All moves are dangerous - player is trapped!
@@ -259,7 +259,7 @@ class Connect4Helpers {
             console.log('🛡️ Level 2: Filtering out dangerous moves:', dangerousMoves.map(m => m.column));
             this.forcedMoveMode = true;
             this.requiredMoves = safeMoves.map(move => move.column);
-            
+
             // Add these as safe move recommendations
             this.currentHints.suggestions = [{
                 type: 'trap_avoidance',
@@ -267,21 +267,21 @@ class Connect4Helpers {
                 priority: 'medium',
                 safeMoves: this.requiredMoves
             }];
-            
+
             // Emit trap avoidance event for UI
             this.emit('trapAvoidanceActivated', {
                 requiredMoves: this.requiredMoves,
                 dangerousMoves: dangerousMoves.map(m => m.column),
                 reason: 'Avoiding opponent traps'
             });
-            
+
             console.log('🎯 Level 2: Safe moves only:', this.requiredMoves);
         } else {
             // All moves are safe - no action needed
             console.log('✅ Level 2: All moves are safe - no traps detected');
         }
     }
-    
+
     /**
      * Check if a move is unsafe (allows opponent to win on next turn)
      * @param {number} col - Column to check
@@ -293,34 +293,36 @@ class Connect4Helpers {
         if (!result.success) {
             return true; // Invalid move is unsafe
         }
-        
+
         if (result.wouldWin) {
             return false; // Winning moves are always safe (Level 0 should handle this)
         }
-        
+
         // Create board state after our move
         const boardCopy = this.copyBoard(this.game.board);
         const row = this.getLowestEmptyRow(boardCopy, col);
-        if (row === -1) return true; // Column full
-        
+        if (row === -1) {
+            return true;
+        } // Column full
+
         // Place our piece
         boardCopy[row][col] = this.game.currentPlayer;
-        
+
         // Now check all possible opponent responses
-        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
-                         this.game.PLAYER2 : this.game.PLAYER1;
-        
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
+            this.game.PLAYER2 : this.game.PLAYER1;
+
         const opponentMoves = this.getValidMovesForBoard(boardCopy);
-        
+
         for (const opponentCol of opponentMoves) {
             if (this.wouldMoveWinOnBoard(boardCopy, opponentCol, opponent)) {
                 return true; // Opponent can win - our move is unsafe
             }
         }
-        
+
         return false; // No opponent winning responses - move is safe
     }
-    
+
     /**
      * Handle situation where player is completely trapped
      * @param {Array} dangerousMoves - All available moves (all dangerous)
@@ -330,7 +332,7 @@ class Connect4Helpers {
         // Choose the "least bad" option or let them choose
         this.forcedMoveMode = false; // Don't force specific moves when trapped
         this.requiredMoves = [];
-        
+
         // Add warning about trapped situation
         this.currentHints.suggestions = [{
             type: 'trapped_warning',
@@ -338,14 +340,14 @@ class Connect4Helpers {
             priority: 'critical',
             trappedMoves: dangerousMoves.map(m => m.column)
         }];
-        
+
         // Emit trapped event for UI
         this.emit('playerTrapped', {
             dangerousMoves: dangerousMoves.map(m => m.column),
             message: 'All moves lead to opponent wins'
         });
     }
-    
+
     /**
      * Copy game board
      * @param {Array} board - Original board
@@ -354,7 +356,7 @@ class Connect4Helpers {
     copyBoard(board) {
         return board.map(row => [...row]);
     }
-    
+
     /**
      * Get valid moves for a given board state
      * @param {Array} board - Board state
@@ -369,7 +371,7 @@ class Connect4Helpers {
         }
         return validMoves;
     }
-    
+
     /**
      * Get lowest empty row in column for given board
      * @param {Array} board - Board state
@@ -384,7 +386,7 @@ class Connect4Helpers {
         }
         return -1;
     }
-    
+
     /**
      * Check if a move would win on a given board state
      * @param {Array} board - Board state
@@ -394,20 +396,22 @@ class Connect4Helpers {
      */
     wouldMoveWinOnBoard(board, col, player) {
         const row = this.getLowestEmptyRow(board, col);
-        if (row === -1) return false; // Column full
-        
+        if (row === -1) {
+            return false;
+        } // Column full
+
         // Temporarily place piece
         board[row][col] = player;
-        
+
         // Check for win
         const isWin = this.checkWinAtPosition(row, col, player);
-        
+
         // Remove piece
         board[row][col] = this.game.EMPTY;
-        
+
         return isWin;
     }
-    
+
     /**
      * Check if opponent would win by playing in the given column
      * @param {number} col - Column to check
@@ -420,25 +424,27 @@ class Connect4Helpers {
         while (row >= 0 && this.game.board[row][col] !== this.game.EMPTY) {
             row--;
         }
-        
-        if (row < 0) return false; // Column full
-        
+
+        if (row < 0) {
+            return false;
+        } // Column full
+
         // Temporarily place opponent's piece
         this.game.board[row][col] = opponent;
-        
+
         // Check if this creates a win
         const isWin = this.checkWinAtPosition(row, col, opponent);
-        
+
         // Remove the piece
         this.game.board[row][col] = this.game.EMPTY;
-        
+
         return isWin;
     }
-    
+
     /**
      * Check if there's a win at the given position for the given player
      * @param {number} row - Row position
-     * @param {number} col - Column position  
+     * @param {number} col - Column position
      * @param {number} player - Player to check for
      * @returns {boolean} - True if there's a win
      */
@@ -449,58 +455,58 @@ class Connect4Helpers {
             [1, 1],   // Diagonal /
             [1, -1]   // Diagonal \
         ];
-        
+
         for (const [deltaRow, deltaCol] of directions) {
             let count = 1; // Count the placed piece
-            
+
             // Check positive direction
             let r = row + deltaRow;
             let c = col + deltaCol;
-            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
+            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS &&
                    this.game.board[r][c] === player) {
                 count++;
                 r += deltaRow;
                 c += deltaCol;
             }
-            
+
             // Check negative direction
             r = row - deltaRow;
             c = col - deltaCol;
-            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
+            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS &&
                    this.game.board[r][c] === player) {
                 count++;
                 r -= deltaRow;
                 c -= deltaCol;
             }
-            
+
             if (count >= 4) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Analyze immediate threats (opponent can win next move)
      */
     analyzeThreats() {
         this.currentHints.threats = [];
-        
-        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
-                         this.game.PLAYER2 : this.game.PLAYER1;
-        
+
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
+            this.game.PLAYER2 : this.game.PLAYER1;
+
         const validMoves = this.game.getValidMoves();
-        
+
         for (const col of validMoves) {
             // Simulate opponent move
             const originalPlayer = this.game.currentPlayer;
             this.game.currentPlayer = opponent;
-            
+
             const result = this.game.simulateMove(col);
-            
+
             this.game.currentPlayer = originalPlayer;
-            
+
             if (result.success && result.wouldWin) {
                 this.currentHints.threats.push({
                     column: col,
@@ -512,18 +518,18 @@ class Connect4Helpers {
             }
         }
     }
-    
+
     /**
      * Analyze win opportunities (current player can win next move)
      */
     analyzeOpportunities() {
         this.currentHints.opportunities = [];
-        
+
         const validMoves = this.game.getValidMoves();
-        
+
         for (const col of validMoves) {
             const result = this.game.simulateMove(col);
-            
+
             if (result.success && result.wouldWin) {
                 this.currentHints.opportunities.push({
                     column: col,
@@ -534,27 +540,27 @@ class Connect4Helpers {
                 });
             }
         }
-        
+
         // Look for setup moves (moves that create multiple threats)
         this.analyzeSetupMoves();
     }
-    
+
     /**
      * Analyze setup moves that create multiple win opportunities
      */
     analyzeSetupMoves() {
         const validMoves = this.game.getValidMoves();
-        
+
         for (const col of validMoves) {
             const threats = this.countThreatsAfterMove(col);
-            
+
             if (threats >= 2) {
                 // Find the row where the piece would land
                 let row = this.game.ROWS - 1;
                 while (row >= 0 && this.game.board[row][col] !== this.game.EMPTY) {
                     row--;
                 }
-                
+
                 this.currentHints.opportunities.push({
                     column: col,
                     row: row,
@@ -565,28 +571,30 @@ class Connect4Helpers {
             }
         }
     }
-    
+
     /**
      * Count how many threats would be created after a move
      */
     countThreatsAfterMove(col) {
         // Create a copy of the game state
         const boardCopy = this.game.getBoard();
-        
+
         // Find where the piece would land
         let row = this.game.ROWS - 1;
         while (row >= 0 && boardCopy[row][col] !== this.game.EMPTY) {
             row--;
         }
-        
-        if (row < 0) return 0; // Column full
-        
+
+        if (row < 0) {
+            return 0;
+        } // Column full
+
         // Place the piece
         boardCopy[row][col] = this.game.currentPlayer;
-        
+
         // Count potential wins from this new state
         let threats = 0;
-        
+
         for (let testCol = 0; testCol < this.game.COLS; testCol++) {
             if (boardCopy[0][testCol] === this.game.EMPTY) {
                 // Find where a piece would land in this column
@@ -594,7 +602,7 @@ class Connect4Helpers {
                 while (testRow >= 0 && boardCopy[testRow][testCol] !== this.game.EMPTY) {
                     testRow--;
                 }
-                
+
                 if (testRow >= 0) {
                     // Test if placing a piece here would win
                     if (this.wouldWinAtPosition(boardCopy, testRow, testCol, this.game.currentPlayer)) {
@@ -603,27 +611,27 @@ class Connect4Helpers {
                 }
             }
         }
-        
+
         return threats;
     }
-    
+
     /**
      * Check if placing a piece at a position would result in a win
      */
     wouldWinAtPosition(board, row, col, player) {
         // Temporarily place the piece
         board[row][col] = player;
-        
+
         const directions = [
             [0, 1],   // Horizontal
             [1, 0],   // Vertical
             [1, 1],   // Diagonal /
             [1, -1]   // Diagonal \
         ];
-        
+
         for (const [deltaRow, deltaCol] of directions) {
             let count = 1;
-            
+
             // Check positive direction
             let r = row + deltaRow;
             let c = col + deltaCol;
@@ -632,7 +640,7 @@ class Connect4Helpers {
                 r += deltaRow;
                 c += deltaCol;
             }
-            
+
             // Check negative direction
             r = row - deltaRow;
             c = col - deltaCol;
@@ -641,25 +649,25 @@ class Connect4Helpers {
                 r -= deltaRow;
                 c -= deltaCol;
             }
-            
+
             if (count >= 4) {
                 // Remove the temporarily placed piece
                 board[row][col] = this.game.EMPTY;
                 return true;
             }
         }
-        
+
         // Remove the temporarily placed piece
         board[row][col] = this.game.EMPTY;
         return false;
     }
-    
+
     /**
      * Generate strategic suggestions
      */
     generateStrategicSuggestions() {
         this.currentHints.suggestions = [];
-        
+
         // Priority 1: Take winning moves
         if (this.currentHints.opportunities.some(opp => opp.type === 'winning_move')) {
             this.currentHints.suggestions.push({
@@ -669,7 +677,7 @@ class Connect4Helpers {
             });
             return; // No other suggestions needed if win is available
         }
-        
+
         // Priority 2: Block threats
         if (this.currentHints.threats.length > 0) {
             this.currentHints.suggestions.push({
@@ -678,7 +686,7 @@ class Connect4Helpers {
                 priority: 'high'
             });
         }
-        
+
         // Priority 3: Create setup moves
         if (this.currentHints.opportunities.some(opp => opp.type === 'setup_move')) {
             this.currentHints.suggestions.push({
@@ -687,18 +695,18 @@ class Connect4Helpers {
                 priority: 'medium'
             });
         }
-        
+
         // General strategic advice based on game state
         this.addGeneralStrategicAdvice();
     }
-    
+
     /**
      * Add general strategic advice
      */
     addGeneralStrategicAdvice() {
         const moveCount = this.game.moveHistory.length;
         const validMoves = this.game.getValidMoves();
-        
+
         // Early game advice
         if (moveCount < 4) {
             if (validMoves.includes(3)) {
@@ -709,7 +717,7 @@ class Connect4Helpers {
                 });
             }
         }
-        
+
         // Mid game advice
         if (moveCount >= 4 && moveCount < 12) {
             this.currentHints.suggestions.push({
@@ -718,7 +726,7 @@ class Connect4Helpers {
                 priority: 'low'
             });
         }
-        
+
         // Check for dangerous patterns
         if (this.hasOpponentBuiltTrap()) {
             this.currentHints.suggestions.push({
@@ -728,21 +736,21 @@ class Connect4Helpers {
             });
         }
     }
-    
+
     /**
      * Check if opponent has built a potential trap
      */
     hasOpponentBuiltTrap() {
-        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
-                         this.game.PLAYER2 : this.game.PLAYER1;
-        
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
+            this.game.PLAYER2 : this.game.PLAYER1;
+
         // Look for opponent patterns that could become dangerous
         let opponentThreats = 0;
-        
+
         // Switch to opponent perspective temporarily
         const originalPlayer = this.game.currentPlayer;
         this.game.currentPlayer = opponent;
-        
+
         const validMoves = this.game.getValidMoves();
         for (const col of validMoves) {
             const threats = this.countThreatsAfterMove(col);
@@ -750,13 +758,13 @@ class Connect4Helpers {
                 opponentThreats++;
             }
         }
-        
+
         // Restore original player
         this.game.currentPlayer = originalPlayer;
-        
+
         return opponentThreats > 0;
     }
-    
+
     /**
      * Display all current hints in the UI
      */
@@ -764,58 +772,60 @@ class Connect4Helpers {
         this.displayVisualHints();
         this.displayTextualHints();
     }
-    
+
     /**
      * Display visual hints on the board
      */
     displayVisualHints() {
         const hintsOverlay = document.getElementById('hintsOverlay');
-        if (!hintsOverlay) return;
-        
+        if (!hintsOverlay) {
+            return;
+        }
+
         // For Level 1, we don't show visual overlays - only column blocking
         if (this.helpLevel <= 1) {
             hintsOverlay.innerHTML = '';
             hintsOverlay.style.display = 'none';
             return;
         }
-        
+
         hintsOverlay.innerHTML = '';
         hintsOverlay.style.display = 'block';
-        
+
         // Show threat indicators (only for Level 2+)
         this.currentHints.threats.forEach(threat => {
             const indicator = this.createHintIndicator(threat.row, threat.column, 'threat');
             hintsOverlay.appendChild(indicator);
         });
-        
+
         // Show opportunity indicators (only for Level 2+)
         this.currentHints.opportunities.forEach(opportunity => {
             const indicator = this.createHintIndicator(opportunity.row, opportunity.column, 'opportunity');
             hintsOverlay.appendChild(indicator);
         });
     }
-    
+
     /**
      * Create a visual hint indicator
      */
     createHintIndicator(row, col, type) {
         const indicator = document.createElement('div');
         indicator.className = `hint-indicator ${type}`;
-        
+
         // Position the indicator over the corresponding cell
         const cellSize = 60; // Should match CSS cell size
         const gap = 8; // Should match CSS gap
         const padding = 20; // Should match board padding
-        
+
         const left = padding + col * (cellSize + gap);
         const top = padding + row * (cellSize + gap);
-        
+
         indicator.style.left = `${left}px`;
         indicator.style.top = `${top}px`;
-        
+
         return indicator;
     }
-    
+
     /**
      * Display textual hints in the help panel
      */
@@ -823,16 +833,18 @@ class Connect4Helpers {
         const helpPanel = document.getElementById('helpPanel');
         const threatWarning = document.getElementById('threatWarning');
         const strategyHint = document.getElementById('strategyHint');
-        
-        if (!helpPanel) return;
-        
+
+        if (!helpPanel) {
+            return;
+        }
+
         // Show help panel if there are hints
-        const hasHints = this.currentHints.threats.length > 0 || 
-                        this.currentHints.opportunities.length > 0 || 
+        const hasHints = this.currentHints.threats.length > 0 ||
+                        this.currentHints.opportunities.length > 0 ||
                         this.currentHints.suggestions.length > 0;
-        
+
         helpPanel.style.display = hasHints ? 'block' : 'none';
-        
+
         // Display threats
         if (threatWarning && this.currentHints.threats.length > 0) {
             threatWarning.style.display = 'block';
@@ -840,7 +852,7 @@ class Connect4Helpers {
         } else if (threatWarning) {
             threatWarning.style.display = 'none';
         }
-        
+
         // Display strategic suggestions
         if (strategyHint && this.currentHints.suggestions.length > 0) {
             strategyHint.style.display = 'block';
@@ -851,7 +863,7 @@ class Connect4Helpers {
             strategyHint.style.display = 'none';
         }
     }
-    
+
     /**
      * Get numeric value for priority sorting
      */
@@ -864,7 +876,7 @@ class Connect4Helpers {
             default: return 0;
         }
     }
-    
+
     /**
      * Clear all visual and textual hints
      */
@@ -875,13 +887,13 @@ class Connect4Helpers {
             hintsOverlay.innerHTML = '';
             hintsOverlay.style.display = 'none';
         }
-        
+
         // Clear textual hints
         const helpPanel = document.getElementById('helpPanel');
         if (helpPanel) {
             helpPanel.style.display = 'none';
         }
-        
+
         // Reset hints data
         this.currentHints = {
             threats: [],
@@ -889,7 +901,7 @@ class Connect4Helpers {
             suggestions: []
         };
     }
-    
+
     /**
      * Get all current hints as an object
      */
@@ -900,7 +912,7 @@ class Connect4Helpers {
             suggestions: [...this.currentHints.suggestions]
         };
     }
-    
+
     /**
      * Analyze a specific move and return hints about it
      */
@@ -912,7 +924,7 @@ class Connect4Helpers {
             allowsOpponentWin: false,
             strategicValue: 'neutral'
         };
-        
+
         // Check if it's a winning move
         const result = this.game.simulateMove(col);
         if (result.success && result.wouldWin) {
@@ -920,27 +932,27 @@ class Connect4Helpers {
             analysis.strategicValue = 'excellent';
             return analysis;
         }
-        
+
         // Check if it blocks opponent
-        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? 
-                         this.game.PLAYER2 : this.game.PLAYER1;
-        
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
+            this.game.PLAYER2 : this.game.PLAYER1;
+
         const originalPlayer = this.game.currentPlayer;
         this.game.currentPlayer = opponent;
         const opponentResult = this.game.simulateMove(col);
         this.game.currentPlayer = originalPlayer;
-        
+
         if (opponentResult.success && opponentResult.wouldWin) {
             analysis.blocksOpponent = true;
             analysis.strategicValue = 'good';
         }
-        
+
         // Check threats created
         analysis.createsThreats = this.countThreatsAfterMove(col);
         if (analysis.createsThreats >= 2) {
             analysis.strategicValue = 'very good';
         }
-        
+
         // Check if move allows opponent to win on next turn
         // (This is a simplified check - could be more sophisticated)
         if (this.currentHints.threats.length === 0) {
@@ -950,28 +962,28 @@ class Connect4Helpers {
             while (row >= 0 && boardCopy[row][col] !== this.game.EMPTY) {
                 row--;
             }
-            
+
             if (row >= 0) {
                 boardCopy[row][col] = this.game.currentPlayer;
-                
+
                 // Check if this gives opponent new winning opportunities
                 const tempGame = Object.create(this.game);
                 tempGame.board = boardCopy;
                 tempGame.currentPlayer = opponent;
-                
+
                 const tempHelpers = new Connect4Helpers(tempGame);
                 tempHelpers.analyzeOpportunities();
-                
+
                 if (tempHelpers.currentHints.opportunities.some(opp => opp.type === 'winning_move')) {
                     analysis.allowsOpponentWin = true;
                     analysis.strategicValue = 'poor';
                 }
             }
         }
-        
+
         return analysis;
     }
-    
+
     /**
      * Event system methods for UI communication
      */
@@ -981,13 +993,13 @@ class Connect4Helpers {
         }
         this.eventListeners[event].push(callback);
     }
-    
+
     off(event, callback) {
         if (this.eventListeners[event]) {
             this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
         }
     }
-    
+
     emit(event, data) {
         if (this.eventListeners[event]) {
             this.eventListeners[event].forEach(callback => callback(data));

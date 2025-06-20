@@ -1,0 +1,52 @@
+{
+  "name": "logiccastle-games",
+  "version": "1.0.0",
+  "description": "Collection of logic games: Connect4, Trio, and Gobang",
+  "main": "index.html",
+  "scripts": {
+    "test": "node scripts/run-tests.js",
+    "test:connect4": "node scripts/test-connect4.js",
+    "test:watch": "nodemon --exec 'npm test' --watch games/ --ext js,html,css",
+    "lint": "eslint games/**/*.js --fix",
+    "lint:check": "eslint games/**/*.js",
+    "format": "prettier --write games/**/*.{js,html,css}",
+    "format:check": "prettier --check games/**/*.{js,html,css}",
+    "serve": "http-server . -p 8080 -o",
+    "dev": "concurrently \"npm run serve\" \"npm run test:watch\"",
+    "ci": "npm run lint:check && npm run format:check && npm test",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.1.1",
+    "http-server": "^14.1.1",
+    "puppeteer": "^21.11.0",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0"
+  },
+  "lint-staged": {
+    "games/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "games/**/*.{html,css}": [
+      "prettier --write"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kuelshammer/LogicCastle.git"
+  },
+  "keywords": [
+    "games",
+    "connect4",
+    "trio", 
+    "gobang",
+    "javascript",
+    "browser-games"
+  ],
+  "author": "LogicCastle Team",
+  "license": "MIT"
+}

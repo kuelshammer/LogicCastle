@@ -8,14 +8,14 @@ class Connect4Game {
         this.EMPTY = 0;
         this.PLAYER1 = 1; // Internal constant for red pieces
         this.PLAYER2 = 2; // Internal constant for yellow pieces
-        
+
         this.board = [];
         this.currentPlayer = this.PLAYER1;
         this.gameOver = false;
         this.winner = null;
         this.winningCells = [];
         this.moveHistory = [];
-        
+
         // New flexible player configuration
         this.playerConfig = {
             redPlayer: '🔴',      // Player name for red pieces
@@ -23,16 +23,16 @@ class Connect4Game {
             lastWinner: null,     // Who won the last game
             startingPlayer: this.PLAYER1 // Who starts the current game
         };
-        
+
         // Color-based scoring instead of player-number-based
         this.scores = { red: 0, yellow: 0, draws: 0 };
-        
+
         this.initializeBoard();
-        
+
         // Event system
         this.eventListeners = {};
     }
-    
+
     /**
      * Initialize empty game board
      */
@@ -45,13 +45,13 @@ class Connect4Game {
             }
         }
     }
-    
+
     /**
      * Reset game to initial state (next game - loser starts)
      */
     resetGame() {
         this.initializeBoard();
-        
+
         // Determine starting player: loser of previous game starts, or configured starting player
         if (this.playerConfig.lastWinner !== null) {
             // Loser starts next game
@@ -61,7 +61,7 @@ class Connect4Game {
             // First game or no previous winner (draw) - use configured starting player
             this.currentPlayer = this.playerConfig.startingPlayer;
         }
-        
+
         this.gameOver = false;
         this.winner = null;
         this.winningCells = [];
@@ -74,25 +74,25 @@ class Connect4Game {
             gameOver: this.gameOver
         });
     }
-    
+
     /**
      * Full reset - scores back to 0:0, Red starts first
      */
     fullReset() {
         this.initializeBoard();
-        
+
         // Reset all game state
         this.gameOver = false;
         this.winner = null;
         this.winningCells = [];
         this.moveHistory = [];
-        
+
         // Reset scores and player configuration
         this.scores = { red: 0, yellow: 0, draws: 0 };
         this.playerConfig.lastWinner = null;
         this.playerConfig.startingPlayer = this.PLAYER1; // Red starts first
         this.currentPlayer = this.PLAYER1;
-        
+
         this.emit('fullReset');
         this.emit('playerChanged', this.currentPlayer);
         this.emit('boardStateChanged', {
@@ -101,7 +101,7 @@ class Connect4Game {
             gameOver: this.gameOver
         });
     }
-    
+
     /**
      * Make a move in the specified column
      * @param {number} col - Column index (0-6)
@@ -111,45 +111,45 @@ class Connect4Game {
         if (this.gameOver) {
             return { success: false, reason: 'Game is over' };
         }
-        
+
         if (col < 0 || col >= this.COLS) {
             return { success: false, reason: 'Invalid column' };
         }
-        
+
         if (this.board[0][col] !== this.EMPTY) {
             return { success: false, reason: 'Column is full' };
         }
-        
+
         // Find the lowest empty row in the column
         let row = this.ROWS - 1;
         while (row >= 0 && this.board[row][col] !== this.EMPTY) {
             row--;
         }
-        
+
         // Place the piece
         this.board[row][col] = this.currentPlayer;
-        
+
         // Record the move
         const move = { row, col, player: this.currentPlayer };
         this.moveHistory.push(move);
-        
+
         // Emit move event
         this.emit('moveMade', move);
-        
+
         // Check for win
         if (this.checkWin(row, col)) {
             this.gameOver = true;
             this.winner = this.currentPlayer;
-            
+
             // Update color-based scoring and track winner for next game
             const winnerColor = this.currentPlayer === this.PLAYER1 ? 'red' : 'yellow';
             this.scores[winnerColor]++;
             this.playerConfig.lastWinner = this.currentPlayer;
-            
+
             this.emit('gameWon', { winner: this.winner, winningCells: this.winningCells });
             return { success: true, row, col, gameWon: true, winner: this.winner };
         }
-        
+
         // Check for draw
         if (this.isDraw()) {
             this.gameOver = true;
@@ -158,21 +158,21 @@ class Connect4Game {
             this.emit('gameDraw');
             return { success: true, row, col, gameDraw: true };
         }
-        
+
         // Switch players
         this.currentPlayer = this.currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
         this.emit('playerChanged', this.currentPlayer);
-        
+
         // Emit board state changed for helpers system
         this.emit('boardStateChanged', {
             board: this.getBoard(),
             currentPlayer: this.currentPlayer,
             gameOver: this.gameOver
         });
-        
+
         return { success: true, row, col };
     }
-    
+
     /**
      * Undo the last move
      * @returns {Object} - Undo result
@@ -181,22 +181,22 @@ class Connect4Game {
         if (this.moveHistory.length === 0) {
             return { success: false, reason: 'No moves to undo' };
         }
-        
+
         const lastMove = this.moveHistory.pop();
         this.board[lastMove.row][lastMove.col] = this.EMPTY;
-        
+
         // Reset game state
         this.gameOver = false;
         this.winner = null;
         this.winningCells = [];
         this.currentPlayer = lastMove.player;
-        
+
         this.emit('moveUndone', lastMove);
         this.emit('playerChanged', this.currentPlayer);
-        
+
         return { success: true, move: lastMove };
     }
-    
+
     /**
      * Check if the current move results in a win
      * @param {number} row - Row of the last placed piece
@@ -211,7 +211,7 @@ class Connect4Game {
             [1, 1],   // Diagonal /
             [1, -1]   // Diagonal \
         ];
-        
+
         for (const [deltaRow, deltaCol] of directions) {
             const cells = this.getConnectedCells(row, col, deltaRow, deltaCol, player);
             if (cells.length >= 4) {
@@ -219,10 +219,10 @@ class Connect4Game {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get connected cells in a specific direction
      * @param {number} row - Starting row
@@ -234,7 +234,7 @@ class Connect4Game {
      */
     getConnectedCells(row, col, deltaRow, deltaCol, player) {
         const cells = [{ row, col }];
-        
+
         // Check positive direction
         let r = row + deltaRow;
         let c = col + deltaCol;
@@ -243,7 +243,7 @@ class Connect4Game {
             r += deltaRow;
             c += deltaCol;
         }
-        
+
         // Check negative direction
         r = row - deltaRow;
         c = col - deltaCol;
@@ -252,10 +252,10 @@ class Connect4Game {
             r -= deltaRow;
             c -= deltaCol;
         }
-        
+
         return cells;
     }
-    
+
     /**
      * Check if the game is a draw (board full)
      * @returns {boolean} - True if draw condition is met
@@ -268,7 +268,7 @@ class Connect4Game {
         }
         return true;
     }
-    
+
     /**
      * Check if a column is full
      * @param {number} col - Column index
@@ -277,7 +277,7 @@ class Connect4Game {
     isColumnFull(col) {
         return this.board[0][col] !== this.EMPTY;
     }
-    
+
     /**
      * Get valid moves (columns that are not full)
      * @returns {Array} - Array of valid column indices
@@ -291,7 +291,7 @@ class Connect4Game {
         }
         return validMoves;
     }
-    
+
     /**
      * Get a copy of the current board
      * @returns {Array} - 2D array representing the board
@@ -299,7 +299,7 @@ class Connect4Game {
     getBoard() {
         return this.board.map(row => [...row]);
     }
-    
+
     /**
      * Get game state information
      * @returns {Object} - Current game state
@@ -316,7 +316,7 @@ class Connect4Game {
             validMoves: this.getValidMoves()
         };
     }
-    
+
     /**
      * Load game state from object
      * @param {Object} state - Game state to load
@@ -329,10 +329,10 @@ class Connect4Game {
         this.winningCells = [...state.winningCells];
         this.moveHistory = [...state.moveHistory];
         this.scores = { ...state.scores };
-        
+
         this.emit('gameLoaded', state);
     }
-    
+
     /**
      * Event system methods
      */
@@ -342,23 +342,23 @@ class Connect4Game {
         }
         this.eventListeners[event].push(callback);
     }
-    
+
     off(event, callback) {
         if (this.eventListeners[event]) {
             this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
         }
     }
-    
+
     emit(event, data) {
         if (this.eventListeners[event]) {
             this.eventListeners[event].forEach(callback => callback(data));
         }
     }
-    
+
     /**
      * Utility methods for AI and analysis
      */
-    
+
     /**
      * Simulate a move without modifying the actual game state
      * @param {number} col - Column to simulate move in
@@ -368,20 +368,20 @@ class Connect4Game {
         if (this.isColumnFull(col)) {
             return { success: false, reason: 'Column is full' };
         }
-        
+
         // Find the row where the piece would land
         let row = this.ROWS - 1;
         while (row >= 0 && this.board[row][col] !== this.EMPTY) {
             row--;
         }
-        
+
         // Create a copy of the board with the simulated move
         const simulatedBoard = this.getBoard();
         simulatedBoard[row][col] = this.currentPlayer;
-        
+
         // Check if this move would win
         const wouldWin = this.checkWinOnBoard(simulatedBoard, row, col, this.currentPlayer);
-        
+
         return {
             success: true,
             row,
@@ -391,7 +391,7 @@ class Connect4Game {
             board: simulatedBoard
         };
     }
-    
+
     /**
      * Check win condition on a specific board
      * @param {Array} board - 2D board array
@@ -407,10 +407,10 @@ class Connect4Game {
             [1, 1],   // Diagonal /
             [1, -1]   // Diagonal \
         ];
-        
+
         for (const [deltaRow, deltaCol] of directions) {
             let count = 1; // Count the placed piece
-            
+
             // Check positive direction
             let r = row + deltaRow;
             let c = col + deltaCol;
@@ -419,7 +419,7 @@ class Connect4Game {
                 r += deltaRow;
                 c += deltaCol;
             }
-            
+
             // Check negative direction
             r = row - deltaRow;
             c = col - deltaCol;
@@ -428,34 +428,42 @@ class Connect4Game {
                 r -= deltaRow;
                 c -= deltaCol;
             }
-            
+
             if (count >= 4) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get player name
      * @param {number} player - Player number
      * @returns {string} - Player name
      */
     getPlayerName(player) {
-        if (player === this.PLAYER1) return this.playerConfig.redPlayer;
-        if (player === this.PLAYER2) return this.playerConfig.yellowPlayer;
+        if (player === this.PLAYER1) {
+            return this.playerConfig.redPlayer;
+        }
+        if (player === this.PLAYER2) {
+            return this.playerConfig.yellowPlayer;
+        }
         return 'Unbekannt';
     }
-    
+
     /**
      * Get player color class
      * @param {number} player - Player number
      * @returns {string} - CSS class name
      */
     getPlayerColorClass(player) {
-        if (player === this.PLAYER1) return 'red';
-        if (player === this.PLAYER2) return 'yellow';
+        if (player === this.PLAYER1) {
+            return 'red';
+        }
+        if (player === this.PLAYER2) {
+            return 'yellow';
+        }
         return '';
     }
 }
