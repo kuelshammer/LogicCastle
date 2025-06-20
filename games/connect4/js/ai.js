@@ -163,6 +163,55 @@ class Connect4AI {
     }
 
     /**
+     * Smart weighted move selection based on position potential
+     */
+    getWeightedMove(game) {
+        const validMoves = game.getValidMoves();
+
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        if (validMoves.length === 1) {
+            return validMoves[0];
+        }
+
+        // Evaluate each move's potential
+        const moveWeights = validMoves.map(col => {
+            const potential = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            return {
+                column: col,
+                weight: potential
+            };
+        });
+
+        console.log('🤖 Move weights:', moveWeights);
+
+        // Calculate total weight
+        const totalWeight = moveWeights.reduce((sum, move) => sum + move.weight, 0);
+
+        // If all moves have zero weight, use equal weighting
+        if (totalWeight === 0) {
+            console.log('🤖 All moves have zero weight, choosing randomly');
+            return validMoves[Math.floor(Math.random() * validMoves.length)];
+        }
+
+        // Weighted random selection
+        let randomValue = Math.random() * totalWeight;
+
+        for (const move of moveWeights) {
+            randomValue -= move.weight;
+            if (randomValue <= 0) {
+                console.log(`🤖 Selected column ${move.column + 1} with weight ${move.weight}`);
+                return move.column;
+            }
+        }
+
+        // Fallback to last move
+        return moveWeights[moveWeights.length - 1].column;
+    }
+
+    /**
      * Medium AI: Rule-based strategy
      */
     getRuleBasedMove(game) {

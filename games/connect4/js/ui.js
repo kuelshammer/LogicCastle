@@ -391,7 +391,31 @@ class Connect4UI {
         const aiMove = this.getAIMove();
 
         if (aiMove !== null) {
+            console.log('🤖 Bot attempting move at column:', aiMove + 1);
             const result = this.game.makeMove(aiMove);
+            if (!result.success) {
+                console.error('🤖 Bot move FAILED:', result.reason, 'at column', aiMove + 1);
+                // Fallback: try a simple random valid move
+                const validMoves = this.game.getValidMoves();
+                if (validMoves.length > 0) {
+                    const fallbackMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    console.log('🤖 Bot trying fallback move at column:', fallbackMove + 1);
+                    this.game.makeMove(fallbackMove);
+                } else {
+                    console.error('🤖 No valid moves available for fallback!');
+                }
+            } else {
+                console.log('🤖 Bot move successful at column:', aiMove + 1);
+            }
+        } else {
+            console.error('🤖 Bot could not determine a move!');
+            // Emergency fallback: make any valid move
+            const validMoves = this.game.getValidMoves();
+            if (validMoves.length > 0) {
+                const emergencyMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                console.log('🤖 Bot making emergency move at column:', emergencyMove + 1);
+                this.game.makeMove(emergencyMove);
+            }
         }
 
         this.aiThinking = false;
