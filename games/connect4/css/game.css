@@ -85,10 +85,9 @@
 
 .game-main {
     display: grid;
-    grid-template-columns: 300px 1fr 300px;
+    grid-template-columns: 1fr 2fr 1fr;
     gap: 2rem;
     align-items: start;
-    justify-content: center;
 }
 
 .game-info {
@@ -170,8 +169,6 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    min-width: 500px;
-    justify-self: center;
 }
 
 .column-indicators {
@@ -265,76 +262,39 @@
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    display: grid !important;
-    grid-template-columns: repeat(7, 60px) !important;
-    grid-template-rows: repeat(6, 60px) !important;
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(6, 60px);
     gap: 8px;
     width: max-content;
     margin: 0 auto;
-    min-height: 400px;
     
     /* CSS Custom Properties for responsive design */
     --cell-size: 60px;
     --gap-size: 8px;
 }
 
-/* Debug: Ensure board is visible */
-#gameBoard {
-    background: linear-gradient(145deg, #2196F3, #1976D2) !important;
-    border: 3px solid red !important; /* Temporary debug border */
-    min-height: 400px !important;
-    min-width: 500px !important;
-    display: grid !important;
-    grid-template-columns: repeat(7, 60px) !important;
-    grid-template-rows: repeat(6, 60px) !important;
-    gap: 8px !important;
-}
-
 .cell {
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    background: white !important;
-    border: 3px solid #1565C0 !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #1565C0;
     position: relative;
     overflow: visible;
     transition: all 0.3s ease;
-    display: block !important;
-    box-sizing: border-box !important;
-}
-
-/* Debug: Ensure cells are visible */
-#gameBoard .cell {
-    width: 60px !important;
-    height: 60px !important;
-    border-radius: 50% !important;
-    background: white !important;
-    border: 3px solid #1565C0 !important;
-    display: block !important;
-    box-sizing: border-box !important;
 }
 
 .cell.red {
-    background: linear-gradient(145deg, #ff4757, #c44569) !important;
-    border-color: #c44569 !important;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    background: linear-gradient(145deg, #ff4757, #c44569);
+    border-color: #c44569;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .cell.yellow {
-    background: linear-gradient(145deg, #ffdd00, #ffc107) !important;
-    border-color: #ffc107 !important;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* Debug: Super aggressive styling to ensure visibility */
-#gameBoard .cell.red {
-    background: red !important;
-    border: 5px solid darkred !important;
-}
-
-#gameBoard .cell.yellow {
-    background: yellow !important;
-    border: 5px solid orange !important;
+    background: linear-gradient(145deg, #ffdd00, #ffc107);
+    border-color: #ffc107;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .cell.winning {
@@ -628,22 +588,10 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-    .game-main {
-        grid-template-columns: 250px 1fr 250px;
-        gap: 1.5rem;
-    }
-}
-
 @media (max-width: 1024px) {
     .game-main {
         grid-template-columns: 1fr;
         gap: 1.5rem;
-    }
-    
-    .game-board-container {
-        min-width: unset;
-        width: 100%;
     }
     
     .game-info,

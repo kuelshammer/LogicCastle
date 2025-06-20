@@ -63,7 +63,6 @@ class Connect4UI {
         this.handlePlayer2Level1Toggle = this.handlePlayer2Level1Toggle.bind(this);
         this.handlePlayer2Level2Toggle = this.handlePlayer2Level2Toggle.bind(this);
         this.handleHelp = this.handleHelp.bind(this);
-        this.handleGameHelp = this.handleGameHelp.bind(this);
         this.handleGameModeChange = this.handleGameModeChange.bind(this);
     }
     
@@ -131,9 +130,6 @@ class Connect4UI {
         this.helpBtn = document.getElementById('helpBtn');
         this.helpModal = document.getElementById('helpModal');
         this.closeHelpBtn = document.getElementById('closeHelpBtn');
-        this.gameHelpBtn = document.getElementById('gameHelpBtn');
-        this.gameHelpModal = document.getElementById('gameHelpModal');
-        this.closeGameHelpBtn = document.getElementById('closeGameHelpBtn');
         this.helpPlayer1Level0 = document.getElementById('helpPlayer1Level0');
         this.helpPlayer1Level1 = document.getElementById('helpPlayer1Level1');
         this.helpPlayer1Level2 = document.getElementById('helpPlayer1Level2');
@@ -170,13 +166,6 @@ class Connect4UI {
         this.helpModal.addEventListener('click', (e) => {
             if (e.target === this.helpModal) {
                 this.handleHelp();
-            }
-        });
-        this.gameHelpBtn.addEventListener('click', this.handleGameHelp);
-        this.closeGameHelpBtn.addEventListener('click', this.handleGameHelp);
-        this.gameHelpModal.addEventListener('click', (e) => {
-            if (e.target === this.gameHelpModal) {
-                this.handleGameHelp();
             }
         });
         
@@ -324,20 +313,6 @@ class Connect4UI {
                     this.handleUndo();
                 }
                 break;
-            case 'n':
-            case 'N':
-                if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-                    e.preventDefault();
-                    this.handleNewGame();
-                }
-                break;
-            case 'u':
-            case 'U':
-                if (!e.ctrlKey && !e.metaKey && !e.altKey) {
-                    e.preventDefault();
-                    this.handleUndo();
-                }
-                break;
             case 'Escape':
                 // Clear column selection
                 this.clearColumnSelection();
@@ -345,14 +320,6 @@ class Connect4UI {
             case 'F1':
                 e.preventDefault();
                 this.handleHelp();
-                break;
-            case 'F2':
-                e.preventDefault();
-                this.handleGameHelp();
-                break;
-            case 'F3':
-                e.preventDefault();
-                this.handleResetScore();
                 break;
         }
     }
@@ -440,7 +407,8 @@ class Connect4UI {
         
         // Initialize AI if not done yet
         if (!this.ai) {
-            this.ai = new Connect4AI('smart-random');
+            const difficulty = this.gameMode === 'vs-bot-smart' ? 'smart-random' : 'easy';
+            this.ai = new Connect4AI(difficulty);
         }
         
         // Use AI to get best move, pass helpers for smart-random mode
@@ -940,14 +908,14 @@ class Connect4UI {
     updateButtonTexts() {
         if (this.game.gameOver) {
             // After game ended - offer next game
-            this.newGameBtn.textContent = 'Nächstes Spiel (N)';
+            this.newGameBtn.textContent = 'Nächstes Spiel';
         } else {
             // During active game - offer new game
-            this.newGameBtn.textContent = 'Neues Spiel (N)';
+            this.newGameBtn.textContent = 'Neues Spiel';
         }
         
         // Reset button is always the same
-        this.resetScoreBtn.textContent = 'Score zurücksetzen (F3)';
+        this.resetScoreBtn.textContent = 'Score zurücksetzen';
     }
     
     /**
@@ -995,20 +963,6 @@ class Connect4UI {
     
     hideGameOverMessage() {
         // Hide any game over dialogs
-    }
-    
-    /**
-     * Handle help modal toggle
-     */
-    handleHelp() {
-        this.helpModal.classList.toggle('active');
-    }
-    
-    /**
-     * Handle game help modal toggle
-     */
-    handleGameHelp() {
-        this.gameHelpModal.classList.toggle('active');
     }
     
 }
