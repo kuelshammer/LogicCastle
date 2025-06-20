@@ -641,6 +641,33 @@ class Connect4AI {
         return threats;
     }
 
+    /**
+     * Count threats after making a specific move
+     */
+    countThreatsAfterMove(game, col, player) {
+        // Simulate the move
+        const boardCopy = this.copyBoard(game.board);
+        const row = this.simulateMove(boardCopy, col, player);
+        
+        if (row === -1) {
+            return 0; // Invalid move
+        }
+        
+        // Count threats from the new position
+        let threats = 0;
+        
+        for (let checkCol = 0; checkCol < game.COLS; checkCol++) {
+            if (this.isValidMoveOnBoard(boardCopy, checkCol, game)) {
+                const checkRow = this.getLowestEmptyRow(boardCopy, checkCol, game);
+                if (this.checkWinOnBoardAtPosition(boardCopy, checkRow, checkCol, player, game)) {
+                    threats++;
+                }
+            }
+        }
+        
+        return threats;
+    }
+
     orderMoves(moves) {
         // Order moves from center outward for better alpha-beta pruning
         const center = 3;
