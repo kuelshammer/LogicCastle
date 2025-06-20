@@ -146,6 +146,33 @@
             <button onclick="clearResults()" id="clearBtn">Clear Results</button>
         </div>
         
+        <div class="test-section">
+            <h3>🤖 Custom Bot vs Bot Test</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; align-items: center; margin: 15px 0;">
+                <div>
+                    <label for="bot1Select" style="display: block; margin-bottom: 5px; font-weight: bold; color: #d32f2f;">🔴 Red Bot:</label>
+                    <select id="bot1Select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        <option value="random">Random Bot</option>
+                        <option value="smart-random">Smart Bot (Offensive)</option>
+                        <option value="defensive">Defensive Bot</option>
+                    </select>
+                </div>
+                <div style="text-align: center; font-size: 24px;">VS</div>
+                <div>
+                    <label for="bot2Select" style="display: block; margin-bottom: 5px; font-weight: bold; color: #f57f17;">🟡 Yellow Bot:</label>
+                    <select id="bot2Select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        <option value="random">Random Bot</option>
+                        <option value="smart-random" selected>Smart Bot (Offensive)</option>
+                        <option value="defensive">Defensive Bot</option>
+                    </select>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="runCustomBotGame()" id="customSingleBtn">🎯 Run Single Custom Game</button>
+                <button onclick="runCustomBotComparison()" id="customCompBtn">📊 Custom Comparison (100 Games)</button>
+            </div>
+        </div>
+        
         <div class="stats" id="stats" style="display: none;">
             <div class="stat-box">
                 <div class="stat-value" id="totalGames">0</div>
@@ -181,6 +208,25 @@
             <div class="stat-box">
                 <div class="stat-value" id="smartAdvantage">0%</div>
                 <div class="stat-label">Smart Bot Advantage</div>
+            </div>
+        </div>
+        
+        <div class="stats" id="customComparisonStats" style="display: none;">
+            <div class="stat-box">
+                <div class="stat-value" id="customBot1Wins">0</div>
+                <div class="stat-label" id="customBot1Label">Red Bot Wins</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="customBot2Wins">0</div>
+                <div class="stat-label" id="customBot2Label">Yellow Bot Wins</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="customDraws">0</div>
+                <div class="stat-label">Draws</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="customAdvantage">0%</div>
+                <div class="stat-label" id="customAdvantageLabel">Advantage</div>
             </div>
         </div>
         
@@ -699,10 +745,307 @@
         }
         
         /**
+         * Get bot name for display
+         */
+        function getBotDisplayName(botType) {
+            switch (botType) {
+                case 'random': return 'Random Bot';
+                case 'smart-random': return 'Smart Bot (Offensive)';
+                case 'defensive': return 'Defensive Bot';
+                default: return botType;
+            }
+        }
+
+        /**
+         * Run a single custom bot game
+         */
+        async function runCustomBotGame() {
+            if (isRunning) return;
+            isRunning = true;
+            setButtonStates(false);
+            
+            const bot1Type = document.getElementById('bot1Select').value;
+            const bot2Type = document.getElementById('bot2Select').value;
+            
+            log(`🎯 Starting Custom Game: ${getBotDisplayName(bot1Type)} vs ${getBotDisplayName(bot2Type)}`, 'info');
+            
+            try {
+                const result = await simulateCustomBotGame(bot1Type, bot2Type);
+                
+                displayCustomGameResult(result, bot1Type, bot2Type);
+                testResults.push(result);
+                updateStats();
+                
+                if (result.success) {
+                    log(`🎉 Custom game completed successfully! ${result.moveCount} moves`, 'success');
+                } else {
+                    log(`❌ Custom game failed: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Custom game error: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+                setButtonStates(true);
+            }
+        }
+
+        /**
+         * Run custom bot comparison (100 games)
+         */
+        async function runCustomBotComparison() {
+            if (isRunning) return;
+            isRunning = true;
+            setButtonStates(false);
+            
+            const bot1Type = document.getElementById('bot1Select').value;
+            const bot2Type = document.getElementById('bot2Select').value;
+            const numGames = 100;
+            
+            log(`📊 Starting Custom Bot Comparison: ${getBotDisplayName(bot1Type)} vs ${getBotDisplayName(bot2Type)} (${numGames} games)`, 'info');
+            
+            const results = {
+                bot1Wins: 0,
+                bot2Wins: 0,
+                draws: 0,
+                games: []
+            };
+            
+            try {
+                for (let i = 0; i < numGames; i++) {
+                    if (i % 25 === 0) {
+                        log(`Progress: ${i}/${numGames} games completed`, 'info');
+                    }
+                    
+                    const result = await simulateCustomBotGame(bot1Type, bot2Type, false);
+                    results.games.push(result);
+                    
+                    if (!result.success) {
+                        log(`❌ Game ${i + 1} failed: ${result.error}`, 'error');
+                        break;
+                    }
+                    
+                    // Count wins
+                    if (result.winner === 1) {
+                        results.bot1Wins++;
+                    } else if (result.winner === 2) {
+                        results.bot2Wins++;
+                    } else {
+                        results.draws++;
+                    }
+                    
+                    // Prevent browser freezing
+                    if (i % 20 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+                
+                // Display results
+                displayCustomComparisonResults(results, numGames, bot1Type, bot2Type);
+                
+            } catch (error) {
+                log(`❌ Custom comparison error: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+                setButtonStates(true);
+            }
+        }
+
+        /**
+         * Simulate a custom bot game with specified bot types
+         */
+        async function simulateCustomBotGame(bot1Type, bot2Type, verbose = true) {
+            const game = new Connect4Game();
+            const mockUI = new MockUI();
+            const helpers = new Connect4Helpers(game, mockUI);
+            
+            // Create bots based on types
+            const redBot = createBotByType(bot1Type);
+            const yellowBot = createBotByType(bot2Type);
+            
+            let moveCount = 0;
+            const maxMoves = 42;
+            const moves = [];
+            
+            if (verbose) {
+                log('Initial board:\\n' + boardToAscii(game));
+            }
+            
+            while (!game.gameOver && moveCount < maxMoves) {
+                const currentPlayer = game.currentPlayer;
+                const playerName = currentPlayer === game.PLAYER1 ? 
+                    `Red ${getBotDisplayName(bot1Type)}` : 
+                    `Yellow ${getBotDisplayName(bot2Type)}`;
+                const bot = currentPlayer === game.PLAYER1 ? redBot : yellowBot;
+                
+                try {
+                    // Get bot move based on type
+                    let botMove;
+                    if (bot1Type === 'random' && currentPlayer === game.PLAYER1) {
+                        // Pure random for red bot if random
+                        const validMoves = game.getValidMoves();
+                        botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    } else if (bot2Type === 'random' && currentPlayer === game.PLAYER2) {
+                        // Pure random for yellow bot if random
+                        const validMoves = game.getValidMoves();
+                        botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    } else {
+                        // Use bot's getBestMove method
+                        botMove = bot.getBestMove(game, helpers);
+                    }
+                    
+                    if (botMove === null) {
+                        throw new Error(`${playerName} returned null move`);
+                    }
+                    
+                    if (verbose) {
+                        log(`🤖 ${playerName} chose column ${botMove + 1}`);
+                    }
+                    
+                    // Make the move
+                    const result = game.makeMove(botMove);
+                    
+                    if (!result.success) {
+                        throw new Error(`Move failed: ${result.reason}`);
+                    }
+                    
+                    moves.push({ player: currentPlayer, column: botMove });
+                    moveCount++;
+                    
+                    if (verbose && game.gameOver) {
+                        log('Final board:\\n' + boardToAscii(game));
+                    }
+                    
+                    // Small delay to prevent browser freezing
+                    if (moveCount % 10 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                    
+                } catch (error) {
+                    return {
+                        success: false,
+                        error: error.message,
+                        moveCount: moveCount,
+                        moves: moves
+                    };
+                }
+            }
+            
+            return {
+                success: game.gameOver || moveCount > 10,
+                moveCount: moveCount,
+                winner: game.winner,
+                gameOver: game.gameOver,
+                moves: moves,
+                error: null
+            };
+        }
+
+        /**
+         * Create bot instance by type
+         */
+        function createBotByType(botType) {
+            switch (botType) {
+                case 'random':
+                    return new Connect4AI('easy');
+                case 'smart-random':
+                    return new Connect4AI('smart-random');
+                case 'defensive':
+                    return new Connect4AI('defensive');
+                default:
+                    return new Connect4AI('smart-random');
+            }
+        }
+
+        /**
+         * Display custom game result
+         */
+        function displayCustomGameResult(result, bot1Type, bot2Type) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-section';
+            
+            const status = result.success ? '✅' : '❌';
+            const resultClass = result.success ? 'success' : 'error';
+            
+            let content = `
+                <h4>${status} Custom Bot Game: ${getBotDisplayName(bot1Type)} vs ${getBotDisplayName(bot2Type)}</h4>
+                <div class="result ${resultClass}">
+                    ${result.success ? 'Game completed successfully' : 'Game failed'}
+                    <br>Moves: ${result.moveCount}
+                    ${result.gameOver ? (result.winner ? `<br>Winner: ${result.winner === 1 ? getBotDisplayName(bot1Type) : getBotDisplayName(bot2Type)}` : '<br>Result: Draw') : ''}
+                    ${result.error ? `<br>Error: ${result.error}` : ''}
+                </div>
+            `;
+            
+            if (result.moves && result.moves.length > 0) {
+                const moveList = result.moves.map((move, i) => 
+                    `${i + 1}. ${move.player === 1 ? 'R' : 'Y'} → Col ${move.column + 1}`
+                ).join(', ');
+                content += `<div class="board-display">Moves: ${moveList}</div>`;
+            }
+            
+            resultDiv.innerHTML = content;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        /**
+         * Display custom comparison results
+         */
+        function displayCustomComparisonResults(results, totalGames, bot1Type, bot2Type) {
+            const statsElement = document.getElementById('customComparisonStats');
+            statsElement.style.display = 'grid';
+            
+            const completedGames = results.bot1Wins + results.bot2Wins + results.draws;
+            const bot1WinRate = completedGames > 0 ? Math.round((results.bot1Wins / completedGames) * 100) : 0;
+            const bot2WinRate = completedGames > 0 ? Math.round((results.bot2Wins / completedGames) * 100) : 0;
+            const bot1Advantage = bot1WinRate - bot2WinRate;
+            
+            // Update labels
+            document.getElementById('customBot1Label').textContent = `${getBotDisplayName(bot1Type)} Wins`;
+            document.getElementById('customBot2Label').textContent = `${getBotDisplayName(bot2Type)} Wins`;
+            document.getElementById('customAdvantageLabel').textContent = `${getBotDisplayName(bot1Type)} Advantage`;
+            
+            // Update values
+            document.getElementById('customBot1Wins').textContent = results.bot1Wins;
+            document.getElementById('customBot2Wins').textContent = results.bot2Wins;
+            document.getElementById('customDraws').textContent = results.draws;
+            document.getElementById('customAdvantage').textContent = bot1Advantage + '%';
+            
+            // Log detailed results
+            log(`\\n🏁 Custom Comparison Results (${completedGames}/${totalGames} games):`, 'success');
+            log(`🔴 ${getBotDisplayName(bot1Type)}: ${results.bot1Wins} wins (${bot1WinRate}%)`, 'info');
+            log(`🟡 ${getBotDisplayName(bot2Type)}: ${results.bot2Wins} wins (${bot2WinRate}%)`, 'info');
+            log(`🤝 Draws: ${results.draws}`, 'info');
+            log(`📊 ${getBotDisplayName(bot1Type)} Advantage: ${bot1Advantage}%`, Math.abs(bot1Advantage) > 10 ? 'success' : 'warning');
+            
+            // Display summary
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-section';
+            
+            const testStatus = Math.abs(bot1Advantage) > 15 ? '✅ SIGNIFICANT' : Math.abs(bot1Advantage) > 5 ? '⚠️ MARGINAL' : '❌ BALANCED';
+            const resultClass = Math.abs(bot1Advantage) > 15 ? 'success' : Math.abs(bot1Advantage) > 5 ? 'info' : 'error';
+            
+            resultDiv.innerHTML = `
+                <h4>${testStatus} Custom Bot Comparison</h4>
+                <div class="result ${resultClass}">
+                    ${getBotDisplayName(bot1Type)} vs ${getBotDisplayName(bot2Type)} (${completedGames} games)<br>
+                    ${getBotDisplayName(bot1Type)}: ${results.bot1Wins} wins (${bot1WinRate}%)<br>
+                    ${getBotDisplayName(bot2Type)}: ${results.bot2Wins} wins (${bot2WinRate}%)<br>
+                    Draws: ${results.draws}<br>
+                    <strong>${getBotDisplayName(bot1Type)} Advantage: ${bot1Advantage}%</strong>
+                </div>
+            `;
+            
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        /**
          * Set button enabled/disabled state
          */
         function setButtonStates(enabled) {
-            ['singleBtn', 'multipleBtn', 'moveBtn', 'aiCompBtn', 'megaBtn', 'clearBtn'].forEach(id => {
+            ['singleBtn', 'multipleBtn', 'moveBtn', 'aiCompBtn', 'megaBtn', 'customSingleBtn', 'customCompBtn', 'clearBtn'].forEach(id => {
                 document.getElementById(id).disabled = !enabled;
             });
         }
@@ -717,6 +1060,7 @@
             document.getElementById('log').style.display = 'none';
             document.getElementById('stats').style.display = 'none';
             document.getElementById('aiComparisonStats').style.display = 'none';
+            document.getElementById('customComparisonStats').style.display = 'none';
             log('🧹 Results cleared', 'info');
         }
         

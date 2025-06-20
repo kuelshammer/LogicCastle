@@ -33,6 +33,8 @@ class Connect4AI {
                 return this.getRandomMove(game);
             case 'smart-random':
                 return this.getSmartRandomMove(game, helpers);
+            case 'defensive':
+                return this.getDefensiveMove(game, helpers);
             case 'medium':
                 return this.getRuleBasedMove(game);
             case 'hard':
@@ -209,6 +211,98 @@ class Connect4AI {
 
         // Fallback to last move
         return moveWeights[moveWeights.length - 1].column;
+    }
+
+    /**
+     * Defensive AI: Prioritizes destroying opponent's winning opportunities
+     * Strategy: Win > Block > Avoid Traps > Destroy Opponent 4-in-a-row Potential
+     */
+    getDefensiveMove(game, helpers = null) {
+        const validMoves = game.getValidMoves();
+
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        // PRIORITY 0: If board is empty, play center column
+        const totalMoves = game.moveHistory.length;
+        if (totalMoves === 0) {
+            return 3; // Center column (0-indexed)
+        }
+
+        // Use helpers system for Level 0 + 1 analysis (same as smart-random)
+        if (helpers) {
+            // Store original helpers state
+            const wasEnabled = helpers.enabled;
+            const wasLevel = helpers.helpLevel;
+
+            // PRIORITY 1: Check Level 0 - Own winning opportunities
+            helpers.setEnabled(true, 0);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🛡️ Defensive Bot: WINNING at columns', helpers.requiredMoves);
+                const winningMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                return winningMoves[randomIndex];
+            }
+
+            // PRIORITY 2: Check Level 1 - Block opponent's threats
+            helpers.setEnabled(true, 1);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🛡️ Defensive Bot: BLOCKING threat at columns', helpers.requiredMoves);
+                const blockingMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * blockingMoves.length);
+                return blockingMoves[randomIndex];
+            }
+
+            // PRIORITY 3: Check Level 2 - Avoid traps (safe moves only)
+            helpers.setEnabled(true, 2);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🛡️ Defensive Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
+                const safeMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * safeMoves.length);
+                return safeMoves[randomIndex];
+            }
+
+            // Restore original helpers state
+            helpers.setEnabled(wasEnabled, wasLevel);
+        }
+
+        // PRIORITY 4: DEFENSIVE STRATEGY - Destroy opponent's 4-in-a-row potential
+        console.log('🛡️ Defensive Bot: Analyzing defensive potential...');
+        const defensiveMoves = validMoves.map(col => {
+            const defensiveValue = this.evaluateDefensivePotential(game, col);
+            return {
+                column: col,
+                defensiveValue: defensiveValue
+            };
+        });
+
+        console.log('🛡️ Defensive moves analysis:', defensiveMoves);
+
+        // Find moves with highest defensive value
+        const maxDefensiveValue = Math.max(...defensiveMoves.map(m => m.defensiveValue));
+        const bestDefensiveMoves = defensiveMoves.filter(m => m.defensiveValue === maxDefensiveValue);
+
+        if (bestDefensiveMoves.length > 0 && maxDefensiveValue > 0) {
+            const randomIndex = Math.floor(Math.random() * bestDefensiveMoves.length);
+            const chosenMove = bestDefensiveMoves[randomIndex];
+            console.log(`🛡️ Defensive Bot: Chose column ${chosenMove.column + 1} (defensive value: ${chosenMove.defensiveValue})`);
+            return chosenMove.column;
+        }
+
+        // PRIORITY 5: No defensive advantage found - make center-biased random move
+        console.log('🛡️ Defensive Bot: No defensive advantage, playing center-biased random');
+        const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
+        return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
     }
 
     /**
@@ -666,6 +760,111 @@ class Connect4AI {
         }
         
         return threats;
+    }
+
+    /**
+     * Evaluate defensive potential of a move - how many opponent 4-in-a-row patterns it disrupts
+     * @param {Connect4Game} game - Current game instance  
+     * @param {number} col - Column to analyze
+     * @returns {number} - Number of opponent patterns disrupted
+     */
+    evaluateDefensivePotential(game, col) {
+        const opponent = game.currentPlayer === game.PLAYER1 ? game.PLAYER2 : game.PLAYER1;
+        
+        // Find where our piece would land
+        let row = game.ROWS - 1;
+        while (row >= 0 && game.board[row][col] !== game.EMPTY) {
+            row--;
+        }
+
+        if (row < 0) {
+            return 0; // Column full
+        }
+
+        let defensiveValue = 0;
+        const directions = [
+            [0, 1],   // Horizontal
+            [1, 0],   // Vertical  
+            [1, 1],   // Diagonal /
+            [1, -1]   // Diagonal \
+        ];
+
+        // For each direction, count how many opponent 4-in-a-row patterns we would disrupt
+        for (const [deltaRow, deltaCol] of directions) {
+            defensiveValue += this.countDisruptedOpponentPatterns(game, row, col, opponent, deltaRow, deltaCol);
+        }
+
+        return defensiveValue;
+    }
+
+    /**
+     * Count how many opponent 4-in-a-row patterns would be disrupted in a specific direction
+     */
+    countDisruptedOpponentPatterns(game, row, col, opponent, deltaRow, deltaCol) {
+        let disruptedPatterns = 0;
+
+        // Check all possible 4-cell windows that include this position
+        for (let startOffset = -3; startOffset <= 0; startOffset++) {
+            const startRow = row + startOffset * deltaRow;
+            const startCol = col + startOffset * deltaCol;
+
+            // Check if this 4-cell window is valid (within board bounds)
+            const endRow = startRow + 3 * deltaRow;
+            const endCol = startCol + 3 * deltaCol;
+
+            if (startRow >= 0 && startRow < game.ROWS &&
+                startCol >= 0 && startCol < game.COLS &&
+                endRow >= 0 && endRow < game.ROWS &&
+                endCol >= 0 && endCol < game.COLS) {
+
+                // Check if this window contains a potential opponent pattern that we would disrupt
+                if (this.wouldDisruptOpponentPattern(game, startRow, startCol, deltaRow, deltaCol, opponent, row, col)) {
+                    disruptedPatterns++;
+                }
+            }
+        }
+
+        return disruptedPatterns;
+    }
+
+    /**
+     * Check if placing our piece would disrupt an opponent pattern in this 4-cell window
+     */
+    wouldDisruptOpponentPattern(game, startRow, startCol, deltaRow, deltaCol, opponent, ourRow, ourCol) {
+        let opponentPieces = 0;
+        let emptySpaces = 0;
+        let wouldBlockPattern = false;
+
+        for (let i = 0; i < 4; i++) {
+            const checkRow = startRow + i * deltaRow;
+            const checkCol = startCol + i * deltaCol;
+
+            if (checkRow === ourRow && checkCol === ourCol) {
+                // This is where we would place our piece
+                wouldBlockPattern = true;
+            } else if (game.board[checkRow][checkCol] === opponent) {
+                opponentPieces++;
+            } else if (game.board[checkRow][checkCol] === game.EMPTY) {
+                emptySpaces++;
+                
+                // For vertical direction, check if this empty space is actually reachable
+                if (deltaRow === 1 && deltaCol === 0) {
+                    if (checkRow < game.ROWS - 1 && game.board[checkRow + 1][checkCol] === game.EMPTY) {
+                        // This would be a floating piece, so this pattern isn't viable anyway
+                        return false;
+                    }
+                }
+            } else {
+                // Contains our pieces, so opponent can't use this pattern anyway
+                return false;
+            }
+        }
+
+        // We disrupt a pattern if:
+        // 1. The pattern was viable for the opponent (had opponent pieces + empty spaces)
+        // 2. Our piece would be placed in this pattern
+        // 3. The opponent had at least 1 piece in this pattern (making it worth disrupting)
+        return wouldBlockPattern && opponentPieces >= 1 && (opponentPieces + emptySpaces === 4);
     }
 
     orderMoves(moves) {
