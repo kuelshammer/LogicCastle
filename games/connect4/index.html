@@ -77,6 +77,20 @@
             background: #f0f0f0;
         }
         
+        .cell.dropping {
+            animation: dropAnimation 0.5s ease-in;
+        }
+        
+        @keyframes dropAnimation {
+            0% { transform: translateY(-300px); opacity: 0.7; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        .column-indicator.preview {
+            background: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+        
         .cell.red {
             background: linear-gradient(145deg, #ff4757, #c44569);
             border-color: #c44569;
@@ -256,14 +270,64 @@
                     cell.dataset.row = row;
                     cell.dataset.col = col;
                     cell.onclick = () => dropPiece(col);
+                    
+                    // Add hover effects for column selection
+                    cell.onmouseenter = () => showColumnPreview(col);
+                    cell.onmouseleave = () => hideColumnPreview(col);
+                    
                     boardElement.appendChild(cell);
                 }
             }
             
+            // Add hover to column indicators too
+            const columnIndicators = document.querySelectorAll('.column-indicator');
+            columnIndicators.forEach((indicator, col) => {
+                indicator.onmouseenter = () => showColumnPreview(col);
+                indicator.onmouseleave = () => hideColumnPreview(col);
+            });
+            
             console.log('✅ Board initialized with', boardElement.children.length, 'cells');
         }
         
-        // Drop piece in column
+        // Show column preview
+        function showColumnPreview(col) {
+            if (gameOver) return;
+            
+            // Highlight column indicator
+            const indicator = document.querySelectorAll('.column-indicator')[col];
+            if (indicator) indicator.classList.add('preview');
+            
+            // Show preview piece in lowest empty cell
+            for (let row = 5; row >= 0; row--) {
+                if (board[row][col] === 0) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cell) {
+                        const previewColor = currentPlayer === 1 ? 'rgba(255, 71, 87, 0.5)' : 'rgba(255, 221, 0, 0.5)';
+                        cell.style.backgroundColor = previewColor;
+                    }
+                    break;
+                }
+            }
+        }
+        
+        // Hide column preview
+        function hideColumnPreview(col) {
+            // Remove highlight from column indicator
+            const indicator = document.querySelectorAll('.column-indicator')[col];
+            if (indicator) indicator.classList.remove('preview');
+            
+            // Remove preview pieces from column
+            for (let row = 0; row < 6; row++) {
+                if (board[row][col] === 0) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cell) {
+                        cell.style.backgroundColor = '';
+                    }
+                }
+            }
+        }
+        
+        // Drop piece in column with animation
         function dropPiece(col) {
             if (gameOver) return;
             
@@ -274,31 +338,53 @@
                     board[row][col] = currentPlayer;
                     moveHistory.push({ row, col, player: currentPlayer });
                     
-                    // Update visual
-                    updateBoard();
+                    // Update visual with animation
+                    updateBoardWithAnimation(row, col);
                     
-                    // Check for win
-                    if (checkWin(row, col)) {
-                        gameOver = true;
-                        const winner = currentPlayer === 1 ? 'Rot' : 'Gelb';
-                        document.getElementById('status').textContent = `${winner} hat gewonnen! 🎉`;
-                        scores[currentPlayer === 1 ? 'red' : 'yellow']++;
-                        updateScores();
-                        highlightWinningCells();
-                    } else if (moveHistory.length === 42) {
-                        gameOver = true;
-                        document.getElementById('status').textContent = 'Unentschieden! 🤝';
-                    } else {
-                        // Switch player
-                        currentPlayer = currentPlayer === 1 ? 2 : 1;
-                        const nextPlayer = currentPlayer === 1 ? 'Rot' : 'Gelb';
-                        document.getElementById('status').textContent = `${nextPlayer} ist am Zug`;
-                    }
+                    // Check for win after animation
+                    setTimeout(() => {
+                        if (checkWin(row, col)) {
+                            gameOver = true;
+                            const winner = currentPlayer === 1 ? 'Rot' : 'Gelb';
+                            document.getElementById('status').textContent = `${winner} hat gewonnen! 🎉`;
+                            scores[currentPlayer === 1 ? 'red' : 'yellow']++;
+                            updateScores();
+                            highlightWinningCells();
+                        } else if (moveHistory.length === 42) {
+                            gameOver = true;
+                            document.getElementById('status').textContent = 'Unentschieden! 🤝';
+                        } else {
+                            // Switch player
+                            currentPlayer = currentPlayer === 1 ? 2 : 1;
+                            const nextPlayer = currentPlayer === 1 ? 'Rot' : 'Gelb';
+                            document.getElementById('status').textContent = `${nextPlayer} ist am Zug`;
+                        }
+                    }, 500);
                     
                     updateUndoButton();
                     return;
                 }
             }
+        }
+        
+        // Update board with drop animation
+        function updateBoardWithAnimation(lastRow, lastCol) {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                const row = parseInt(cell.dataset.row);
+                const col = parseInt(cell.dataset.col);
+                const value = board[row][col];
+                
+                cell.className = 'cell';
+                if (value === 1) cell.classList.add('red');
+                if (value === 2) cell.classList.add('yellow');
+                
+                // Add animation to the last dropped piece
+                if (row === lastRow && col === lastCol) {
+                    cell.classList.add('dropping');
+                    setTimeout(() => cell.classList.remove('dropping'), 500);
+                }
+            });
         }
         
         // Update visual board
