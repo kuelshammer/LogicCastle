@@ -126,3 +126,6 @@ Turn order chaos in bot mode was caused by double AI-triggering:
 - Caused bots to place stones in same column due to parallel AI calls
 
 **Status:** FIXED ✅
+
+## Development Guidelines
+- Immer wenn wir ein JS Feature ergänzen, sollten wir auch Tests dafür implementieren und laufen lassen.

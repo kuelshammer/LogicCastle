@@ -57,6 +57,125 @@ function startServer(port = 8081) {
 }
 
 /**
+ * Run Smart Bot tests using our new test utilities
+ */
+async function runSmartBotTests() {
+    console.log('\n🤖 Running Smart Bot Tests...\n');
+    
+    let server;
+    let browser;
+    
+    try {
+        // Start local server
+        server = await startServer(8081);
+        
+        // Launch browser
+        browser = await puppeteer.launch({ 
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+        
+        const page = await browser.newPage();
+        
+        // Load test page
+        await page.goto('http://localhost:8081/tests/test-smart-bot.html', { 
+            waitUntil: 'networkidle0',
+            timeout: 10000 
+        });
+        
+        // Test Smart Bot scenarios
+        const testResults = await page.evaluate(() => {
+            const results = [];
+            
+            // Test 1: Empty board opening
+            try {
+                game = new Connect4Game();
+                helpers = new Connect4Helpers(game, null);
+                const move = ai.getBestMove(game, helpers);
+                results.push({
+                    name: 'Empty board opening',
+                    passed: move === 3,
+                    details: `Expected column 4, got column ${move + 1}`
+                });
+            } catch (e) {
+                results.push({
+                    name: 'Empty board opening',
+                    passed: false,
+                    details: `Error: ${e.message}`
+                });
+            }
+            
+            // Test 2: Take winning move
+            try {
+                Connect4TestUtils.createTestPosition(game, "empty,yellow,yellow,yellow,empty,empty,empty", 2);
+                const move = ai.getBestMove(game, helpers);
+                const expected = [0, 4]; // Column 1 or 5
+                results.push({
+                    name: 'Take winning move',
+                    passed: expected.includes(move),
+                    details: `Expected column 1 or 5, got column ${move + 1}`
+                });
+            } catch (e) {
+                results.push({
+                    name: 'Take winning move',
+                    passed: false,
+                    details: `Error: ${e.message}`
+                });
+            }
+            
+            // Test 3: Block opponent threat
+            try {
+                Connect4TestUtils.createTestPosition(game, "red,red,red,empty,empty,empty,empty", 2);
+                const move = ai.getBestMove(game, helpers);
+                results.push({
+                    name: 'Block opponent threat',
+                    passed: move === 3,
+                    details: `Expected column 4, got column ${move + 1}`
+                });
+            } catch (e) {
+                results.push({
+                    name: 'Block opponent threat',
+                    passed: false,
+                    details: `Error: ${e.message}`
+                });
+            }
+            
+            return results;
+        });
+        
+        // Print results
+        let passed = 0;
+        testResults.forEach(result => {
+            const status = result.passed ? '✅' : '❌';
+            console.log(`   ${status} ${result.name}: ${result.details}`);
+            if (result.passed) passed++;
+        });
+        
+        const success = passed === testResults.length;
+        console.log(`\n${success ? '🎉' : '⚠️'} Smart Bot Tests: ${passed}/${testResults.length} passed\n`);
+        
+        return {
+            success: success,
+            tests: testResults.length,
+            passed: passed,
+            results: testResults
+        };
+        
+    } catch (error) {
+        console.error(`❌ Smart Bot tests failed: ${error.message}\n`);
+        return {
+            success: false,
+            error: error.message,
+            tests: 3,
+            passed: 0
+        };
+    } finally {
+        if (browser) await browser.close();
+        if (server) server.close();
+    }
+}
+
+/**
  * Run Connect4 tests using Puppeteer
  */
 async function runConnect4Tests() {
@@ -231,16 +350,26 @@ async function main() {
     console.log('🧪 LogicCastle Test Suite\n');
     console.log('='.repeat(50));
     
-    const results = await runConnect4Tests();
+    // Run UI tests
+    const uiResults = await runConnect4Tests();
+    
+    // Run Smart Bot tests
+    const botResults = await runSmartBotTests();
     
     console.log('='.repeat(50));
     console.log('📊 Test Summary:');
-    console.log(`   Tests run: ${results.tests}`);
-    console.log(`   Passed: ${results.passed}`);
-    console.log(`   Success: ${results.success ? '✅' : '❌'}`);
+    console.log(`   UI Tests: ${uiResults.passed}/${uiResults.tests} ${uiResults.success ? '✅' : '❌'}`);
+    console.log(`   Bot Tests: ${botResults.passed}/${botResults.tests} ${botResults.success ? '✅' : '❌'}`);
     
-    if (!results.success) {
-        console.log(`   Error: ${results.error}`);
+    const totalTests = uiResults.tests + botResults.tests;
+    const totalPassed = uiResults.passed + botResults.passed;
+    const overallSuccess = uiResults.success && botResults.success;
+    
+    console.log(`   Overall: ${totalPassed}/${totalTests} ${overallSuccess ? '✅' : '❌'}`);
+    
+    if (!overallSuccess) {
+        if (!uiResults.success) console.log(`   UI Error: ${uiResults.error}`);
+        if (!botResults.success) console.log(`   Bot Error: ${botResults.error}`);
         process.exit(1);
     }
     
@@ -252,4 +381,4 @@ if (require.main === module) {
     main();
 }
 
-module.exports = { runConnect4Tests, startServer };
+module.exports = { runConnect4Tests, runSmartBotTests, startServer };

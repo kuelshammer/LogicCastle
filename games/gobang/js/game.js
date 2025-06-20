@@ -8,7 +8,7 @@ class GobangGame {
         this.BLACK = 1; // First player
         this.WHITE = 2; // Second player
         this.WIN_COUNT = 5; // Need 5 in a row to win
-        
+
         this.board = [];
         this.currentPlayer = this.BLACK;
         this.gameOver = false;
@@ -16,13 +16,13 @@ class GobangGame {
         this.winningStones = [];
         this.moveHistory = [];
         this.scores = { black: 0, white: 0 };
-        
+
         this.initializeBoard();
-        
+
         // Event system
         this.eventListeners = {};
     }
-    
+
     /**
      * Initialize empty game board
      */
@@ -35,7 +35,7 @@ class GobangGame {
             }
         }
     }
-    
+
     /**
      * Reset game to initial state
      */
@@ -49,7 +49,7 @@ class GobangGame {
         this.emit('gameReset');
         this.emit('playerChanged', this.currentPlayer);
     }
-    
+
     /**
      * Reset only the scores
      */
@@ -57,7 +57,7 @@ class GobangGame {
         this.scores = { black: 0, white: 0 };
         this.emit('scoresReset');
     }
-    
+
     /**
      * Make a move at the specified position
      * @param {number} row - Row index (0-14)
@@ -68,25 +68,25 @@ class GobangGame {
         if (this.gameOver) {
             return { success: false, reason: 'Game is over' };
         }
-        
+
         if (row < 0 || row >= this.BOARD_SIZE || col < 0 || col >= this.BOARD_SIZE) {
             return { success: false, reason: 'Invalid position' };
         }
-        
+
         if (this.board[row][col] !== this.EMPTY) {
             return { success: false, reason: 'Position is occupied' };
         }
-        
+
         // Place the stone
         this.board[row][col] = this.currentPlayer;
-        
+
         // Record the move
         const move = { row, col, player: this.currentPlayer, moveNumber: this.moveHistory.length + 1 };
         this.moveHistory.push(move);
-        
+
         // Emit move event
         this.emit('moveMade', move);
-        
+
         // Check for win
         if (this.checkWin(row, col)) {
             this.gameOver = true;
@@ -95,21 +95,21 @@ class GobangGame {
             this.emit('gameWon', { winner: this.winner, winningStones: this.winningStones });
             return { success: true, row, col, gameWon: true, winner: this.winner };
         }
-        
+
         // Check for draw (board full - though this is extremely rare in Gobang)
         if (this.isDraw()) {
             this.gameOver = true;
             this.emit('gameDraw');
             return { success: true, row, col, gameDraw: true };
         }
-        
+
         // Switch players
         this.currentPlayer = this.currentPlayer === this.BLACK ? this.WHITE : this.BLACK;
         this.emit('playerChanged', this.currentPlayer);
-        
+
         return { success: true, row, col };
     }
-    
+
     /**
      * Undo the last move
      * @returns {Object} - Undo result
@@ -118,22 +118,22 @@ class GobangGame {
         if (this.moveHistory.length === 0) {
             return { success: false, reason: 'No moves to undo' };
         }
-        
+
         const lastMove = this.moveHistory.pop();
         this.board[lastMove.row][lastMove.col] = this.EMPTY;
-        
+
         // Reset game state
         this.gameOver = false;
         this.winner = null;
         this.winningStones = [];
         this.currentPlayer = lastMove.player;
-        
+
         this.emit('moveUndone', lastMove);
         this.emit('playerChanged', this.currentPlayer);
-        
+
         return { success: true, move: lastMove };
     }
-    
+
     /**
      * Check if the current move results in a win
      * @param {number} row - Row of the last placed stone
@@ -148,7 +148,7 @@ class GobangGame {
             [1, 1],   // Diagonal /
             [1, -1]   // Diagonal \
         ];
-        
+
         for (const [deltaRow, deltaCol] of directions) {
             const stones = this.getConnectedStones(row, col, deltaRow, deltaCol, player);
             if (stones.length >= this.WIN_COUNT) {
@@ -156,10 +156,10 @@ class GobangGame {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get connected stones in a specific direction
      * @param {number} row - Starting row
@@ -171,7 +171,7 @@ class GobangGame {
      */
     getConnectedStones(row, col, deltaRow, deltaCol, player) {
         const stones = [{ row, col }];
-        
+
         // Check positive direction
         let r = row + deltaRow;
         let c = col + deltaCol;
@@ -180,7 +180,7 @@ class GobangGame {
             r += deltaRow;
             c += deltaCol;
         }
-        
+
         // Check negative direction
         r = row - deltaRow;
         c = col - deltaCol;
@@ -189,10 +189,10 @@ class GobangGame {
             r -= deltaRow;
             c -= deltaCol;
         }
-        
+
         return stones;
     }
-    
+
     /**
      * Check if the game is a draw (board full)
      * @returns {boolean} - True if draw condition is met
@@ -207,7 +207,7 @@ class GobangGame {
         }
         return true;
     }
-    
+
     /**
      * Check if a position is occupied
      * @param {number} row - Row index
@@ -217,7 +217,7 @@ class GobangGame {
     isPositionOccupied(row, col) {
         return this.board[row][col] !== this.EMPTY;
     }
-    
+
     /**
      * Get valid moves (empty positions)
      * @returns {Array} - Array of valid position objects
@@ -233,7 +233,7 @@ class GobangGame {
         }
         return validMoves;
     }
-    
+
     /**
      * Get a copy of the current board
      * @returns {Array} - 2D array representing the board
@@ -241,7 +241,7 @@ class GobangGame {
     getBoard() {
         return this.board.map(row => [...row]);
     }
-    
+
     /**
      * Get game state information
      * @returns {Object} - Current game state
@@ -258,7 +258,7 @@ class GobangGame {
             validMoves: this.getValidMoves()
         };
     }
-    
+
     /**
      * Load game state from object
      * @param {Object} state - Game state to load
@@ -271,10 +271,10 @@ class GobangGame {
         this.winningStones = [...state.winningStones];
         this.moveHistory = [...state.moveHistory];
         this.scores = { ...state.scores };
-        
+
         this.emit('gameLoaded', state);
     }
-    
+
     /**
      * Event system methods
      */
@@ -284,23 +284,23 @@ class GobangGame {
         }
         this.eventListeners[event].push(callback);
     }
-    
+
     off(event, callback) {
         if (this.eventListeners[event]) {
             this.eventListeners[event] = this.eventListeners[event].filter(cb => cb !== callback);
         }
     }
-    
+
     emit(event, data) {
         if (this.eventListeners[event]) {
             this.eventListeners[event].forEach(callback => callback(data));
         }
     }
-    
+
     /**
      * Utility methods for AI and analysis
      */
-    
+
     /**
      * Simulate a move without modifying the actual game state
      * @param {number} row - Row to simulate move in
@@ -311,14 +311,14 @@ class GobangGame {
         if (this.isPositionOccupied(row, col)) {
             return { success: false, reason: 'Position is occupied' };
         }
-        
+
         // Create a copy of the board with the simulated move
         const simulatedBoard = this.getBoard();
         simulatedBoard[row][col] = this.currentPlayer;
-        
+
         // Check if this move would win
         const wouldWin = this.checkWinOnBoard(simulatedBoard, row, col, this.currentPlayer);
-        
+
         return {
             success: true,
             row,
@@ -328,7 +328,7 @@ class GobangGame {
             board: simulatedBoard
         };
     }
-    
+
     /**
      * Check win condition on a specific board
      * @param {Array} board - 2D board array
@@ -344,10 +344,10 @@ class GobangGame {
             [1, 1],   // Diagonal /
             [1, -1]   // Diagonal \
         ];
-        
+
         for (const [deltaRow, deltaCol] of directions) {
             let count = 1; // Count the placed stone
-            
+
             // Check positive direction
             let r = row + deltaRow;
             let c = col + deltaCol;
@@ -356,7 +356,7 @@ class GobangGame {
                 r += deltaRow;
                 c += deltaCol;
             }
-            
+
             // Check negative direction
             r = row - deltaRow;
             c = col - deltaCol;
@@ -365,37 +365,45 @@ class GobangGame {
                 r -= deltaRow;
                 c -= deltaCol;
             }
-            
+
             if (count >= this.WIN_COUNT) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Get player name
      * @param {number} player - Player number
      * @returns {string} - Player name
      */
     getPlayerName(player) {
-        if (player === this.BLACK) return 'Spieler 1 (Schwarz)';
-        if (player === this.WHITE) return 'Spieler 2 (Weiß)';
+        if (player === this.BLACK) {
+            return 'Spieler 1 (Schwarz)';
+        }
+        if (player === this.WHITE) {
+            return 'Spieler 2 (Weiß)';
+        }
         return 'Unbekannt';
     }
-    
+
     /**
      * Get player color class
      * @param {number} player - Player number
      * @returns {string} - CSS class name
      */
     getPlayerColorClass(player) {
-        if (player === this.BLACK) return 'black';
-        if (player === this.WHITE) return 'white';
+        if (player === this.BLACK) {
+            return 'black';
+        }
+        if (player === this.WHITE) {
+            return 'white';
+        }
         return '';
     }
-    
+
     /**
      * Convert position to board notation (A1-O15)
      * @param {number} row - Row index
@@ -407,7 +415,7 @@ class GobangGame {
         const rowNumber = this.BOARD_SIZE - row; // 15-1
         return `${colLetter}${rowNumber}`;
     }
-    
+
     /**
      * Convert board notation to position
      * @param {string} notation - Board notation (A1-O15)
@@ -418,7 +426,7 @@ class GobangGame {
         const row = this.BOARD_SIZE - parseInt(notation.slice(1)); // 15-1 to 0-14
         return { row, col };
     }
-    
+
     /**
      * Get last move
      * @returns {Object|null} - Last move object or null
@@ -426,7 +434,7 @@ class GobangGame {
     getLastMove() {
         return this.moveHistory.length > 0 ? this.moveHistory[this.moveHistory.length - 1] : null;
     }
-    
+
     /**
      * Count consecutive stones in a direction
      * @param {number} row - Starting row
@@ -440,16 +448,16 @@ class GobangGame {
         let count = 0;
         let r = row;
         let c = col;
-        
+
         while (r >= 0 && r < this.BOARD_SIZE && c >= 0 && c < this.BOARD_SIZE && this.board[r][c] === player) {
             count++;
             r += deltaRow;
             c += deltaCol;
         }
-        
+
         return count;
     }
-    
+
     /**
      * Evaluate position strength for AI
      * @param {number} row - Row index
@@ -461,20 +469,20 @@ class GobangGame {
         if (this.isPositionOccupied(row, col)) {
             return -1000; // Invalid move
         }
-        
+
         let score = 0;
-        
+
         // Center bias - positions closer to center are generally better
         const centerRow = Math.floor(this.BOARD_SIZE / 2);
         const centerCol = Math.floor(this.BOARD_SIZE / 2);
         const distanceFromCenter = Math.abs(row - centerRow) + Math.abs(col - centerCol);
         score += (this.BOARD_SIZE - distanceFromCenter) * 2;
-        
+
         // Check for immediate win
         if (this.simulateMove(row, col).wouldWin) {
             score += 10000;
         }
-        
+
         // Check for blocking opponent win
         const opponent = player === this.BLACK ? this.WHITE : this.BLACK;
         const originalPlayer = this.currentPlayer;
@@ -483,7 +491,7 @@ class GobangGame {
             score += 5000; // High priority to block
         }
         this.currentPlayer = originalPlayer;
-        
+
         return score;
     }
 }

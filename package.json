@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node scripts/run-tests.js",
     "test:connect4": "node scripts/test-connect4.js",
+    "test:bot": "node tests/run-bot-tests.js",
     "test:watch": "nodemon --exec 'npm test' --watch games/ --ext js,html,css",
     "lint": "eslint games/**/*.js --fix",
     "lint:check": "eslint games/**/*.js",

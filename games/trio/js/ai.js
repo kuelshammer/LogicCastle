@@ -8,7 +8,7 @@ class TrioAI {
         this.searchDepth = this.getSearchDepth(difficulty);
         this.cache = new Map();
     }
-    
+
     /**
      * Get search parameters based on difficulty
      */
@@ -20,7 +20,7 @@ class TrioAI {
             default: return { maxSolutions: 3, timeLimit: 1000 };
         }
     }
-    
+
     /**
      * Find the best solution for a target number
      * @param {TrioGame} game - Current game instance
@@ -31,16 +31,16 @@ class TrioAI {
         if (!target || !game.numberGrid) {
             return null;
         }
-        
+
         // Check cache first
         const cacheKey = `${target}_${this.gridHash(game.numberGrid)}`;
         if (this.cache.has(cacheKey)) {
             return this.cache.get(cacheKey);
         }
-        
+
         const startTime = Date.now();
         const solutions = [];
-        
+
         // Find all possible solutions
         for (let r1 = 0; r1 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r1++) {
             for (let c1 = 0; c1 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c1++) {
@@ -49,26 +49,26 @@ class TrioAI {
                         for (let r3 = 0; r3 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r3++) {
                             for (let c3 = 0; c3 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c3++) {
                                 // Skip if positions are the same
-                                if ((r1 === r2 && c1 === c2) || 
-                                    (r1 === r3 && c1 === c3) || 
+                                if ((r1 === r2 && c1 === c2) ||
+                                    (r1 === r3 && c1 === c3) ||
                                     (r2 === r3 && c2 === c3)) {
                                     continue;
                                 }
-                                
+
                                 // Check time limit
                                 if (Date.now() - startTime > this.searchDepth.timeLimit) {
                                     break;
                                 }
-                                
+
                                 const positions = [
                                     { row: r1, col: c1 },
                                     { row: r2, col: c2 },
                                     { row: r3, col: c3 }
                                 ];
-                                
+
                                 const numbers = positions.map(pos => game.numberGrid[pos.row][pos.col]);
                                 const solution = game.validateSolution(numbers[0], numbers[1], numbers[2], target);
-                                
+
                                 if (solution.isValid) {
                                     solutions.push({
                                         positions: positions,
@@ -83,55 +83,55 @@ class TrioAI {
                 }
             }
         }
-        
+
         if (solutions.length === 0) {
             this.cache.set(cacheKey, null);
             return null;
         }
-        
+
         // Sort solutions by score and pick the best one based on difficulty
         solutions.sort((a, b) => b.score - a.score);
-        
+
         const bestSolution = this.selectSolutionByDifficulty(solutions);
         this.cache.set(cacheKey, bestSolution);
-        
+
         return bestSolution;
     }
-    
+
     /**
      * Score a solution based on various factors
      */
     scoreSolution(solution, numbers, positions) {
         let score = 0;
-        
+
         // Prefer simpler operations (addition over subtraction)
         if (solution.operation === 'multiplication_addition') {
             score += 10;
         } else {
             score += 5;
         }
-        
+
         // Prefer smaller numbers (easier to spot)
         const avgNumber = numbers.reduce((sum, n) => sum + n, 0) / numbers.length;
         score += Math.max(0, 10 - avgNumber);
-        
+
         // Prefer positions that are closer together (easier to see pattern)
         const distance = this.calculatePositionDistance(positions);
         score += Math.max(0, 10 - distance);
-        
+
         // Add some randomness to avoid predictable patterns
         score += Math.random() * 3;
-        
+
         return score;
     }
-    
+
     /**
      * Calculate average distance between positions
      */
     calculatePositionDistance(positions) {
         let totalDistance = 0;
         let pairCount = 0;
-        
+
         for (let i = 0; i < positions.length; i++) {
             for (let j = i + 1; j < positions.length; j++) {
                 const dx = positions[i].col - positions[j].col;
@@ -140,43 +140,45 @@ class TrioAI {
                 pairCount++;
             }
         }
-        
+
         return pairCount > 0 ? totalDistance / pairCount : 0;
     }
-    
+
     /**
      * Select solution based on AI difficulty
      */
     selectSolutionByDifficulty(solutions) {
-        if (solutions.length === 0) return null;
-        
+        if (solutions.length === 0) {
+            return null;
+        }
+
         switch (this.difficulty) {
             case 'easy':
                 // Pick a random solution from top 50%
                 const easyIndex = Math.floor(Math.random() * Math.ceil(solutions.length / 2));
                 return solutions[easyIndex];
-                
+
             case 'medium':
                 // Pick a random solution from top 25%
                 const mediumIndex = Math.floor(Math.random() * Math.ceil(solutions.length / 4));
                 return solutions[mediumIndex];
-                
+
             case 'hard':
                 // Always pick the best solution
                 return solutions[0];
-                
+
             default:
                 return solutions[0];
         }
     }
-    
+
     /**
      * Generate a simple hash of the grid for caching
      */
     gridHash(grid) {
         return grid.flat().join(',');
     }
-    
+
     /**
      * Make an AI move (find and submit a solution)
      * @param {TrioGame} game - Current game instance
@@ -187,14 +189,14 @@ class TrioAI {
         if (!game.currentTarget) {
             return { success: false, reason: 'No active target' };
         }
-        
+
         // Add some thinking delay for realism
         const thinkingTime = this.getThinkingTime();
-        
+
         return new Promise((resolve) => {
             setTimeout(() => {
                 const solution = this.findBestSolution(game, game.currentTarget);
-                
+
                 if (solution) {
                     const result = game.submitSolution(playerId, solution.positions);
                     resolve(result);
@@ -206,21 +208,21 @@ class TrioAI {
             }, thinkingTime);
         });
     }
-    
+
     /**
      * Get AI thinking time based on difficulty
      */
     getThinkingTime() {
         const baseTime = {
             'easy': 1000,
-            'medium': 2000, 
+            'medium': 2000,
             'hard': 3000
         }[this.difficulty] || 2000;
-        
+
         // Add random variation
         return baseTime + Math.random() * 1000;
     }
-    
+
     /**
      * Analyze the current game state
      * @param {TrioGame} game - Current game instance
@@ -232,33 +234,33 @@ class TrioAI {
             averageDifficulty: 0,
             recommendedStrategy: 'balanced'
         };
-        
+
         // Analyze remaining target chips
         game.targetChips.forEach(target => {
             const solutions = game.findAllSolutions(target);
             analysis.totalSolutions += solutions.length;
         });
-        
+
         if (game.targetChips.length > 0) {
             analysis.averageDifficulty = analysis.totalSolutions / game.targetChips.length;
-            
+
             if (analysis.averageDifficulty < 2) {
                 analysis.recommendedStrategy = 'aggressive'; // Few solutions, need to be fast
             } else if (analysis.averageDifficulty > 5) {
                 analysis.recommendedStrategy = 'patient'; // Many solutions, can take time
             }
         }
-        
+
         return analysis;
     }
-    
+
     /**
      * Clear the solution cache
      */
     clearCache() {
         this.cache.clear();
     }
-    
+
     /**
      * Get cache statistics
      */
