@@ -126,80 +126,15 @@ class Connect4AI {
 
     
     /**
-     * Weighted random move using evaluation function (used as fallback by smart-random AI)
+     * Simple random move (used as fallback by smart-random AI)
      */
     getRandomMove(game) {
         const validMoves = game.getValidMoves();
         
         if (validMoves.length === 0) return null;
         
-        // Use evaluation function for weighted selection if available
-        if (typeof Connect4Evaluation !== 'undefined') {
-            return this.getWeightedRandomMove(game, validMoves);
-        }
-        
-        // Fallback to simple random if evaluation not available
+        // Random move
         return validMoves[Math.floor(Math.random() * validMoves.length)];
-    }
-    
-    /**
-     * Select a move using weighted random based on position evaluation
-     * Better positions (higher evaluation scores) are more likely to be chosen
-     */
-    getWeightedRandomMove(game, validMoves) {
-        if (!this.evaluator) {
-            this.evaluator = new Connect4Evaluation();
-        }
-        
-        // Get evaluation scores for all valid moves
-        const evaluations = [];
-        
-        for (const col of validMoves) {
-            // Find where the piece would land
-            let row = -1;
-            for (let r = game.ROWS - 1; r >= 0; r--) {
-                if (game.board[r][col] === game.EMPTY) {
-                    row = r;
-                    break;
-                }
-            }
-            
-            if (row !== -1) {
-                const score = this.evaluator.evaluatePosition(game.board, row, col, game.currentPlayer);
-                evaluations.push({ col, score });
-            }
-        }
-        
-        if (evaluations.length === 0) {
-            return validMoves[Math.floor(Math.random() * validMoves.length)];
-        }
-        
-        // Create weighted list: add each column 'score' times to the list
-        const weightedList = [];
-        
-        for (const evalItem of evaluations) {
-            // Ensure minimum weight of 1 (so all moves are at least possible)
-            const weight = Math.max(1, evalItem.score);
-            
-            for (let i = 0; i < weight; i++) {
-                weightedList.push(evalItem.col);
-            }
-        }
-        
-        console.log('🎯 Smart Bot weighted selection:');
-        evaluations.forEach(evalItem => {
-            const weight = Math.max(1, evalItem.score);
-            console.log(`  Column ${evalItem.col + 1}: Score ${evalItem.score} → Weight ${weight}`);
-        });
-        console.log('🎯 Weighted list:', weightedList.map(c => c + 1));
-        
-        // Select randomly from weighted list
-        const selectedIndex = Math.floor(Math.random() * weightedList.length);
-        const selectedColumn = weightedList[selectedIndex];
-        
-        console.log(`🎯 Selected: Column ${selectedColumn + 1} (index ${selectedIndex} from ${weightedList.length} options)`);
-        
-        return selectedColumn;
     }
     
     /**
