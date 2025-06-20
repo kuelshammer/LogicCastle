@@ -8,13 +8,43 @@ Diese Test-Utilities ermöglichen es, spezifische Spielsituationen für Connect4
 # Alle Tests (UI + Smart Bot)
 npm test
 
-# Nur Smart Bot Tests
+# Smart Bot Tests (basic)
 npm run test:bot
+
+# Smart Bot Helper Level Validation
+npm run test:levels
+
+# Comprehensive Smart Bot Tests (all levels)
+npm run test:bot-full
 
 # Test-Interface im Browser öffnen
 npm run serve
 # -> http://localhost:8080/tests/test-smart-bot.html
+# -> http://localhost:8080/tests/manual-level-validation.html
 ```
+
+## 🎯 Helper Level Testing
+
+### **Level 0-2 Validation Methods:**
+
+1. **Browser Console (Quick):**
+   ```javascript
+   // Open: http://localhost:8080/tests/test-smart-bot.html
+   // Copy-paste from: tests/quick-level-check.js
+   quickLevelCheck()
+   ```
+
+2. **Manual Browser Interface:**
+   ```
+   # Open: http://localhost:8080/tests/manual-level-validation.html
+   # Click "Run All Level Tests"
+   ```
+
+3. **Automated Testing:**
+   ```bash
+   npm run test:levels          # Helper level validation
+   npm run test:bot-full        # Comprehensive test suite
+   ```
 
 ## 📋 Connect4TestUtils Verwendung
 
@@ -85,34 +115,86 @@ Connect4TestUtils.createFromAscii(game, asciiBoard, 2);
 
 ## 🤖 Smart Bot Test-Szenarien
 
-### Test 1: Eröffnungsstrategie
-```javascript
-// Leeres Brett -> sollte Mitte spielen (Spalte 4)
-const game = new Connect4Game();
-const move = ai.getBestMove(game, helpers);
-// Expected: move === 3 (0-indexed)
-```
+### **Level 0 Tests (Gewinnzüge erkennen):**
 
-### Test 2: Gewinnzug erkennen
+#### L0.1: Horizontale Gewinnzüge
 ```javascript
-Connect4TestUtils.createTestPosition(
-    game, 
-    "empty,yellow,yellow,yellow,empty,empty,empty", 
-    2
-);
+Connect4TestUtils.createTestPosition(game, "empty,yellow,yellow,yellow,empty,empty,empty", 2);
 const move = ai.getBestMove(game, helpers);
 // Expected: move === 0 oder move === 4 (Spalte 1 oder 5)
 ```
 
-### Test 3: Bedrohung blockieren
+#### L0.2: Vertikale Gewinnzüge
 ```javascript
-Connect4TestUtils.createTestPosition(
-    game, 
-    "red,red,red,empty,empty,empty,empty", 
-    2
-);
+Connect4TestUtils.createTestPosition(game, "empty,empty,empty,yellow-yellow-yellow,empty,empty,empty", 2);
+const move = ai.getBestMove(game, helpers);
+// Expected: move === 3 (Spalte 4)
+```
+
+#### L0.3: Diagonale Gewinnzüge
+```javascript
+// Manuelle Board-Setup für diagonale Sequenzen
+game.board[5][1] = game.PLAYER2; // Yellow bottom
+game.board[4][2] = game.PLAYER2; // Yellow middle
+game.board[3][3] = game.PLAYER2; // Yellow upper
+// Expected: move === 4 (Spalte 5 komplettiert Diagonale)
+```
+
+### **Level 1 Tests (Bedrohungen blockieren):**
+
+#### L1.1: Horizontale Bedrohung blockieren
+```javascript
+Connect4TestUtils.createTestPosition(game, "red,red,red,empty,empty,empty,empty", 2);
 const move = ai.getBestMove(game, helpers);
 // Expected: move === 3 (Spalte 4 blockieren)
+```
+
+#### L1.2: Vertikale Bedrohung blockieren
+```javascript
+Connect4TestUtils.createTestPosition(game, "empty,empty,red-red-red,empty,empty,empty,empty", 2);
+const move = ai.getBestMove(game, helpers);
+// Expected: move === 2 (Spalte 3 blockieren)
+```
+
+#### L1.3: Diagonale Bedrohung blockieren
+```javascript
+// Manuelle Setup für diagonale Red-Bedrohung
+game.board[5][0] = game.PLAYER1; // Red bottom
+game.board[4][1] = game.PLAYER1; // Red middle  
+game.board[3][2] = game.PLAYER1; // Red upper
+// Expected: move === 3 (Spalte 4 blockiert Diagonale)
+```
+
+### **Level 2 Tests (Fallen vermeiden):**
+
+#### L2.1: Basis Fallen-Vermeidung
+```javascript
+Connect4TestUtils.loadScenario(game, 'trapScenario', 2);
+const move = ai.getBestMove(game, helpers);
+// Expected: Gültiger Zug, der keine Gegner-Chancen schafft
+```
+
+#### L2.2: Komplexe Positions-Sicherheit
+```javascript
+Connect4TestUtils.createTestPosition(game, "empty,red-yellow,red-yellow-red,yellow-red-yellow,red-yellow,yellow-red,empty", 2);
+const move = ai.getBestMove(game, helpers);
+// Expected: Sicherer Zug basierend auf Level 2 Analyse
+```
+
+### **Prioritäts-Tests (Level-Hierarchie):**
+
+#### P1: Gewinnen über Blockieren
+```javascript
+Connect4TestUtils.createTestPosition(game, "yellow,yellow,yellow,empty,red,red,red", 2);
+const move = ai.getBestMove(game, helpers);
+// Expected: move === 3 (Gewinnen hat Priorität über Blockieren)
+```
+
+#### P2: Blockieren über Sicherheit
+```javascript
+Connect4TestUtils.createTestPosition(game, "red,red,red,empty,yellow,yellow,empty", 2);
+const move = ai.getBestMove(game, helpers);
+// Expected: move === 3 (Blockieren hat Priorität über "sichere" Züge)
 ```
 
 ## 🛠️ Test-Utilities API
