@@ -61,10 +61,15 @@ class Connect4Helpers {
             return;
         }
 
-        // Check if current player has help enabled - if not, clear everything and exit
+        // Check if current player has help enabled - but allow Bot analysis in AI mode
         if (this.ui && !this.ui.getCurrentPlayerHelpEnabled()) {
-            this.clearAllHints();
-            return; // No help for this player
+            // In bot mode, always allow helpers analysis for the bot player
+            if (this.ui.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+                // Bot player - continue with analysis even if human has no help
+            } else {
+                this.clearAllHints();
+                return; // No help for human player
+            }
         }
 
         this.clearAllHints();
