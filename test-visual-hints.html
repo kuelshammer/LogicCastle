@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Visual Hints</title>
+    <link rel="stylesheet" href="games/connect4/css/game.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🔴 Test Visual Hints</h1>
+        </header>
+
+        <main class="game-main">
+            <div class="game-board-container">
+                <div class="column-indicators" id="columnIndicators">
+                    <div class="column-indicator" data-col="0">1</div>
+                    <div class="column-indicator" data-col="1">2</div>
+                    <div class="column-indicator" data-col="2">3</div>
+                    <div class="column-indicator" data-col="3">4</div>
+                    <div class="column-indicator" data-col="4">5</div>
+                    <div class="column-indicator" data-col="5">6</div>
+                    <div class="column-indicator" data-col="6">7</div>
+                </div>
+                
+                <div class="game-board" id="gameBoard">
+                    <!-- 6 rows × 7 columns = 42 cells -->
+                </div>
+
+                <div class="hints-overlay" id="hintsOverlay" style="display: block;">
+                    <!-- Test threat indicator -->
+                    <div class="hint-indicator threat" style="left: 224px; top: 400px;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="games/connect4/js/game.js"></script>
+    <script src="games/connect4/js/helpers.js"></script>
+    <script src="games/connect4/js/ui.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            window.game = new Connect4Game();
+            window.ui = new Connect4UI(window.game);
+            window.ui.init();
+            
+            // Create test situation
+            window.game.board[5][0] = window.game.PLAYER1; // Red
+            window.game.board[5][1] = window.game.PLAYER1; // Red  
+            window.game.board[5][2] = window.game.PLAYER1; // Red
+            window.game.board[5][4] = window.game.PLAYER2; // Yellow
+            window.game.currentPlayer = window.game.PLAYER2;
+            
+            window.ui.updateUI();
+            
+            // Enable helpers
+            window.ui.helpers.setEnabled(true, 1);
+            
+            console.log('Test setup complete');
+            console.log('Threat position should be: Column 3, Row 5');
+            console.log('Calculated position: left=' + (20 + 3 * (60 + 8)) + 'px, top=' + (20 + 5 * (60 + 8)) + 'px');
+            
+            // Add manual threat indicator for comparison
+            const overlay = document.getElementById('hintsOverlay');
+            const testIndicator = document.createElement('div');
+            testIndicator.className = 'hint-indicator threat';
+            testIndicator.style.left = (20 + 3 * (60 + 8)) + 'px';  // Column 3
+            testIndicator.style.top = (20 + 5 * (60 + 8)) + 'px';   // Row 5
+            overlay.appendChild(testIndicator);
+            
+            console.log('Manual threat indicator added at calculated position');
+        });
+    </script>
+</body>
+</html>
