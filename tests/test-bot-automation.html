@@ -155,6 +155,8 @@
                         <option value="random">Random Bot</option>
                         <option value="smart-random">Smart Bot (Offensive)</option>
                         <option value="defensive">Defensive Bot</option>
+                        <option value="offensiv-gemischt">Offensiv-Gemischt Bot</option>
+                        <option value="defensiv-gemischt">Defensiv-Gemischt Bot</option>
                     </select>
                 </div>
                 <div style="text-align: center; font-size: 24px;">VS</div>
@@ -164,6 +166,8 @@
                         <option value="random">Random Bot</option>
                         <option value="smart-random" selected>Smart Bot (Offensive)</option>
                         <option value="defensive">Defensive Bot</option>
+                        <option value="offensiv-gemischt">Offensiv-Gemischt Bot</option>
+                        <option value="defensiv-gemischt">Defensiv-Gemischt Bot</option>
                     </select>
                 </div>
             </div>
@@ -752,6 +756,8 @@
                 case 'random': return 'Random Bot';
                 case 'smart-random': return 'Smart Bot (Offensive)';
                 case 'defensive': return 'Defensive Bot';
+                case 'offensiv-gemischt': return 'Offensiv-Gemischt Bot';
+                case 'defensiv-gemischt': return 'Defensiv-Gemischt Bot';
                 default: return botType;
             }
         }
@@ -952,6 +958,10 @@
                     return new Connect4AI('smart-random');
                 case 'defensive':
                     return new Connect4AI('defensive');
+                case 'offensiv-gemischt':
+                    return new Connect4AI('offensiv-gemischt');
+                case 'defensiv-gemischt':
+                    return new Connect4AI('defensiv-gemischt');
                 default:
                     return new Connect4AI('smart-random');
             }

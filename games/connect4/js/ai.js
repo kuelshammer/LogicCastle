@@ -35,6 +35,10 @@ class Connect4AI {
                 return this.getSmartRandomMove(game, helpers);
             case 'defensive':
                 return this.getDefensiveMove(game, helpers);
+            case 'offensiv-gemischt':
+                return this.getOffensiveMixedMove(game, helpers);
+            case 'defensiv-gemischt':
+                return this.getDefensiveMixedMove(game, helpers);
             case 'medium':
                 return this.getRuleBasedMove(game);
             case 'hard':
@@ -301,6 +305,182 @@ class Connect4AI {
 
         // PRIORITY 5: No defensive advantage found - make center-biased random move
         console.log('🛡️ Defensive Bot: No defensive advantage, playing center-biased random');
+        const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
+        return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
+    }
+
+    /**
+     * Offensiv-Gemischt AI: Weighted random based on offensive potential
+     * Each offensive 4-possibility adds column 2x, each defensive block adds column 1x
+     */
+    getOffensiveMixedMove(game, helpers = null) {
+        const validMoves = game.getValidMoves();
+
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        // PRIORITY 0: If board is empty, play center column
+        const totalMoves = game.moveHistory.length;
+        if (totalMoves === 0) {
+            return 3; // Center column (0-indexed)
+        }
+
+        // Use helpers system for critical moves (same as other bots)
+        if (helpers) {
+            const wasEnabled = helpers.enabled;
+            const wasLevel = helpers.helpLevel;
+
+            // PRIORITY 1: Check Level 0 - Own winning opportunities (immediate wins)
+            helpers.setEnabled(true, 0);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('⚔️ Offensiv-Gemischt Bot: WINNING at columns', helpers.requiredMoves);
+                const winningMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                return winningMoves[randomIndex];
+            }
+
+            // PRIORITY 2: Check Level 1 - Block opponent's threats (immediate blocks)
+            helpers.setEnabled(true, 1);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('⚔️ Offensiv-Gemischt Bot: BLOCKING threat at columns', helpers.requiredMoves);
+                const blockingMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * blockingMoves.length);
+                return blockingMoves[randomIndex];
+            }
+
+            helpers.setEnabled(wasEnabled, wasLevel);
+        }
+
+        // PRIORITY 3: WEIGHTED RANDOM - Offensive Focus
+        console.log('⚔️ Offensiv-Gemischt Bot: Analyzing weighted offensive potential...');
+        const weightedColumns = [];
+
+        for (const col of validMoves) {
+            // Calculate offensive potential (how many 4-possibilities this move creates)
+            const offensivePotential = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            
+            // Calculate defensive value (how many opponent patterns this move disrupts)
+            const defensivePotential = this.evaluateDefensivePotential(game, col);
+
+            console.log(`⚔️ Column ${col + 1}: Offensive=${offensivePotential}, Defensive=${defensivePotential}`);
+
+            // OFFENSIVE FOCUS: Each offensive 4-possibility adds column 2x, each defensive block adds column 1x
+            for (let i = 0; i < offensivePotential * 2; i++) {
+                weightedColumns.push(col);
+            }
+            for (let i = 0; i < defensivePotential * 1; i++) {
+                weightedColumns.push(col);
+            }
+
+            // Base weight: add each column at least once
+            if (offensivePotential === 0 && defensivePotential === 0) {
+                weightedColumns.push(col);
+            }
+        }
+
+        if (weightedColumns.length > 0) {
+            const chosenMove = weightedColumns[Math.floor(Math.random() * weightedColumns.length)];
+            console.log(`⚔️ Offensiv-Gemischt Bot: Chose column ${chosenMove + 1} from weighted list (${weightedColumns.length} options)`);
+            return chosenMove;
+        }
+
+        // Fallback
+        console.log('⚔️ Offensiv-Gemischt Bot: Fallback to center-biased random');
+        const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
+        return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
+    }
+
+    /**
+     * Defensiv-Gemischt AI: Weighted random based on defensive potential  
+     * Each defensive block adds column 2x, each offensive 4-possibility adds column 1x
+     */
+    getDefensiveMixedMove(game, helpers = null) {
+        const validMoves = game.getValidMoves();
+
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        // PRIORITY 0: If board is empty, play center column
+        const totalMoves = game.moveHistory.length;
+        if (totalMoves === 0) {
+            return 3; // Center column (0-indexed)
+        }
+
+        // Use helpers system for critical moves (same as other bots)
+        if (helpers) {
+            const wasEnabled = helpers.enabled;
+            const wasLevel = helpers.helpLevel;
+
+            // PRIORITY 1: Check Level 0 - Own winning opportunities (immediate wins)
+            helpers.setEnabled(true, 0);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🛡️ Defensiv-Gemischt Bot: WINNING at columns', helpers.requiredMoves);
+                const winningMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                return winningMoves[randomIndex];
+            }
+
+            // PRIORITY 2: Check Level 1 - Block opponent's threats (immediate blocks)
+            helpers.setEnabled(true, 1);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🛡️ Defensiv-Gemischt Bot: BLOCKING threat at columns', helpers.requiredMoves);
+                const blockingMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * blockingMoves.length);
+                return blockingMoves[randomIndex];
+            }
+
+            helpers.setEnabled(wasEnabled, wasLevel);
+        }
+
+        // PRIORITY 3: WEIGHTED RANDOM - Defensive Focus
+        console.log('🛡️ Defensiv-Gemischt Bot: Analyzing weighted defensive potential...');
+        const weightedColumns = [];
+
+        for (const col of validMoves) {
+            // Calculate offensive potential (how many 4-possibilities this move creates)
+            const offensivePotential = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            
+            // Calculate defensive value (how many opponent patterns this move disrupts)
+            const defensivePotential = this.evaluateDefensivePotential(game, col);
+
+            console.log(`🛡️ Column ${col + 1}: Offensive=${offensivePotential}, Defensive=${defensivePotential}`);
+
+            // DEFENSIVE FOCUS: Each defensive block adds column 2x, each offensive 4-possibility adds column 1x
+            for (let i = 0; i < defensivePotential * 2; i++) {
+                weightedColumns.push(col);
+            }
+            for (let i = 0; i < offensivePotential * 1; i++) {
+                weightedColumns.push(col);
+            }
+
+            // Base weight: add each column at least once
+            if (offensivePotential === 0 && defensivePotential === 0) {
+                weightedColumns.push(col);
+            }
+        }
+
+        if (weightedColumns.length > 0) {
+            const chosenMove = weightedColumns[Math.floor(Math.random() * weightedColumns.length)];
+            console.log(`🛡️ Defensiv-Gemischt Bot: Chose column ${chosenMove + 1} from weighted list (${weightedColumns.length} options)`);
+            return chosenMove;
+        }
+
+        // Fallback
+        console.log('🛡️ Defensiv-Gemischt Bot: Fallback to center-biased random');
         const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
         return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
     }
