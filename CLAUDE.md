@@ -129,3 +129,6 @@ Turn order chaos in bot mode was caused by double AI-triggering:
 
 ## Development Guidelines
 - Immer wenn wir ein JS Feature ergänzen, sollten wir auch Tests dafür implementieren und laufen lassen.
+
+## Development Notes
+- Bei jedem Push aus der Haupseite den Footer anpassen! Bitte Farbe in weiß statt grau.

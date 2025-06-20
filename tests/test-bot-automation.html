@@ -141,6 +141,8 @@
             <button onclick="runSingleBotGame()" id="singleBtn">Run Single Bot vs Bot Game</button>
             <button onclick="runMultipleBotGames()" id="multipleBtn">Run 5 Games (Stress Test)</button>
             <button onclick="testBotMoveExecution()" id="moveBtn">Test Bot Move Execution</button>
+            <button onclick="runAIComparison()" id="aiCompBtn">🧠 AI Comparison (100 Games)</button>
+            <button onclick="runMegaAITest()" id="megaBtn">🏆 Mega AI Test (1000 Games)</button>
             <button onclick="clearResults()" id="clearBtn">Clear Results</button>
         </div>
         
@@ -160,6 +162,25 @@
             <div class="stat-box">
                 <div class="stat-value" id="botStatus">?</div>
                 <div class="stat-label">Bot Status</div>
+            </div>
+        </div>
+        
+        <div class="stats" id="aiComparisonStats" style="display: none;">
+            <div class="stat-box">
+                <div class="stat-value" id="randomWins">0</div>
+                <div class="stat-label">Random Bot Wins</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="smartWins">0</div>
+                <div class="stat-label">Smart Bot Wins</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="draws">0</div>
+                <div class="stat-label">Draws</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="smartAdvantage">0%</div>
+                <div class="stat-label">Smart Bot Advantage</div>
             </div>
         </div>
         
@@ -489,10 +510,199 @@
         }
         
         /**
+         * Run AI Comparison Test (100 games)
+         */
+        async function runAIComparison() {
+            await runAIComparisonTest(100);
+        }
+        
+        /**
+         * Run Mega AI Test (1000 games)
+         */
+        async function runMegaAITest() {
+            await runAIComparisonTest(1000);
+        }
+        
+        /**
+         * Run AI comparison between Random Bot vs Smart Bot
+         */
+        async function runAIComparisonTest(numGames) {
+            if (isRunning) return;
+            isRunning = true;
+            setButtonStates(false);
+            
+            log(`🧠 Starting AI Comparison: Random Bot vs Smart Bot (${numGames} games)`, 'info');
+            log('Random Bot (Red): Pure random moves', 'info');
+            log('Smart Bot (Yellow): Weighted moves + helper analysis', 'info');
+            
+            const results = {
+                randomWins: 0,
+                smartWins: 0,
+                draws: 0,
+                games: []
+            };
+            
+            try {
+                for (let i = 0; i < numGames; i++) {
+                    if (i % 100 === 0) {
+                        log(`Progress: ${i}/${numGames} games completed`, 'info');
+                    }
+                    
+                    const result = await simulateRandomVsSmartGame();
+                    results.games.push(result);
+                    
+                    if (!result.success) {
+                        log(`❌ Game ${i + 1} failed: ${result.error}`, 'error');
+                        break;
+                    }
+                    
+                    // Count wins
+                    if (result.winner === 1) {
+                        results.randomWins++;
+                    } else if (result.winner === 2) {
+                        results.smartWins++;
+                    } else {
+                        results.draws++;
+                    }
+                    
+                    // Prevent browser freezing
+                    if (i % 50 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+                
+                // Display results
+                displayAIComparisonResults(results, numGames);
+                
+            } catch (error) {
+                log(`❌ AI comparison error: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+                setButtonStates(true);
+            }
+        }
+        
+        /**
+         * Simulate Random Bot vs Smart Bot game
+         */
+        async function simulateRandomVsSmartGame() {
+            const game = new Connect4Game();
+            const mockUI = new MockUI();
+            const helpers = new Connect4Helpers(game, mockUI);
+            
+            // Red = Random Bot (pure random moves)
+            const randomBot = new Connect4AI('easy'); // Uses getRandomMove
+            
+            // Yellow = Smart Bot (weighted moves)
+            const smartBot = new Connect4AI('smart-random'); // Uses helper system
+            
+            let moveCount = 0;
+            const maxMoves = 42;
+            
+            while (!game.gameOver && moveCount < maxMoves) {
+                const currentPlayer = game.currentPlayer;
+                let botMove;
+                
+                try {
+                    if (currentPlayer === game.PLAYER1) {
+                        // Random Bot - use pure random strategy
+                        const validMoves = game.getValidMoves();
+                        botMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    } else {
+                        // Smart Bot - use weighted strategy
+                        botMove = smartBot.getWeightedMove ? 
+                                 smartBot.getWeightedMove(game) : 
+                                 smartBot.getBestMove(game, helpers);
+                    }
+                    
+                    if (botMove === null) {
+                        throw new Error(`Bot ${currentPlayer} returned null move`);
+                    }
+                    
+                    const result = game.makeMove(botMove);
+                    if (!result.success) {
+                        throw new Error(`Move failed: ${result.reason}`);
+                    }
+                    
+                    moveCount++;
+                    
+                } catch (error) {
+                    return {
+                        success: false,
+                        error: error.message,
+                        moveCount: moveCount
+                    };
+                }
+            }
+            
+            return {
+                success: true,
+                moveCount: moveCount,
+                winner: game.winner,
+                gameOver: game.gameOver
+            };
+        }
+        
+        /**
+         * Display AI comparison results
+         */
+        function displayAIComparisonResults(results, totalGames) {
+            const statsElement = document.getElementById('aiComparisonStats');
+            statsElement.style.display = 'grid';
+            
+            const completedGames = results.randomWins + results.smartWins + results.draws;
+            const smartWinRate = completedGames > 0 ? Math.round((results.smartWins / completedGames) * 100) : 0;
+            const randomWinRate = completedGames > 0 ? Math.round((results.randomWins / completedGames) * 100) : 0;
+            const smartAdvantage = smartWinRate - randomWinRate;
+            
+            document.getElementById('randomWins').textContent = results.randomWins;
+            document.getElementById('smartWins').textContent = results.smartWins;
+            document.getElementById('draws').textContent = results.draws;
+            document.getElementById('smartAdvantage').textContent = smartAdvantage + '%';
+            
+            // Log detailed results
+            log(`\\n🏁 AI Comparison Results (${completedGames}/${totalGames} games):`, 'success');
+            log(`🎲 Random Bot: ${results.randomWins} wins (${randomWinRate}%)`, 'info');
+            log(`🧠 Smart Bot: ${results.smartWins} wins (${smartWinRate}%)`, 'info');
+            log(`🤝 Draws: ${results.draws}`, 'info');
+            log(`📊 Smart Bot Advantage: ${smartAdvantage}%`, smartAdvantage > 10 ? 'success' : 'warning');
+            
+            // Validation
+            if (smartAdvantage > 15) {
+                log(`✅ TEST PASSED: Smart Bot significantly outperforms Random Bot`, 'success');
+            } else if (smartAdvantage > 5) {
+                log(`⚠️ TEST MARGINAL: Smart Bot has small advantage`, 'warning');
+            } else {
+                log(`❌ TEST FAILED: Smart Bot does not outperform Random Bot`, 'error');
+            }
+            
+            // Display summary
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-section';
+            
+            const testStatus = smartAdvantage > 15 ? '✅ PASSED' : smartAdvantage > 5 ? '⚠️ MARGINAL' : '❌ FAILED';
+            const resultClass = smartAdvantage > 15 ? 'success' : smartAdvantage > 5 ? 'info' : 'error';
+            
+            resultDiv.innerHTML = `
+                <h4>${testStatus} AI Intelligence Test</h4>
+                <div class="result ${resultClass}">
+                    Smart Bot vs Random Bot (${completedGames} games)<br>
+                    Smart Bot: ${results.smartWins} wins (${smartWinRate}%)<br>
+                    Random Bot: ${results.randomWins} wins (${randomWinRate}%)<br>
+                    Draws: ${results.draws}<br>
+                    <strong>Smart Advantage: ${smartAdvantage}%</strong>
+                </div>
+            `;
+            
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        /**
          * Set button enabled/disabled state
          */
         function setButtonStates(enabled) {
-            ['singleBtn', 'multipleBtn', 'moveBtn', 'clearBtn'].forEach(id => {
+            ['singleBtn', 'multipleBtn', 'moveBtn', 'aiCompBtn', 'megaBtn', 'clearBtn'].forEach(id => {
                 document.getElementById(id).disabled = !enabled;
             });
         }
@@ -506,6 +716,7 @@
             document.getElementById('log').innerHTML = '';
             document.getElementById('log').style.display = 'none';
             document.getElementById('stats').style.display = 'none';
+            document.getElementById('aiComparisonStats').style.display = 'none';
             log('🧹 Results cleared', 'info');
         }
         
