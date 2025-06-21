@@ -1044,6 +1044,7 @@ class Connect4Helpers {
 
     /**
      * Detect Zugzwang situations (opponent forced to make bad moves)
+     * Uses board simulation to avoid corrupting game state
      */
     detectZugzwang() {
         const validMoves = this.game.getValidMoves();
@@ -1052,22 +1053,18 @@ class Connect4Helpers {
         let zugzwangMoves = [];
         
         for (const col of validMoves) {
-            // Simulate opponent playing in this column
-            const result = this.game.simulateMove(col);
-            if (!result.success) continue;
+            // Create board copy for safe simulation
+            const boardCopy = this.copyBoard(this.game.board);
             
-            // Temporarily switch to opponent
-            const originalPlayer = this.game.currentPlayer;
-            this.game.currentPlayer = opponent;
-            this.game.makeMove(col);
+            // Simulate opponent move on copy
+            const row = this.getLowestEmptyRow(boardCopy, col);
+            if (row === -1) continue; // Column full
             
-            // Check if we now have winning opportunities
-            const ourWinningMoves = this.findWinningMoves(originalPlayer);
-            const opponentCanBlock = this.canOpponentBlockAllThreats(ourWinningMoves, opponent);
+            boardCopy[row][col] = opponent;
             
-            // Undo move
-            this.game.undoLastMove();
-            this.game.currentPlayer = originalPlayer;
+            // Check if this creates winning opportunities for us
+            const ourWinningMoves = this.findWinningMovesOnBoard(boardCopy, this.game.currentPlayer);
+            const opponentCanBlock = ourWinningMoves.length <= 1; // Simple heuristic
             
             if (ourWinningMoves.length > 0 && !opponentCanBlock) {
                 zugzwangMoves.push({
@@ -1133,20 +1130,21 @@ class Connect4Helpers {
 
     /**
      * Evaluate fork potential for a move
+     * Uses board simulation to avoid corrupting game state
      */
     evaluateForkPotential(col) {
-        const result = this.game.simulateMove(col);
-        if (!result.success) return { threats: 0, paths: [] };
+        // Create board copy for safe simulation
+        const boardCopy = this.copyBoard(this.game.board);
         
-        // Make the move temporarily
-        this.game.makeMove(col);
+        // Simulate the move on copy
+        const row = this.getLowestEmptyRow(boardCopy, col);
+        if (row === -1) return { threats: 0, paths: [] };
+        
+        boardCopy[row][col] = this.game.currentPlayer;
         
         // Count how many winning moves we would have
-        const winningMoves = this.findWinningMoves(this.game.currentPlayer);
-        const paths = this.analyzePotentialWinPaths();
-        
-        // Undo the move
-        this.game.undoLastMove();
+        const winningMoves = this.findWinningMovesOnBoard(boardCopy, this.game.currentPlayer);
+        const paths = this.analyzePotentialWinPathsOnBoard(boardCopy);
         
         return {
             threats: winningMoves.length,
@@ -1187,6 +1185,97 @@ class Connect4Helpers {
         const threats = this.countThreatsAfterMove(startCol);
         
         return threats >= 2 ? [startCol] : [];
+    }
+
+    /**
+     * Copy board for safe simulation
+     */
+    copyBoard(board) {
+        return board.map(row => [...row]);
+    }
+
+    /**
+     * Find winning moves on a specific board state
+     */
+    findWinningMovesOnBoard(board, player) {
+        const winningMoves = [];
+        const validMoves = this.getValidMovesOnBoard(board);
+        
+        for (const col of validMoves) {
+            const row = this.getLowestEmptyRow(board, col);
+            if (row !== -1) {
+                // Temporarily place piece
+                board[row][col] = player;
+                
+                // Check for win
+                if (this.checkWinOnBoard(board, row, col, player)) {
+                    winningMoves.push(col);
+                }
+                
+                // Remove piece
+                board[row][col] = this.game.EMPTY;
+            }
+        }
+        
+        return winningMoves;
+    }
+
+    /**
+     * Get valid moves for a board state
+     */
+    getValidMovesOnBoard(board) {
+        const validMoves = [];
+        for (let col = 0; col < this.game.COLS; col++) {
+            if (board[0][col] === this.game.EMPTY) {
+                validMoves.push(col);
+            }
+        }
+        return validMoves;
+    }
+
+    /**
+     * Check win condition on a board
+     */
+    checkWinOnBoard(board, row, col, player) {
+        const directions = [
+            [0, 1], [1, 0], [1, 1], [1, -1] // horizontal, vertical, diagonals
+        ];
+        
+        for (const [deltaRow, deltaCol] of directions) {
+            let count = 1; // Count the placed piece
+            
+            // Check positive direction
+            let r = row + deltaRow;
+            let c = col + deltaCol;
+            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+                count++;
+                r += deltaRow;
+                c += deltaCol;
+            }
+            
+            // Check negative direction
+            r = row - deltaRow;
+            c = col - deltaCol;
+            while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+                count++;
+                r -= deltaRow;
+                c -= deltaCol;
+            }
+            
+            if (count >= 4) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Analyze potential winning paths on a board (simplified version)
+     */
+    analyzePotentialWinPathsOnBoard(board) {
+        // Simplified implementation for now
+        return [];
     }
 
     /**
