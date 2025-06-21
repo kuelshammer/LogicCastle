@@ -472,3 +472,14 @@ class PerformanceAssertions {
         testFn();
     }
 }
+
+// Export for Node.js environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { 
+        TestSuite, 
+        createMockGameState, 
+        createEmptyBoard,
+        TestEnvironment,
+        PerformanceAssertions
+    };
+}

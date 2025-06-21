@@ -113,19 +113,21 @@ function runBackendGameCoreTests(testSuite) {
     testSuite.test('Backend-Game-Core', 'Diagonal win detection', () => {
         const game = new Connect4Game();
         
-        // Create ascending diagonal win pattern: (5,0), (4,1), (3,2), (2,3)
-        // Move sequence to build this pattern carefully
-        game.makeMove(0); // P1 at (5,0)
-        game.makeMove(1); // P2 at (5,1)
-        game.makeMove(1); // P1 at (4,1)
-        game.makeMove(2); // P2 at (5,2)
-        game.makeMove(2); // P1 at (4,2)
-        game.makeMove(3); // P2 at (5,3)
-        game.makeMove(2); // P1 at (3,2)
-        game.makeMove(3); // P2 at (4,3)
-        game.makeMove(3); // P1 at (3,3)
-        game.makeMove(4); // P2 at (5,4)
-        const result = game.makeMove(3); // P1 at (2,3) - completes diagonal (5,0), (4,1), (3,2), (2,3)
+        // Set up diagonal manually to avoid complex move sequences
+        // Create diagonal pattern: (5,0), (4,1), (3,2), and test (2,3) 
+        game.board[5][0] = game.PLAYER1; // Bottom-left
+        game.board[4][1] = game.PLAYER1; // One up, one right
+        game.board[3][2] = game.PLAYER1; // Two up, two right
+        
+        // Fill column 3 up to row 3 so next piece lands at (2,3)
+        game.board[5][3] = game.PLAYER2; // Bottom support
+        game.board[4][3] = game.PLAYER2; // Middle support  
+        game.board[3][3] = game.PLAYER2; // Top support
+        
+        game.currentPlayer = game.PLAYER1; // Ensure it's P1's turn
+        
+        // Now make the winning move
+        const result = game.makeMove(3); // Should place at (2,3) and complete diagonal
         
         testSuite.assertTruthy(result.gameWon, 'Should detect diagonal win');
         testSuite.assertEqual(result.winner, game.PLAYER1, 'Player 1 should win');
@@ -191,8 +193,8 @@ function runBackendGameCoreTests(testSuite) {
     testSuite.test('Backend-Game-Core', 'Helper methods', () => {
         const game = new Connect4Game();
         
-        testSuite.assertEqual(game.getPlayerName(game.PLAYER1), 'Spieler 1 (Rot)', 'Should return correct player 1 name');
-        testSuite.assertEqual(game.getPlayerName(game.PLAYER2), 'Spieler 2 (Gelb)', 'Should return correct player 2 name');
+        testSuite.assertEqual(game.getPlayerName(game.PLAYER1), '🔴', 'Should return correct player 1 name');
+        testSuite.assertEqual(game.getPlayerName(game.PLAYER2), '🟡', 'Should return correct player 2 name');
         testSuite.assertEqual(game.getPlayerColorClass(game.PLAYER1), 'red', 'Should return correct player 1 color');
         testSuite.assertEqual(game.getPlayerColorClass(game.PLAYER2), 'yellow', 'Should return correct player 2 color');
         

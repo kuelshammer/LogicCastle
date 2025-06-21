@@ -137,7 +137,8 @@ class Connect4Game {
         this.emit('moveMade', move);
 
         // Check for win
-        if (this.checkWin(row, col)) {
+        const wonGame = this.checkWin(row, col);
+        if (wonGame) {
             this.gameOver = true;
             this.winner = this.currentPlayer;
 
@@ -395,9 +396,9 @@ class Connect4Game {
      */
     getPlayerName(player) {
         if (player === this.PLAYER1) {
-            return 'Spieler 1 (Rot)';
+            return '🔴';
         } else if (player === this.PLAYER2) {
-            return 'Spieler 2 (Gelb)';
+            return '🟡';
         }
         return 'Unknown Player';
     }

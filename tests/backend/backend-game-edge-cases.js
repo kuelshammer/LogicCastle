@@ -100,30 +100,24 @@ function runBackendGameEdgeCasesTests(testSuite) {
     testSuite.test('Backend-Game-Edge-Cases', 'Horizontal win at top row', () => {
         const game = new Connect4Game();
         
-        // Fill columns 0,1,2,3 to height 5 (leaving top row empty)
-        // Use careful alternating to avoid accidental wins
-        for (let i = 0; i < 5; i++) {
-            game.makeMove(0); // P1
-            game.makeMove(1); // P2  
-            game.makeMove(1); // P1
-            game.makeMove(2); // P2
-            game.makeMove(2); // P1
-            game.makeMove(3); // P2
-            game.makeMove(3); // P1
-            game.makeMove(0); // P2
+        // Set up board manually: fill columns 0,1,2,3 to row 1 so top row is reachable
+        // Bottom rows (5,4,3,2,1) filled with alternating pattern to avoid wins
+        for (let row = 5; row >= 1; row--) {
+            game.board[row][0] = (row % 2 === 0) ? game.PLAYER1 : game.PLAYER2;
+            game.board[row][1] = (row % 2 === 1) ? game.PLAYER1 : game.PLAYER2;
+            game.board[row][2] = (row % 2 === 0) ? game.PLAYER1 : game.PLAYER2;
+            game.board[row][3] = (row % 2 === 1) ? game.PLAYER1 : game.PLAYER2;
         }
         
-        // Check game is still ongoing
-        testSuite.assertFalsy(game.gameOver, 'Game should still be ongoing after setup');
+        // Set up 3 pieces of the horizontal win in top row
+        game.board[0][0] = game.PLAYER1;
+        game.board[0][1] = game.PLAYER1;
+        game.board[0][2] = game.PLAYER1;
         
-        // Now create horizontal win in top row (row 0): P1 in cols 0,1,2,3
-        game.makeMove(0); // P1 at (0,0)  
-        game.makeMove(4); // P2 elsewhere
-        game.makeMove(1); // P1 at (0,1)
-        game.makeMove(4); // P2 elsewhere  
-        game.makeMove(2); // P1 at (0,2)
-        game.makeMove(4); // P2 elsewhere
-        const result = game.makeMove(3); // P1 at (0,3) - should complete horizontal win
+        game.currentPlayer = game.PLAYER1; // Ensure it's P1's turn
+        
+        // Make the winning move
+        const result = game.makeMove(3); // Should place at (0,3) and complete horizontal win
         
         testSuite.assertTruthy(result.gameWon, 'Should detect horizontal win at top row');
         testSuite.assertEqual(result.winner, game.PLAYER1, 'Player 1 should win');
