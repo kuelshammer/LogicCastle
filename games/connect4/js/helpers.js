@@ -903,6 +903,323 @@ class Connect4Helpers {
         return threats;
     }
 
+    // ========== ADVANCED STRATEGIC ANALYSIS ==========
+
+    /**
+     * Analyze Even/Odd threats according to Connect 4 theory
+     * Even threats: rows 2, 4, 6 (0-indexed: 1, 3, 5)
+     * Odd threats: rows 1, 3, 5 (0-indexed: 0, 2, 4)
+     */
+    analyzeEvenOddThreats() {
+        const analysis = {
+            player: { odd: [], even: [] },
+            opponent: { odd: [], even: [] },
+            parity: 'unknown'
+        };
+
+        const currentPlayer = this.game.currentPlayer;
+        const opponent = currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
+
+        // Analyze all possible threats on the board
+        for (let col = 0; col < this.game.COLS; col++) {
+            const threatInfo = this.analyzeColumnThreats(col, currentPlayer);
+            const opponentThreatInfo = this.analyzeColumnThreats(col, opponent);
+
+            // Categorize threats by even/odd
+            threatInfo.forEach(threat => {
+                if (threat.row % 2 === 0) {
+                    analysis.player.odd.push({...threat, column: col});
+                } else {
+                    analysis.player.even.push({...threat, column: col});
+                }
+            });
+
+            opponentThreatInfo.forEach(threat => {
+                if (threat.row % 2 === 0) {
+                    analysis.opponent.odd.push({...threat, column: col});
+                } else {
+                    analysis.opponent.even.push({...threat, column: col});
+                }
+            });
+        }
+
+        // Determine parity advantage
+        const playerOddCount = analysis.player.odd.length;
+        const playerEvenCount = analysis.player.even.length;
+        const opponentOddCount = analysis.opponent.odd.length;
+        const opponentEvenCount = analysis.opponent.even.length;
+
+        if (playerOddCount >= 3) {
+            analysis.parity = 'player_winning_odd';
+        } else if (opponentOddCount >= 3) {
+            analysis.parity = 'opponent_winning_odd';
+        } else if (playerEvenCount > 0 && opponentOddCount === 0) {
+            analysis.parity = 'player_even_advantage';
+        } else if (opponentEvenCount > 0 && playerOddCount === 0) {
+            analysis.parity = 'opponent_even_advantage';
+        }
+
+        return analysis;
+    }
+
+    /**
+     * Count connected pieces in a specific direction from a position
+     */
+    countConnectedPieces(row, col, deltaRow, deltaCol, player) {
+        let count = 1; // Count the piece at the starting position
+        
+        // Check positive direction
+        let r = row + deltaRow;
+        let c = col + deltaCol;
+        while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
+               this.game.board[r][c] === player) {
+            count++;
+            r += deltaRow;
+            c += deltaCol;
+        }
+        
+        // Check negative direction  
+        r = row - deltaRow;
+        c = col - deltaCol;
+        while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
+               this.game.board[r][c] === player) {
+            count++;
+            r -= deltaRow;
+            c -= deltaCol;
+        }
+        
+        return count;
+    }
+
+    /**
+     * Analyze potential threats in a specific column
+     */
+    analyzeColumnThreats(col, player) {
+        const threats = [];
+        
+        for (let row = 0; row < this.game.ROWS; row++) {
+            if (this.game.board[row][col] === this.game.EMPTY) {
+                // Check if placing a piece here would create a threat
+                const threatLevel = this.evaluateThreatAtPosition(row, col, player);
+                if (threatLevel > 0) {
+                    threats.push({
+                        row: row,
+                        level: threatLevel,
+                        type: row % 2 === 0 ? 'odd' : 'even'
+                    });
+                }
+            }
+        }
+        
+        return threats;
+    }
+
+    /**
+     * Evaluate threat level at a specific position
+     */
+    evaluateThreatAtPosition(row, col, player) {
+        // Temporarily place piece
+        this.game.board[row][col] = player;
+        
+        let threatLevel = 0;
+        const directions = [
+            [0, 1], [1, 0], [1, 1], [1, -1] // horizontal, vertical, diagonals
+        ];
+        
+        for (const [deltaRow, deltaCol] of directions) {
+            const lineLength = this.countConnectedPieces(row, col, deltaRow, deltaCol, player);
+            if (lineLength === 3) {
+                threatLevel = 3; // Immediate win threat
+                break;
+            } else if (lineLength === 2) {
+                threatLevel = Math.max(threatLevel, 2); // Strong threat
+            }
+        }
+        
+        // Remove piece
+        this.game.board[row][col] = this.game.EMPTY;
+        
+        return threatLevel;
+    }
+
+    /**
+     * Detect Zugzwang situations (opponent forced to make bad moves)
+     */
+    detectZugzwang() {
+        const validMoves = this.game.getValidMoves();
+        const opponent = this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
+        
+        let zugzwangMoves = [];
+        
+        for (const col of validMoves) {
+            // Simulate opponent playing in this column
+            const result = this.game.simulateMove(col);
+            if (!result.success) continue;
+            
+            // Temporarily switch to opponent
+            const originalPlayer = this.game.currentPlayer;
+            this.game.currentPlayer = opponent;
+            this.game.makeMove(col);
+            
+            // Check if we now have winning opportunities
+            const ourWinningMoves = this.findWinningMoves(originalPlayer);
+            const opponentCanBlock = this.canOpponentBlockAllThreats(ourWinningMoves, opponent);
+            
+            // Undo move
+            this.game.undoLastMove();
+            this.game.currentPlayer = originalPlayer;
+            
+            if (ourWinningMoves.length > 0 && !opponentCanBlock) {
+                zugzwangMoves.push({
+                    column: col,
+                    winningMoves: ourWinningMoves,
+                    description: 'Forces opponent into losing position'
+                });
+            }
+        }
+        
+        return zugzwangMoves;
+    }
+
+    /**
+     * Find all winning moves for a player
+     */
+    findWinningMoves(player) {
+        const winningMoves = [];
+        const validMoves = this.game.getValidMoves();
+        
+        for (const col of validMoves) {
+            const result = this.game.simulateMove(col);
+            if (result.success && result.wouldWin) {
+                winningMoves.push(col);
+            }
+        }
+        
+        return winningMoves;
+    }
+
+    /**
+     * Check if opponent can block all our threats
+     */
+    canOpponentBlockAllThreats(threats, opponent) {
+        if (threats.length === 0) return true;
+        if (threats.length === 1) return true; // Can always block one threat
+        
+        // If we have multiple threats, opponent cannot block all
+        return false;
+    }
+
+    /**
+     * Detect and plan fork opportunities (multiple winning threats)
+     */
+    analyzeForkOpportunities() {
+        const forks = [];
+        const validMoves = this.game.getValidMoves();
+        
+        for (const col of validMoves) {
+            const forkPotential = this.evaluateForkPotential(col);
+            if (forkPotential.threats >= 2) {
+                forks.push({
+                    column: col,
+                    threats: forkPotential.threats,
+                    winPaths: forkPotential.paths,
+                    priority: forkPotential.threats >= 3 ? 'critical' : 'high'
+                });
+            }
+        }
+        
+        return forks.sort((a, b) => b.threats - a.threats);
+    }
+
+    /**
+     * Evaluate fork potential for a move
+     */
+    evaluateForkPotential(col) {
+        const result = this.game.simulateMove(col);
+        if (!result.success) return { threats: 0, paths: [] };
+        
+        // Make the move temporarily
+        this.game.makeMove(col);
+        
+        // Count how many winning moves we would have
+        const winningMoves = this.findWinningMoves(this.game.currentPlayer);
+        const paths = this.analyzePotentialWinPaths();
+        
+        // Undo the move
+        this.game.undoLastMove();
+        
+        return {
+            threats: winningMoves.length,
+            paths: paths
+        };
+    }
+
+    /**
+     * Analyze potential winning paths from current position
+     */
+    analyzePotentialWinPaths() {
+        const paths = [];
+        const validMoves = this.game.getValidMoves();
+        
+        for (const col of validMoves) {
+            const path = this.tracePotentialWinPath(col);
+            if (path.length > 0) {
+                paths.push({
+                    startColumn: col,
+                    sequence: path,
+                    length: path.length
+                });
+            }
+        }
+        
+        return paths;
+    }
+
+    /**
+     * Trace a potential winning path from a starting move
+     */
+    tracePotentialWinPath(startCol) {
+        // This is a simplified version - in practice would use deeper analysis
+        const row = this.getLowestEmptyRow(this.game.board, startCol);
+        if (row === -1) return [];
+        
+        // Check if this move leads to immediate tactical advantages
+        const threats = this.countThreatsAfterMove(startCol);
+        
+        return threats >= 2 ? [startCol] : [];
+    }
+
+    /**
+     * Enhanced strategic move evaluation combining all analysis
+     */
+    getEnhancedStrategicEvaluation() {
+        const evaluation = {
+            evenOddAnalysis: this.analyzeEvenOddThreats(),
+            zugzwangOpportunities: this.detectZugzwang(),
+            forkOpportunities: this.analyzeForkOpportunities(),
+            recommendedMove: null,
+            confidence: 'low'
+        };
+
+        // Determine best move based on combined analysis
+        if (evaluation.forkOpportunities.length > 0) {
+            evaluation.recommendedMove = evaluation.forkOpportunities[0].column;
+            evaluation.confidence = 'high';
+        } else if (evaluation.zugzwangOpportunities.length > 0) {
+            evaluation.recommendedMove = evaluation.zugzwangOpportunities[0].column;
+            evaluation.confidence = 'medium';
+        } else if (evaluation.evenOddAnalysis.parity === 'player_winning_odd') {
+            // Prefer odd threats
+            const oddThreats = evaluation.evenOddAnalysis.player.odd;
+            if (oddThreats.length > 0) {
+                evaluation.recommendedMove = oddThreats[0].column;
+                evaluation.confidence = 'medium';
+            }
+        }
+
+        return evaluation;
+    }
+
     /**
      * Event system methods for UI communication
      */

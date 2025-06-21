@@ -433,8 +433,22 @@ class Connect4UI {
 
         // Initialize AI if not done yet
         if (!this.ai) {
-            const difficulty = this.gameMode === 'vs-bot-smart' ? 'smart-random' : 'easy';
+            let difficulty;
+            switch (this.gameMode) {
+                case 'vs-bot-easy':
+                    difficulty = 'offensiv-gemischt'; // Einfacher Bot = Offensiv-Gemischt
+                    break;
+                case 'vs-bot-strong':
+                    difficulty = 'enhanced-smart'; // Starker Bot = Enhanced Smart Bot
+                    break;
+                case 'vs-bot-smart': // Legacy mode compatibility
+                    difficulty = 'smart-random';
+                    break;
+                default:
+                    difficulty = 'easy';
+            }
             this.ai = new Connect4AI(difficulty);
+            console.log(`🤖 AI initialized with difficulty: ${difficulty}`);
         }
 
         // Use AI to get best move, pass helpers for smart-random mode
@@ -471,8 +485,8 @@ class Connect4UI {
      */
     updateGameModeUI() {
         // Update help controls visibility and settings based on mode
-        if (this.gameMode === 'vs-bot-smart') {
-            // For bot mode, hide Yellow (Player 2) help controls since bot manages its own help
+        if (this.isAIMode()) {
+            // For any bot mode, hide Yellow (Player 2) help controls since bot manages its own help
             const yellowRow = this.helpPlayer2Level0.closest('tr');
             if (yellowRow) {
                 yellowRow.style.display = 'none';
@@ -482,6 +496,16 @@ class Connect4UI {
             this.playerHelpEnabled.yellow.level0 = true;
             this.playerHelpEnabled.yellow.level1 = true;
             this.playerHelpEnabled.yellow.level2 = true;
+            
+            // Update player names based on bot type
+            if (this.gameMode === 'vs-bot-easy') {
+                this.game.playerConfig.yellowPlayer = '🤖 Einfacher Bot';
+            } else if (this.gameMode === 'vs-bot-strong') {
+                this.game.playerConfig.yellowPlayer = '🚀 Starker Bot';
+            } else if (this.gameMode === 'vs-bot-smart') {
+                this.game.playerConfig.yellowPlayer = '🟡 Smart Bot';
+            }
+            this.game.playerConfig.redPlayer = '🔴 Du';
         } else {
             // For two-player mode, show all help controls
             const redRow = this.helpPlayer1Level0.closest('tr');
@@ -492,6 +516,10 @@ class Connect4UI {
             if (yellowRow) {
                 yellowRow.style.display = '';
             }
+            
+            // Reset player names for two-player mode
+            this.game.playerConfig.redPlayer = '🔴';
+            this.game.playerConfig.yellowPlayer = '🟡';
         }
 
         this.updateHelpers();
@@ -691,8 +719,8 @@ class Connect4UI {
      * Get display name for player based on current game mode
      */
     getPlayerDisplayName(player) {
-        if (this.gameMode === 'vs-bot-smart') {
-            return player === this.game.PLAYER1 ? this.game.getPlayerName(player) : this.game.getPlayerName(player) + '🤖';
+        if (this.isAIMode()) {
+            return this.game.getPlayerName(player);
         } else {
             return this.game.getPlayerName(player);
         }

@@ -39,6 +39,8 @@ class Connect4AI {
                 return this.getOffensiveMixedMove(game, helpers);
             case 'defensiv-gemischt':
                 return this.getDefensiveMixedMove(game, helpers);
+            case 'enhanced-smart':
+                return this.getEnhancedSmartMove(game, helpers);
             case 'medium':
                 return this.getRuleBasedMove(game);
             case 'hard':
@@ -1139,5 +1141,152 @@ class Connect4AI {
         }
 
         return false;
+    }
+
+    /**
+     * Enhanced Smart AI: Uses advanced strategic analysis (Even/Odd, Zugzwang, Forks)
+     * Priority: Win > Block > Fork > Zugzwang > Even/Odd Strategy > Safe Random
+     */
+    getEnhancedSmartMove(game, helpers = null) {
+        const validMoves = game.getValidMoves();
+        
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        // PRIORITY 0: If board is empty, play center column
+        const totalMoves = game.moveHistory.length;
+        if (totalMoves === 0) {
+            console.log('🚀 Enhanced Bot: Opening with center column');
+            return 3; // Center column (0-indexed)
+        }
+
+        // Use helpers system for basic analysis (win, block, trap avoidance)
+        if (helpers) {
+            // Store original helpers state
+            const wasEnabled = helpers.enabled;
+            const wasLevel = helpers.helpLevel;
+
+            // PRIORITY 1: Check Level 0 - Own winning opportunities
+            helpers.setEnabled(true, 0);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🚀 Enhanced Bot: WINNING at columns', helpers.requiredMoves);
+                const winningMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                return winningMoves[randomIndex];
+            }
+
+            // PRIORITY 2: Check Level 1 - Block opponent's threats
+            helpers.setEnabled(true, 1);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🚀 Enhanced Bot: BLOCKING threat at columns', helpers.requiredMoves);
+                const blockingMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * blockingMoves.length);
+                return blockingMoves[randomIndex];
+            }
+
+            // Restore original helpers state for advanced analysis
+            helpers.setEnabled(wasEnabled, wasLevel);
+        }
+
+        // PRIORITY 3: Advanced Strategic Analysis using new functions
+        if (helpers) {
+            console.log('🚀 Enhanced Bot: Running advanced strategic analysis...');
+            const strategicEval = helpers.getEnhancedStrategicEvaluation();
+            
+            console.log('🚀 Strategic Analysis:', {
+                evenOdd: strategicEval.evenOddAnalysis.parity,
+                forks: strategicEval.forkOpportunities.length,
+                zugzwang: strategicEval.zugzwangOpportunities.length,
+                recommended: strategicEval.recommendedMove,
+                confidence: strategicEval.confidence
+            });
+
+            // PRIORITY 3A: Fork opportunities (multiple winning threats)
+            if (strategicEval.forkOpportunities.length > 0) {
+                const bestFork = strategicEval.forkOpportunities[0];
+                console.log('🚀 Enhanced Bot: FORK OPPORTUNITY at column', bestFork.column, 'with', bestFork.threats, 'threats');
+                return bestFork.column;
+            }
+
+            // PRIORITY 3B: Zugzwang opportunities (force opponent into bad position)
+            if (strategicEval.zugzwangOpportunities.length > 0) {
+                const zugzwangMove = strategicEval.zugzwangOpportunities[0];
+                console.log('🚀 Enhanced Bot: ZUGZWANG opportunity at column', zugzwangMove.column);
+                return zugzwangMove.column;
+            }
+
+            // PRIORITY 3C: Even/Odd threat strategy
+            const evenOddAnalysis = strategicEval.evenOddAnalysis;
+            if (evenOddAnalysis.parity === 'player_winning_odd' && evenOddAnalysis.player.odd.length > 0) {
+                const oddThreat = evenOddAnalysis.player.odd[0];
+                console.log('🚀 Enhanced Bot: ODD THREAT strategy at column', oddThreat.column);
+                return oddThreat.column;
+            }
+
+            if (evenOddAnalysis.parity === 'player_even_advantage' && evenOddAnalysis.player.even.length > 0) {
+                const evenThreat = evenOddAnalysis.player.even[0];
+                console.log('🚀 Enhanced Bot: EVEN THREAT strategy at column', evenThreat.column);
+                return evenThreat.column;
+            }
+
+            // PRIORITY 4: Check Level 2 - Avoid traps (safe moves only)
+            helpers.setEnabled(true, 2);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🚀 Enhanced Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
+                const safeMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * safeMoves.length);
+                return safeMoves[randomIndex];
+            }
+
+            // Restore original helpers state
+            helpers.setEnabled(wasEnabled, wasLevel);
+        }
+
+        // PRIORITY 5: Fallback to weighted center-preferring random
+        console.log('🚀 Enhanced Bot: No strategic opportunities found, using weighted center preference');
+        return this.getWeightedCenterMove(game);
+    }
+
+    /**
+     * Get a move with preference for center columns
+     */
+    getWeightedCenterMove(game) {
+        const validMoves = game.getValidMoves();
+        
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        // Weight moves by distance from center (column 3)
+        const weights = validMoves.map(col => {
+            const distanceFromCenter = Math.abs(col - 3);
+            const weight = 7 - distanceFromCenter; // Center gets weight 7, edges get weight 4
+            return { column: col, weight: weight };
+        });
+
+        // Weighted random selection
+        const totalWeight = weights.reduce((sum, move) => sum + move.weight, 0);
+        let randomValue = Math.random() * totalWeight;
+
+        for (const move of weights) {
+            randomValue -= move.weight;
+            if (randomValue <= 0) {
+                console.log(`🚀 Enhanced Bot: Weighted center move - column ${move.column + 1} (weight ${move.weight})`);
+                return move.column;
+            }
+        }
+
+        // Fallback
+        return validMoves[Math.floor(Math.random() * validMoves.length)];
     }
 }

@@ -466,4 +466,28 @@ class Connect4Game {
         }
         return '';
     }
+
+    /**
+     * Undo the last move (for strategic analysis)
+     */
+    undoLastMove() {
+        if (this.moveHistory.length === 0) {
+            return false; // No moves to undo
+        }
+
+        const lastMove = this.moveHistory.pop();
+        
+        // Remove the piece from the board
+        this.board[lastMove.row][lastMove.col] = this.EMPTY;
+        
+        // Switch back to previous player
+        this.currentPlayer = lastMove.player;
+        
+        // Reset game state if it was over
+        this.gameOver = false;
+        this.winner = null;
+        this.winningCells = [];
+        
+        return true;
+    }
 }
