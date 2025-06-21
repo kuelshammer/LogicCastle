@@ -7,6 +7,10 @@
     "test": "node scripts/run-tests.js",
     "test:headless": "node scripts/run-all-tests-headless.js",
     "test:simple": "node scripts/run-tests-simple.js",
+    "test:vitest": "vitest",
+    "test:vitest:run": "vitest run",
+    "test:vitest:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "test:comprehensive": "node scripts/run-all-tests-headless.js",
     "test:unit": "node scripts/run-all-tests-headless.js --category=backend,ai-strategy",
     "test:integration": "node scripts/run-all-tests-headless.js --category=integration,ui-components",
@@ -17,8 +21,8 @@
     "test:bot-full": "node tests/comprehensive-bot-tests.js",
     "test:levels": "node tests/validate-helper-levels.js",
     "test:watch": "nodemon --exec 'npm test' --watch games/ --ext js,html,css",
-    "test:ci": "CI=true CI_TIMEOUT_MULTIPLIER=3 node scripts/run-all-tests-headless.js",
-    "test:ci-fast": "CI=true CI_TIMEOUT_MULTIPLIER=2 npm run test:unit",
+    "test:ci": "npm run test:vitest:run && npm run test:simple",
+    "test:ci-fast": "npm run test:vitest:run",
     "test:ci-slow": "CI=true CI_TIMEOUT_MULTIPLIER=5 npm run test:integration",
     "lint": "eslint games/**/*.js --fix",
     "lint:check": "eslint games/**/*.js",
@@ -33,14 +37,18 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
-    "prettier": "^3.1.1",
-    "http-server": "^14.1.1",
-    "puppeteer": "^21.11.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "concurrently": "^8.2.2",
-    "nodemon": "^3.0.2",
+    "eslint": "^8.57.0",
+    "http-server": "^14.1.1",
     "husky": "^8.0.3",
-    "lint-staged": "^15.2.0"
+    "jsdom": "^26.1.0",
+    "lint-staged": "^15.2.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^3.1.1",
+    "puppeteer": "^21.11.0",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "games/**/*.js": [
@@ -58,7 +66,7 @@
   "keywords": [
     "games",
     "connect4",
-    "trio", 
+    "trio",
     "gobang",
     "javascript",
     "browser-games"

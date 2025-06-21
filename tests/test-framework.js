@@ -60,6 +60,18 @@ class TestSuite {
     }
     
     /**
+     * Assert that two values are not equal
+     * @param {*} actual - Actual value
+     * @param {*} expected - Expected value that should be different
+     * @param {string} message - Error message if assertion fails
+     */
+    assertNotEqual(actual, expected, message = `Expected ${actual} to not equal ${expected}`) {
+        if (actual === expected) {
+            throw new Error(message);
+        }
+    }
+    
+    /**
      * Assert that two arrays are equal
      * @param {Array} actual - Actual array
      * @param {Array} expected - Expected array

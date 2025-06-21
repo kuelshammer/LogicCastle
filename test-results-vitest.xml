@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="12" failures="0" errors="0" time="0.026060416">
+    <testsuite name="tests/vitest/simple-backend.vitest.js" timestamp="2025-06-21T12:49:14.315Z" hostname="Mac" tests="12" failures="0" errors="0" skipped="0" time="0.026060416">
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should perform basic calculations" time="0.006560334">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should work with DOM elements" time="0.001691458">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should handle async operations" time="0.011909917">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should provide performance timing" time="0.001015125">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle array operations" time="0.000964">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle object operations" time="0.000395875">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle deep equality" time="0.000438625">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Error Handling Tests &gt; should catch thrown errors" time="0.000478417">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Error Handling Tests &gt; should handle function calls that should not throw" time="0.000519583">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate board operations" time="0.000541583">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate win detection logic" time="0.000359917">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate valid moves checking" time="0.00045575">
+        </testcase>
+    </testsuite>
+</testsuites>
