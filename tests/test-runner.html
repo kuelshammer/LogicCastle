@@ -203,6 +203,21 @@
     <script src="helper-system/helper-system-performance.js"></script>
     <script src="helper-system/helper-system-regression.js"></script>
     
+    <!-- UI Component tests -->
+    <script src="ui-components/ui-component-board.js"></script>
+    <script src="ui-components/ui-component-controls.js"></script>
+    <script src="ui-components/ui-component-interactions.js"></script>
+    <script src="ui-components/ui-component-visual.js"></script>
+    
+    <!-- Integration tests -->
+    <script src="integration/integration-game-flow.js"></script>
+    <script src="integration/integration-ai-ui.js"></script>
+    <script src="integration/integration-helpers-ui.js"></script>
+    <script src="integration/integration-cross-component.js"></script>
+    
+    <!-- Performance tests -->
+    <script src="performance/performance-benchmarks.js"></script>
+    
     <!-- Regression tests -->
     <script src="regression/regression-animation-chaos.js"></script>
     <script src="regression/regression-state-corruption.js"></script>
@@ -235,6 +250,21 @@
             runHelperSystemEventsTests(testSuite);
             runHelperSystemPerformanceTests(testSuite);
             runHelperSystemRegressionTests(testSuite);
+            
+            // UI Component Tests
+            runUIComponentBoardTests(testSuite);
+            runUIComponentControlsTests(testSuite);
+            runUIComponentInteractionsTests(testSuite);
+            runUIComponentVisualTests(testSuite);
+            
+            // Integration Tests
+            runIntegrationGameFlowTests(testSuite);
+            runIntegrationAIUITests(testSuite);
+            runIntegrationHelpersUITests(testSuite);
+            runIntegrationCrossComponentTests(testSuite);
+            
+            // Performance Tests
+            runPerformanceBenchmarksTests(testSuite);
             
             // Regression Tests
             runRegressionAnimationChaosTests(testSuite);
