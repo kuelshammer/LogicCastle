@@ -625,6 +625,7 @@ class Connect4Helpers {
 
     /**
      * Check if opponent has built a potential trap
+     * Uses simulation instead of modifying game state
      */
     hasOpponentBuiltTrap() {
         const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
@@ -633,20 +634,13 @@ class Connect4Helpers {
         // Look for opponent patterns that could become dangerous
         let opponentThreats = 0;
 
-        // Switch to opponent perspective temporarily
-        const originalPlayer = this.game.currentPlayer;
-        this.game.currentPlayer = opponent;
-
         const validMoves = this.game.getValidMoves();
         for (const col of validMoves) {
-            const threats = this.countThreatsAfterMove(col);
+            const threats = this.countThreatsForPlayer(col, opponent);
             if (threats >= 2) {
                 opponentThreats++;
             }
         }
-
-        // Restore original player
-        this.game.currentPlayer = originalPlayer;
 
         return opponentThreats > 0;
     }
@@ -826,18 +820,20 @@ class Connect4Helpers {
             return analysis;
         }
 
-        // Check if it blocks opponent
+        // Check if it blocks opponent using board simulation
         const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
             this.game.PLAYER2 : this.game.PLAYER1;
 
-        const originalPlayer = this.game.currentPlayer;
-        this.game.currentPlayer = opponent;
-        const opponentResult = this.game.simulateMove(col);
-        this.game.currentPlayer = originalPlayer;
-
-        if (opponentResult.success && opponentResult.wouldWin) {
-            analysis.blocksOpponent = true;
-            analysis.strategicValue = 'good';
+        // Simulate opponent move on board copy
+        const boardCopy = this.copyBoard(this.game.board);
+        const opponentRow = this.getLowestEmptyRow(boardCopy, col);
+        
+        if (opponentRow !== -1) {
+            boardCopy[opponentRow][col] = opponent;
+            if (this.checkWinOnBoard(boardCopy, opponentRow, col, opponent)) {
+                analysis.blocksOpponent = true;
+                analysis.strategicValue = 'good';
+            }
         }
 
         // Check threats created
@@ -883,20 +879,44 @@ class Connect4Helpers {
      * @returns {number} - Number of threats created
      */
     countThreatsAfterMove(col) {
-        // Simulate the move
-        const result = this.game.simulateMove(col);
-        if (!result.success) {
-            return 0; // Invalid move
-        }
+        return this.countThreatsForPlayer(col, this.game.currentPlayer);
+    }
 
-        // Count how many ways current player can win from this new position
+    /**
+     * Count threats after making a specific move for a specific player
+     * @param {number} col - Column to analyze
+     * @param {number} player - Player to analyze threats for
+     * @returns {number} - Number of threats created
+     */
+    countThreatsForPlayer(col, player) {
+        // Create board copy for safe simulation
+        const boardCopy = this.copyBoard(this.game.board);
+        
+        // Simulate the move on copy
+        const row = this.getLowestEmptyRow(boardCopy, col);
+        if (row === -1) {
+            return 0; // Column full
+        }
+        
+        boardCopy[row][col] = player;
+        
+        // Count how many ways the player can win from this new position
         let threats = 0;
-        const validMoves = this.game.getValidMoves();
+        const validMoves = this.getValidMovesOnBoard(boardCopy);
 
         for (const checkCol of validMoves) {
-            const checkResult = this.game.simulateMove(checkCol);
-            if (checkResult.success && checkResult.wouldWin) {
-                threats++;
+            const checkRow = this.getLowestEmptyRow(boardCopy, checkCol);
+            if (checkRow !== -1) {
+                // Temporarily place piece
+                boardCopy[checkRow][checkCol] = player;
+                
+                // Check for win
+                if (this.checkWinOnBoard(boardCopy, checkRow, checkCol, player)) {
+                    threats++;
+                }
+                
+                // Remove piece
+                boardCopy[checkRow][checkCol] = this.game.EMPTY;
             }
         }
 
@@ -966,13 +986,20 @@ class Connect4Helpers {
      * Count connected pieces in a specific direction from a position
      */
     countConnectedPieces(row, col, deltaRow, deltaCol, player) {
+        return this.countConnectedPiecesOnBoard(this.game.board, row, col, deltaRow, deltaCol, player);
+    }
+
+    /**
+     * Count connected pieces on a specific board
+     */
+    countConnectedPiecesOnBoard(board, row, col, deltaRow, deltaCol, player) {
         let count = 1; // Count the piece at the starting position
         
         // Check positive direction
         let r = row + deltaRow;
         let c = col + deltaCol;
         while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
-               this.game.board[r][c] === player) {
+               board[r][c] === player) {
             count++;
             r += deltaRow;
             c += deltaCol;
@@ -982,7 +1009,7 @@ class Connect4Helpers {
         r = row - deltaRow;
         c = col - deltaCol;
         while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && 
-               this.game.board[r][c] === player) {
+               board[r][c] === player) {
             count++;
             r -= deltaRow;
             c -= deltaCol;
@@ -1016,10 +1043,14 @@ class Connect4Helpers {
 
     /**
      * Evaluate threat level at a specific position
+     * Uses board copy to avoid corrupting game state
      */
     evaluateThreatAtPosition(row, col, player) {
-        // Temporarily place piece
-        this.game.board[row][col] = player;
+        // Create board copy for safe analysis
+        const boardCopy = this.copyBoard(this.game.board);
+        
+        // Place piece on copy
+        boardCopy[row][col] = player;
         
         let threatLevel = 0;
         const directions = [
@@ -1027,7 +1058,7 @@ class Connect4Helpers {
         ];
         
         for (const [deltaRow, deltaCol] of directions) {
-            const lineLength = this.countConnectedPieces(row, col, deltaRow, deltaCol, player);
+            const lineLength = this.countConnectedPiecesOnBoard(boardCopy, row, col, deltaRow, deltaCol, player);
             if (lineLength === 3) {
                 threatLevel = 3; // Immediate win threat
                 break;
@@ -1035,9 +1066,6 @@ class Connect4Helpers {
                 threatLevel = Math.max(threatLevel, 2); // Strong threat
             }
         }
-        
-        // Remove piece
-        this.game.board[row][col] = this.game.EMPTY;
         
         return threatLevel;
     }
@@ -1276,6 +1304,18 @@ class Connect4Helpers {
     analyzePotentialWinPathsOnBoard(board) {
         // Simplified implementation for now
         return [];
+    }
+
+    /**
+     * Get lowest empty row in a column on a specific board
+     */
+    getLowestEmptyRow(board, col) {
+        for (let row = this.game.ROWS - 1; row >= 0; row--) {
+            if (board[row][col] === this.game.EMPTY) {
+                return row;
+            }
+        }
+        return -1; // Column full
     }
 
     /**

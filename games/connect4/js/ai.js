@@ -869,17 +869,23 @@ class Connect4AI {
 
     findBlockingMove(game) {
         const opponent = game.currentPlayer === game.PLAYER1 ? game.PLAYER2 : game.PLAYER1;
+        const validMoves = game.getValidMoves();
 
-        // Temporarily switch current player to check opponent's winning moves
-        const originalPlayer = game.currentPlayer;
-        game.currentPlayer = opponent;
+        // Check each valid move to see if it blocks an opponent win
+        for (const col of validMoves) {
+            // Simulate opponent move
+            const boardCopy = this.copyBoard(game.board);
+            const row = this.getLowestEmptyRow(boardCopy, col, game);
+            
+            if (row !== -1) {
+                boardCopy[row][col] = opponent;
+                if (this.checkWinOnBoardAtPosition(boardCopy, row, col, opponent, game)) {
+                    return col; // This move blocks opponent's win
+                }
+            }
+        }
 
-        const blockingMove = this.findWinningMove(game, opponent);
-
-        // Restore original player
-        game.currentPlayer = originalPlayer;
-
-        return blockingMove;
+        return null;
     }
 
     findThreatMove(game) {

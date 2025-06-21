@@ -133,7 +133,27 @@
         <button class="run-tests-btn" onclick="runAllTests()">Alle Tests ausführen</button>
         
         <div class="test-section">
-            <h2>🔴 Connect4 Tests</h2>
+            <h2>🏗️ Backend Tests</h2>
+            <div id="backend-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🤖 AI Strategy Tests</h2>
+            <div id="ai-strategy-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>💡 Helper System Tests</h2>
+            <div id="helper-system-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔄 Regression Tests</h2>
+            <div id="regression-results" class="test-results"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔴 Connect4 Legacy Tests</h2>
             <div id="connect4-results" class="test-results"></div>
         </div>
         
@@ -153,6 +173,7 @@
     <!-- Load game files for testing -->
     <script src="../games/connect4/js/game.js"></script>
     <script src="../games/connect4/js/ai.js"></script>
+    <script src="../games/connect4/js/helpers.js"></script>
     
     <script src="../games/trio/js/game.js"></script>
     <script src="../games/trio/js/ai.js"></script>
@@ -163,7 +184,30 @@
     <!-- Test framework -->
     <script src="test-framework.js"></script>
     
-    <!-- Game tests -->
+    <!-- Backend tests -->
+    <script src="backend/backend-game-core.js"></script>
+    <script src="backend/backend-game-edge-cases.js"></script>
+    <script src="backend/backend-events.js"></script>
+    <script src="backend/backend-simulation.js"></script>
+    
+    <!-- AI Strategy tests -->
+    <script src="ai-strategy/ai-strategy-enhanced-smart.js"></script>
+    <script src="ai-strategy/ai-strategy-consistency.js"></script>
+    <script src="ai-strategy/ai-strategy-smart-random.js"></script>
+    
+    <!-- Helper System tests -->
+    <script src="helper-system/helper-system-levels.js"></script>
+    <script src="helper-system/helper-system-strategic.js"></script>
+    <script src="helper-system/helper-system-hints.js"></script>
+    <script src="helper-system/helper-system-events.js"></script>
+    <script src="helper-system/helper-system-performance.js"></script>
+    <script src="helper-system/helper-system-regression.js"></script>
+    
+    <!-- Regression tests -->
+    <script src="regression/regression-animation-chaos.js"></script>
+    <script src="regression/regression-state-corruption.js"></script>
+    
+    <!-- Original legacy tests -->
     <script src="connect4-tests.js"></script>
     <script src="trio-tests.js"></script>
     <script src="gobang-tests.js"></script>
@@ -172,7 +216,31 @@
         function runAllTests() {
             const testSuite = new TestSuite();
             
-            // Run all test suites
+            // Run new structured test suites
+            // Backend Tests
+            runBackendGameCoreTests(testSuite);
+            runBackendGameEdgeCasesTests(testSuite);
+            runBackendEventsTests(testSuite);
+            runBackendSimulationTests(testSuite);
+            
+            // AI Strategy Tests
+            runAIStrategyEnhancedSmartTests(testSuite);
+            runAIStrategyConsistencyTests(testSuite);
+            runAIStrategySmartRandomTests(testSuite);
+            
+            // Helper System Tests
+            runHelperSystemLevelsTests(testSuite);
+            runHelperSystemStrategicTests(testSuite);
+            runHelperSystemHintsTests(testSuite);
+            runHelperSystemEventsTests(testSuite);
+            runHelperSystemPerformanceTests(testSuite);
+            runHelperSystemRegressionTests(testSuite);
+            
+            // Regression Tests
+            runRegressionAnimationChaosTests(testSuite);
+            runRegressionStateCorruptionTests(testSuite);
+            
+            // Original legacy test suites
             runConnect4Tests(testSuite);
             runTrioTests(testSuite);
             runGobangTests(testSuite);
@@ -184,7 +252,13 @@
         function displayResults(testSuite) {
             const results = testSuite.getResults();
             
-            // Display individual game results
+            // Display new structured test results
+            displayGameResults('backend-results', results.filter(r => r.suite.startsWith('Backend-')));
+            displayGameResults('ai-strategy-results', results.filter(r => r.suite.startsWith('AI-Strategy-')));
+            displayGameResults('helper-system-results', results.filter(r => r.suite.startsWith('Helper-System-')));
+            displayGameResults('regression-results', results.filter(r => r.suite.startsWith('Regression-')));
+            
+            // Display legacy game results
             displayGameResults('connect4-results', results.filter(r => r.suite === 'Connect4'));
             displayGameResults('trio-results', results.filter(r => r.suite === 'Trio'));
             displayGameResults('gobang-results', results.filter(r => r.suite === 'Gobang'));
