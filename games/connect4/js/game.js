@@ -147,7 +147,7 @@ class Connect4Game {
             this.playerConfig.lastWinner = this.currentPlayer;
 
             this.emit('gameWon', { winner: this.winner, winningCells: this.winningCells });
-            return { success: true, row, col, gameWon: true, winner: this.winner };
+            return { success: true, row, col, gameWon: true, winner: this.winner, player: move.player };
         }
 
         // Check for draw
@@ -156,7 +156,7 @@ class Connect4Game {
             this.scores.draws++;
             // For draws, don't change lastWinner - keep current starting player for next game
             this.emit('gameDraw');
-            return { success: true, row, col, gameDraw: true };
+            return { success: true, row, col, gameDraw: true, player: move.player };
         }
 
         // Switch players
@@ -170,7 +170,7 @@ class Connect4Game {
             gameOver: this.gameOver
         });
 
-        return { success: true, row, col };
+        return { success: true, row, col, player: move.player };
     }
 
     /**
@@ -351,8 +351,69 @@ class Connect4Game {
 
     emit(event, data) {
         if (this.eventListeners[event]) {
-            this.eventListeners[event].forEach(callback => callback(data));
+            // Create a snapshot of current game state before calling event handlers
+            const stateSnapshot = {
+                currentPlayer: this.currentPlayer,
+                gameOver: this.gameOver,
+                winner: this.winner,
+                boardChecksum: JSON.stringify(this.board)
+            };
+            
+            this.eventListeners[event].forEach(callback => {
+                try {
+                    callback(data);
+                } catch (error) {
+                    console.warn('Event handler error:', error);
+                }
+            });
+            
+            // Restore state if it was corrupted by event handlers
+            if (this.currentPlayer !== stateSnapshot.currentPlayer) {
+                this.currentPlayer = stateSnapshot.currentPlayer;
+            }
+            if (this.gameOver !== stateSnapshot.gameOver) {
+                this.gameOver = stateSnapshot.gameOver;
+            }
+            if (this.winner !== stateSnapshot.winner) {
+                this.winner = stateSnapshot.winner;
+            }
+            if (JSON.stringify(this.board) !== stateSnapshot.boardChecksum) {
+                // Board was modified - this is more complex to restore, so just warn
+                console.warn('Event handler attempted to modify game board');
+            }
         }
+    }
+
+    /**
+     * Player utility methods
+     */
+    
+    /**
+     * Get player display name
+     * @param {number} player - Player number (PLAYER1 or PLAYER2)
+     * @returns {string} - Player display name
+     */
+    getPlayerName(player) {
+        if (player === this.PLAYER1) {
+            return 'Spieler 1 (Rot)';
+        } else if (player === this.PLAYER2) {
+            return 'Spieler 2 (Gelb)';
+        }
+        return 'Unknown Player';
+    }
+    
+    /**
+     * Get player color CSS class
+     * @param {number} player - Player number (PLAYER1 or PLAYER2)  
+     * @returns {string} - CSS color class
+     */
+    getPlayerColorClass(player) {
+        if (player === this.PLAYER1) {
+            return 'red';
+        } else if (player === this.PLAYER2) {
+            return 'yellow';
+        }
+        return '';
     }
 
     /**

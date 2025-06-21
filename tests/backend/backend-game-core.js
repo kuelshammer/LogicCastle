@@ -113,19 +113,19 @@ function runBackendGameCoreTests(testSuite) {
     testSuite.test('Backend-Game-Core', 'Diagonal win detection', () => {
         const game = new Connect4Game();
         
-        // Create diagonal win pattern
-        // This is complex - need to set up the board carefully
-        game.makeMove(0); // P1
-        game.makeMove(1); // P2
-        game.makeMove(1); // P1
-        game.makeMove(2); // P2
-        game.makeMove(2); // P1
-        game.makeMove(3); // P2
-        game.makeMove(2); // P1
-        game.makeMove(3); // P2
-        game.makeMove(3); // P1
-        game.makeMove(4); // P2
-        const result = game.makeMove(3); // P1 - should create diagonal
+        // Create ascending diagonal win pattern: (5,0), (4,1), (3,2), (2,3)
+        // Move sequence to build this pattern carefully
+        game.makeMove(0); // P1 at (5,0)
+        game.makeMove(1); // P2 at (5,1)
+        game.makeMove(1); // P1 at (4,1)
+        game.makeMove(2); // P2 at (5,2)
+        game.makeMove(2); // P1 at (4,2)
+        game.makeMove(3); // P2 at (5,3)
+        game.makeMove(2); // P1 at (3,2)
+        game.makeMove(3); // P2 at (4,3)
+        game.makeMove(3); // P1 at (3,3)
+        game.makeMove(4); // P2 at (5,4)
+        const result = game.makeMove(3); // P1 at (2,3) - completes diagonal (5,0), (4,1), (3,2), (2,3)
         
         testSuite.assertTruthy(result.gameWon, 'Should detect diagonal win');
         testSuite.assertEqual(result.winner, game.PLAYER1, 'Player 1 should win');

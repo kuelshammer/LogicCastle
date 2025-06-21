@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Diagonal Win</title>
+</head>
+<body>
+    <h1>Debug Diagonal Win Detection</h1>
+    <div id="output"></div>
+    
+    <script src="games/connect4/js/game.js"></script>
+    <script>
+        function log(message) {
+            document.getElementById('output').innerHTML += message + '<br>';
+            console.log(message);
+        }
+        
+        log('=== Debugging Diagonal Win Detection ===');
+        
+        // Create game and replicate the test sequence
+        const game = new Connect4Game();
+        
+        log('Initial board created');
+        
+        // Replicate the exact test sequence
+        const moves = [
+            { col: 0, player: 'P1' },
+            { col: 1, player: 'P2' },
+            { col: 1, player: 'P1' },
+            { col: 2, player: 'P2' },
+            { col: 2, player: 'P1' },
+            { col: 3, player: 'P2' },
+            { col: 2, player: 'P1' },
+            { col: 3, player: 'P2' },
+            { col: 3, player: 'P1' },
+            { col: 4, player: 'P2' },
+            { col: 3, player: 'P1' } // Final move that should win
+        ];
+        
+        log('Making moves:');
+        moves.forEach((move, index) => {
+            const result = game.makeMove(move.col);
+            log(`Move ${index + 1}: ${move.player} plays column ${move.col}`);
+            log(`Result: ${JSON.stringify(result)}`);
+            log(`Current player: ${game.currentPlayer}`);
+            log(`Game over: ${game.gameOver}`);
+            log(`Winner: ${game.winner}`);
+            
+            if (index === moves.length - 1) {
+                // Last move - check the board state
+                log('Final board state:');
+                const board = game.getBoard();
+                for (let row = 0; row < 6; row++) {
+                    log(`Row ${row}: [${board[row].join(',')}]`);
+                }
+                
+                log('Looking for P1 diagonal at positions:');
+                log('(5,0), (4,1), (3,2), (2,3)');
+                log(`(5,0): ${board[5][0]} (should be ${game.PLAYER1})`);
+                log(`(4,1): ${board[4][1]} (should be ${game.PLAYER1})`);
+                log(`(3,2): ${board[3][2]} (should be ${game.PLAYER1})`);
+                log(`(2,3): ${board[2][3]} (should be ${game.PLAYER1})`);
+                
+                // Manually test the diagonal detection from position (2,3)
+                log('=== Manual Diagonal Check ===');
+                const testResult = game.checkWin(2, 3);
+                log('checkWin(2, 3) result: ' + testResult);
+                
+                // Test the getConnectedCells method directly for each direction
+                log('=== Testing getConnectedCells directly ===');
+                const directions = [
+                    [0, 1],   // Horizontal
+                    [1, 0],   // Vertical
+                    [1, 1],   // Diagonal /
+                    [1, -1]   // Diagonal \
+                ];
+                
+                directions.forEach(([deltaRow, deltaCol], idx) => {
+                    const cells = game.getConnectedCells(2, 3, deltaRow, deltaCol, game.PLAYER1);
+                    log(`Direction ${idx} [${deltaRow}, ${deltaCol}]: ${cells.length} cells - ${JSON.stringify(cells)}`);
+                });
+            }
+            log('---');
+        });
+    </script>
+</body>
+</html>

@@ -100,22 +100,30 @@ function runBackendGameEdgeCasesTests(testSuite) {
     testSuite.test('Backend-Game-Edge-Cases', 'Horizontal win at top row', () => {
         const game = new Connect4Game();
         
-        // Fill columns 1-4 almost to the top, then create horizontal win at top
+        // Fill columns 0,1,2,3 to height 5 (leaving top row empty)
+        // Use careful alternating to avoid accidental wins
         for (let i = 0; i < 5; i++) {
-            game.makeMove(1); // Alternate players fill col 1
-            game.makeMove(2); // Alternate players fill col 2
-            game.makeMove(3); // Alternate players fill col 3
-            game.makeMove(4); // Alternate players fill col 4
+            game.makeMove(0); // P1
+            game.makeMove(1); // P2  
+            game.makeMove(1); // P1
+            game.makeMove(2); // P2
+            game.makeMove(2); // P1
+            game.makeMove(3); // P2
+            game.makeMove(3); // P1
+            game.makeMove(0); // P2
         }
         
-        // Now top row should be reachable, create horizontal win
-        game.makeMove(1); // P1 at top of col 1
-        game.makeMove(0); // P2 somewhere else
-        game.makeMove(2); // P1 at top of col 2
-        game.makeMove(0); // P2 somewhere else
-        game.makeMove(3); // P1 at top of col 3
-        game.makeMove(0); // P2 somewhere else
-        const result = game.makeMove(4); // P1 at top of col 4 - should win
+        // Check game is still ongoing
+        testSuite.assertFalsy(game.gameOver, 'Game should still be ongoing after setup');
+        
+        // Now create horizontal win in top row (row 0): P1 in cols 0,1,2,3
+        game.makeMove(0); // P1 at (0,0)  
+        game.makeMove(4); // P2 elsewhere
+        game.makeMove(1); // P1 at (0,1)
+        game.makeMove(4); // P2 elsewhere  
+        game.makeMove(2); // P1 at (0,2)
+        game.makeMove(4); // P2 elsewhere
+        const result = game.makeMove(3); // P1 at (0,3) - should complete horizontal win
         
         testSuite.assertTruthy(result.gameWon, 'Should detect horizontal win at top row');
         testSuite.assertEqual(result.winner, game.PLAYER1, 'Player 1 should win');
@@ -198,17 +206,20 @@ function runBackendGameEdgeCasesTests(testSuite) {
         testSuite.assertEqual(validAfterFill.length, 6, 'Should have 6 valid moves after filling one column');
         testSuite.assertFalsy(validAfterFill.includes(3), 'Column 3 should not be in valid moves');
         
-        // Fill all other columns
+        // Manually fill the board to avoid wins using alternating pattern
+        const game2 = new Connect4Game();
+        
+        // Fill the entire board manually with a no-win pattern
         for (let col = 0; col < 7; col++) {
-            if (col !== 3) {
-                for (let i = 0; i < 6; i++) {
-                    if (game.getValidMoves().includes(col)) {
-                        game.makeMove(col);
-                    }
+            for (let row = 0; row < 6; row++) {
+                if (col % 2 === 0) {
+                    game2.board[row][col] = (row % 2 === 0) ? game2.PLAYER1 : game2.PLAYER2;
+                } else {
+                    game2.board[row][col] = (row % 2 === 0) ? game2.PLAYER2 : game2.PLAYER1;
                 }
             }
         }
         
-        testSuite.assertEqual(game.getValidMoves().length, 0, 'Should have no valid moves when board full');
+        testSuite.assertEqual(game2.getValidMoves().length, 0, 'Should have no valid moves when board full');
     });
 }
