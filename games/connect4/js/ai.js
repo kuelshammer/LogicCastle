@@ -6,6 +6,7 @@ class Connect4AI {
         this.difficulty = difficulty;
         this.maxDepth = this.getMaxDepth(difficulty);
         this.cache = new Map();
+        this.forkDetector = null; // Will be initialized when needed
     }
 
     /**
@@ -22,12 +23,76 @@ class Connect4AI {
     }
 
     /**
+     * Initialize fork detector if needed
+     */
+    initializeForkDetector(game) {
+        if (!this.forkDetector) {
+            // Check if Connect4ForkDetection is available (will be loaded separately)
+            if (typeof Connect4ForkDetection !== 'undefined') {
+                this.forkDetector = new Connect4ForkDetection(game);
+            }
+        }
+    }
+
+    /**
+     * Check for critical fork situations that require immediate response
+     * This should be the HIGHEST priority for all bots
+     */
+    checkForCriticalForks(game) {
+        this.initializeForkDetector(game);
+        
+        if (!this.forkDetector) {
+            return null; // Fork detection not available, fall back to other strategies
+        }
+
+        console.log('🔱 Checking for critical fork situations...');
+
+        // PRIORITY 1: Counter opponent's critical forks (MUST block immediately)
+        const criticalCounters = this.forkDetector.getCriticalForkCounters(game.currentPlayer);
+        if (criticalCounters.length > 0) {
+            const urgentCounter = criticalCounters[0];
+            console.log('🚨 CRITICAL FORK DETECTED:', urgentCounter.description);
+            
+            // Find the most urgent playable counter-move
+            for (const counterMove of urgentCounter.requiredMoves) {
+                if (game.getValidMoves().includes(counterMove.col)) {
+                    console.log('🛡️ BLOCKING FORK at column', counterMove.col + 1);
+                    return counterMove.col;
+                }
+            }
+        }
+
+        // PRIORITY 2: Create our own fork opportunities (if no critical defense needed)
+        const forkOpportunities = this.forkDetector.getForkOpportunities(game.currentPlayer);
+        if (forkOpportunities.length > 0) {
+            const bestOpportunity = forkOpportunities[0];
+            console.log('🔱 FORK OPPORTUNITY:', bestOpportunity.description);
+            
+            // Find the best playable setup move
+            for (const setupMove of bestOpportunity.setupMoves) {
+                if (game.getValidMoves().includes(setupMove.col)) {
+                    console.log('⚔️ CREATING FORK at column', setupMove.col + 1);
+                    return setupMove.col;
+                }
+            }
+        }
+
+        console.log('✅ No critical fork situations detected');
+        return null; // No fork action needed, continue with normal strategy
+    }
+
+    /**
      * Get the best move for the current game state
      * @param {Connect4Game} game - Current game instance
      * @param {Connect4Helpers} helpers - Optional helpers instance for smart random mode
      * @returns {number} - Column index for the best move
      */
     getBestMove(game, helpers = null) {
+        // UNIVERSAL FORK CHECK: All bots must check for forks first!
+        const forkMove = this.checkForCriticalForks(game);
+        if (forkMove !== null) {
+            return forkMove;
+        }
         switch (this.difficulty) {
             case 'easy':
                 return this.getRandomMove(game);
