@@ -286,22 +286,27 @@ class Connect4AI {
         console.log('🛡️ Defensive Bot: Analyzing defensive potential...');
         const defensiveMoves = validMoves.map(col => {
             const defensiveValue = this.evaluateDefensivePotential(game, col);
+            const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
             return {
                 column: col,
-                defensiveValue: defensiveValue
+                defensiveValue: defensiveValue,
+                offensiveValue: offensiveValue,
+                combinedValue: defensiveValue * 2 + offensiveValue // Defensive focus
             };
         });
 
-        console.log('🛡️ Defensive moves analysis:', defensiveMoves);
+        console.log('🛡️ Defensive moves analysis:', defensiveMoves.map(m => 
+            `Col ${m.column + 1}: D=${m.defensiveValue}, O=${m.offensiveValue}, Combined=${m.combinedValue}`
+        ));
 
-        // Find moves with highest defensive value
-        const maxDefensiveValue = Math.max(...defensiveMoves.map(m => m.defensiveValue));
-        const bestDefensiveMoves = defensiveMoves.filter(m => m.defensiveValue === maxDefensiveValue);
+        // Find moves with highest combined value (defense-weighted)
+        const maxCombinedValue = Math.max(...defensiveMoves.map(m => m.combinedValue));
+        const bestDefensiveMoves = defensiveMoves.filter(m => m.combinedValue === maxCombinedValue);
 
-        if (bestDefensiveMoves.length > 0 && maxDefensiveValue > 0) {
+        if (bestDefensiveMoves.length > 0 && maxCombinedValue > 0) {
             const randomIndex = Math.floor(Math.random() * bestDefensiveMoves.length);
             const chosenMove = bestDefensiveMoves[randomIndex];
-            console.log(`🛡️ Defensive Bot: Chose column ${chosenMove.column + 1} (defensive value: ${chosenMove.defensiveValue})`);
+            console.log(`🛡️ Defensive Bot: Chose column ${chosenMove.column + 1} (defensive: ${chosenMove.defensiveValue}, offensive: ${chosenMove.offensiveValue}, combined: ${chosenMove.combinedValue})`);
             return chosenMove.column;
         }
 
@@ -1201,45 +1206,60 @@ class Connect4AI {
             helpers.setEnabled(wasEnabled, wasLevel);
         }
 
-        // PRIORITY 3: Advanced Strategic Analysis using new functions
+        // PRIORITY 3: Advanced Strategic Analysis using enhanced evaluation
         if (helpers) {
             console.log('🚀 Enhanced Bot: Running advanced strategic analysis...');
-            const strategicEval = helpers.getEnhancedStrategicEvaluation();
             
-            console.log('🚀 Strategic Analysis:', {
-                evenOdd: strategicEval.evenOddAnalysis.parity,
-                forks: strategicEval.forkOpportunities.length,
-                zugzwang: strategicEval.zugzwangOpportunities.length,
-                recommended: strategicEval.recommendedMove,
-                confidence: strategicEval.confidence
-            });
+            try {
+                const strategicEval = helpers.getEnhancedStrategicEvaluation();
+                
+                console.log('🚀 Strategic Analysis:', {
+                    evenOdd: strategicEval.evenOddAnalysis.parity,
+                    forks: strategicEval.forkOpportunities.length,
+                    recommended: strategicEval.recommendedMove,
+                    confidence: strategicEval.confidence
+                });
 
-            // PRIORITY 3A: Fork opportunities (multiple winning threats)
-            if (strategicEval.forkOpportunities.length > 0) {
-                const bestFork = strategicEval.forkOpportunities[0];
-                console.log('🚀 Enhanced Bot: FORK OPPORTUNITY at column', bestFork.column, 'with', bestFork.threats, 'threats');
-                return bestFork.column;
-            }
+                // PRIORITY 3A: Enhanced fork opportunities (immediate + setup moves)
+                if (strategicEval.forkOpportunities.length > 0) {
+                    const bestFork = strategicEval.forkOpportunities[0];
+                    const forkType = bestFork.setupMove ? 'SETUP FORK' : 'IMMEDIATE FORK';
+                    console.log(`🚀 Enhanced Bot: ${forkType} at column ${bestFork.column + 1} (threats: ${bestFork.threats}, total value: ${bestFork.totalValue.toFixed(1)}, priority: ${bestFork.priority})`);
+                    return bestFork.column;
+                }
 
-            // PRIORITY 3B: Zugzwang opportunities (force opponent into bad position)
-            if (strategicEval.zugzwangOpportunities.length > 0) {
-                const zugzwangMove = strategicEval.zugzwangOpportunities[0];
-                console.log('🚀 Enhanced Bot: ZUGZWANG opportunity at column', zugzwangMove.column);
-                return zugzwangMove.column;
-            }
+                // PRIORITY 3B: Even/Odd threat strategy
+                const evenOddAnalysis = strategicEval.evenOddAnalysis;
+                if (evenOddAnalysis.parity === 'player_winning_odd' && evenOddAnalysis.player.odd.length > 0) {
+                    const oddThreat = evenOddAnalysis.player.odd[0];
+                    console.log('🚀 Enhanced Bot: ODD THREAT strategy at column', oddThreat.column + 1);
+                    return oddThreat.column;
+                }
 
-            // PRIORITY 3C: Even/Odd threat strategy
-            const evenOddAnalysis = strategicEval.evenOddAnalysis;
-            if (evenOddAnalysis.parity === 'player_winning_odd' && evenOddAnalysis.player.odd.length > 0) {
-                const oddThreat = evenOddAnalysis.player.odd[0];
-                console.log('🚀 Enhanced Bot: ODD THREAT strategy at column', oddThreat.column);
-                return oddThreat.column;
-            }
+                if (evenOddAnalysis.parity === 'player_even_advantage' && evenOddAnalysis.player.even.length > 0) {
+                    const evenThreat = evenOddAnalysis.player.even[0];
+                    console.log('🚀 Enhanced Bot: EVEN THREAT strategy at column', evenThreat.column + 1);
+                    return evenThreat.column;
+                }
 
-            if (evenOddAnalysis.parity === 'player_even_advantage' && evenOddAnalysis.player.even.length > 0) {
-                const evenThreat = evenOddAnalysis.player.even[0];
-                console.log('🚀 Enhanced Bot: EVEN THREAT strategy at column', evenThreat.column);
-                return evenThreat.column;
+                // PRIORITY 3C: Zugzwang opportunities (forcing sequences)
+                if (strategicEval.zugzwangOpportunities && strategicEval.zugzwangOpportunities.length > 0) {
+                    const bestZugzwang = strategicEval.zugzwangOpportunities[0];
+                    console.log(`🚀 Enhanced Bot: ZUGZWANG OPPORTUNITY at column ${bestZugzwang.column + 1} (value: ${bestZugzwang.value}, type: ${bestZugzwang.type})`);
+                    return bestZugzwang.column;
+                }
+
+                // PRIORITY 3D: Use recommended move if confidence is decent
+                if (strategicEval.recommendedMove !== null && strategicEval.confidence >= 0.3) {
+                    console.log('🚀 Enhanced Bot: STRATEGIC RECOMMENDATION at column', strategicEval.recommendedMove + 1, `(confidence: ${strategicEval.confidence})`);
+                    return strategicEval.recommendedMove;
+                }
+
+            } catch (error) {
+                console.error('🚀 Enhanced Bot: Strategic analysis failed:', error.message);
+                console.error('🚀 Enhanced Bot: Stack trace:', error.stack);
+                console.warn('🚀 Enhanced Bot: Strategic features not working - needs debugging!');
+                // Continue with fallback strategy below
             }
 
             // PRIORITY 4: Check Level 2 - Avoid traps (safe moves only)
@@ -1258,8 +1278,40 @@ class Connect4AI {
             helpers.setEnabled(wasEnabled, wasLevel);
         }
 
-        // PRIORITY 5: Fallback to weighted center-preferring random
-        console.log('🚀 Enhanced Bot: No strategic opportunities found, using weighted center preference');
+        // PRIORITY 5: DEFENSIVE PATTERN ANALYSIS (like Defensive Bot)
+        console.log('🚀 Enhanced Bot: Analyzing defensive patterns + offensive potential...');
+        const enhancedMoves = validMoves.map(col => {
+            const defensiveValue = this.evaluateDefensivePotential(game, col);
+            const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            
+            // Enhanced Smart: Balanced approach (1.5x defensive, 1x offensive)
+            const combinedValue = defensiveValue * 1.5 + offensiveValue;
+            
+            return {
+                column: col,
+                defensiveValue: defensiveValue,
+                offensiveValue: offensiveValue,
+                combinedValue: combinedValue
+            };
+        });
+
+        console.log('🚀 Enhanced moves analysis:', enhancedMoves.map(m => 
+            `Col ${m.column + 1}: D=${m.defensiveValue}, O=${m.offensiveValue}, Combined=${m.combinedValue.toFixed(1)}`
+        ));
+
+        // Find moves with highest combined value
+        const maxCombinedValue = Math.max(...enhancedMoves.map(m => m.combinedValue));
+        const bestEnhancedMoves = enhancedMoves.filter(m => m.combinedValue === maxCombinedValue);
+
+        if (bestEnhancedMoves.length > 0 && maxCombinedValue > 0) {
+            const randomIndex = Math.floor(Math.random() * bestEnhancedMoves.length);
+            const chosenMove = bestEnhancedMoves[randomIndex];
+            console.log(`🚀 Enhanced Bot: Strategic choice column ${chosenMove.column + 1} (defensive: ${chosenMove.defensiveValue}, offensive: ${chosenMove.offensiveValue}, combined: ${chosenMove.combinedValue.toFixed(1)})`);
+            return chosenMove.column;
+        }
+
+        // PRIORITY 6: Fallback to weighted center-preferring random
+        console.log('🚀 Enhanced Bot: No strategic advantages found, using weighted center preference');
         return this.getWeightedCenterMove(game);
     }
 
