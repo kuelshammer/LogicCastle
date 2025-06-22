@@ -10,7 +10,7 @@
 <body>
     <div class="game-container">
         <header class="game-header">
-            <a href="../../index.html" class="back-button">← Zurück</a>
+            <a href="../../index.html" class="back-button" title="Zurück zur Hauptseite (Strg+Backspace)">← Zurück (Strg+⌫)</a>
             <h1>🔴 4 Gewinnt</h1>
             <div class="game-mode-selector">
                 <label for="gameModeSelect">Spielmodus:</label>
@@ -66,11 +66,11 @@
             </div>
 
             <div class="game-controls">
-                <button class="btn btn-primary" id="newGameBtn" tabindex="7">Neues Spiel</button>
-                <button class="btn btn-outline" id="resetScoreBtn" tabindex="8">Score zurücksetzen</button>
-                <button class="btn btn-secondary" id="undoBtn" tabindex="9" disabled>Rückgängig</button>
-                <button class="btn btn-warning" id="hintsBtn" tabindex="10">🔧 Spielerhilfen (F2)</button>
-                <button class="btn btn-info" id="helpBtn" tabindex="11">❓ Hilfe (F1)</button>
+                <button class="btn btn-primary" id="newGameBtn" tabindex="7" title="Neues Spiel starten (F5, Strg+R, Strg+N)">🎮 Neues Spiel (F5)</button>
+                <button class="btn btn-outline" id="resetScoreBtn" tabindex="8" title="Spielstand zurücksetzen (F10)">📊 Score zurücksetzen (F10)</button>
+                <button class="btn btn-secondary" id="undoBtn" tabindex="9" disabled title="Letzten Zug rückgängig machen (F9, Strg+Z, Strg+U)">↩️ Rückgängig (F9)</button>
+                <button class="btn btn-warning" id="hintsBtn" tabindex="10" title="Spielerhilfen öffnen/schließen (F2)">🔧 Spielerhilfen (F2)</button>
+                <button class="btn btn-info" id="helpBtn" tabindex="11" title="Spielanleitung öffnen/schließen (F1)">❓ Hilfe (F1)</button>
             </div>
 
             <div class="help-panel" id="helpPanel" style="display: none;">
@@ -115,10 +115,26 @@
                             <li><strong>1-7:</strong> Spalte auswählen</li>
                             <li><strong>Leertaste:</strong> Stein fallen lassen</li>
                             <li><strong>ESC:</strong> Auswahl zurücksetzen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h4>🔧 Funktionstasten:</h4>
+                        <ul>
                             <li><strong>F1:</strong> Diese Hilfe öffnen/schließen</li>
                             <li><strong>F2:</strong> Spielerhilfen öffnen/schließen</li>
-                            <li><strong>Strg+R:</strong> Neues Spiel</li>
-                            <li><strong>Strg+Z:</strong> Zug rückgängig</li>
+                            <li><strong>F5:</strong> Neues Spiel</li>
+                            <li><strong>F9:</strong> Zug rückgängig</li>
+                            <li><strong>F10:</strong> Score zurücksetzen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="control-group">
+                        <h4>⌨️ Tastenkombinationen:</h4>
+                        <ul>
+                            <li><strong>Strg+R / Strg+N:</strong> Neues Spiel</li>
+                            <li><strong>Strg+Z / Strg+U:</strong> Zug rückgängig</li>
+                            <li><strong>Strg+Backspace:</strong> Zurück zur Hauptseite</li>
                         </ul>
                     </div>
                 </div>

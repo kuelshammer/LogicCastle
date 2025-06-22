@@ -67,6 +67,7 @@ class Connect4UI {
         this.handlePlayer2Level2Toggle = this.handlePlayer2Level2Toggle.bind(this);
         this.handleHelp = this.handleHelp.bind(this);
         this.handleHints = this.handleHints.bind(this);
+        this.handleBack = this.handleBack.bind(this);
         this.handleGameModeChange = this.handleGameModeChange.bind(this);
     }
 
@@ -338,6 +339,44 @@ class Connect4UI {
             case 'F2':
                 e.preventDefault();
                 this.handleHints();
+                break;
+            case 'F5':
+                // F5: Neues Spiel (zusätzlich zu Ctrl+R)
+                e.preventDefault();
+                this.handleNewGame();
+                break;
+            case 'F9':
+                // F9: Rückgängig (zusätzlich zu Ctrl+Z)
+                e.preventDefault();
+                this.handleUndo();
+                break;
+            case 'F10':
+                // F10: Score zurücksetzen
+                e.preventDefault();
+                this.handleResetScore();
+                break;
+            case 'Backspace':
+                // Backspace: Zurück zur Hauptseite
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    this.handleBack();
+                }
+                break;
+            case 'n':
+            case 'N':
+                // Ctrl+N: Neues Spiel (zusätzliche Alternative)
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    this.handleNewGame();
+                }
+                break;
+            case 'u':
+            case 'U':
+                // Ctrl+U: Rückgängig (zusätzliche Alternative)
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    this.handleUndo();
+                }
                 break;
         }
     }
@@ -793,6 +832,14 @@ class Connect4UI {
      */
     handleHints() {
         this.hintsModal.classList.toggle('active');
+    }
+
+    /**
+     * Handle back to main page
+     */
+    handleBack() {
+        // Navigate back to main page
+        window.location.href = '../../index.html';
     }
 
     /**
