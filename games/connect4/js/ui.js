@@ -16,6 +16,9 @@ class Connect4UI {
         this.helpBtn = null;
         this.helpModal = null;
         this.closeHelpBtn = null;
+        this.hintsBtn = null;
+        this.hintsModal = null;
+        this.closeHintsBtn = null;
         this.gameModeSelect = null;
         this.gameMode = 'two-player';
         this.ai = null;
@@ -63,6 +66,7 @@ class Connect4UI {
         this.handlePlayer2Level1Toggle = this.handlePlayer2Level1Toggle.bind(this);
         this.handlePlayer2Level2Toggle = this.handlePlayer2Level2Toggle.bind(this);
         this.handleHelp = this.handleHelp.bind(this);
+        this.handleHints = this.handleHints.bind(this);
         this.handleGameModeChange = this.handleGameModeChange.bind(this);
     }
 
@@ -130,6 +134,9 @@ class Connect4UI {
         this.helpBtn = document.getElementById('helpBtn');
         this.helpModal = document.getElementById('helpModal');
         this.closeHelpBtn = document.getElementById('closeHelpBtn');
+        this.hintsBtn = document.getElementById('hintsBtn');
+        this.hintsModal = document.getElementById('hintsModal');
+        this.closeHintsBtn = document.getElementById('closeHintsBtn');
         this.helpPlayer1Level0 = document.getElementById('helpPlayer1Level0');
         this.helpPlayer1Level1 = document.getElementById('helpPlayer1Level1');
         this.helpPlayer1Level2 = document.getElementById('helpPlayer1Level2');
@@ -166,6 +173,13 @@ class Connect4UI {
         this.helpModal.addEventListener('click', (e) => {
             if (e.target === this.helpModal) {
                 this.handleHelp();
+            }
+        });
+        this.hintsBtn.addEventListener('click', this.handleHints);
+        this.closeHintsBtn.addEventListener('click', this.handleHints);
+        this.hintsModal.addEventListener('click', (e) => {
+            if (e.target === this.hintsModal) {
+                this.handleHints();
             }
         });
 
@@ -320,6 +334,10 @@ class Connect4UI {
             case 'F1':
                 e.preventDefault();
                 this.handleHelp();
+                break;
+            case 'F2':
+                e.preventDefault();
+                this.handleHints();
                 break;
         }
     }
@@ -768,6 +786,13 @@ class Connect4UI {
      */
     handleHelp() {
         this.helpModal.classList.toggle('active');
+    }
+
+    /**
+     * Handle hints button/modal
+     */
+    handleHints() {
+        this.hintsModal.classList.toggle('active');
     }
 
     /**

@@ -54,6 +54,18 @@
     box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
 }
 
+.btn-warning {
+    background: linear-gradient(145deg, #ff9500, #e67e00);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 149, 0, 0.3);
+}
+
+.btn-warning:hover:not(:disabled) {
+    background: linear-gradient(145deg, #e67e00, #cc6600);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 149, 0, 0.4);
+}
+
 .btn-outline {
     background: transparent;
     color: rgba(255, 255, 255, 0.8);
@@ -343,6 +355,64 @@
     border-radius: 5px;
     padding: 0.75rem 1.5rem;
     margin: 0.5rem 0;
+}
+
+/* Hints Modal Styles */
+.hints-modal {
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.hints-content {
+    padding: 0;
+}
+
+.hints-modal .help-table-container {
+    margin-top: 1rem;
+}
+
+.hints-modal .help-table {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.hints-modal .help-table th {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+    padding: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.hints-modal .help-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.hints-modal .player-label {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.hints-modal .help-cell {
+    position: relative;
+}
+
+.hints-modal .help-legend {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.hints-modal .legend-item {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #555;
 }
 
 /* Dark mode support */
