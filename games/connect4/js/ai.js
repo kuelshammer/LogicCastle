@@ -36,49 +36,62 @@ class Connect4AI {
 
     /**
      * Check for critical fork situations that require immediate response
-     * This should be the HIGHEST priority for all bots
+     * MINIMALIST VERSION: Only triggers for truly critical patterns
      */
     checkForCriticalForks(game) {
-        this.initializeForkDetector(game);
+        // Only check forks in mid-to-late game when they become relevant
+        if (game.moveHistory.length < 8) {
+            return null; // Too early for meaningful fork threats
+        }
+
+        // Simple fork check: look for immediate _ x _ x _ patterns in bottom 2 rows only
+        return this.checkImmediateForkThreats(game);
+    }
+
+    /**
+     * Ultra-conservative fork detection: only for immediate unblockable threats
+     */
+    checkImmediateForkThreats(game) {
+        const opponent = game.currentPlayer === game.PLAYER1 ? game.PLAYER2 : game.PLAYER1;
         
-        if (!this.forkDetector) {
-            return null; // Fork detection not available, fall back to other strategies
-        }
-
-        console.log('🔱 Checking for critical fork situations...');
-
-        // PRIORITY 1: Counter opponent's critical forks (MUST block immediately)
-        const criticalCounters = this.forkDetector.getCriticalForkCounters(game.currentPlayer);
-        if (criticalCounters.length > 0) {
-            const urgentCounter = criticalCounters[0];
-            console.log('🚨 CRITICAL FORK DETECTED:', urgentCounter.description);
+        // ONLY check bottom row for immediate fork threats (most conservative)
+        const row = game.ROWS - 1;
+        for (let col = 0; col <= game.COLS - 4; col++) {
+            const window = [
+                game.board[row][col],
+                game.board[row][col + 1],
+                game.board[row][col + 2],
+                game.board[row][col + 3]
+            ];
             
-            // Find the most urgent playable counter-move
-            for (const counterMove of urgentCounter.requiredMoves) {
-                if (game.getValidMoves().includes(counterMove.col)) {
-                    console.log('🛡️ BLOCKING FORK at column', counterMove.col + 1);
-                    return counterMove.col;
+            // Only check for exact pattern: _ x _ x (critical fork)
+            if (this.isExactForkPattern(window, opponent)) {
+                // This creates two immediate threats - must block one
+                for (let i = 0; i < 4; i++) {
+                    if (window[i] === game.EMPTY) {
+                        const targetCol = col + i;
+                        // Check if this position is actually playable
+                        if (game.getValidMoves().includes(targetCol)) {
+                            console.log('🚨 CRITICAL FORK THREAT: Blocking column', targetCol + 1);
+                            return targetCol;
+                        }
+                    }
                 }
             }
         }
+        
+        return null; // No immediate fork threats found
+    }
 
-        // PRIORITY 2: Create our own fork opportunities (if no critical defense needed)
-        const forkOpportunities = this.forkDetector.getForkOpportunities(game.currentPlayer);
-        if (forkOpportunities.length > 0) {
-            const bestOpportunity = forkOpportunities[0];
-            console.log('🔱 FORK OPPORTUNITY:', bestOpportunity.description);
-            
-            // Find the best playable setup move
-            for (const setupMove of bestOpportunity.setupMoves) {
-                if (game.getValidMoves().includes(setupMove.col)) {
-                    console.log('⚔️ CREATING FORK at column', setupMove.col + 1);
-                    return setupMove.col;
-                }
-            }
-        }
-
-        console.log('✅ No critical fork situations detected');
-        return null; // No fork action needed, continue with normal strategy
+    /**
+     * Check for only the most dangerous fork pattern: _ x _ x
+     */
+    isExactForkPattern(window, player) {
+        // Must be EXACT pattern: [empty, player, empty, player]
+        return window[0] === 0 && 
+               window[1] === player && 
+               window[2] === 0 && 
+               window[3] === player;
     }
 
     /**
