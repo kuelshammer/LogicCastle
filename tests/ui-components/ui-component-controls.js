@@ -133,10 +133,20 @@ function runUIComponentControlsTests(testSuite) {
         
         const option2 = document.createElement('option');
         option2.value = 'vs-bot-easy';
-        option2.textContent = 'vs Easy Bot';
+        option2.textContent = 'vs Bot (Einfach)';
+        
+        const option3 = document.createElement('option');
+        option3.value = 'vs-bot-medium';
+        option3.textContent = 'vs Bot (Mittel)';
+        
+        const option4 = document.createElement('option');
+        option4.value = 'vs-bot-strong';
+        option4.textContent = 'vs Bot (Stark)';
         
         mockSelect.appendChild(option1);
         mockSelect.appendChild(option2);
+        mockSelect.appendChild(option3);
+        mockSelect.appendChild(option4);
         document.body.appendChild(mockSelect);
         
         ui.gameModeSelect = mockSelect;

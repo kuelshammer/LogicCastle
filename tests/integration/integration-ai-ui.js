@@ -79,7 +79,7 @@ function runIntegrationAIUITests(testSuite) {
         ui.createBoard();
         ui.gameModeSelect = mockModeSelect;
         
-        const difficultyLevels = ['vs-bot-easy', 'vs-bot-smart', 'vs-bot-strong'];
+        const difficultyLevels = ['vs-bot-easy', 'vs-bot-medium', 'vs-bot-strong'];
         
         difficultyLevels.forEach(difficulty => {
             // Reset game for each difficulty

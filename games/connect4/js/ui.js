@@ -384,38 +384,70 @@ class Connect4UI {
         this.aiThinking = true;
         this.updateGameStatus('🤖 Smart Bot denkt nach...');
 
-        // Simulate thinking time
-        await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 700));
+        try {
+            // Simulate thinking time
+            await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 700));
 
-        // Get AI move with current game state
-        const aiMove = this.getAIMove();
-
-        if (aiMove !== null) {
-            console.log('🤖 Bot attempting move at column:', aiMove + 1);
-            const result = this.game.makeMove(aiMove);
-            if (!result.success) {
-                console.error('🤖 Bot move FAILED:', result.reason, 'at column', aiMove + 1);
-                // Fallback: try a simple random valid move
+            // Get AI move with current game state and error handling
+            let aiMove = null;
+            try {
+                aiMove = this.getAIMove();
+            } catch (error) {
+                console.error('🤖 Bot AI calculation failed:', error.message);
+                console.log('🤖 Bot falling back to emergency random move...');
                 const validMoves = this.game.getValidMoves();
                 if (validMoves.length > 0) {
-                    const fallbackMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-                    console.log('🤖 Bot trying fallback move at column:', fallbackMove + 1);
-                    this.game.makeMove(fallbackMove);
+                    aiMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                }
+            }
+
+            if (aiMove !== null) {
+                console.log('🤖 Bot attempting move at column:', aiMove + 1);
+                const result = this.game.makeMove(aiMove);
+                if (!result.success) {
+                    console.error('🤖 Bot move FAILED:', result.reason, 'at column', aiMove + 1);
+                    // Fallback: try a simple random valid move
+                    const validMoves = this.game.getValidMoves();
+                    if (validMoves.length > 0) {
+                        const fallbackMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                        console.log('🤖 Bot trying fallback move at column:', fallbackMove + 1);
+                        const fallbackResult = this.game.makeMove(fallbackMove);
+                        if (!fallbackResult.success) {
+                            console.error('🤖 Even fallback move failed! Game state may be corrupted.');
+                        }
+                    } else {
+                        console.error('🤖 No valid moves available for fallback!');
+                    }
                 } else {
-                    console.error('🤖 No valid moves available for fallback!');
+                    console.log('🤖 Bot move successful at column:', aiMove + 1);
                 }
             } else {
-                console.log('🤖 Bot move successful at column:', aiMove + 1);
+                console.error('🤖 Bot could not determine a move!');
+                // Emergency fallback: make any valid move
+                const validMoves = this.game.getValidMoves();
+                if (validMoves.length > 0) {
+                    const emergencyMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+                    console.log('🤖 Bot making emergency move at column:', emergencyMove + 1);
+                    const emergencyResult = this.game.makeMove(emergencyMove);
+                    if (!emergencyResult.success) {
+                        console.error('🤖 Emergency move failed! Game may be in invalid state.');
+                        // Reset bot thinking state to prevent lockup
+                        this.aiThinking = false;
+                        this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
+                        return;
+                    }
+                } else {
+                    console.error('🤖 No valid moves available at all!');
+                    this.aiThinking = false;
+                    this.updateGameStatus('🚨 Keine gültigen Züge verfügbar');
+                    return;
+                }
             }
-        } else {
-            console.error('🤖 Bot could not determine a move!');
-            // Emergency fallback: make any valid move
-            const validMoves = this.game.getValidMoves();
-            if (validMoves.length > 0) {
-                const emergencyMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-                console.log('🤖 Bot making emergency move at column:', emergencyMove + 1);
-                this.game.makeMove(emergencyMove);
-            }
+        } catch (error) {
+            console.error('🤖 Critical error in makeAIMove:', error);
+            this.aiThinking = false;
+            this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
+            return;
         }
 
         this.aiThinking = false;
@@ -436,10 +468,13 @@ class Connect4UI {
             let difficulty;
             switch (this.gameMode) {
                 case 'vs-bot-easy':
-                    difficulty = 'offensiv-gemischt'; // Einfacher Bot = Offensiv-Gemischt
+                    difficulty = 'offensiv-gemischt'; // Bot (Einfach) - Rank #4 (44 points)
+                    break;
+                case 'vs-bot-medium':
+                    difficulty = 'enhanced-smart'; // Bot (Mittel) - Rank #2 (83 points)
                     break;
                 case 'vs-bot-strong':
-                    difficulty = 'enhanced-smart'; // Starker Bot = Enhanced Smart Bot
+                    difficulty = 'defensive'; // Bot (Stark) - Rank #1 (92 points)
                     break;
                 case 'vs-bot-smart': // Legacy mode compatibility
                     difficulty = 'smart-random';
@@ -499,9 +534,11 @@ class Connect4UI {
             
             // Update player names based on bot type
             if (this.gameMode === 'vs-bot-easy') {
-                this.game.playerConfig.yellowPlayer = '🤖 Einfacher Bot';
+                this.game.playerConfig.yellowPlayer = '🤖 Bot (Einfach)';
+            } else if (this.gameMode === 'vs-bot-medium') {
+                this.game.playerConfig.yellowPlayer = '🤖 Bot (Mittel)';
             } else if (this.gameMode === 'vs-bot-strong') {
-                this.game.playerConfig.yellowPlayer = '🚀 Starker Bot';
+                this.game.playerConfig.yellowPlayer = '🤖 Bot (Stark)';
             } else if (this.gameMode === 'vs-bot-smart') {
                 this.game.playerConfig.yellowPlayer = '🟡 Smart Bot';
             }
