@@ -158,6 +158,9 @@ class Connect4AI {
                 // Note: 'defensive' maps to the pure defensive strategy (different from defensiv-gemischt)
                 return this.getDefensiveMove(game, helpers);
             
+            case 'monte-carlo':
+                return this.getMonteCarloMove(game, helpers);
+            
             case 'easy':
                 return this.getRandomMove(game);
             
@@ -1236,6 +1239,10 @@ class Connect4AI {
             case 'defensive':
                 // Defensive: Focus on disrupting opponent patterns
                 return this.selectDefensivePriority(game, safeColumns);
+            
+            case 'monte-carlo':
+                // Monte Carlo: Use simulation-based evaluation
+                return this.selectMonteCarloFromSafe(game, safeColumns);
                 
             default:
                 // Fallback to random
@@ -1766,6 +1773,224 @@ class Connect4AI {
 
         // Fallback
         return validMoves[Math.floor(Math.random() * validMoves.length)];
+    }
+
+    /**
+     * Monte Carlo AI: Uses universal stages 1-3, then Monte Carlo simulations for stage 4
+     * Strategy: Win > Block > Avoid Traps > Monte Carlo Tree Search
+     */
+    getMonteCarloMove(game, helpers = null) {
+        console.log('🎯 Monte Carlo Bot: Starting analysis...');
+        
+        if (game.moveHistory.length === 0) {
+            console.log('🎯 Monte Carlo: Opening with center column');
+            return 3; // Center opening
+        }
+        
+        // Use the full universal 4-stage logic with Monte Carlo Stage 4
+        return this.getUniversalBestMove(game, helpers);
+    }
+
+    /**
+     * Run Monte Carlo simulations to evaluate each safe column
+     * @param {Connect4Game} game - Current game instance
+     * @param {Array} safeColumns - Array of safe column indices
+     * @returns {number} - Best column based on simulation results
+     */
+    selectMonteCarloFromSafe(game, safeColumns) {
+        if (safeColumns.length === 0) {
+            return null;
+        }
+        
+        if (safeColumns.length === 1) {
+            console.log('🎯 Monte Carlo: Only one safe column, no simulation needed');
+            return safeColumns[0];
+        }
+
+        console.log(`🎯 Monte Carlo: Evaluating ${safeColumns.length} safe columns: [${safeColumns.map(c => c + 1).join(', ')}]`);
+        
+        const simulationsPerColumn = Math.min(100, Math.max(50, Math.floor(500 / safeColumns.length)));
+        const startTime = performance.now();
+        const timeLimit = 1000; // 1 second maximum
+        
+        const results = {};
+        
+        // Initialize results for each safe column
+        for (const col of safeColumns) {
+            results[col] = { wins: 0, losses: 0, draws: 0, total: 0 };
+        }
+        
+        // Run simulations for each safe column
+        for (const col of safeColumns) {
+            const elapsedTime = performance.now() - startTime;
+            if (elapsedTime > timeLimit) {
+                console.log('🎯 Monte Carlo: Time limit reached, using partial results');
+                break;
+            }
+            
+            console.log(`🎯 Monte Carlo: Simulating column ${col + 1} (${simulationsPerColumn} games)...`);
+            const columnResults = this.runSimulationsForColumn(game, col, simulationsPerColumn, timeLimit - elapsedTime);
+            results[col] = columnResults;
+        }
+        
+        // Analyze results and select best column
+        const bestColumn = this.selectBestColumnFromResults(results, safeColumns);
+        
+        const totalTime = performance.now() - startTime;
+        console.log(`🎯 Monte Carlo: Analysis complete in ${totalTime.toFixed(1)}ms`);
+        console.log('🎯 Monte Carlo Results:', this.formatResults(results));
+        console.log(`🎯 Monte Carlo: Selected column ${bestColumn + 1}`);
+        
+        return bestColumn;
+    }
+
+    /**
+     * Run Monte Carlo simulations for a specific starting column
+     * @param {Connect4Game} game - Current game instance
+     * @param {number} startColumn - Column to start simulation from
+     * @param {number} maxSimulations - Maximum number of simulations
+     * @param {number} timeLimit - Time limit in milliseconds
+     * @returns {Object} - Simulation results {wins, losses, draws, total}
+     */
+    runSimulationsForColumn(game, startColumn, maxSimulations, timeLimit) {
+        const results = { wins: 0, losses: 0, draws: 0, total: 0 };
+        const startTime = performance.now();
+        
+        // Create defensive AI instances for simulation
+        const ai1 = new Connect4AI('defensive');
+        const ai2 = new Connect4AI('defensive');
+        
+        for (let i = 0; i < maxSimulations; i++) {
+            // Check time limit
+            if (performance.now() - startTime > timeLimit) {
+                break;
+            }
+            
+            const result = this.simulateGame(game, startColumn, ai1, ai2);
+            results.total++;
+            
+            if (result === 'win') {
+                results.wins++;
+            } else if (result === 'loss') {
+                results.losses++;
+            } else {
+                results.draws++;
+            }
+        }
+        
+        return results;
+    }
+
+    /**
+     * Simulate a complete game starting with a move in the specified column
+     * @param {Connect4Game} originalGame - Original game state
+     * @param {number} startColumn - Column for first move
+     * @param {Connect4AI} ai1 - AI for current player (our perspective)
+     * @param {Connect4AI} ai2 - AI for opponent
+     * @returns {string} - 'win', 'loss', or 'draw'
+     */
+    simulateGame(originalGame, startColumn, ai1, ai2) {
+        // Create a copy of the game state for simulation
+        const simGame = this.createGameCopy(originalGame);
+        
+        // Make the initial move in the specified column
+        const firstMoveResult = simGame.makeMove(startColumn);
+        if (!firstMoveResult.success) {
+            return 'draw'; // Invalid move
+        }
+        
+        // Track which player we're evaluating for (the player who made the first move)
+        const ourPlayer = originalGame.currentPlayer;
+        let moveCount = 1;
+        const maxMoves = simGame.ROWS * simGame.COLS; // Prevent infinite loops
+        
+        // Continue simulation until game ends
+        while (!simGame.gameOver && moveCount < maxMoves) {
+            const currentAI = (simGame.currentPlayer === ourPlayer) ? ai1 : ai2;
+            const move = currentAI.getBestMove(simGame);
+            
+            if (move === null) {
+                break; // No valid moves
+            }
+            
+            const result = simGame.makeMove(move);
+            if (!result.success) {
+                break; // Invalid move
+            }
+            
+            moveCount++;
+        }
+        
+        // Determine result from our perspective
+        if (simGame.gameOver && simGame.winner !== null) {
+            return (simGame.winner === ourPlayer) ? 'win' : 'loss';
+        } else {
+            return 'draw';
+        }
+    }
+
+    /**
+     * Create a deep copy of the game state for simulation
+     * @param {Connect4Game} originalGame - Original game to copy
+     * @returns {Connect4Game} - Deep copy of the game
+     */
+    createGameCopy(originalGame) {
+        const copy = new Connect4Game();
+        
+        // Copy board state
+        copy.board = originalGame.board.map(row => [...row]);
+        copy.currentPlayer = originalGame.currentPlayer;
+        copy.gameOver = originalGame.gameOver;
+        copy.winner = originalGame.winner;
+        copy.winningCells = [...originalGame.winningCells];
+        copy.moveHistory = [...originalGame.moveHistory];
+        
+        return copy;
+    }
+
+    /**
+     * Select the best column based on simulation results
+     * @param {Object} results - Results object with win/loss/draw counts per column
+     * @param {Array} safeColumns - Array of safe column indices
+     * @returns {number} - Best column index
+     */
+    selectBestColumnFromResults(results, safeColumns) {
+        let bestColumn = safeColumns[0];
+        let bestScore = -1;
+        
+        for (const col of safeColumns) {
+            const result = results[col];
+            if (result.total === 0) continue;
+            
+            // Calculate win percentage with draw bonus
+            const winRate = result.wins / result.total;
+            const drawRate = result.draws / result.total;
+            const score = winRate + (drawRate * 0.5); // Draws count as half points
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestColumn = col;
+            }
+        }
+        
+        return bestColumn;
+    }
+
+    /**
+     * Format simulation results for logging
+     * @param {Object} results - Results object
+     * @returns {string} - Formatted results string
+     */
+    formatResults(results) {
+        const formatted = [];
+        for (const [col, result] of Object.entries(results)) {
+            if (result.total > 0) {
+                const winRate = ((result.wins / result.total) * 100).toFixed(1);
+                const drawRate = ((result.draws / result.total) * 100).toFixed(1);
+                formatted.push(`Col ${parseInt(col) + 1}: ${winRate}% wins, ${drawRate}% draws (${result.total} games)`);
+            }
+        }
+        return formatted.join('; ');
     }
 
     /**

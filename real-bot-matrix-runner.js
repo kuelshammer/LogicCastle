@@ -410,6 +410,9 @@ class RealConnect4AI {
             case 'defensive':
                 return this.getDefensiveMove(game, helpers);
             
+            case 'monte-carlo':
+                return this.getMonteCarloMove(game, helpers);
+            
             case 'easy':
                 return this.getRandomMove(game);
             
@@ -699,6 +702,8 @@ class RealConnect4AI {
                 return this.selectEnhancedStrategic(game, safeColumns, helpers);
             case 'defensive':
                 return this.selectDefensivePriority(game, safeColumns);
+            case 'monte-carlo':
+                return this.selectMonteCarloFromSafe(game, safeColumns);
             default:
                 return this.selectCenterBiased(safeColumns);
         }
@@ -911,6 +916,144 @@ class RealConnect4AI {
         }
         
         return wouldBlockPattern && opponentPieces >= 1 && (opponentPieces + emptySpaces === 4);
+    }
+    
+    // Monte Carlo Bot implementation
+    getMonteCarloMove(game, helpers) {
+        if (game.moveHistory.length === 0) {
+            return 3; // Center opening - no analysis needed
+        }
+        
+        // Use the full universal 4-stage logic with Monte Carlo Stage 4
+        return this.getUniversalBestMove(game, helpers);
+    }
+    
+    selectMonteCarloFromSafe(game, safeColumns) {
+        if (safeColumns.length === 0) return null;
+        if (safeColumns.length === 1) return safeColumns[0];
+
+        // Quietly evaluate columns for matrix performance
+        
+        const simulationsPerColumn = Math.min(20, Math.max(10, Math.floor(100 / safeColumns.length)));
+        const results = {};
+        
+        // Initialize results for each safe column
+        for (const col of safeColumns) {
+            results[col] = { wins: 0, losses: 0, draws: 0, total: 0 };
+        }
+        
+        // Run simulations for each safe column (quietly for speed)
+        for (const col of safeColumns) {
+            const columnResults = this.runSimulationsForColumn(game, col, simulationsPerColumn);
+            results[col] = columnResults;
+        }
+        
+        // Select best column based on results
+        return this.selectBestColumnFromResults(results, safeColumns);
+    }
+    
+    runSimulationsForColumn(game, startColumn, maxSimulations) {
+        const results = { wins: 0, losses: 0, draws: 0, total: 0 };
+        
+        // Create defensive AI instances for simulation
+        const ai1 = new RealConnect4AI('defensive');
+        const ai2 = new RealConnect4AI('defensive');
+        
+        for (let i = 0; i < maxSimulations; i++) {
+            const result = this.simulateGame(game, startColumn, ai1, ai2);
+            results.total++;
+            
+            if (result === 'win') {
+                results.wins++;
+            } else if (result === 'loss') {
+                results.losses++;
+            } else {
+                results.draws++;
+            }
+        }
+        
+        return results;
+    }
+    
+    simulateGame(originalGame, startColumn, ai1, ai2) {
+        // Create a copy of the game state for simulation
+        const simGame = this.createGameCopy(originalGame);
+        
+        // Make the initial move in the specified column
+        const firstMoveResult = simGame.makeMove(startColumn);
+        if (!firstMoveResult.success) {
+            return 'draw'; // Invalid move
+        }
+        
+        // Track which player we're evaluating for (the player who made the first move)
+        const ourPlayer = originalGame.currentPlayer;
+        let moveCount = 1;
+        const maxMoves = simGame.ROWS * simGame.COLS; // Prevent infinite loops
+        
+        // Continue simulation until game ends
+        while (!simGame.gameOver && moveCount < maxMoves) {
+            const currentAI = (simGame.currentPlayer === ourPlayer) ? ai1 : ai2;
+            const move = currentAI.getBestMove(simGame);
+            
+            if (move === null) break; // No valid moves
+            
+            const result = simGame.makeMove(move);
+            if (!result.success) break; // Invalid move
+            
+            moveCount++;
+        }
+        
+        // Determine result from our perspective
+        if (simGame.gameOver && simGame.winner !== null) {
+            return (simGame.winner === ourPlayer) ? 'win' : 'loss';
+        } else {
+            return 'draw';
+        }
+    }
+    
+    createGameCopy(originalGame) {
+        const copy = new RealConnect4Game();
+        
+        // Copy board state
+        copy.board = originalGame.board.map(row => [...row]);
+        copy.currentPlayer = originalGame.currentPlayer;
+        copy.gameOver = originalGame.gameOver;
+        copy.winner = originalGame.winner;
+        copy.winningCells = originalGame.winningCells ? [...originalGame.winningCells] : [];
+        copy.moveHistory = [...originalGame.moveHistory];
+        
+        return copy;
+    }
+    
+    selectBestColumnFromResults(results, safeColumns) {
+        let bestColumn = safeColumns[0];
+        let bestScore = -1;
+        
+        for (const col of safeColumns) {
+            const result = results[col];
+            if (result.total === 0) continue;
+            
+            // Calculate win percentage with draw bonus
+            const winRate = result.wins / result.total;
+            const drawRate = result.draws / result.total;
+            const score = winRate + (drawRate * 0.5); // Draws count as half points
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestColumn = col;
+            }
+        }
+        
+        return bestColumn;
+    }
+    
+    formatResults(results) {
+        const formatted = {};
+        for (const [col, result] of Object.entries(results)) {
+            const winRate = result.total > 0 ? (result.wins / result.total * 100).toFixed(1) : '0.0';
+            formatted[`Col${parseInt(col) + 1}`] = `${winRate}% (${result.wins}W-${result.losses}L-${result.draws}D)`;
+        }
+        return formatted;
     }
 }
 
@@ -1148,10 +1291,11 @@ function displayRealBotMatrix(matrix, botDifficulties) {
 function main() {
     const botDifficulties = [
         'smart-random',
-        'offensiv-gemischt',
+        'offensiv-gemischt', 
         'defensiv-gemischt',
         'enhanced-smart',
-        'defensive'
+        'defensive',
+        'monte-carlo'
     ];
     
     console.log('🚀 STARTING REAL BOT STRENGTH ANALYSIS');

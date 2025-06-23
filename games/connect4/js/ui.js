@@ -547,6 +547,9 @@ class Connect4UI {
                 case 'vs-bot-strong':
                     difficulty = 'defensive'; // Bot (Stark) - 60% Winrate - Der stärkste Bot
                     break;
+                case 'vs-bot-monte-carlo':
+                    difficulty = 'monte-carlo'; // Bot (Monte Carlo) - Simulation-based AI
+                    break;
                 case 'vs-bot-smart': // Legacy mode compatibility
                     difficulty = 'smart-random';
                     break;
@@ -610,6 +613,8 @@ class Connect4UI {
                 this.game.playerConfig.yellowPlayer = '🤖 Bot (Mittel)';
             } else if (this.gameMode === 'vs-bot-strong') {
                 this.game.playerConfig.yellowPlayer = '🤖 Bot (Stark)';
+            } else if (this.gameMode === 'vs-bot-monte-carlo') {
+                this.game.playerConfig.yellowPlayer = '🎯 Monte Carlo Bot';
             } else if (this.gameMode === 'vs-bot-smart') {
                 this.game.playerConfig.yellowPlayer = '🟡 Smart Bot';
             }

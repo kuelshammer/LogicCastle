@@ -93,10 +93,17 @@ games/{game-name}/
 4. Add game card to main `index.html` with preview
 
 ### AI Development
-- Inherit difficulty progression: random → rule-based → minimax
+- Inherit difficulty progression: random → rule-based → minimax → monte carlo
 - Implement position evaluation functions specific to game mechanics
 - Use move ordering for performance optimization
 - Test across all difficulty levels
+
+#### Monte Carlo AI Enhancement (Connect 4)
+- **Universal 4-Stage Framework**: All bots follow Win > Block > Avoid Traps > Stage 4 Strategy
+- **Monte Carlo Stage 4**: Replaces pattern evaluation with simulation-based analysis
+- **Simulation Strategy**: Uses defensive vs defensive AI for neutral game evaluation
+- **Performance**: ~50-100 simulations per safe column within 1 second time limit
+- **Integration**: Preserves existing bot behavior while adding sophisticated analysis
 
 ### UI Consistency
 - Maintain two-click interaction pattern where applicable
