@@ -135,21 +135,11 @@ class Connect4Evaluation {
     }
 
     /**
-     * Debug function to print evaluation scores for all moves
+     * Debug function to print evaluation scores for all moves (disabled for production)
      * @param {Connect4Game} game - The game instance
      */
     debugEvaluations(game) {
-        const evaluations = this.evaluateAllMoves(game);
-
-        console.log('=== Position Evaluations ===');
-        console.log('Player:', game.currentPlayer === game.PLAYER1 ? 'Red' : 'Yellow');
-
-        for (const evalItem of evaluations) {
-            console.log(`Column ${evalItem.col + 1}: Score ${evalItem.score} (lands at row ${evalItem.row + 1})`);
-        }
-
-        if (evaluations.length > 0) {
-            console.log(`Best move: Column ${evaluations[0].col + 1} with score ${evaluations[0].score}`);
-        }
+        // Debug logging disabled for production
+        return this.evaluateAllMoves(game);
     }
 }

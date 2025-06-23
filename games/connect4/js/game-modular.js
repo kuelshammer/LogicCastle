@@ -1,0 +1,471 @@
+/**
+ * Connect4Game - Modular Core Game Logic for Connect 4
+ * 
+ * This is the refactored version that uses extracted modules for better organization.
+ * Maintains backward compatibility with existing AI and UI systems.
+ */
+class Connect4Game {
+    constructor() {
+        // Game constants
+        this.ROWS = 6;
+        this.COLS = 7;
+        this.EMPTY = 0;
+        this.PLAYER1 = 1; // Internal constant for red pieces
+        this.PLAYER2 = 2; // Internal constant for yellow pieces
+
+        // Core game state
+        this.board = [];
+        this.gameOver = false;
+        this.winner = null;
+        this.winningCells = [];
+        this.moveHistory = [];
+
+        // Initialize modular components
+        this.initializeModules();
+        
+        // Initialize game board
+        this.initializeBoard();
+        
+        // Set initial player from player manager
+        this.currentPlayer = this.playerManager.getCurrentPlayer();
+    }
+
+    /**
+     * Initialize modular components
+     */
+    initializeModules() {
+        // Game constants for module initialization
+        const gameConstants = {
+            ROWS: this.ROWS,
+            COLS: this.COLS,
+            EMPTY: this.EMPTY,
+            PLAYER1: this.PLAYER1,
+            PLAYER2: this.PLAYER2
+        };
+
+        // Initialize modules (check if classes are available)
+        if (typeof EventSystem !== 'undefined') {
+            this.eventSystem = new EventSystem();
+        } else {
+            // Fallback to basic event system
+            this.eventSystem = this.createBasicEventSystem();
+        }
+
+        if (typeof PlayerManager !== 'undefined') {
+            this.playerManager = new PlayerManager(gameConstants);
+        } else {
+            // Fallback to basic player management
+            this.playerManager = this.createBasicPlayerManager();
+        }
+
+        if (typeof ScoreManager !== 'undefined') {
+            this.scoreManager = new ScoreManager();
+            this.scoreManager.loadFromStorage();
+        } else {
+            // Fallback to basic score management
+            this.scoreManager = this.createBasicScoreManager();
+        }
+
+        if (typeof GameStateManager !== 'undefined') {
+            this.gameStateManager = new GameStateManager(gameConstants);
+        } else {
+            // Fallback to basic state management
+            this.gameStateManager = this.createBasicStateManager();
+        }
+
+        // Setup legacy compatibility
+        this.setupLegacyCompatibility();
+    }
+
+    /**
+     * Setup legacy compatibility methods
+     */
+    setupLegacyCompatibility() {
+        // Expose event system methods (maintaining backward compatibility)
+        this.on = this.eventSystem.on.bind(this.eventSystem);
+        this.off = this.eventSystem.off.bind(this.eventSystem);
+        this.emit = (event, data) => this.eventSystem.emit(event, data, this);
+        
+        // Expose legacy properties via getters/setters
+        Object.defineProperty(this, 'scores', {
+            get: () => this.scoreManager.getScores(),
+            set: (value) => {
+                // For backward compatibility, but discouraged
+                if (value && typeof value === 'object') {
+                    this.scoreManager.scores = { ...value };
+                }
+            }
+        });
+        
+        Object.defineProperty(this, 'playerConfig', {
+            get: () => this.playerManager.getPlayerConfig(),
+            set: (value) => {
+                // For backward compatibility
+                if (value && typeof value === 'object') {
+                    const current = this.playerManager.getPlayerConfig();
+                    if (value.redPlayer) {
+                        this.playerManager.setPlayerNames(value.redPlayer, current.yellowPlayer);
+                    }
+                    if (value.yellowPlayer) {
+                        this.playerManager.setPlayerNames(current.redPlayer, value.yellowPlayer);
+                    }
+                    if (value.startingPlayer) {
+                        this.playerManager.setStartingPlayer(value.startingPlayer);
+                    }
+                }
+            }
+        });
+        
+        // Backward compatibility for event listeners
+        Object.defineProperty(this, 'eventListeners', {
+            get: () => this.eventSystem.eventListeners
+        });
+    }
+
+    /**
+     * Initialize empty game board
+     */
+    initializeBoard() {
+        this.board = [];
+        for (let row = 0; row < this.ROWS; row++) {
+            this.board[row] = [];
+            for (let col = 0; col < this.COLS; col++) {
+                this.board[row][col] = this.EMPTY;
+            }
+        }
+    }
+
+    /**
+     * Reset game to initial state (next game - loser starts)
+     */
+    resetGame() {
+        this.initializeBoard();
+
+        // Use PlayerManager for next game logic
+        this.playerManager.setNextGameStarter(this.winner);
+        this.currentPlayer = this.playerManager.getCurrentPlayer();
+
+        this.gameOver = false;
+        this.winner = null;
+        this.winningCells = [];
+        this.moveHistory = [];
+        
+        this.emit('gameReset');
+        this.emit('playerChanged', this.currentPlayer);
+        this.emit('boardStateChanged', {
+            board: this.getBoard(),
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver
+        });
+    }
+
+    /**
+     * Full reset - scores back to 0:0, Red starts first
+     */
+    fullReset() {
+        this.initializeBoard();
+
+        // Reset all game state
+        this.gameOver = false;
+        this.winner = null;
+        this.winningCells = [];
+        this.moveHistory = [];
+
+        // Reset modules
+        this.scoreManager.resetAll();
+        this.playerManager.reset();
+        this.currentPlayer = this.playerManager.getCurrentPlayer();
+
+        this.emit('fullReset');
+        this.emit('playerChanged', this.currentPlayer);
+        this.emit('boardStateChanged', {
+            board: this.getBoard(),
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver
+        });
+    }
+
+    /**
+     * Make a move in the specified column
+     */
+    makeMove(col) {
+        if (this.gameOver || !this.isValidMove(col)) {
+            return false;
+        }
+
+        const row = this.getLowestEmptyRow(col);
+        if (row === -1) {
+            return false;
+        }
+
+        // Place the piece
+        this.board[row][col] = this.currentPlayer;
+        this.moveHistory.push({ row, col, player: this.currentPlayer });
+
+        // Check for win
+        if (this.checkWin(row, col)) {
+            this.gameOver = true;
+            this.winner = this.currentPlayer;
+            
+            // Record game result
+            const winnerColor = this.playerManager.getPlayerColor(this.winner);
+            this.scoreManager.recordGame(winnerColor, this.moveHistory.length, this.moveHistory);
+            
+            this.emit('gameWon', {
+                winner: this.winner,
+                winnerColor: winnerColor,
+                winningCells: this.winningCells
+            });
+        } else if (this.isDraw()) {
+            this.gameOver = true;
+            this.winner = null;
+            
+            // Record draw
+            this.scoreManager.recordGame(null, this.moveHistory.length, this.moveHistory);
+            
+            this.emit('gameDraw');
+        } else {
+            // Switch player using PlayerManager
+            this.playerManager.switchPlayer();
+            this.currentPlayer = this.playerManager.getCurrentPlayer();
+            this.emit('playerChanged', this.currentPlayer);
+        }
+
+        this.emit('moveMade', { row, col, player: this.board[row][col] });
+        this.emit('boardStateChanged', {
+            board: this.getBoard(),
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver
+        });
+
+        return true;
+    }
+
+    /**
+     * Check if a move is valid
+     */
+    isValidMove(col) {
+        return col >= 0 && col < this.COLS && this.board[0][col] === this.EMPTY;
+    }
+
+    /**
+     * Get the lowest empty row in a column
+     */
+    getLowestEmptyRow(col) {
+        for (let row = this.ROWS - 1; row >= 0; row--) {
+            if (this.board[row][col] === this.EMPTY) {
+                return row;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Get valid moves (columns that aren't full)
+     */
+    getValidMoves() {
+        const validMoves = [];
+        for (let col = 0; col < this.COLS; col++) {
+            if (this.isValidMove(col)) {
+                validMoves.push(col);
+            }
+        }
+        return validMoves;
+    }
+
+    /**
+     * Check for a win condition at the given position
+     */
+    checkWin(row, col) {
+        const player = this.board[row][col];
+        const directions = [
+            [0, 1],  // horizontal
+            [1, 0],  // vertical
+            [1, 1],  // diagonal \
+            [1, -1]  // diagonal /
+        ];
+
+        for (const [dRow, dCol] of directions) {
+            let count = 1;
+            const winningCells = [[row, col]];
+
+            // Check positive direction
+            let r = row + dRow;
+            let c = col + dCol;
+            while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
+                winningCells.push([r, c]);
+                count++;
+                r += dRow;
+                c += dCol;
+            }
+
+            // Check negative direction
+            r = row - dRow;
+            c = col - dCol;
+            while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
+                winningCells.unshift([r, c]);
+                count++;
+                r -= dRow;
+                c -= dCol;
+            }
+
+            if (count >= 4) {
+                this.winningCells = winningCells;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if the game is a draw
+     */
+    isDraw() {
+        return this.getValidMoves().length === 0;
+    }
+
+    /**
+     * Get a copy of the current board
+     */
+    getBoard() {
+        return this.board.map(row => [...row]);
+    }
+
+    /**
+     * Save current game state
+     */
+    saveState() {
+        const gameData = {
+            board: this.board,
+            currentPlayer: this.currentPlayer,
+            gameOver: this.gameOver,
+            winner: this.winner,
+            winningCells: this.winningCells,
+            moveHistory: this.moveHistory,
+            playerConfig: this.playerConfig,
+            scores: this.scores
+        };
+        
+        return this.gameStateManager.saveState(gameData);
+    }
+
+    /**
+     * Load saved game state
+     */
+    loadState() {
+        const state = this.gameStateManager.loadState();
+        if (state) {
+            this.board = state.board;
+            this.currentPlayer = state.currentPlayer;
+            this.gameOver = state.gameOver;
+            this.winner = state.winner;
+            this.winningCells = state.winningCells || [];
+            this.moveHistory = state.moveHistory || [];
+            
+            // Update modules with loaded state
+            if (state.playerConfig) {
+                this.playerManager.setState({ 
+                    currentPlayer: state.currentPlayer,
+                    playerConfig: state.playerConfig 
+                });
+            }
+            
+            return true;
+        }
+        return false;
+    }
+
+    // Fallback implementations for when modules aren't available
+
+    createBasicEventSystem() {
+        return {
+            eventListeners: {},
+            on: function(event, callback) {
+                if (!this.eventListeners[event]) {
+                    this.eventListeners[event] = [];
+                }
+                this.eventListeners[event].push(callback);
+            },
+            off: function(event, callback) {
+                if (this.eventListeners[event]) {
+                    const index = this.eventListeners[event].indexOf(callback);
+                    if (index > -1) {
+                        this.eventListeners[event].splice(index, 1);
+                    }
+                }
+            },
+            emit: function(event, data, context) {
+                if (this.eventListeners[event]) {
+                    this.eventListeners[event].forEach(callback => {
+                        try {
+                            callback.call(context, data);
+                        } catch (error) {
+                            console.warn('Event handler error:', error);
+                        }
+                    });
+                }
+            }
+        };
+    }
+
+    createBasicPlayerManager() {
+        return {
+            currentPlayer: this.PLAYER1,
+            playerConfig: {
+                redPlayer: '🔴',
+                yellowPlayer: '🟡',
+                lastWinner: null,
+                startingPlayer: this.PLAYER1
+            },
+            getCurrentPlayer: function() { return this.currentPlayer; },
+            switchPlayer: function() {
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                return this.currentPlayer;
+            },
+            getPlayerColor: function(player) { return player === 1 ? 'red' : 'yellow'; },
+            getPlayerConfig: function() { return { ...this.playerConfig }; },
+            setNextGameStarter: function(lastWinner) {
+                this.playerConfig.lastWinner = lastWinner;
+                if (lastWinner !== null) {
+                    this.currentPlayer = lastWinner === 1 ? 2 : 1;
+                }
+            },
+            reset: function() {
+                this.currentPlayer = 1;
+                this.playerConfig.lastWinner = null;
+            }
+        };
+    }
+
+    createBasicScoreManager() {
+        return {
+            scores: { red: 0, yellow: 0, draws: 0 },
+            getScores: function() { return { ...this.scores }; },
+            recordGame: function(winnerColor) {
+                if (winnerColor === 'red') this.scores.red++;
+                else if (winnerColor === 'yellow') this.scores.yellow++;
+                else this.scores.draws++;
+            },
+            resetAll: function() {
+                this.scores = { red: 0, yellow: 0, draws: 0 };
+            },
+            loadFromStorage: function() {},
+            saveToStorage: function() {}
+        };
+    }
+
+    createBasicStateManager() {
+        return {
+            saveState: function() { return false; },
+            loadState: function() { return null; }
+        };
+    }
+}
+
+// Export for both Node.js and browser environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Connect4Game;
+} else if (typeof window !== 'undefined') {
+    window.Connect4Game = Connect4Game;
+}

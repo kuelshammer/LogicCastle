@@ -148,7 +148,6 @@ class Connect4Helpers {
                 opportunities: this.currentHints.opportunities
             });
 
-            console.log('🎯 Level 0: Winning opportunity detected at columns', this.requiredMoves);
         } else {
             // No winning moves found
             if (this.forcedMoveMode) {
@@ -166,7 +165,6 @@ class Connect4Helpers {
     checkForcedMoves() {
         // Don't override if Level 0 already found winning moves
         if (this.forcedMoveMode && this.requiredMoves.length > 0) {
-            console.log('🎯 Level 1: Skipping threat check - Level 0 winning move takes priority');
             return;
         }
 
@@ -263,11 +261,9 @@ class Connect4Helpers {
         // Determine action based on safe moves availability
         if (safeMoves.length === 0) {
             // All moves are dangerous - player is trapped!
-            console.log('⚠️ Level 2: Player is TRAPPED - all moves lead to opponent wins');
             this.handleTrappedSituation(dangerousMoves);
         } else if (dangerousMoves.length > 0) {
             // Some moves are dangerous - filter them out
-            console.log('🛡️ Level 2: Filtering out dangerous moves:', dangerousMoves.map(m => m.column));
             this.forcedMoveMode = true;
             this.requiredMoves = safeMoves.map(move => move.column);
 
@@ -286,10 +282,8 @@ class Connect4Helpers {
                 reason: 'Avoiding opponent traps'
             });
 
-            console.log('🎯 Level 2: Safe moves only:', this.requiredMoves);
         } else {
             // All moves are safe - no action needed
-            console.log('✅ Level 2: All moves are safe - no traps detected');
         }
     }
 

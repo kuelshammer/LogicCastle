@@ -1,36 +1,31 @@
 /**
  * Connect4Game - Core game logic for Connect 4
+ * Now using modular architecture with extracted components
  */
 class Connect4Game {
     constructor() {
+        // Game constants
         this.ROWS = 6;
         this.COLS = 7;
         this.EMPTY = 0;
         this.PLAYER1 = 1; // Internal constant for red pieces
         this.PLAYER2 = 2; // Internal constant for yellow pieces
 
+        // Core game state
         this.board = [];
-        this.currentPlayer = this.PLAYER1;
         this.gameOver = false;
         this.winner = null;
         this.winningCells = [];
         this.moveHistory = [];
 
-        // New flexible player configuration
-        this.playerConfig = {
-            redPlayer: '🔴',      // Player name for red pieces
-            yellowPlayer: '🟡',   // Player name for yellow pieces
-            lastWinner: null,     // Who won the last game
-            startingPlayer: this.PLAYER1 // Who starts the current game
-        };
-
-        // Color-based scoring instead of player-number-based
-        this.scores = { red: 0, yellow: 0, draws: 0 };
-
+        // Initialize modular components
+        this.initializeModules();
+        
+        // Initialize game board
         this.initializeBoard();
-
-        // Event system
-        this.eventListeners = {};
+        
+        // Set initial player
+        this.currentPlayer = this.playerManager.getCurrentPlayer();
     }
 
     /**

@@ -464,8 +464,7 @@ class Connect4UI {
             try {
                 aiMove = this.getAIMove();
             } catch (error) {
-                console.error('🤖 Bot AI calculation failed:', error.message);
-                console.log('🤖 Bot falling back to emergency random move...');
+                // AI calculation failed, fallback to emergency random move
                 const validMoves = this.game.getValidMoves();
                 if (validMoves.length > 0) {
                     aiMove = validMoves[Math.floor(Math.random() * validMoves.length)];
@@ -473,49 +472,46 @@ class Connect4UI {
             }
 
             if (aiMove !== null) {
-                console.log('🤖 Bot attempting move at column:', aiMove + 1);
                 const result = this.game.makeMove(aiMove);
                 if (!result.success) {
-                    console.error('🤖 Bot move FAILED:', result.reason, 'at column', aiMove + 1);
                     // Fallback: try a simple random valid move
                     const validMoves = this.game.getValidMoves();
                     if (validMoves.length > 0) {
                         const fallbackMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-                        console.log('🤖 Bot trying fallback move at column:', fallbackMove + 1);
                         const fallbackResult = this.game.makeMove(fallbackMove);
                         if (!fallbackResult.success) {
-                            console.error('🤖 Even fallback move failed! Game state may be corrupted.');
+                            // Even fallback failed - critical error
+                            this.aiThinking = false;
+                            this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
+                            return;
                         }
                     } else {
-                        console.error('🤖 No valid moves available for fallback!');
+                        // No valid moves for fallback
+                        this.aiThinking = false;
+                        this.updateGameStatus('🚨 Keine gültigen Züge verfügbar');
+                        return;
                     }
-                } else {
-                    console.log('🤖 Bot move successful at column:', aiMove + 1);
                 }
             } else {
-                console.error('🤖 Bot could not determine a move!');
                 // Emergency fallback: make any valid move
                 const validMoves = this.game.getValidMoves();
                 if (validMoves.length > 0) {
                     const emergencyMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-                    console.log('🤖 Bot making emergency move at column:', emergencyMove + 1);
                     const emergencyResult = this.game.makeMove(emergencyMove);
                     if (!emergencyResult.success) {
-                        console.error('🤖 Emergency move failed! Game may be in invalid state.');
                         // Reset bot thinking state to prevent lockup
                         this.aiThinking = false;
                         this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
                         return;
                     }
                 } else {
-                    console.error('🤖 No valid moves available at all!');
                     this.aiThinking = false;
                     this.updateGameStatus('🚨 Keine gültigen Züge verfügbar');
                     return;
                 }
             }
         } catch (error) {
-            console.error('🤖 Critical error in makeAIMove:', error);
+            // Critical error in AI move execution
             this.aiThinking = false;
             this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
             return;
@@ -557,7 +553,6 @@ class Connect4UI {
                     difficulty = 'easy';
             }
             this.ai = new Connect4AI(difficulty);
-            console.log(`🤖 AI initialized with difficulty: ${difficulty}`);
         }
 
         // Use AI to get best move, pass helpers for smart-random mode
@@ -585,8 +580,6 @@ class Connect4UI {
 
         // Start new game with new mode
         this.game.resetGame();
-
-        console.log('Game mode changed to:', this.gameMode);
     }
 
     /**
@@ -741,7 +734,6 @@ class Connect4UI {
     handlePlayer1Level0Toggle() {
         this.playerHelpEnabled.red.level0 = this.helpPlayer1Level0.checked;
         this.updateHelpers();
-        console.log('Red Level 0 help:', this.playerHelpEnabled.red.level0 ? 'enabled' : 'disabled');
     }
 
     /**
@@ -750,7 +742,6 @@ class Connect4UI {
     handlePlayer1Level1Toggle() {
         this.playerHelpEnabled.red.level1 = this.helpPlayer1Level1.checked;
         this.updateHelpers();
-        console.log('Red Level 1 help:', this.playerHelpEnabled.red.level1 ? 'enabled' : 'disabled');
     }
 
     /**
@@ -759,7 +750,6 @@ class Connect4UI {
     handlePlayer2Level0Toggle() {
         this.playerHelpEnabled.yellow.level0 = this.helpPlayer2Level0.checked;
         this.updateHelpers();
-        console.log('Yellow Level 0 help:', this.playerHelpEnabled.yellow.level0 ? 'enabled' : 'disabled');
     }
 
     /**
@@ -768,7 +758,6 @@ class Connect4UI {
     handlePlayer2Level1Toggle() {
         this.playerHelpEnabled.yellow.level1 = this.helpPlayer2Level1.checked;
         this.updateHelpers();
-        console.log('Yellow Level 1 help:', this.playerHelpEnabled.yellow.level1 ? 'enabled' : 'disabled');
     }
 
     /**
@@ -777,7 +766,6 @@ class Connect4UI {
     handlePlayer1Level2Toggle() {
         this.playerHelpEnabled.red.level2 = this.helpPlayer1Level2.checked;
         this.updateHelpers();
-        console.log('Red Level 2 help:', this.playerHelpEnabled.red.level2 ? 'enabled' : 'disabled');
     }
 
     /**
@@ -786,7 +774,6 @@ class Connect4UI {
     handlePlayer2Level2Toggle() {
         this.playerHelpEnabled.yellow.level2 = this.helpPlayer2Level2.checked;
         this.updateHelpers();
-        console.log('Yellow Level 2 help:', this.playerHelpEnabled.yellow.level2 ? 'enabled' : 'disabled');
     }
 
     /**
@@ -795,7 +782,6 @@ class Connect4UI {
     handleUndoEnabledPlayer1Toggle() {
         this.undoEnabled.red = this.undoEnabledPlayer1.checked;
         this.updateUI();
-        console.log('Red Player undo:', this.undoEnabled.red ? 'enabled' : 'disabled');
     }
 
     /**
@@ -804,7 +790,6 @@ class Connect4UI {
     handleUndoEnabledPlayer2Toggle() {
         this.undoEnabled.yellow = this.undoEnabledPlayer2.checked;
         this.updateUI();
-        console.log('Yellow Player undo:', this.undoEnabled.yellow ? 'enabled' : 'disabled');
     }
 
     /**
@@ -827,10 +812,8 @@ class Connect4UI {
 
         if (helpLevel >= 0) {
             this.helpers.setEnabled(true, helpLevel);
-            console.log(`🎯 Help enabled for current player at level ${helpLevel}`);
         } else {
             this.helpers.setEnabled(false, 0);
-            console.log('🎯 Help disabled for current player');
         }
 
         this.updateUI();
@@ -958,13 +941,11 @@ class Connect4UI {
      * Helpers event handlers
      */
     onForcedMoveActivated(data) {
-        console.log('🚨 Forced move activated:', data);
         this.updateColumnIndicators();
         this.showMessage(`⚠️ Du MUSST Spalte ${data.requiredMoves.map(col => col + 1).join(' oder ')} spielen!`, 'warning');
     }
 
     onForcedMoveDeactivated() {
-        console.log('✅ Forced move deactivated');
         this.updateColumnIndicators();
     }
 
@@ -1183,8 +1164,6 @@ class Connect4UI {
                 }
             }, 3000);
         }
-
-        console.log(`${type.toUpperCase()}: ${message}`);
     }
 
     showGameOverMessage(message) {

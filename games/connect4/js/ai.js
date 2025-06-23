@@ -72,7 +72,6 @@ class Connect4AI {
                         const targetCol = col + i;
                         // Check if this position is actually playable
                         if (game.getValidMoves().includes(targetCol)) {
-                            console.log('🚨 CRITICAL FORK THREAT: Blocking column', targetCol + 1);
                             return targetCol;
                         }
                     }
@@ -112,24 +111,20 @@ class Connect4AI {
         // STAGE 1: Direct win possible
         const winningMove = this.findWinningMove(game);
         if (winningMove !== null) {
-            console.log(`🎯 STAGE 1: Direct win at column ${winningMove + 1}`);
             return winningMove;
         }
 
         // STAGE 2: ALWAYS block (includes forks and immediate threats)
         const blockingMove = this.findComprehensiveBlockingMove(game);
         if (blockingMove !== null) {
-            console.log(`🛡️ STAGE 2: Blocking threat at column ${blockingMove + 1}`);
             return blockingMove;
         }
 
         // STAGE 3: Identify trapped columns
         const safeColumns = this.findSafeColumns(game, validMoves);
-        console.log(`🔒 STAGE 3: Safe columns from traps: [${safeColumns.map(c => c + 1).join(', ')}]`);
 
         // STAGE 4: Bot-specific selection from safe columns
         const finalMove = this.selectFromSafeColumns(game, safeColumns, helpers);
-        console.log(`🎲 STAGE 4: ${this.difficulty} bot selected column ${finalMove + 1}`);
         return finalMove;
     }
 
@@ -173,7 +168,6 @@ class Connect4AI {
             
             default:
                 // Fallback to universal logic for unknown types
-                console.warn(`Unknown bot difficulty: ${this.difficulty}, using universal logic`);
                 return this.getUniversalBestMove(game, helpers);
         }
     }
@@ -208,11 +202,8 @@ class Connect4AI {
             helpers.updateHints(); // Force update to get current state
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🤖 Smart Bot: WINNING at columns', helpers.requiredMoves);
-
                 // IMPORTANT: Copy the moves array BEFORE restoring state
                 const winningMoves = [...helpers.requiredMoves];
-                console.log('🤖 Smart Bot: Copied winning moves:', winningMoves, 'length:', winningMoves.length);
 
                 // Restore original helpers state
                 helpers.setEnabled(wasEnabled, wasLevel);
@@ -220,7 +211,6 @@ class Connect4AI {
                 // Choose randomly among winning moves if multiple exist
                 const randomIndex = Math.floor(Math.random() * winningMoves.length);
                 const chosenMove = winningMoves[randomIndex];
-                console.log('🤖 Smart Bot: Random index:', randomIndex, 'chosen move:', chosenMove);
                 return chosenMove;
             }
 
@@ -229,11 +219,8 @@ class Connect4AI {
             helpers.updateHints(); // Force update to get current threats
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🤖 Smart Bot: BLOCKING threat at columns', helpers.requiredMoves);
-
                 // IMPORTANT: Copy the moves array BEFORE restoring state
                 const blockingMoves = [...helpers.requiredMoves];
-                console.log('🤖 Smart Bot: Copied blocking moves:', blockingMoves, 'length:', blockingMoves.length);
 
                 // Restore original helpers state
                 helpers.setEnabled(wasEnabled, wasLevel);
@@ -241,7 +228,6 @@ class Connect4AI {
                 // Choose randomly among required blocking moves if multiple exist
                 const randomIndex = Math.floor(Math.random() * blockingMoves.length);
                 const chosenMove = blockingMoves[randomIndex];
-                console.log('🤖 Smart Bot: Random index:', randomIndex, 'chosen move:', chosenMove);
                 return chosenMove;
             }
 
@@ -250,11 +236,8 @@ class Connect4AI {
             helpers.updateHints(); // Force update to get trap analysis
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🤖 Smart Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
-
                 // IMPORTANT: Copy the moves array BEFORE restoring state
                 const safeMoves = [...helpers.requiredMoves];
-                console.log('🤖 Smart Bot: Copied safe moves:', safeMoves, 'length:', safeMoves.length);
 
                 // Restore original helpers state
                 helpers.setEnabled(wasEnabled, wasLevel);
@@ -262,7 +245,6 @@ class Connect4AI {
                 // Choose randomly among safe moves if multiple exist
                 const randomIndex = Math.floor(Math.random() * safeMoves.length);
                 const chosenMove = safeMoves[randomIndex];
-                console.log('🤖 Smart Bot: Random safe move index:', randomIndex, 'chosen move:', chosenMove);
                 return chosenMove;
             }
 
@@ -271,7 +253,6 @@ class Connect4AI {
         }
 
         // PRIORITY 4: No critical moves found - make random move
-        console.log('🤖 Smart Bot: No critical moves, playing RANDOM');
         return this.getRandomMove(game);
     }
 
@@ -320,14 +301,12 @@ class Connect4AI {
             };
         });
 
-        console.log('🤖 Move weights:', moveWeights);
 
         // Calculate total weight
         const totalWeight = moveWeights.reduce((sum, move) => sum + move.weight, 0);
 
         // If all moves have zero weight, use equal weighting
         if (totalWeight === 0) {
-            console.log('🤖 All moves have zero weight, choosing randomly');
             return validMoves[Math.floor(Math.random() * validMoves.length)];
         }
 
@@ -337,7 +316,6 @@ class Connect4AI {
         for (const move of moveWeights) {
             randomValue -= move.weight;
             if (randomValue <= 0) {
-                console.log(`🤖 Selected column ${move.column + 1} with weight ${move.weight}`);
                 return move.column;
             }
         }
@@ -374,7 +352,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🛡️ Defensive Bot: WINNING at columns', helpers.requiredMoves);
                 const winningMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * winningMoves.length);
@@ -386,7 +363,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🛡️ Defensive Bot: BLOCKING threat at columns', helpers.requiredMoves);
                 const blockingMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * blockingMoves.length);
@@ -398,7 +374,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🛡️ Defensive Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
                 const safeMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * safeMoves.length);
@@ -410,7 +385,6 @@ class Connect4AI {
         }
 
         // PRIORITY 4: DEFENSIVE STRATEGY - Destroy opponent's 4-in-a-row potential
-        console.log('🛡️ Defensive Bot: Analyzing defensive potential...');
         const defensiveMoves = validMoves.map(col => {
             const defensiveValue = this.evaluateDefensivePotential(game, col);
             const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
@@ -422,10 +396,6 @@ class Connect4AI {
             };
         });
 
-        console.log('🛡️ Defensive moves analysis:', defensiveMoves.map(m => 
-            `Col ${m.column + 1}: D=${m.defensiveValue}, O=${m.offensiveValue}, Combined=${m.combinedValue}`
-        ));
-
         // Find moves with highest combined value (defense-weighted)
         const maxCombinedValue = Math.max(...defensiveMoves.map(m => m.combinedValue));
         const bestDefensiveMoves = defensiveMoves.filter(m => m.combinedValue === maxCombinedValue);
@@ -433,12 +403,10 @@ class Connect4AI {
         if (bestDefensiveMoves.length > 0 && maxCombinedValue > 0) {
             const randomIndex = Math.floor(Math.random() * bestDefensiveMoves.length);
             const chosenMove = bestDefensiveMoves[randomIndex];
-            console.log(`🛡️ Defensive Bot: Chose column ${chosenMove.column + 1} (defensive: ${chosenMove.defensiveValue}, offensive: ${chosenMove.offensiveValue}, combined: ${chosenMove.combinedValue})`);
             return chosenMove.column;
         }
 
         // PRIORITY 5: No defensive advantage found - make center-biased random move
-        console.log('🛡️ Defensive Bot: No defensive advantage, playing center-biased random');
         const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
         return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
     }
@@ -470,7 +438,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('⚔️ Offensiv-Gemischt Bot: WINNING at columns', helpers.requiredMoves);
                 const winningMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * winningMoves.length);
@@ -482,7 +449,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('⚔️ Offensiv-Gemischt Bot: BLOCKING threat at columns', helpers.requiredMoves);
                 const blockingMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * blockingMoves.length);
@@ -494,7 +460,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('⚔️ Offensiv-Gemischt Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
                 const safeMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * safeMoves.length);
@@ -505,7 +470,6 @@ class Connect4AI {
         }
 
         // PRIORITY 4: WEIGHTED RANDOM - Offensive Focus
-        console.log('⚔️ Offensiv-Gemischt Bot: Analyzing weighted offensive potential...');
         const weightedColumns = [];
 
         for (const col of validMoves) {
@@ -514,8 +478,6 @@ class Connect4AI {
             
             // Calculate defensive value (how many opponent patterns this move disrupts)
             const defensivePotential = this.evaluateDefensivePotential(game, col);
-
-            console.log(`⚔️ Column ${col + 1}: Offensive=${offensivePotential}, Defensive=${defensivePotential}`);
 
             // OFFENSIVE FOCUS: Each offensive 4-possibility adds column 2x, each defensive block adds column 1x
             for (let i = 0; i < offensivePotential * 2; i++) {
@@ -533,12 +495,10 @@ class Connect4AI {
 
         if (weightedColumns.length > 0) {
             const chosenMove = weightedColumns[Math.floor(Math.random() * weightedColumns.length)];
-            console.log(`⚔️ Offensiv-Gemischt Bot: Chose column ${chosenMove + 1} from weighted list (${weightedColumns.length} options)`);
             return chosenMove;
         }
 
         // PRIORITY 5: Fallback
-        console.log('⚔️ Offensiv-Gemischt Bot: Fallback to center-biased random');
         const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
         return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
     }
@@ -570,7 +530,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🛡️ Defensiv-Gemischt Bot: WINNING at columns', helpers.requiredMoves);
                 const winningMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * winningMoves.length);
@@ -582,7 +541,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🛡️ Defensiv-Gemischt Bot: BLOCKING threat at columns', helpers.requiredMoves);
                 const blockingMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * blockingMoves.length);
@@ -594,7 +552,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🛡️ Defensiv-Gemischt Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
                 const safeMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * safeMoves.length);
@@ -605,7 +562,6 @@ class Connect4AI {
         }
 
         // PRIORITY 4: WEIGHTED RANDOM - Defensive Focus
-        console.log('🛡️ Defensiv-Gemischt Bot: Analyzing weighted defensive potential...');
         const weightedColumns = [];
 
         for (const col of validMoves) {
@@ -614,8 +570,6 @@ class Connect4AI {
             
             // Calculate defensive value (how many opponent patterns this move disrupts)
             const defensivePotential = this.evaluateDefensivePotential(game, col);
-
-            console.log(`🛡️ Column ${col + 1}: Offensive=${offensivePotential}, Defensive=${defensivePotential}`);
 
             // DEFENSIVE FOCUS: Each defensive block adds column 2x, each offensive 4-possibility adds column 1x
             for (let i = 0; i < defensivePotential * 2; i++) {
@@ -633,12 +587,10 @@ class Connect4AI {
 
         if (weightedColumns.length > 0) {
             const chosenMove = weightedColumns[Math.floor(Math.random() * weightedColumns.length)];
-            console.log(`🛡️ Defensiv-Gemischt Bot: Chose column ${chosenMove + 1} from weighted list (${weightedColumns.length} options)`);
             return chosenMove;
         }
 
         // PRIORITY 5: Fallback
-        console.log('🛡️ Defensiv-Gemischt Bot: Fallback to center-biased random');
         const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
         return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
     }
@@ -1039,7 +991,6 @@ class Connect4AI {
             if (row !== -1) {
                 boardCopy[row][col] = opponent;
                 if (this.checkWinOnBoardAtPosition(boardCopy, row, col, opponent, game)) {
-                    console.log(`🛡️ BLOCKING immediate threat at column ${col + 1}`);
                     return col;
                 }
             }
@@ -1048,7 +999,6 @@ class Connect4AI {
         // Then check for fork patterns (_ x _ x _)
         const forkBlock = this.findForkBlockingMove(game, opponent);
         if (forkBlock !== null) {
-            console.log(`🛡️ BLOCKING fork pattern at column ${forkBlock + 1}`);
             return forkBlock;
         }
 
@@ -1160,7 +1110,6 @@ class Connect4AI {
         // CRITICAL FIX: If no moves are safe, use center-biased preference
         // Never return ALL validMoves as this allows dangerous Monte Carlo simulation
         if (safeColumns.length === 0) {
-            console.log('⚠️ No safe moves found, using center-biased fallback');
             const centerOrder = [3, 2, 4, 1, 5, 0, 6];
             for (const col of centerOrder) {
                 if (validMoves.includes(col)) {
@@ -1607,7 +1556,6 @@ class Connect4AI {
         // PRIORITY 0: If board is empty, play center column
         const totalMoves = game.moveHistory.length;
         if (totalMoves === 0) {
-            console.log('🚀 Enhanced Bot: Opening with center column');
             return 3; // Center column (0-indexed)
         }
 
@@ -1622,7 +1570,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🚀 Enhanced Bot: WINNING at columns', helpers.requiredMoves);
                 const winningMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * winningMoves.length);
@@ -1634,7 +1581,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🚀 Enhanced Bot: BLOCKING threat at columns', helpers.requiredMoves);
                 const blockingMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * blockingMoves.length);
@@ -1647,23 +1593,12 @@ class Connect4AI {
 
         // PRIORITY 3: Advanced Strategic Analysis using enhanced evaluation
         if (helpers) {
-            console.log('🚀 Enhanced Bot: Running advanced strategic analysis...');
-            
             try {
                 const strategicEval = helpers.getEnhancedStrategicEvaluation();
-                
-                console.log('🚀 Strategic Analysis:', {
-                    evenOdd: strategicEval.evenOddAnalysis.parity,
-                    forks: strategicEval.forkOpportunities.length,
-                    recommended: strategicEval.recommendedMove,
-                    confidence: strategicEval.confidence
-                });
 
                 // PRIORITY 3A: Enhanced fork opportunities (immediate + setup moves)
                 if (strategicEval.forkOpportunities.length > 0) {
                     const bestFork = strategicEval.forkOpportunities[0];
-                    const forkType = bestFork.setupMove ? 'SETUP FORK' : 'IMMEDIATE FORK';
-                    console.log(`🚀 Enhanced Bot: ${forkType} at column ${bestFork.column + 1} (threats: ${bestFork.threats}, total value: ${bestFork.totalValue.toFixed(1)}, priority: ${bestFork.priority})`);
                     return bestFork.column;
                 }
 
@@ -1671,33 +1606,26 @@ class Connect4AI {
                 const evenOddAnalysis = strategicEval.evenOddAnalysis;
                 if (evenOddAnalysis.parity === 'player_winning_odd' && evenOddAnalysis.player.odd.length > 0) {
                     const oddThreat = evenOddAnalysis.player.odd[0];
-                    console.log('🚀 Enhanced Bot: ODD THREAT strategy at column', oddThreat.column + 1);
                     return oddThreat.column;
                 }
 
                 if (evenOddAnalysis.parity === 'player_even_advantage' && evenOddAnalysis.player.even.length > 0) {
                     const evenThreat = evenOddAnalysis.player.even[0];
-                    console.log('🚀 Enhanced Bot: EVEN THREAT strategy at column', evenThreat.column + 1);
                     return evenThreat.column;
                 }
 
                 // PRIORITY 3C: Zugzwang opportunities (forcing sequences)
                 if (strategicEval.zugzwangOpportunities && strategicEval.zugzwangOpportunities.length > 0) {
                     const bestZugzwang = strategicEval.zugzwangOpportunities[0];
-                    console.log(`🚀 Enhanced Bot: ZUGZWANG OPPORTUNITY at column ${bestZugzwang.column + 1} (value: ${bestZugzwang.value}, type: ${bestZugzwang.type})`);
                     return bestZugzwang.column;
                 }
 
                 // PRIORITY 3D: Use recommended move if confidence is decent
                 if (strategicEval.recommendedMove !== null && strategicEval.confidence >= 0.3) {
-                    console.log('🚀 Enhanced Bot: STRATEGIC RECOMMENDATION at column', strategicEval.recommendedMove + 1, `(confidence: ${strategicEval.confidence})`);
                     return strategicEval.recommendedMove;
                 }
 
             } catch (error) {
-                console.error('🚀 Enhanced Bot: Strategic analysis failed:', error.message);
-                console.error('🚀 Enhanced Bot: Stack trace:', error.stack);
-                console.warn('🚀 Enhanced Bot: Strategic features not working - needs debugging!');
                 // Continue with fallback strategy below
             }
 
@@ -1706,7 +1634,6 @@ class Connect4AI {
             helpers.updateHints();
 
             if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
-                console.log('🚀 Enhanced Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
                 const safeMoves = [...helpers.requiredMoves];
                 helpers.setEnabled(wasEnabled, wasLevel);
                 const randomIndex = Math.floor(Math.random() * safeMoves.length);
@@ -1718,7 +1645,6 @@ class Connect4AI {
         }
 
         // PRIORITY 5: DEFENSIVE PATTERN ANALYSIS (like Defensive Bot)
-        console.log('🚀 Enhanced Bot: Analyzing defensive patterns + offensive potential...');
         const enhancedMoves = validMoves.map(col => {
             const defensiveValue = this.evaluateDefensivePotential(game, col);
             const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
@@ -1734,10 +1660,6 @@ class Connect4AI {
             };
         });
 
-        console.log('🚀 Enhanced moves analysis:', enhancedMoves.map(m => 
-            `Col ${m.column + 1}: D=${m.defensiveValue}, O=${m.offensiveValue}, Combined=${m.combinedValue.toFixed(1)}`
-        ));
-
         // Find moves with highest combined value
         const maxCombinedValue = Math.max(...enhancedMoves.map(m => m.combinedValue));
         const bestEnhancedMoves = enhancedMoves.filter(m => m.combinedValue === maxCombinedValue);
@@ -1745,12 +1667,10 @@ class Connect4AI {
         if (bestEnhancedMoves.length > 0 && maxCombinedValue > 0) {
             const randomIndex = Math.floor(Math.random() * bestEnhancedMoves.length);
             const chosenMove = bestEnhancedMoves[randomIndex];
-            console.log(`🚀 Enhanced Bot: Strategic choice column ${chosenMove.column + 1} (defensive: ${chosenMove.defensiveValue}, offensive: ${chosenMove.offensiveValue}, combined: ${chosenMove.combinedValue.toFixed(1)})`);
             return chosenMove.column;
         }
 
         // PRIORITY 6: Fallback to weighted center-preferring random
-        console.log('🚀 Enhanced Bot: No strategic advantages found, using weighted center preference');
         return this.getWeightedCenterMove(game);
     }
 
@@ -1778,7 +1698,6 @@ class Connect4AI {
         for (const move of weights) {
             randomValue -= move.weight;
             if (randomValue <= 0) {
-                console.log(`🚀 Enhanced Bot: Weighted center move - column ${move.column + 1} (weight ${move.weight})`);
                 return move.column;
             }
         }
@@ -1792,10 +1711,7 @@ class Connect4AI {
      * Strategy: Win > Block > Avoid Traps > Monte Carlo Tree Search
      */
     getMonteCarloMove(game, helpers = null) {
-        console.log('🎯 Monte Carlo Bot: Starting analysis...');
-        
         if (game.moveHistory.length === 0) {
-            console.log('🎯 Monte Carlo: Opening with center column');
             return 3; // Center opening
         }
         
@@ -1815,11 +1731,8 @@ class Connect4AI {
         }
         
         if (safeColumns.length === 1) {
-            console.log('🎯 Monte Carlo: Only one safe column, no simulation needed');
             return safeColumns[0];
         }
-
-        console.log(`🎯 Monte Carlo: Evaluating ${safeColumns.length} safe columns: [${safeColumns.map(c => c + 1).join(', ')}]`);
         
         const simulationsPerColumn = Math.min(100, Math.max(50, Math.floor(500 / safeColumns.length)));
         const startTime = performance.now();
@@ -1836,22 +1749,15 @@ class Connect4AI {
         for (const col of safeColumns) {
             const elapsedTime = performance.now() - startTime;
             if (elapsedTime > timeLimit) {
-                console.log('🎯 Monte Carlo: Time limit reached, using partial results');
                 break;
             }
             
-            console.log(`🎯 Monte Carlo: Simulating column ${col + 1} (${simulationsPerColumn} games)...`);
             const columnResults = this.runSimulationsForColumn(game, col, simulationsPerColumn, timeLimit - elapsedTime);
             results[col] = columnResults;
         }
         
         // Analyze results and select best column
         const bestColumn = this.selectBestColumnFromResults(results, safeColumns);
-        
-        const totalTime = performance.now() - startTime;
-        console.log(`🎯 Monte Carlo: Analysis complete in ${totalTime.toFixed(1)}ms`);
-        console.log('🎯 Monte Carlo Results:', this.formatResults(results));
-        console.log(`🎯 Monte Carlo: Selected column ${bestColumn + 1}`);
         
         return bestColumn;
     }
