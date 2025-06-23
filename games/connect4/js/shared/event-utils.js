@@ -1,0 +1,394 @@
+/**
+ * Event Utilities - Common event system functionality
+ * 
+ * Shared event handling utilities across Connect4 modules
+ */
+import { GAME_EVENTS, HINT_EVENTS } from './constants.js';
+
+/**
+ * Base Event Emitter class for consistent event handling
+ */
+export class EventEmitter {
+    constructor() {
+        this.eventListeners = {};
+        this.maxListeners = 10; // Prevent memory leaks
+        this.debugMode = false;
+    }
+
+    /**
+     * Add event listener
+     * @param {string} event - Event name
+     * @param {function} callback - Callback function
+     * @param {Object} options - Options {once: boolean}
+     */
+    on(event, callback, options = {}) {
+        if (!this.eventListeners[event]) {
+            this.eventListeners[event] = [];
+        }
+        
+        // Check for memory leaks
+        if (this.eventListeners[event].length >= this.maxListeners) {
+            console.warn(`EventEmitter: Possible memory leak detected. Event '${event}' has ${this.eventListeners[event].length} listeners.`);
+        }
+        
+        const listener = {
+            callback,
+            once: options.once || false
+        };
+        
+        this.eventListeners[event].push(listener);
+        
+        if (this.debugMode) {
+            console.debug(`EventEmitter: Added listener for '${event}'. Total: ${this.eventListeners[event].length}`);
+        }
+    }
+
+    /**
+     * Add one-time event listener
+     * @param {string} event - Event name
+     * @param {function} callback - Callback function
+     */
+    once(event, callback) {
+        this.on(event, callback, { once: true });
+    }
+
+    /**
+     * Emit event to all listeners
+     * @param {string} event - Event name
+     * @param {*} data - Event data
+     */
+    emit(event, data) {
+        if (!this.eventListeners[event]) {
+            if (this.debugMode) {
+                console.debug(`EventEmitter: No listeners for event '${event}'`);
+            }
+            return;
+        }
+        
+        const listeners = [...this.eventListeners[event]]; // Copy to avoid issues during iteration
+        
+        listeners.forEach((listener, index) => {
+            try {
+                listener.callback(data);
+                
+                // Remove one-time listeners
+                if (listener.once) {
+                    this.eventListeners[event].splice(index, 1);
+                }
+            } catch (error) {
+                console.error(`EventEmitter: Error in event handler for '${event}':`, error);
+            }
+        });
+        
+        if (this.debugMode) {
+            console.debug(`EventEmitter: Emitted '${event}' to ${listeners.length} listeners`);
+        }
+    }
+
+    /**
+     * Remove event listener
+     * @param {string} event - Event name
+     * @param {function} callback - Callback function to remove
+     */
+    off(event, callback) {
+        if (!this.eventListeners[event]) {
+            return;
+        }
+        
+        const initialLength = this.eventListeners[event].length;
+        this.eventListeners[event] = this.eventListeners[event]
+            .filter(listener => listener.callback !== callback);
+        
+        if (this.debugMode) {
+            const removedCount = initialLength - this.eventListeners[event].length;
+            console.debug(`EventEmitter: Removed ${removedCount} listener(s) for '${event}'`);
+        }
+    }
+
+    /**
+     * Remove all listeners for an event
+     * @param {string} event - Event name
+     */
+    removeAllListeners(event) {
+        if (event) {
+            delete this.eventListeners[event];
+        } else {
+            this.eventListeners = {};
+        }
+        
+        if (this.debugMode) {
+            console.debug(`EventEmitter: Removed all listeners${event ? ` for '${event}'` : ''}`);
+        }
+    }
+
+    /**
+     * Get listener count for an event
+     * @param {string} event - Event name
+     * @returns {number} Number of listeners
+     */
+    listenerCount(event) {
+        return this.eventListeners[event] ? this.eventListeners[event].length : 0;
+    }
+
+    /**
+     * Get all event names with listeners
+     * @returns {string[]} Array of event names
+     */
+    eventNames() {
+        return Object.keys(this.eventListeners);
+    }
+
+    /**
+     * Set maximum number of listeners per event
+     * @param {number} n - Maximum listeners
+     */
+    setMaxListeners(n) {
+        this.maxListeners = n;
+    }
+
+    /**
+     * Enable or disable debug mode
+     * @param {boolean} enabled - Whether to enable debug mode
+     */
+    setDebugMode(enabled) {
+        this.debugMode = enabled;
+    }
+}
+
+/**
+ * Game Event Dispatcher - Specialized for Connect4 game events
+ */
+export class GameEventDispatcher extends EventEmitter {
+    constructor() {
+        super();
+        this.gameState = null;
+        this.eventHistory = [];
+        this.maxHistorySize = 100;
+    }
+
+    /**
+     * Set game state reference
+     * @param {Object} gameState - Game state object
+     */
+    setGameState(gameState) {
+        this.gameState = gameState;
+    }
+
+    /**
+     * Emit game event with automatic state attachment
+     * @param {string} event - Event name
+     * @param {*} data - Event data
+     */
+    emitGameEvent(event, data = {}) {
+        const eventData = {
+            ...data,
+            timestamp: new Date().toISOString(),
+            gameState: this.gameState ? {
+                currentPlayer: this.gameState.currentPlayer,
+                moveCount: this.gameState.moveHistory ? this.gameState.moveHistory.length : 0,
+                gameOver: this.gameState.gameOver,
+                winner: this.gameState.winner
+            } : null
+        };
+        
+        // Add to history
+        this.addToHistory(event, eventData);
+        
+        // Emit the event
+        this.emit(event, eventData);
+    }
+
+    /**
+     * Add event to history
+     * @private
+     */
+    addToHistory(event, data) {
+        this.eventHistory.push({ event, data, timestamp: new Date().toISOString() });
+        
+        // Trim history if too long
+        if (this.eventHistory.length > this.maxHistorySize) {
+            this.eventHistory = this.eventHistory.slice(-this.maxHistorySize);
+        }
+    }
+
+    /**
+     * Get event history
+     * @param {number} limit - Maximum number of events to return
+     * @returns {Array} Event history
+     */
+    getEventHistory(limit = 50) {
+        return this.eventHistory.slice(-limit);
+    }
+
+    /**
+     * Clear event history
+     */
+    clearHistory() {
+        this.eventHistory = [];
+    }
+}
+
+/**
+ * Event State Manager - Manages state across event-driven components
+ */
+export class EventStateManager {
+    constructor() {
+        this.state = {};
+        this.watchers = {};
+        this.eventEmitter = new EventEmitter();
+    }
+
+    /**
+     * Set state value
+     * @param {string} key - State key
+     * @param {*} value - State value
+     */
+    setState(key, value) {
+        const oldValue = this.state[key];
+        this.state[key] = value;
+        
+        // Notify watchers
+        if (this.watchers[key]) {
+            this.watchers[key].forEach(callback => {
+                try {
+                    callback(value, oldValue);
+                } catch (error) {
+                    console.error(`EventStateManager: Error in state watcher for '${key}':`, error);
+                }
+            });
+        }
+        
+        // Emit state change event
+        this.eventEmitter.emit('stateChanged', {
+            key,
+            value,
+            oldValue,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    /**
+     * Get state value
+     * @param {string} key - State key
+     * @param {*} defaultValue - Default value if key doesn't exist
+     * @returns {*} State value
+     */
+    getState(key, defaultValue = undefined) {
+        return this.state[key] !== undefined ? this.state[key] : defaultValue;
+    }
+
+    /**
+     * Watch state changes
+     * @param {string} key - State key to watch
+     * @param {function} callback - Callback function
+     */
+    watch(key, callback) {
+        if (!this.watchers[key]) {
+            this.watchers[key] = [];
+        }
+        this.watchers[key].push(callback);
+    }
+
+    /**
+     * Stop watching state changes
+     * @param {string} key - State key
+     * @param {function} callback - Callback function to remove
+     */
+    unwatch(key, callback) {
+        if (this.watchers[key]) {
+            this.watchers[key] = this.watchers[key].filter(cb => cb !== callback);
+        }
+    }
+
+    /**
+     * Subscribe to state change events
+     * @param {function} callback - Callback function
+     */
+    onStateChange(callback) {
+        this.eventEmitter.on('stateChanged', callback);
+    }
+
+    /**
+     * Get all state
+     * @returns {Object} Complete state object
+     */
+    getAllState() {
+        return { ...this.state };
+    }
+
+    /**
+     * Clear all state
+     */
+    clearState() {
+        this.state = {};
+        this.watchers = {};
+        this.eventEmitter.emit('stateCleared', { timestamp: new Date().toISOString() });
+    }
+}
+
+/**
+ * Create a throttled event emitter (prevents spam)
+ * @param {EventEmitter} emitter - Original emitter
+ * @param {number} delay - Throttle delay in milliseconds
+ * @returns {EventEmitter} Throttled emitter
+ */
+export function createThrottledEmitter(emitter, delay = 100) {
+    const throttleTimers = {};
+    
+    return {
+        emit(event, data) {
+            if (throttleTimers[event]) {
+                clearTimeout(throttleTimers[event]);
+            }
+            
+            throttleTimers[event] = setTimeout(() => {
+                emitter.emit(event, data);
+                delete throttleTimers[event];
+            }, delay);
+        },
+        
+        // Delegate other methods
+        on: emitter.on.bind(emitter),
+        off: emitter.off.bind(emitter),
+        once: emitter.once.bind(emitter)
+    };
+}
+
+/**
+ * Create a debounced event emitter (waits for pause in events)
+ * @param {EventEmitter} emitter - Original emitter
+ * @param {number} delay - Debounce delay in milliseconds
+ * @returns {EventEmitter} Debounced emitter
+ */
+export function createDebouncedEmitter(emitter, delay = 300) {
+    const debounceTimers = {};
+    
+    return {
+        emit(event, data) {
+            if (debounceTimers[event]) {
+                clearTimeout(debounceTimers[event]);
+            }
+            
+            debounceTimers[event] = setTimeout(() => {
+                emitter.emit(event, data);
+                delete debounceTimers[event];
+            }, delay);
+        },
+        
+        // Delegate other methods
+        on: emitter.on.bind(emitter),
+        off: emitter.off.bind(emitter),
+        once: emitter.once.bind(emitter)
+    };
+}
+
+// Global access for backward compatibility
+if (typeof window !== 'undefined') {
+    window.Connect4EventUtils = {
+        EventEmitter,
+        GameEventDispatcher,
+        EventStateManager,
+        createThrottledEmitter,
+        createDebouncedEmitter
+    };
+}
