@@ -95,37 +95,83 @@ class Connect4AI {
     }
 
     /**
+     * 4-STAGE UNIVERSAL BOT LOGIC
+     * ALL bots must follow these stages before their specific strategy:
+     * Stage 1: Direct win possible - play winning move
+     * Stage 2: ALWAYS block - prevent opponent wins and forks  
+     * Stage 3: Identify trapped columns - avoid moves that give opponent a win
+     * Stage 4: Bot-specific selection from remaining safe columns
+     */
+    getUniversalBestMove(game, helpers = null) {
+        const validMoves = game.getValidMoves();
+        
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        // STAGE 1: Direct win possible
+        const winningMove = this.findWinningMove(game);
+        if (winningMove !== null) {
+            console.log(`🎯 STAGE 1: Direct win at column ${winningMove + 1}`);
+            return winningMove;
+        }
+
+        // STAGE 2: ALWAYS block (includes forks and immediate threats)
+        const blockingMove = this.findComprehensiveBlockingMove(game);
+        if (blockingMove !== null) {
+            console.log(`🛡️ STAGE 2: Blocking threat at column ${blockingMove + 1}`);
+            return blockingMove;
+        }
+
+        // STAGE 3: Identify trapped columns
+        const safeColumns = this.findSafeColumns(game, validMoves);
+        console.log(`🔒 STAGE 3: Safe columns from traps: [${safeColumns.map(c => c + 1).join(', ')}]`);
+
+        // STAGE 4: Bot-specific selection from safe columns
+        const finalMove = this.selectFromSafeColumns(game, safeColumns, helpers);
+        console.log(`🎲 STAGE 4: ${this.difficulty} bot selected column ${finalMove + 1}`);
+        return finalMove;
+    }
+
+    /**
      * Get the best move for the current game state
      * @param {Connect4Game} game - Current game instance
      * @param {Connect4Helpers} helpers - Optional helpers instance for smart random mode
      * @returns {number} - Column index for the best move
      */
     getBestMove(game, helpers = null) {
-        // UNIVERSAL FORK CHECK: All bots must check for forks first!
-        const forkMove = this.checkForCriticalForks(game);
-        if (forkMove !== null) {
-            return forkMove;
-        }
+        // Route each bot type to its specific strategy method
         switch (this.difficulty) {
-            case 'easy':
-                return this.getRandomMove(game);
             case 'smart-random':
                 return this.getSmartRandomMove(game, helpers);
-            case 'defensive':
-                return this.getDefensiveMove(game, helpers);
+            
             case 'offensiv-gemischt':
                 return this.getOffensiveMixedMove(game, helpers);
+            
             case 'defensiv-gemischt':
                 return this.getDefensiveMixedMove(game, helpers);
+            
             case 'enhanced-smart':
                 return this.getEnhancedSmartMove(game, helpers);
+            
+            case 'defensive':
+                // Note: 'defensive' maps to the pure defensive strategy (different from defensiv-gemischt)
+                return this.getDefensiveMove(game, helpers);
+            
+            case 'easy':
+                return this.getRandomMove(game);
+            
             case 'medium':
                 return this.getRuleBasedMove(game);
+            
             case 'hard':
             case 'expert':
                 return this.getMinimaxMove(game);
+            
             default:
-                return this.getRuleBasedMove(game);
+                // Fallback to universal logic for unknown types
+                console.warn(`Unknown bot difficulty: ${this.difficulty}, using universal logic`);
+                return this.getUniversalBestMove(game, helpers);
         }
     }
 
@@ -440,10 +486,22 @@ class Connect4AI {
                 return blockingMoves[randomIndex];
             }
 
+            // PRIORITY 3: Check Level 2 - Avoid traps (safe moves only)
+            helpers.setEnabled(true, 2);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('⚔️ Offensiv-Gemischt Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
+                const safeMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * safeMoves.length);
+                return safeMoves[randomIndex];
+            }
+
             helpers.setEnabled(wasEnabled, wasLevel);
         }
 
-        // PRIORITY 3: WEIGHTED RANDOM - Offensive Focus
+        // PRIORITY 4: WEIGHTED RANDOM - Offensive Focus
         console.log('⚔️ Offensiv-Gemischt Bot: Analyzing weighted offensive potential...');
         const weightedColumns = [];
 
@@ -476,7 +534,7 @@ class Connect4AI {
             return chosenMove;
         }
 
-        // Fallback
+        // PRIORITY 5: Fallback
         console.log('⚔️ Offensiv-Gemischt Bot: Fallback to center-biased random');
         const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
         return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
@@ -528,10 +586,22 @@ class Connect4AI {
                 return blockingMoves[randomIndex];
             }
 
+            // PRIORITY 3: Check Level 2 - Avoid traps (safe moves only)
+            helpers.setEnabled(true, 2);
+            helpers.updateHints();
+
+            if (helpers.forcedMoveMode && helpers.requiredMoves.length > 0) {
+                console.log('🛡️ Defensiv-Gemischt Bot: AVOIDING TRAPS, safe moves:', helpers.requiredMoves);
+                const safeMoves = [...helpers.requiredMoves];
+                helpers.setEnabled(wasEnabled, wasLevel);
+                const randomIndex = Math.floor(Math.random() * safeMoves.length);
+                return safeMoves[randomIndex];
+            }
+
             helpers.setEnabled(wasEnabled, wasLevel);
         }
 
-        // PRIORITY 3: WEIGHTED RANDOM - Defensive Focus
+        // PRIORITY 4: WEIGHTED RANDOM - Defensive Focus
         console.log('🛡️ Defensiv-Gemischt Bot: Analyzing weighted defensive potential...');
         const weightedColumns = [];
 
@@ -564,7 +634,7 @@ class Connect4AI {
             return chosenMove;
         }
 
-        // Fallback
+        // PRIORITY 5: Fallback
         console.log('🛡️ Defensiv-Gemischt Bot: Fallback to center-biased random');
         const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
         return centerMoves.length > 0 ? centerMoves[0] : this.getRandomMove(game);
@@ -935,9 +1005,281 @@ class Connect4AI {
     }
 
     /**
-     * Helper methods
+     * STAGE 1: Find direct winning move for current player
      */
-    findWinningMove(game, player) {
+    findWinningMove(game) {
+        const validMoves = game.getValidMoves();
+
+        for (const col of validMoves) {
+            const result = game.simulateMove(col);
+            if (result.success && result.wouldWin) {
+                return col;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * STAGE 2: Comprehensive blocking - includes immediate threats AND forks
+     * Specifically includes the _ x _ x _ pattern mentioned by user
+     */
+    findComprehensiveBlockingMove(game) {
+        const opponent = game.currentPlayer === game.PLAYER1 ? game.PLAYER2 : game.PLAYER1;
+        const validMoves = game.getValidMoves();
+
+        // First check immediate wins (3-in-a-row threats)
+        for (const col of validMoves) {
+            const boardCopy = this.copyBoard(game.board);
+            const row = this.getLowestEmptyRow(boardCopy, col, game);
+            
+            if (row !== -1) {
+                boardCopy[row][col] = opponent;
+                if (this.checkWinOnBoardAtPosition(boardCopy, row, col, opponent, game)) {
+                    console.log(`🛡️ BLOCKING immediate threat at column ${col + 1}`);
+                    return col;
+                }
+            }
+        }
+
+        // Then check for fork patterns (_ x _ x _)
+        const forkBlock = this.findForkBlockingMove(game, opponent);
+        if (forkBlock !== null) {
+            console.log(`🛡️ BLOCKING fork pattern at column ${forkBlock + 1}`);
+            return forkBlock;
+        }
+
+        return null;
+    }
+
+    /**
+     * Find move to block dangerous fork patterns like _ x _ x _
+     */
+    findForkBlockingMove(game, opponent) {
+        const validMoves = game.getValidMoves();
+        
+        // Check for dangerous fork patterns in all directions
+        const directions = [
+            [0, 1],   // Horizontal
+            [1, 1],   // Diagonal /
+            [1, -1]   // Diagonal \
+        ];
+
+        for (const [deltaRow, deltaCol] of directions) {
+            for (let row = 0; row < game.ROWS; row++) {
+                for (let col = 0; col <= game.COLS - 4; col++) {
+                    const forkMove = this.checkForkPattern(game, row, col, deltaRow, deltaCol, opponent, validMoves);
+                    if (forkMove !== null) {
+                        return forkMove;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check for specific fork pattern: _ x _ x (creates double threat)
+     */
+    checkForkPattern(game, startRow, startCol, deltaRow, deltaCol, opponent, validMoves) {
+        const window = [];
+        const positions = [];
+        
+        // Build 4-cell window
+        for (let i = 0; i < 4; i++) {
+            const checkRow = startRow + i * deltaRow;
+            const checkCol = startCol + i * deltaCol;
+            
+            if (checkRow >= 0 && checkRow < game.ROWS && checkCol >= 0 && checkCol < game.COLS) {
+                window.push(game.board[checkRow][checkCol]);
+                positions.push({ row: checkRow, col: checkCol });
+            } else {
+                return null; // Window goes out of bounds
+            }
+        }
+
+        // Check for _ x _ x pattern (empty-opponent-empty-opponent)
+        if (window[0] === game.EMPTY && 
+            window[1] === opponent && 
+            window[2] === game.EMPTY && 
+            window[3] === opponent) {
+            
+            // Check which empty positions are actually playable
+            const emptyPos0 = positions[0];
+            const emptyPos2 = positions[2];
+            
+            // For vertical moves, check if positions are reachable
+            const canPlay0 = this.isPositionPlayable(game, emptyPos0.row, emptyPos0.col, validMoves);
+            const canPlay2 = this.isPositionPlayable(game, emptyPos2.row, emptyPos2.col, validMoves);
+            
+            if (canPlay0 && canPlay2) {
+                // This is a dangerous fork - opponent can win by playing either position
+                // Block by playing one of the empty positions
+                if (validMoves.includes(emptyPos0.col)) {
+                    return emptyPos0.col;
+                }
+                if (validMoves.includes(emptyPos2.col)) {
+                    return emptyPos2.col;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a board position is actually playable (piece would land there)
+     */
+    isPositionPlayable(game, targetRow, targetCol, validMoves) {
+        if (!validMoves.includes(targetCol)) {
+            return false;
+        }
+        
+        // Find where piece would actually land in this column
+        const landingRow = this.getLowestEmptyRow(game.board, targetCol, game);
+        return landingRow === targetRow;
+    }
+
+    /**
+     * STAGE 3: Find safe columns (avoid moves that give opponent immediate wins)
+     */
+    findSafeColumns(game, validMoves) {
+        const opponent = game.currentPlayer === game.PLAYER1 ? game.PLAYER2 : game.PLAYER1;
+        const safeColumns = [];
+        
+        for (const col of validMoves) {
+            if (this.isSafeMove(game, col, opponent)) {
+                safeColumns.push(col);
+            }
+        }
+        
+        // If no moves are safe, return all valid moves (forced to play)
+        return safeColumns.length > 0 ? safeColumns : validMoves;
+    }
+
+    /**
+     * Check if a move is safe (doesn't give opponent an immediate win next turn)
+     */
+    isSafeMove(game, col, opponent) {
+        // Simulate our move
+        const boardCopy = this.copyBoard(game.board);
+        const row = this.simulateMove(boardCopy, col, game.currentPlayer);
+        
+        if (row === -1) {
+            return false; // Invalid move
+        }
+        
+        // Check if opponent can win after our move
+        const opponentValidMoves = this.getValidMovesForBoard(boardCopy, game);
+        
+        for (const opponentCol of opponentValidMoves) {
+            const opponentRow = this.simulateMove(boardCopy, opponentCol, opponent);
+            if (opponentRow !== -1) {
+                if (this.checkWinOnBoardAtPosition(boardCopy, opponentRow, opponentCol, opponent, game)) {
+                    // This opponent move would win - our move creates a trap
+                    boardCopy[opponentRow][opponentCol] = game.EMPTY; // Undo
+                    return false; // Move is NOT safe
+                }
+                // Undo opponent move
+                boardCopy[opponentRow][opponentCol] = game.EMPTY;
+            }
+        }
+        
+        // If we get here, no opponent move creates an immediate win
+        return true;
+    }
+
+    /**
+     * STAGE 4: Bot-specific selection from safe columns
+     */
+    selectFromSafeColumns(game, safeColumns, helpers) {
+        if (safeColumns.length === 0) {
+            return null;
+        }
+        
+        if (safeColumns.length === 1) {
+            return safeColumns[0];
+        }
+        
+        // Bot-specific strategies
+        switch (this.difficulty) {
+            case 'easy':
+                // Easy: Random from safe columns
+                return safeColumns[Math.floor(Math.random() * safeColumns.length)];
+                
+            case 'medium':
+                // Medium: Center-biased selection from safe columns
+                return this.selectCenterBiased(safeColumns);
+                
+            case 'hard':
+            case 'expert':
+                // Hard/Expert: Evaluate position potential from safe columns
+                return this.selectBestPotential(game, safeColumns);
+            
+            case 'smart-random':
+                // Smart Random: Helpers-based selection with randomness
+                return this.selectSmartRandomFromSafe(game, safeColumns, helpers);
+            
+            case 'offensiv-gemischt':
+                // Offensive Mixed: Weighted selection favoring offensive potential
+                return this.selectOffensiveWeighted(game, safeColumns);
+            
+            case 'defensiv-gemischt':
+                // Defensive Mixed: Weighted selection favoring defensive disruption
+                return this.selectDefensiveWeighted(game, safeColumns);
+            
+            case 'enhanced-smart':
+                // Enhanced Smart: Advanced strategic evaluation
+                return this.selectEnhancedStrategic(game, safeColumns, helpers);
+            
+            case 'defensive':
+                // Defensive: Focus on disrupting opponent patterns
+                return this.selectDefensivePriority(game, safeColumns);
+                
+            default:
+                // Fallback to random
+                return safeColumns[Math.floor(Math.random() * safeColumns.length)];
+        }
+    }
+
+    /**
+     * Select move with center bias from safe columns
+     */
+    selectCenterBiased(safeColumns) {
+        const centerOrder = [3, 2, 4, 1, 5, 0, 6];
+        
+        for (const col of centerOrder) {
+            if (safeColumns.includes(col)) {
+                return col;
+            }
+        }
+        
+        return safeColumns[0]; // Fallback
+    }
+
+    /**
+     * Select move with best position potential from safe columns
+     */
+    selectBestPotential(game, safeColumns) {
+        let bestCol = safeColumns[0];
+        let bestPotential = -1;
+        
+        for (const col of safeColumns) {
+            const potential = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            if (potential > bestPotential) {
+                bestPotential = potential;
+                bestCol = col;
+            }
+        }
+        
+        return bestCol;
+    }
+
+    /**
+     * Helper methods (existing)
+     */
+    findWinningMoveForPlayer(game, player) {
         const validMoves = game.getValidMoves();
 
         for (const col of validMoves) {
@@ -1424,5 +1766,130 @@ class Connect4AI {
 
         // Fallback
         return validMoves[Math.floor(Math.random() * validMoves.length)];
+    }
+
+    /**
+     * STAGE 4 SELECTION METHODS - Strategic bot-specific selection from safe columns
+     */
+
+    /**
+     * Smart Random selection from safe columns
+     */
+    selectSmartRandomFromSafe(game, safeColumns, helpers) {
+        // Smart random: prefer center, but with randomness
+        const centerOrder = [3, 2, 4, 1, 5, 0, 6];
+        const availableCenterMoves = centerOrder.filter(col => safeColumns.includes(col));
+        
+        // 70% chance to pick from center-ordered moves, 30% completely random
+        if (Math.random() < 0.7 && availableCenterMoves.length > 0) {
+            return availableCenterMoves[0];
+        } else {
+            return safeColumns[Math.floor(Math.random() * safeColumns.length)];
+        }
+    }
+
+    /**
+     * Offensive weighted selection from safe columns
+     */
+    selectOffensiveWeighted(game, safeColumns) {
+        const weightedColumns = [];
+        
+        for (const col of safeColumns) {
+            const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            const defensiveValue = this.evaluateDefensivePotential(game, col);
+            
+            // Offensive focus: 2x offensive weight, 1x defensive weight
+            for (let i = 0; i < Math.max(1, offensiveValue * 2); i++) {
+                weightedColumns.push(col);
+            }
+            for (let i = 0; i < Math.max(1, defensiveValue); i++) {
+                weightedColumns.push(col);
+            }
+        }
+        
+        return weightedColumns[Math.floor(Math.random() * weightedColumns.length)];
+    }
+
+    /**
+     * Defensive weighted selection from safe columns
+     */
+    selectDefensiveWeighted(game, safeColumns) {
+        const weightedColumns = [];
+        
+        for (const col of safeColumns) {
+            const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            const defensiveValue = this.evaluateDefensivePotential(game, col);
+            
+            // Defensive focus: 1x offensive weight, 2x defensive weight
+            for (let i = 0; i < Math.max(1, offensiveValue); i++) {
+                weightedColumns.push(col);
+            }
+            for (let i = 0; i < Math.max(1, defensiveValue * 2); i++) {
+                weightedColumns.push(col);
+            }
+        }
+        
+        return weightedColumns[Math.floor(Math.random() * weightedColumns.length)];
+    }
+
+    /**
+     * Enhanced strategic selection from safe columns
+     */
+    selectEnhancedStrategic(game, safeColumns, helpers) {
+        // Use enhanced strategic analysis if available
+        if (helpers) {
+            try {
+                const strategicEval = helpers.getEnhancedStrategicEvaluation();
+                
+                // If strategic evaluation provides good recommendations, use them
+                if (strategicEval.recommendedMove !== null && 
+                    safeColumns.includes(strategicEval.recommendedMove) &&
+                    strategicEval.confidence >= 0.4) {
+                    return strategicEval.recommendedMove;
+                }
+            } catch (error) {
+                // Enhanced features not available, continue with fallback
+            }
+        }
+        
+        // Fallback: balanced offensive/defensive evaluation
+        let bestCol = safeColumns[0];
+        let bestValue = -1;
+        
+        for (const col of safeColumns) {
+            const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            const defensiveValue = this.evaluateDefensivePotential(game, col);
+            const combinedValue = offensiveValue * 1.2 + defensiveValue * 1.5; // Slight defensive bias
+            
+            if (combinedValue > bestValue) {
+                bestValue = combinedValue;
+                bestCol = col;
+            }
+        }
+        
+        return bestCol;
+    }
+
+    /**
+     * Defensive priority selection from safe columns
+     */
+    selectDefensivePriority(game, safeColumns) {
+        let bestCol = safeColumns[0];
+        let bestDefensiveValue = -1;
+        
+        for (const col of safeColumns) {
+            const defensiveValue = this.evaluateDefensivePotential(game, col);
+            const offensiveValue = this.evaluatePositionPotential(game, col, game.currentPlayer);
+            
+            // Defensive bot: prioritize defense heavily, offense as tiebreaker
+            const priority = defensiveValue * 3 + offensiveValue;
+            
+            if (priority > bestDefensiveValue) {
+                bestDefensiveValue = priority;
+                bestCol = col;
+            }
+        }
+        
+        return bestCol;
     }
 }

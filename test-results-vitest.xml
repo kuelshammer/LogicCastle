@@ -1,63 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="28" failures="0" errors="0" time="0.061237458">
-    <testsuite name="tests/vitest/ai-strategy-dom-tests.vitest.js" timestamp="2025-06-21T21:22:33.709Z" hostname="Mac" tests="16" failures="0" errors="0" skipped="0" time="0.03397375">
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should handle strategic analysis integration" time="0.010562875">
+<testsuites name="vitest tests" tests="5" failures="0" errors="0" time="0.017590375">
+    <testsuite name="tests/vitest/strategic-bot-fix-validation.vitest.js" timestamp="2025-06-23T10:22:11.125Z" hostname="Mac" tests="5" failures="0" errors="0" skipped="0" time="0.017590375">
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; Each strategic bot type uses distinct implementation" time="0.008211584">
         </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should handle multiple consecutive moves without corruption" time="0.003495583">
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; getBestMove routes to specific strategy methods" time="0.003195875">
         </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should apply even/odd strategy with DOM feedback" time="0.002096959">
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; Strategic bots show different move preferences" time="0.00254925">
         </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should detect Zugzwang situations with UI integration" time="0.0016315">
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; Universal logic fallback works for unknown bot types" time="0.000819417">
         </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should analyze fork opportunities with DOM updates" time="0.00117575">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should fallback to safe random with DOM state" time="0.001201958">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should maintain performance under complex board states" time="0.000997875">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should maintain move determinism for identical states" time="0.0009395">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should show differences between random vs strategic bots" time="0.001057833">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should show defensive vs offensive preferences" time="0.001135084">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should prevent state corruption during analysis" time="0.002402958">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should handle cross-bot performance in complex positions" time="0.001400916">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should handle random fallback behavior with DOM" time="0.001434458">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should maintain multiple move sequence consistency" time="0.001313875">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should perform well with helper analysis integration" time="0.001630458">
-        </testcase>
-        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should handle state isolation across multiple calls" time="0.000762791">
-        </testcase>
-    </testsuite>
-    <testsuite name="tests/vitest/simple-backend.vitest.js" timestamp="2025-06-21T21:22:33.711Z" hostname="Mac" tests="12" failures="0" errors="0" skipped="0" time="0.027263708">
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should perform basic calculations" time="0.006496125">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should work with DOM elements" time="0.001703541">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should handle async operations" time="0.013025167">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should provide performance timing" time="0.001001791">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle array operations" time="0.000970709">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle object operations" time="0.000377708">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle deep equality" time="0.000416459">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Error Handling Tests &gt; should catch thrown errors" time="0.000507584">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Error Handling Tests &gt; should handle function calls that should not throw" time="0.000771">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate board operations" time="0.000552958">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate win detection logic" time="0.000274125">
-        </testcase>
-        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate valid moves checking" time="0.000421417">
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Performance Impact Assessment &gt; Strategic routing does not significantly impact performance" time="0.001235792">
         </testcase>
     </testsuite>
 </testsuites>

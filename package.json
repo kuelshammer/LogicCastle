@@ -19,6 +19,8 @@
     "test:connect4": "node scripts/test-connect4.js",
     "test:bot": "node tests/run-bot-tests.js",
     "test:bot-full": "node tests/comprehensive-bot-tests.js",
+    "test:bot-matrix": "vitest run tests/vitest/bot-strength-comparison.vitest.js -t '1000-Game Bot Matrix Analysis' --reporter=verbose",
+    "test:bot-matrix-demo": "vitest run tests/vitest/bot-matrix-demo.vitest.js --reporter=verbose",
     "test:levels": "node tests/validate-helper-levels.js",
     "test:watch": "nodemon --exec 'npm test' --watch games/ --ext js,html,css",
     "test:ci": "npm run test:vitest:run && npm run test:simple",

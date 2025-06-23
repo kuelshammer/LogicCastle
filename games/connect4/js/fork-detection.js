@@ -275,6 +275,65 @@ class Connect4ForkDetection {
     }
 
     /**
+     * Enhanced fork pattern analysis with gravity constraints
+     */
+    analyzeRealisticForks(player, board) {
+        const realisticForks = [];
+
+        // Only check forks that can actually be played considering gravity
+        for (let row = 0; row < this.game.ROWS; row++) {
+            for (let col = 0; col <= this.game.COLS - 4; col++) {
+                const window = [
+                    board[row][col],
+                    board[row][col + 1], 
+                    board[row][col + 2],
+                    board[row][col + 3]
+                ];
+
+                const forkPattern = this.analyzeForkPattern(window, player, row, col, 'horizontal');
+                if (forkPattern) {
+                    // Verify all empty positions in this fork are actually playable
+                    const playableCounters = forkPattern.counterMoves.filter(move => 
+                        this.isPositionPlayable(move.row, move.col)
+                    );
+
+                    if (playableCounters.length > 0) {
+                        forkPattern.counterMoves = playableCounters;
+                        forkPattern.playable = true;
+                        realisticForks.push(forkPattern);
+                    }
+                }
+            }
+        }
+
+        return realisticForks;
+    }
+
+    /**
+     * Only return high-priority forks that are actually threatening
+     */
+    getCriticalRealisticForks(player) {
+        const opponent = player === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+        const opponentForks = this.analyzeRealisticForks(opponent, this.game.board);
+
+        // Only forks that are close to completion and immediately threatening
+        const criticalForks = opponentForks.filter(fork => {
+            // Must be high threat and have multiple playable counter moves
+            return fork.threat === 'high' && 
+                   fork.counterMoves.length >= 2 &&
+                   fork.playable;
+        });
+
+        return criticalForks.map(fork => ({
+            type: 'critical-fork-counter',
+            priority: 100,
+            forkPattern: fork,
+            requiredMoves: fork.counterMoves,
+            description: `Counter opponent ${fork.pattern} pattern`
+        }));
+    }
+
+    /**
      * Calculate move urgency for counter-play
      */
     calculateMoveUrgency(window, position) {

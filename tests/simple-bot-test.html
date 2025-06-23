@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Fix Validation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .pass {
+            background: #1a5a1a;
+            border: 1px solid #2a8a2a;
+        }
+        .fail {
+            background: #5a1a1a;
+            border: 1px solid #8a2a2a;
+        }
+        .pending {
+            background: #5a5a1a;
+            border: 1px solid #8a8a2a;
+        }
+        #gameContainer {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #444;
+            border-radius: 10px;
+            background: #333;
+        }
+        button {
+            background: #4a4a4a;
+            color: white;
+            border: 1px solid #666;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5a5a5a;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 Bot Fix Validation Test</h1>
+    <p>Diese Seite testet ob der Enhanced Smart Bot nach dem Fix funktioniert.</p>
+    
+    <div class="test-section">
+        <h2>🤖 Test Results</h2>
+        <div id="testResults">
+            <div class="test-result pending">⏳ Tests werden ausgeführt...</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎮 Game Controls</h2>
+        <button onclick="testEnhancedBot()">Test Enhanced Smart Bot</button>
+        <button onclick="testAllBots()">Test All Bot Types</button>
+        <button onclick="resetTests()">Reset Tests</button>
+    </div>
+    
+    <div id="gameContainer">
+        <h3>Game Instance</h3>
+        <div id="gameStatus">Ready to test...</div>
+        <div id="gameBoard"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 Console Output</h2>
+        <div id="consoleOutput" style="background: #111; padding: 10px; border-radius: 5px; font-family: monospace; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- Load Connect4 classes -->
+    <script src="../games/connect4/js/game.js"></script>
+    <script src="../games/connect4/js/ai.js"></script>
+    <script src="../games/connect4/js/helpers.js"></script>
+
+    <script>
+        // Test infrastructure
+        const testResults = [];
+        let game, ai, helpers;
+        
+        // Console capture
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        function captureConsole() {
+            console.log = function(...args) {
+                originalConsoleLog(...args);
+                const output = document.getElementById('consoleOutput');
+                output.innerHTML += '<div style="color: #ccc;">' + args.join(' ') + '</div>';
+                output.scrollTop = output.scrollHeight;
+            };
+            
+            console.error = function(...args) {
+                originalConsoleError(...args);
+                const output = document.getElementById('consoleOutput');
+                output.innerHTML += '<div style="color: #ff6666;">[ERROR] ' + args.join(' ') + '</div>';
+                output.scrollTop = output.scrollHeight;
+            };
+        }
+        
+        // Initialize
+        captureConsole();
+        
+        function addTestResult(testName, result, details = '') {
+            testResults.push({ name: testName, result, details });
+            updateTestDisplay();
+        }
+        
+        function updateTestDisplay() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = '';
+            
+            testResults.forEach(test => {
+                const div = document.createElement('div');
+                div.className = `test-result ${test.result}`;
+                const icon = test.result === 'pass' ? '✅' : test.result === 'fail' ? '❌' : '⏳';
+                div.innerHTML = `${icon} ${test.name}: ${test.result.toUpperCase()}`;
+                if (test.details) {
+                    div.innerHTML += ` - ${test.details}`;
+                }
+                container.appendChild(div);
+            });
+        }
+        
+        function resetTests() {
+            testResults.length = 0;
+            document.getElementById('consoleOutput').innerHTML = '';
+            document.getElementById('gameStatus').textContent = 'Ready to test...';
+            updateTestDisplay();
+            console.log('🔄 Tests reset');
+        }
+        
+        async function testEnhancedBot() {
+            console.log('🚀 Testing Enhanced Smart Bot...');
+            document.getElementById('gameStatus').textContent = 'Testing Enhanced Smart Bot...';
+            
+            try {
+                // Test 1: Bot Creation
+                console.log('📝 Test 1: Creating Enhanced Smart Bot');
+                game = new Connect4Game();
+                ai = new Connect4AI('enhanced-smart');
+                helpers = new Connect4Helpers(game, null);
+                
+                if (ai && ai.difficulty === 'enhanced-smart') {
+                    addTestResult('Enhanced Bot Creation', 'pass', 'Bot created successfully');
+                    console.log('✅ Enhanced Smart Bot created successfully');
+                } else {
+                    addTestResult('Enhanced Bot Creation', 'fail', 'Bot creation failed');
+                    console.error('❌ Enhanced Smart Bot creation failed');
+                    return;
+                }
+                
+                // Test 2: getEnhancedStrategicEvaluation exists
+                console.log('📝 Test 2: Checking getEnhancedStrategicEvaluation method');
+                
+                if (typeof helpers.getEnhancedStrategicEvaluation === 'function') {
+                    addTestResult('Strategic Evaluation Method', 'pass', 'Method exists');
+                    console.log('✅ getEnhancedStrategicEvaluation method found');
+                } else {
+                    addTestResult('Strategic Evaluation Method', 'fail', 'Method missing');
+                    console.error('❌ getEnhancedStrategicEvaluation method not found');
+                    return;
+                }
+                
+                // Test 3: Method execution
+                console.log('📝 Test 3: Testing strategic evaluation execution');
+                
+                try {
+                    const strategicEval = helpers.getEnhancedStrategicEvaluation();
+                    
+                    if (strategicEval && typeof strategicEval === 'object') {
+                        addTestResult('Strategic Evaluation Execution', 'pass', 'Method executes without error');
+                        console.log('✅ Strategic evaluation executed successfully');
+                        console.log('📊 Strategic evaluation result:', strategicEval);
+                    } else {
+                        addTestResult('Strategic Evaluation Execution', 'fail', 'Invalid return value');
+                        console.error('❌ Strategic evaluation returned invalid result');
+                    }
+                } catch (error) {
+                    addTestResult('Strategic Evaluation Execution', 'fail', error.message);
+                    console.error('❌ Strategic evaluation failed:', error.message);
+                    return;
+                }
+                
+                // Test 4: Bot Move Generation
+                console.log('📝 Test 4: Testing bot move generation');
+                
+                try {
+                    const move = ai.getBestMove(game, helpers);
+                    
+                    if (typeof move === 'number' && move >= 0 && move < 7) {
+                        addTestResult('Bot Move Generation', 'pass', `Generated move: ${move + 1}`);
+                        console.log(`✅ Bot generated valid move: column ${move + 1}`);
+                    } else {
+                        addTestResult('Bot Move Generation', 'fail', `Invalid move: ${move}`);
+                        console.error('❌ Bot generated invalid move:', move);
+                    }
+                } catch (error) {
+                    addTestResult('Bot Move Generation', 'fail', error.message);
+                    console.error('❌ Bot move generation failed:', error.message);
+                    return;
+                }
+                
+                // Test 5: Multiple moves
+                console.log('📝 Test 5: Testing multiple move generation');
+                
+                try {
+                    let successfulMoves = 0;
+                    const maxMoves = 5;
+                    
+                    for (let i = 0; i < maxMoves; i++) {
+                        const move = ai.getBestMove(game, helpers);
+                        if (typeof move === 'number' && move >= 0 && move < 7) {
+                            successfulMoves++;
+                            // Make the move to progress game state
+                            game.makeMove(move);
+                            console.log(`   Move ${i + 1}: Column ${move + 1}`);
+                        } else {
+                            console.error(`   Move ${i + 1}: Invalid - ${move}`);
+                            break;
+                        }
+                    }
+                    
+                    if (successfulMoves === maxMoves) {
+                        addTestResult('Multiple Move Generation', 'pass', `${successfulMoves}/${maxMoves} successful`);
+                        console.log(`✅ Generated ${successfulMoves}/${maxMoves} valid moves`);
+                    } else {
+                        addTestResult('Multiple Move Generation', 'fail', `Only ${successfulMoves}/${maxMoves} successful`);
+                        console.error(`❌ Only ${successfulMoves}/${maxMoves} moves successful`);
+                    }
+                } catch (error) {
+                    addTestResult('Multiple Move Generation', 'fail', error.message);
+                    console.error('❌ Multiple move generation failed:', error.message);
+                }
+                
+                document.getElementById('gameStatus').textContent = 'Enhanced Smart Bot test completed!';
+                
+            } catch (error) {
+                addTestResult('Enhanced Bot Test', 'fail', error.message);
+                console.error('❌ Enhanced Bot test failed:', error.message);
+                document.getElementById('gameStatus').textContent = 'Enhanced Smart Bot test failed!';
+            }
+        }
+        
+        async function testAllBots() {
+            console.log('🤖 Testing all bot types...');
+            document.getElementById('gameStatus').textContent = 'Testing all bot types...';
+            
+            const botTypes = [
+                { difficulty: 'easy', name: 'Easy Bot' },
+                { difficulty: 'smart-random', name: 'Smart Random Bot' },
+                { difficulty: 'enhanced-smart', name: 'Enhanced Smart Bot' },
+                { difficulty: 'defensive', name: 'Defensive Bot' },
+                { difficulty: 'offensiv-gemischt', name: 'Offensive Mixed Bot' }
+            ];
+            
+            for (const botType of botTypes) {
+                try {
+                    console.log(`📝 Testing ${botType.name}...`);
+                    
+                    const game = new Connect4Game();
+                    const ai = new Connect4AI(botType.difficulty);
+                    const helpers = new Connect4Helpers(game, null);
+                    
+                    const move = ai.getBestMove(game, helpers);
+                    
+                    if (typeof move === 'number' && move >= 0 && move < 7) {
+                        addTestResult(`${botType.name}`, 'pass', `Move: ${move + 1}`);
+                        console.log(`✅ ${botType.name} generated move: column ${move + 1}`);
+                    } else {
+                        addTestResult(`${botType.name}`, 'fail', `Invalid move: ${move}`);
+                        console.error(`❌ ${botType.name} generated invalid move:`, move);
+                    }
+                    
+                } catch (error) {
+                    addTestResult(`${botType.name}`, 'fail', error.message);
+                    console.error(`❌ ${botType.name} failed:`, error.message);
+                }
+            }
+            
+            document.getElementById('gameStatus').textContent = 'All bot types tested!';
+        }
+        
+        // Auto-run basic test on load
+        setTimeout(() => {
+            console.log('🚀 Auto-running Enhanced Smart Bot test...');
+            testEnhancedBot();
+        }, 1000);
+    </script>
+</body>
+</html>

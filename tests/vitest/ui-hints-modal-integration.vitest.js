@@ -14,7 +14,7 @@ function setupMockDOM() {
         <div class="game-container">
             <div class="game-controls">
                 <button id="hintsBtn" class="btn btn-warning">🔧 Spielerhilfen (F2)</button>
-                <button id="helpBtn" class="btn btn-info">❓ Hilfe (F1)</button>
+                <button id="helpBtn" class="btn btn-info">❓ Spielanleitung (F1)</button>
             </div>
         </div>
         
