@@ -539,13 +539,13 @@ class Connect4UI {
             let difficulty;
             switch (this.gameMode) {
                 case 'vs-bot-easy':
-                    difficulty = 'offensiv-gemischt'; // Bot (Einfach) - Rank #4 (44 points)
+                    difficulty = 'smart-random'; // Bot (Einfach) - 32% Winrate - Perfekt für Anfänger
                     break;
                 case 'vs-bot-medium':
-                    difficulty = 'enhanced-smart'; // Bot (Mittel) - Rank #2 (83 points)
+                    difficulty = 'defensiv-gemischt'; // Bot (Mittel) - 45% Winrate - Solide Mittelstufe
                     break;
                 case 'vs-bot-strong':
-                    difficulty = 'defensive'; // Bot (Stark) - Rank #1 (92 points)
+                    difficulty = 'enhanced-smart'; // Bot (Stark) - 59% Winrate - Anspruchsvoll aber fair
                     break;
                 case 'vs-bot-smart': // Legacy mode compatibility
                     difficulty = 'smart-random';

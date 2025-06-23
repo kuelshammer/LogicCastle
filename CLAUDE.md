@@ -104,28 +104,37 @@ games/{game-name}/
 - Follow responsive design principles established in main stylesheet
 - Include comprehensive help modals with keyboard shortcuts documentation
 
+## Recent Updates
+
+### Connect4 Bot System Overhaul (2025-06-23) ✅
+**Real Bot Testing & UI Mapping Update:**
+- **Problem Identified**: Mock tests showed artificial 50:50 bot equality, masking real strategic differences
+- **Solution Implemented**: Created real implementation testing framework with 25,000 game matrix
+- **Dramatic Results**: Bots range from 32% to 60% winrate - huge performance differences confirmed!
+
+**Updated UI Bot Mapping (based on real test results):**
+- **Einfach**: smart-random (32% winrate) - Perfect for beginners with helpers + randomness
+- **Mittel**: defensiv-gemischt (45% winrate) - Solid mid-tier with 2x defensive weighting  
+- **Stark**: enhanced-smart (59% winrate) - Challenging but fair with advanced analysis
+- **Hidden Boss**: defensive (60% winrate) - Available for experts as 'defensive' difficulty
+
+**Real Bot Rankings from 25k games:**
+1. 🥇 Defensive (60%) - Pure pattern disruption
+2. 🥈 Enhanced Smart (59%) - Advanced strategic analysis  
+3. 🥉 Offensiv-Gemischt (48%) - 2x offensive weighting
+4. Defensiv-Gemischt (45%) - 2x defensive weighting
+5. Smart Random (32%) - Helpers + heavy randomness
+
 ## Current Development Task
 
-**See PLAN.md for current development plan and implementation status.**
+**Status: Bot System Validated & Updated ✅**
 
-Current focus: Connect4 "Neues Spiel" vs "Reset" Unterscheidung & UI-Verbesserungen
-- ✅ Implementing separate next game vs full reset functionality
-- ✅ Removing unnecessary colons from emoji labels  
-- ✅ Adding contextual button behavior
+Previous fixes maintained:
+- ✅ Turn order chaos resolved (double AI-triggering fixed)
+- ✅ "Neues Spiel" vs "Reset" distinction implemented
+- ✅ UI improvements completed
 
-**✅ CRITICAL BUG RESOLVED:**
-Turn order chaos in bot mode was caused by double AI-triggering:
-- Fixed by removing AI trigger from onPlayerChanged() event handler (ui.js:663-665)
-- AI now only triggered in makePlayerMove() and reset functions
-- Turn sequence now works correctly: Red → Yellow → Red → Yellow
-- Validated with comprehensive test suite in test-turn-order-fix.js
-
-**Root Cause:** 
-- onPlayerChanged() was triggered after every move, including AI moves
-- Led to multiple bot moves per player turn
-- Caused bots to place stones in same column due to parallel AI calls
-
-**Status:** FIXED ✅
+**Next Priority**: Gobang bot system fixes (see Known Issues below)
 
 ## Development Guidelines
 - Immer wenn wir ein JS Feature ergänzen, sollten wir auch Tests dafür implementieren und laufen lassen.
