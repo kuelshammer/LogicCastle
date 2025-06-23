@@ -36,6 +36,12 @@ class Connect4UI {
                 level2: false   // Avoid traps
             }
         };
+        
+        // Undo functionality control per player
+        this.undoEnabled = {
+            red: false,
+            yellow: false
+        };
         // New help table checkboxes
         this.helpPlayer1Level0 = null;
         this.helpPlayer1Level1 = null;
@@ -43,6 +49,8 @@ class Connect4UI {
         this.helpPlayer2Level0 = null;
         this.helpPlayer2Level1 = null;
         this.helpPlayer2Level2 = null;
+        this.undoEnabledPlayer1 = null;
+        this.undoEnabledPlayer2 = null;
 
         this.isAnimating = false;
         this.aiThinking = false;
@@ -65,6 +73,8 @@ class Connect4UI {
         this.handlePlayer2Level0Toggle = this.handlePlayer2Level0Toggle.bind(this);
         this.handlePlayer2Level1Toggle = this.handlePlayer2Level1Toggle.bind(this);
         this.handlePlayer2Level2Toggle = this.handlePlayer2Level2Toggle.bind(this);
+        this.handleUndoEnabledPlayer1Toggle = this.handleUndoEnabledPlayer1Toggle.bind(this);
+        this.handleUndoEnabledPlayer2Toggle = this.handleUndoEnabledPlayer2Toggle.bind(this);
         this.handleHelp = this.handleHelp.bind(this);
         this.handleHints = this.handleHints.bind(this);
         this.handleBack = this.handleBack.bind(this);
@@ -144,6 +154,8 @@ class Connect4UI {
         this.helpPlayer2Level0 = document.getElementById('helpPlayer2Level0');
         this.helpPlayer2Level1 = document.getElementById('helpPlayer2Level1');
         this.helpPlayer2Level2 = document.getElementById('helpPlayer2Level2');
+        this.undoEnabledPlayer1 = document.getElementById('undoEnabledPlayer1');
+        this.undoEnabledPlayer2 = document.getElementById('undoEnabledPlayer2');
         this.gameModeSelect = document.getElementById('gameModeSelect');
     }
 
@@ -191,6 +203,8 @@ class Connect4UI {
         this.helpPlayer2Level0.addEventListener('change', this.handlePlayer2Level0Toggle);
         this.helpPlayer2Level1.addEventListener('change', this.handlePlayer2Level1Toggle);
         this.helpPlayer2Level2.addEventListener('change', this.handlePlayer2Level2Toggle);
+        this.undoEnabledPlayer1.addEventListener('change', this.handleUndoEnabledPlayer1Toggle);
+        this.undoEnabledPlayer2.addEventListener('change', this.handleUndoEnabledPlayer2Toggle);
 
         // Game mode selector
         this.gameModeSelect.addEventListener('change', this.handleGameModeChange);
@@ -703,6 +717,13 @@ class Connect4UI {
             return;
         }
 
+        // Check if undo is enabled for current player
+        const currentPlayerColor = this.game.currentPlayer === this.game.PLAYER1 ? 'red' : 'yellow';
+        if (!this.undoEnabled[currentPlayerColor]) {
+            this.showMessage('Rückgängig ist für diesen Spieler nicht aktiviert', 'warning');
+            return;
+        }
+
         const result = this.game.undoMove();
         if (!result.success) {
             this.showMessage(result.reason, 'error');
@@ -761,6 +782,24 @@ class Connect4UI {
         this.playerHelpEnabled.yellow.level2 = this.helpPlayer2Level2.checked;
         this.updateHelpers();
         console.log('Yellow Level 2 help:', this.playerHelpEnabled.yellow.level2 ? 'enabled' : 'disabled');
+    }
+
+    /**
+     * Handle Red Player undo toggle
+     */
+    handleUndoEnabledPlayer1Toggle() {
+        this.undoEnabled.red = this.undoEnabledPlayer1.checked;
+        this.updateUI();
+        console.log('Red Player undo:', this.undoEnabled.red ? 'enabled' : 'disabled');
+    }
+
+    /**
+     * Handle Yellow Player undo toggle
+     */
+    handleUndoEnabledPlayer2Toggle() {
+        this.undoEnabled.yellow = this.undoEnabledPlayer2.checked;
+        this.updateUI();
+        console.log('Yellow Player undo:', this.undoEnabled.yellow ? 'enabled' : 'disabled');
     }
 
     /**
@@ -1084,7 +1123,9 @@ class Connect4UI {
     }
 
     updateControls() {
-        this.undoBtn.disabled = this.game.moveHistory.length === 0 || this.game.gameOver || this.aiThinking;
+        const currentPlayerColor = this.game.currentPlayer === this.game.PLAYER1 ? 'red' : 'yellow';
+        const undoAllowed = this.undoEnabled[currentPlayerColor];
+        this.undoBtn.disabled = this.game.moveHistory.length === 0 || this.game.gameOver || this.aiThinking || !undoAllowed;
     }
 
     /**

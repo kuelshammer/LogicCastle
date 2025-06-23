@@ -186,6 +186,7 @@
                                 <th>Level 0<br><small>Gewinnzüge</small></th>
                                 <th>Level 1<br><small>Bedrohungen</small></th>
                                 <th>Level 2<br><small>Fallen</small></th>
+                                <th>Rückgängig<br><small>Züge widerrufen</small></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -211,6 +212,12 @@
                                            tabindex="3" accesskey="3">
                                     <label for="helpPlayer1Level2" class="help-checkbox-label"></label>
                                 </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="undoEnabledPlayer1" 
+                                           class="help-checkbox-input" 
+                                           tabindex="7" accesskey="7">
+                                    <label for="undoEnabledPlayer1" class="help-checkbox-label"></label>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="player-label">
@@ -234,6 +241,12 @@
                                            tabindex="6" accesskey="6">
                                     <label for="helpPlayer2Level2" class="help-checkbox-label"></label>
                                 </td>
+                                <td class="help-cell">
+                                    <input type="checkbox" id="undoEnabledPlayer2" 
+                                           class="help-checkbox-input" 
+                                           tabindex="8" accesskey="8">
+                                    <label for="undoEnabledPlayer2" class="help-checkbox-label"></label>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -247,6 +260,9 @@
                         </div>
                         <div class="legend-item">
                             <strong>Level 2:</strong> Vermeidet Fallen (gelb)
+                        </div>
+                        <div class="legend-item">
+                            <strong>Rückgängig:</strong> Erlaubt Züge zu widerrufen (nur wenn aktiviert)
                         </div>
                     </div>
                 </div>
