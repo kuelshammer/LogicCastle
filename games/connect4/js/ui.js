@@ -545,7 +545,7 @@ class Connect4UI {
                     difficulty = 'defensiv-gemischt'; // Bot (Mittel) - 45% Winrate - Solide Mittelstufe
                     break;
                 case 'vs-bot-strong':
-                    difficulty = 'enhanced-smart'; // Bot (Stark) - 59% Winrate - Anspruchsvoll aber fair
+                    difficulty = 'defensive'; // Bot (Stark) - 60% Winrate - Der stärkste Bot
                     break;
                 case 'vs-bot-smart': // Legacy mode compatibility
                     difficulty = 'smart-random';

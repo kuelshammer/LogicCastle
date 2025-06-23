@@ -115,8 +115,8 @@ games/{game-name}/
 **Updated UI Bot Mapping (based on real test results):**
 - **Einfach**: smart-random (32% winrate) - Perfect for beginners with helpers + randomness
 - **Mittel**: defensiv-gemischt (45% winrate) - Solid mid-tier with 2x defensive weighting  
-- **Stark**: enhanced-smart (59% winrate) - Challenging but fair with advanced analysis
-- **Hidden Boss**: defensive (60% winrate) - Available for experts as 'defensive' difficulty
+- **Stark**: defensive (60% winrate) - The strongest bot with pure pattern disruption
+- **Alternative**: enhanced-smart (59% winrate) - Available as fallback, advanced analysis but slightly weaker
 
 **Real Bot Rankings from 25k games:**
 1. 🥇 Defensive (60%) - Pure pattern disruption
