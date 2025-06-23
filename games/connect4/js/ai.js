@@ -1157,8 +1157,20 @@ class Connect4AI {
             }
         }
         
-        // If no moves are safe, return all valid moves (forced to play)
-        return safeColumns.length > 0 ? safeColumns : validMoves;
+        // CRITICAL FIX: If no moves are safe, use center-biased preference
+        // Never return ALL validMoves as this allows dangerous Monte Carlo simulation
+        if (safeColumns.length === 0) {
+            console.log('⚠️ No safe moves found, using center-biased fallback');
+            const centerOrder = [3, 2, 4, 1, 5, 0, 6];
+            for (const col of centerOrder) {
+                if (validMoves.includes(col)) {
+                    return [col]; // Return only safest available choice
+                }
+            }
+            return validMoves; // Absolute last resort
+        }
+        
+        return safeColumns;
     }
 
     /**

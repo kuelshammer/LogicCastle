@@ -134,14 +134,188 @@ games/{game-name}/
 
 ## Current Development Task
 
-**Status: Bot System Validated & Updated ✅**
+**Status: Monte Carlo Bot Implementation Complete ✅**
 
 Previous fixes maintained:
 - ✅ Turn order chaos resolved (double AI-triggering fixed)
 - ✅ "Neues Spiel" vs "Reset" distinction implemented
 - ✅ UI improvements completed
+- ✅ Bot system validated & updated with real performance testing
+- ✅ Monte Carlo bot integrated (90% winrate, strongest bot)
 
-**Next Priority**: Gobang bot system fixes (see Known Issues below)
+**Next Priority**: Connect4 Code Refactoring (see TODO below)
+
+## TODO: CONNECT4 REFACTORING MASTERPLAN 🏗️
+
+### 📊 PROBLEM ANALYSIS
+**Current Connect4 Codebase Issues:**
+- **ai.js**: 2120 lines (6+ bot strategies in monolithic class)
+- **ui.js**: 1199 lines (game logic + DOM + events mixed)
+- **helpers.js**: 1585 lines (level system + threat detection + strategic analysis)
+- **20+ loose test files** in root directory causing clutter
+- **Mixed concerns**: Debug logging in production, business logic in UI
+
+### 🎯 REFACTORING STRATEGY: 4-PHASE PLAN
+
+---
+
+#### 📅 PHASE 1: FOUNDATION & CLEANUP (Week 1)
+**Goal:** Clean foundation without changing functionality
+
+**Step 1.1: COMPREHENSIVE TEST BASELINE (Day 1)**
+- Create Golden Master Tests for all bot performance matrices
+- Implement UI Integration Tests for complete game flows
+- Establish Performance Benchmarks as regression protection
+- **SUCCESS CRITERIA:** 100% test coverage for critical paths
+
+**Step 1.2: FILE ORGANIZATION CLEANUP (Day 2)**
+- Move all 20+ loose test files → `/temp-legacy/`
+- Organize debug HTMLs → `/games/connect4/debug/`
+- Clean root directory from test artifacts
+- **SUCCESS CRITERIA:** Clear directory structure, no broken tests
+
+**Step 1.3: REMOVE DEAD CODE & DEBUG LOGS (Day 3)**
+- Replace production console.logs with configurable logger
+- Remove unused functions & variables (ESLint)
+- Eliminate deprecated code paths
+- **SUCCESS CRITERIA:** 20%+ size reduction, all tests green
+
+---
+
+#### 🧩 PHASE 2: MODULAR EXTRACTION (Week 2)
+**Goal:** Split large classes into logical modules
+
+**Step 2.1: AI STRATEGY EXTRACTION (Day 4-5)**
+```javascript
+// NEW: Modular Bot Architecture
+abstract class BotStrategy {
+    abstract getBestMove(game, helpers);
+}
+
+class SmartRandomBot extends BotStrategy { /* 150 lines */ }
+class DefensiveBot extends BotStrategy { /* 200 lines */ }
+class MonteCarloBot extends BotStrategy { /* 180 lines */ }
+
+class Connect4AI { // Factory/Coordinator: 300 lines
+    constructor() { this.strategies = new Map(); }
+    getBestMove(game, difficulty) {
+        return this.strategies.get(difficulty).getBestMove(game);
+    }
+}
+```
+- **SUCCESS CRITERIA:** AI class 2120 → ~300 lines, bot matrix tests pass
+
+**Step 2.2: HELPERS DECOMPOSITION (Day 6)**
+```javascript
+class ThreatDetector { /* Win/Block Logic: 200 lines */ }
+class SafetyAnalyzer { /* Trap Detection: 180 lines */ }
+class HintSystem { /* UI Level Management: 150 lines */ }
+
+class Connect4Helpers { // Facade: 200 lines
+    constructor() {
+        this.threatDetector = new ThreatDetector();
+        this.safetyAnalyzer = new SafetyAnalyzer();
+        this.hintSystem = new HintSystem();
+    }
+}
+```
+- **SUCCESS CRITERIA:** Helpers 1585 → ~200 lines, all hint tests pass
+
+**Step 2.3: UI SEPARATION (Day 7)**
+```javascript
+class GameController { /* Game State: 250 lines */ }
+class DOMRenderer { /* Pure View Logic: 200 lines */ }
+class EventHandler { /* User Interactions: 180 lines */ }
+
+class Connect4UI { // Coordinator: 300 lines
+    constructor() {
+        this.controller = new GameController();
+        this.renderer = new DOMRenderer();
+        this.eventHandler = new EventHandler();
+    }
+}
+```
+- **SUCCESS CRITERIA:** UI 1199 → ~300 lines, all UI tests pass
+
+---
+
+#### 🏛️ PHASE 3: ARCHITECTURE REFINEMENT (Week 3)
+**Goal:** Establish Clean Architecture
+
+**Step 3.1: DEPENDENCY INJECTION SETUP (Day 8-9)**
+```javascript
+class ServiceContainer {
+    register(interface, implementation) { /* DI Logic */ }
+    resolve(interface) { /* Factory Logic */ }
+}
+
+// Usage
+container.register('IBotFactory', Connect4AI);
+container.register('IGameEngine', Connect4Game);
+container.register('IHintSystem', Connect4Helpers);
+```
+- **SUCCESS CRITERIA:** Loose coupling, easy test mocks
+
+**Step 3.2: PERFORMANCE OPTIMIZATION (Day 10)**
+- Implement AI caching for repeated positions
+- Add lazy loading for heavy computations (Monte Carlo)
+- Create memory pool for board simulations
+- **SUCCESS CRITERIA:** 50%+ performance improvement in benchmarks
+
+**Step 3.3: ERROR HANDLING & RESILIENCE (Day 11)**
+- Implement graceful degradation for bot failures
+- Add input validation with clear error messages
+- Create retry logic for intermittent issues
+- **SUCCESS CRITERIA:** Robustness tests, no unhandled exceptions
+
+---
+
+#### ✨ PHASE 4: FINAL POLISH (Week 4)
+**Goal:** Long-term maintainability
+
+**Step 4.1: COMPREHENSIVE DOCUMENTATION (Day 12)**
+- Create Architecture Decision Records (ADRs)
+- Write API documentation with TypeScript-style definitions
+- Develop developer onboarding guide
+- **SUCCESS CRITERIA:** New developers productive in 1 day
+
+**Step 4.2: MONITORING & OBSERVABILITY (Day 13)**
+- Add performance metrics for bot decision times
+- Implement error tracking for production issues
+- Create A/B testing framework for bot improvements
+- **SUCCESS CRITERIA:** Data-driven bot development possible
+
+**Step 4.3: INTEGRATION & E2E VALIDATION (Day 14)**
+- Complete game flow tests (Human vs All Bots)
+- Cross-browser compatibility tests
+- Load testing with multiple concurrent games
+- **SUCCESS CRITERIA:** Production-ready, all user journeys functional
+
+---
+
+### 🛡️ RISK MITIGATION
+
+**ROLLBACK STRATEGY:**
+- Each step has own Git branch with comprehensive tests
+- Immediate rollback to last stable state if issues arise
+- Continuous integration with automated test suites
+- Backup current version as `legacy-stable-backup`
+
+**SUCCESS METRICS:**
+- **Code Lines:** 6074 → ~2000 lines (67% reduction)
+- **Average File Size:** 1000+ → <300 lines
+- **Test Coverage:** Fragmented → 95%+ structured
+- **Performance:** No regression, 50%+ improvement possible
+- **Maintainability:** New features in hours instead of days
+
+**FINAL DELIVERABLES:**
+✅ **14 modular, testable components** instead of 3 monoliths
+✅ **Comprehensive test suite** with ~200 structured tests
+✅ **Clean Architecture** with clear interfaces
+✅ **Production-ready code** with monitoring
+✅ **Complete documentation** for sustainable maintenance
+
+**This plan is conservative, low-risk, and delivers measurable improvements in manageable steps.**
 
 ## Development Guidelines
 - Immer wenn wir ein JS Feature ergänzen, sollten wir auch Tests dafür implementieren und laufen lassen.

@@ -647,7 +647,19 @@ class RealConnect4AI {
             }
         }
         
-        return safeColumns.length > 0 ? safeColumns : validMoves;
+        // CRITICAL FIX: Monte Carlo should NEVER play unsafe moves
+        // If no safe moves exist, return center-biased preference
+        if (safeColumns.length === 0) {
+            const centerOrder = [3, 2, 4, 1, 5, 0, 6];
+            for (const col of centerOrder) {
+                if (validMoves.includes(col)) {
+                    return [col]; // Return only one safe choice
+                }
+            }
+            return validMoves; // Absolute fallback
+        }
+        
+        return safeColumns;
     }
     
     isSafeMove(game, col, opponent) {
