@@ -1,0 +1,470 @@
+/**
+ * Architecture Adapters - Bridge between Legacy Code and Clean Architecture
+ * 
+ * These adapters allow existing Connect4 modules to work seamlessly with
+ * the new clean architecture implementation while maintaining backwards compatibility.
+ */
+
+import { defaultCleanArchitecture } from './clean-architecture.js';
+import { globalContainer } from './service-container.js';
+
+/**
+ * Legacy Game Adapter
+ * Adapts the existing Connect4Game class to work with clean architecture
+ */
+export class LegacyGameAdapter {
+    constructor(legacyGame) {
+        this.legacyGame = legacyGame;
+        this.architecture = defaultCleanArchitecture;
+    }
+
+    /**
+     * Make a move using clean architecture
+     * @param {number} column - Column to place piece
+     * @returns {Promise<Object>} Move result
+     */
+    async makeMove(column) {
+        const currentPlayer = this.legacyGame.currentPlayer;
+        
+        return await this.architecture.execute('game', 'makeMove', {
+            column,
+            player: currentPlayer
+        });
+    }
+
+    /**
+     * Get AI move recommendation
+     * @param {string} difficulty - AI difficulty level
+     * @returns {Promise<Object>} AI move recommendation
+     */
+    async getAIMove(difficulty = 'medium') {
+        const currentPlayer = this.legacyGame.currentPlayer;
+        
+        return await this.architecture.execute('game', 'getAIMove', {
+            difficulty,
+            player: currentPlayer
+        });
+    }
+
+    /**
+     * Get hint for current position
+     * @param {number} level - Hint level (1-3)
+     * @returns {Promise<Object>} Hint information
+     */
+    async getHint(level = 1) {
+        return await this.architecture.execute('game', 'getHint', { level });
+    }
+
+    /**
+     * Reset game state
+     * @param {boolean} resetScore - Whether to reset score as well
+     * @returns {Promise<Object>} Reset result
+     */
+    async reset(resetScore = false) {
+        return await this.architecture.execute('game', 'reset', { resetScore });
+    }
+
+    /**
+     * Get current game state
+     * @returns {Promise<Object>} Current game state
+     */
+    async getState() {
+        return await this.architecture.execute('game', 'getState', {});
+    }
+
+    /**
+     * Sync legacy game state with clean architecture
+     */
+    async syncState() {
+        const state = await this.getState();
+        if (state) {
+            this.legacyGame.board = state.board;
+            this.legacyGame.currentPlayer = state.currentPlayer;
+            this.legacyGame.gameOver = state.isGameOver;
+            this.legacyGame.winner = state.winner;
+        }
+    }
+}
+
+/**
+ * Legacy AI Adapter
+ * Bridges existing AI implementations with clean architecture
+ */
+export class LegacyAIAdapter {
+    constructor(legacyAI) {
+        this.legacyAI = legacyAI;
+        this.architecture = defaultCleanArchitecture;
+    }
+
+    /**
+     * Get best move using clean architecture pattern
+     * @param {Object} gameState - Current game state
+     * @returns {Promise<number>} Best column to play
+     */
+    async getBestMove(gameState) {
+        // Use legacy AI for now, but route through architecture
+        const move = this.legacyAI.getBestMove(gameState);
+        
+        // Log analytics through architecture
+        await this.logAIDecision(move, gameState);
+        
+        return move;
+    }
+
+    /**
+     * Log AI decision for analytics
+     * @param {number} move - Chosen move
+     * @param {Object} gameState - Game state when move was made
+     */
+    async logAIDecision(move, gameState) {
+        try {
+            const infrastructure = this.architecture.getInfrastructure();
+            const analytics = await infrastructure.getService('IAnalyticsService');
+            
+            analytics.trackBotPerformance({
+                move,
+                difficulty: this.legacyAI.difficulty,
+                gameState: {
+                    moveCount: gameState.moveCount || 0,
+                    player: gameState.currentPlayer
+                },
+                timestamp: Date.now()
+            });
+        } catch (error) {
+            console.warn('Analytics logging failed:', error);
+        }
+    }
+
+    /**
+     * Get AI difficulty
+     * @returns {string} Difficulty level
+     */
+    getDifficulty() {
+        return this.legacyAI.difficulty || 'medium';
+    }
+
+    /**
+     * Get AI name
+     * @returns {string} AI name
+     */
+    getName() {
+        return this.legacyAI.constructor.name || 'Legacy AI';
+    }
+}
+
+/**
+ * Legacy Helpers Adapter
+ * Adapts the existing helpers system to clean architecture
+ */
+export class LegacyHelpersAdapter {
+    constructor(legacyHelpers) {
+        this.legacyHelpers = legacyHelpers;
+        this.architecture = defaultCleanArchitecture;
+    }
+
+    /**
+     * Get hint using clean architecture
+     * @param {number} level - Hint level
+     * @returns {Promise<Object>} Hint information
+     */
+    async getHint(level = 1) {
+        return await this.architecture.execute('game', 'getHint', { level });
+    }
+
+    /**
+     * Detect winning moves
+     * @param {number} player - Player to check for wins
+     * @returns {Array} Array of winning moves
+     */
+    detectWinningMoves(player = null) {
+        return this.legacyHelpers.detectWinningMoves(player);
+    }
+
+    /**
+     * Detect blocking moves
+     * @param {number} player - Player to block
+     * @returns {Array} Array of blocking moves
+     */
+    detectBlockingMoves(player = null) {
+        return this.legacyHelpers.detectBlockingMoves(player);
+    }
+
+    /**
+     * Get fork opportunities
+     * @param {number} player - Player to check for forks
+     * @returns {Array} Array of fork opportunities
+     */
+    getForkOpportunities(player = null) {
+        return this.legacyHelpers.getForkOpportunities(player);
+    }
+
+    /**
+     * Update hint level
+     * @param {number} level - New hint level
+     */
+    updateHintLevel(level) {
+        this.legacyHelpers.updateHintLevel(level);
+    }
+}
+
+/**
+ * Legacy UI Adapter
+ * Adapts the existing UI system to work with clean architecture
+ */
+export class LegacyUIAdapter {
+    constructor(legacyUI) {
+        this.legacyUI = legacyUI;
+        this.architecture = defaultCleanArchitecture;
+        this.setupEventBridge();
+    }
+
+    /**
+     * Setup event bridge between legacy UI and clean architecture
+     */
+    setupEventBridge() {
+        // Bridge legacy UI events to clean architecture
+        if (this.legacyUI.on) {
+            this.legacyUI.on('columnClick', async (column) => {
+                await this.handleColumnClick(column);
+            });
+
+            this.legacyUI.on('resetClick', async () => {
+                await this.handleReset();
+            });
+
+            this.legacyUI.on('hintRequest', async (level) => {
+                await this.handleHintRequest(level);
+            });
+        }
+    }
+
+    /**
+     * Handle column click through clean architecture
+     * @param {number} column - Clicked column
+     */
+    async handleColumnClick(column) {
+        try {
+            const result = await this.architecture.execute('game', 'makeMove', {
+                column,
+                player: await this.getCurrentPlayer()
+            });
+
+            if (result.success) {
+                this.legacyUI.onMoveMade?.(result.move);
+                
+                if (result.gameOver) {
+                    this.legacyUI.onGameOver?.(result.winner);
+                }
+            } else {
+                this.legacyUI.showMessage?.(result.message);
+            }
+        } catch (error) {
+            console.error('Move handling failed:', error);
+            this.legacyUI.showMessage?.('Move failed');
+        }
+    }
+
+    /**
+     * Handle game reset through clean architecture
+     */
+    async handleReset() {
+        try {
+            const result = await this.architecture.execute('game', 'reset', {
+                resetScore: false
+            });
+
+            if (result.success) {
+                this.legacyUI.onGameReset?.();
+            }
+        } catch (error) {
+            console.error('Reset handling failed:', error);
+        }
+    }
+
+    /**
+     * Handle hint request through clean architecture
+     * @param {number} level - Hint level
+     */
+    async handleHintRequest(level = 1) {
+        try {
+            const hint = await this.architecture.execute('game', 'getHint', { level });
+
+            if (hint) {
+                this.legacyUI.showHint?.(hint);
+            } else {
+                this.legacyUI.showMessage?.('No hint available');
+            }
+        } catch (error) {
+            console.error('Hint handling failed:', error);
+        }
+    }
+
+    /**
+     * Get current player from game state
+     * @returns {Promise<number>} Current player
+     */
+    async getCurrentPlayer() {
+        try {
+            const state = await this.architecture.execute('game', 'getState', {});
+            return state.currentPlayer;
+        } catch (error) {
+            console.error('Failed to get current player:', error);
+            return 1; // Default to player 1
+        }
+    }
+
+    /**
+     * Update UI with game state
+     */
+    async updateUI() {
+        try {
+            const state = await this.architecture.execute('game', 'getState', {});
+            this.legacyUI.updateBoard?.(state.board);
+            this.legacyUI.updateCurrentPlayer?.(state.currentPlayer);
+            
+            if (state.isGameOver) {
+                this.legacyUI.onGameOver?.(state.winner);
+            }
+        } catch (error) {
+            console.error('UI update failed:', error);
+        }
+    }
+}
+
+/**
+ * Architecture Bridge
+ * Main bridge class that coordinates all adapters
+ */
+export class ArchitectureBridge {
+    constructor() {
+        this.adapters = new Map();
+        this.architecture = defaultCleanArchitecture;
+        this.isInitialized = false;
+    }
+
+    /**
+     * Initialize the architecture bridge
+     */
+    async initialize() {
+        if (this.isInitialized) return this;
+
+        await this.architecture.initialize();
+        this.isInitialized = true;
+        return this;
+    }
+
+    /**
+     * Register legacy component adapter
+     * @param {string} name - Adapter name
+     * @param {Object} adapter - Adapter instance
+     */
+    registerAdapter(name, adapter) {
+        this.adapters.set(name, adapter);
+        return this;
+    }
+
+    /**
+     * Get adapter by name
+     * @param {string} name - Adapter name
+     * @returns {Object} Adapter instance
+     */
+    getAdapter(name) {
+        return this.adapters.get(name);
+    }
+
+    /**
+     * Create adapters for legacy components
+     * @param {Object} legacyComponents - Legacy component instances
+     * @returns {Promise<Object>} Created adapters
+     */
+    async createAdapters(legacyComponents) {
+        const adapters = {};
+
+        if (legacyComponents.game) {
+            adapters.game = new LegacyGameAdapter(legacyComponents.game);
+            this.registerAdapter('game', adapters.game);
+        }
+
+        if (legacyComponents.ai) {
+            adapters.ai = new LegacyAIAdapter(legacyComponents.ai);
+            this.registerAdapter('ai', adapters.ai);
+        }
+
+        if (legacyComponents.helpers) {
+            adapters.helpers = new LegacyHelpersAdapter(legacyComponents.helpers);
+            this.registerAdapter('helpers', adapters.helpers);
+        }
+
+        if (legacyComponents.ui) {
+            adapters.ui = new LegacyUIAdapter(legacyComponents.ui);
+            this.registerAdapter('ui', adapters.ui);
+        }
+
+        return adapters;
+    }
+
+    /**
+     * Execute action through appropriate adapter
+     * @param {string} component - Component name
+     * @param {string} action - Action name
+     * @param {any} args - Action arguments
+     * @returns {Promise<any>} Action result
+     */
+    async execute(component, action, ...args) {
+        if (!this.isInitialized) {
+            await this.initialize();
+        }
+
+        const adapter = this.getAdapter(component);
+        if (!adapter) {
+            throw new Error(`No adapter registered for component: ${component}`);
+        }
+
+        if (typeof adapter[action] !== 'function') {
+            throw new Error(`Action '${action}' not available on adapter: ${component}`);
+        }
+
+        return await adapter[action](...args);
+    }
+
+    /**
+     * Get clean architecture instance
+     * @returns {CleanArchitecture} Architecture instance
+     */
+    getArchitecture() {
+        return this.architecture;
+    }
+
+    /**
+     * Check if bridge is initialized
+     * @returns {boolean} Initialization status
+     */
+    isReady() {
+        return this.isInitialized;
+    }
+}
+
+/**
+ * Default architecture bridge instance
+ */
+export const defaultArchitectureBridge = new ArchitectureBridge();
+
+/**
+ * Convenience function for creating adapters
+ * @param {Object} legacyComponents - Legacy components to adapt
+ * @returns {Promise<Object>} Created adapters
+ */
+export const createAdapters = async (legacyComponents) => {
+    return await defaultArchitectureBridge.createAdapters(legacyComponents);
+};
+
+/**
+ * Convenience function for executing actions through bridge
+ * @param {string} component - Component name
+ * @param {string} action - Action name
+ * @param {any} args - Action arguments
+ * @returns {Promise<any>} Action result
+ */
+export const executeAction = async (component, action, ...args) => {
+    return await defaultArchitectureBridge.execute(component, action, ...args);
+};

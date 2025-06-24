@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LogicCastle Icon Generator</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .icon-preview { 
+            display: inline-block; 
+            margin: 10px; 
+            text-align: center;
+        }
+        .icon-canvas { 
+            border: 1px solid #ccc; 
+            background: white;
+            display: block;
+            margin: 5px auto;
+        }
+        .download-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>🏰 LogicCastle Icon Generator</h1>
+    <p>Generiert PWA Icons in verschiedenen Größen</p>
+    
+    <div id="icons-container"></div>
+    
+    <script>
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const container = document.getElementById('icons-container');
+        
+        sizes.forEach(size => {
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            canvas.className = 'icon-canvas';
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            // Fill background
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Add castle emoji/symbol
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.6}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏰', size/2, size/2);
+            
+            // Create preview container
+            const preview = document.createElement('div');
+            preview.className = 'icon-preview';
+            
+            const label = document.createElement('div');
+            label.textContent = `${size}x${size}`;
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'download-btn';
+            downloadBtn.textContent = 'Download';
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                link.download = `icon-${size}x${size}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            };
+            
+            preview.appendChild(label);
+            preview.appendChild(canvas);
+            preview.appendChild(downloadBtn);
+            container.appendChild(preview);
+        });
+        
+        // Auto-download all icons
+        setTimeout(() => {
+            if (confirm('Alle Icons automatisch herunterladen?')) {
+                document.querySelectorAll('.download-btn').forEach((btn, index) => {
+                    setTimeout(() => btn.click(), index * 500);
+                });
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - LogicCastle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .offline-container {
+            max-width: 400px;
+            padding: 2rem;
+        }
+        
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .retry-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .retry-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .offline-games {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .offline-games h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .game-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            margin: 8px 0;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+        
+        .game-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📱</div>
+        <h1>Sie sind offline</h1>
+        <p>
+            Keine Internetverbindung gefunden. Die bereits besuchten Spiele können weiterhin gespielt werden.
+        </p>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            Erneut versuchen
+        </button>
+        
+        <div class="offline-games">
+            <h2>🎮 Verfügbare Spiele</h2>
+            <a href="/games/connect4/" class="game-link">🔴 4 Gewinnt</a>
+            <a href="/games/gobang/" class="game-link">⚫ Gobang (5 Gewinnt)</a>
+            <a href="/games/trio/" class="game-link">🎯 Trio</a>
+            <a href="/" class="game-link">🏰 Zur Hauptseite</a>
+        </div>
+    </div>
+    
+    <script>
+        // Check for network connectivity
+        function checkOnlineStatus() {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }
+        
+        // Listen for online event
+        window.addEventListener('online', checkOnlineStatus);
+        
+        // Check periodically
+        setInterval(checkOnlineStatus, 5000);
+    </script>
+</body>
+</html>

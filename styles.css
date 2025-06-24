@@ -13,39 +13,44 @@ body {
 
 header {
     text-align: center;
-    padding: 2rem;
     color: white;
+    /* Mobile-first: start with smaller padding */
+    padding: 1rem;
 }
 
 header h1 {
-    font-size: 3rem;
+    /* Mobile-first: start with smaller font */
+    font-size: 2rem;
     margin-bottom: 0.5rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 header p {
-    font-size: 1.2rem;
+    /* Mobile-first: start with smaller font */
+    font-size: 1rem;
     opacity: 0.9;
 }
 
 .game-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    /* Mobile-first: single column */
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
 }
 
 .game-card {
     background: white;
     border-radius: 15px;
-    padding: 1.5rem;
+    /* Mobile-first: smaller padding */
+    padding: 1rem;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
     outline: none;
+    /* Touch-friendly tap targets (min 44px iOS, 48px Android) */
+    min-height: 48px;
 }
 
 .game-card:hover,
@@ -64,14 +69,15 @@ header p {
     right: 1rem;
     background: #667eea;
     color: white;
-    width: 30px;
-    height: 30px;
+    /* Mobile-first: larger touch target */
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 .game-card h2 {
@@ -226,17 +232,88 @@ footer {
     opacity: 0.8;
 }
 
-@media (max-width: 768px) {
+/* ========================================
+   RESPONSIVE BREAKPOINTS - MOBILE FIRST
+   ======================================== */
+
+/* Mobile Small (320px+) - Base styles already defined above */
+
+/* Touch-specific optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Mobile touch devices */
+    .game-card:hover {
+        /* Disable hover effects on touch devices */
+        transform: none;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .game-card:active {
+        /* Touch feedback */
+        transform: scale(0.98);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+}
+
+/* Mobile Medium (480px+) */
+@media (min-width: 480px) {
     .game-grid {
-        grid-template-columns: 1fr;
-        padding: 1rem;
+        gap: 1.5rem;
+        padding: 1.5rem;
     }
     
     header h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
     
     .game-card {
-        padding: 1rem;
+        padding: 1.25rem;
+    }
+}
+
+/* Tablet Portrait (768px+) */
+@media (min-width: 768px) {
+    .game-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        padding: 2rem;
+    }
+    
+    header {
+        padding: 2rem;
+    }
+    
+    header h1 {
+        font-size: 3rem;
+    }
+    
+    header p {
+        font-size: 1.2rem;
+    }
+    
+    .game-card {
+        padding: 1.5rem;
+    }
+    
+    .game-number {
+        width: 30px;
+        height: 30px;
+        font-size: 1.1rem;
+    }
+}
+
+/* Tablet Landscape / Small Desktop (1024px+) */
+@media (min-width: 1024px) {
+    .game-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+    .game-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.5rem;
     }
 }
