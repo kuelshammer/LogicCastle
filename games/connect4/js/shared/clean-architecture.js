@@ -15,341 +15,341 @@ import { _validateInterface } from './interfaces.js';
  * Domain Layer - Core business entities and rules
  */
 export class GameDomain {
-  constructor() {
-    this.entities = new Map();
-    this.rules = new Map();
-  }
+    constructor() {
+        this.entities = new Map();
+        this.rules = new Map();
+    }
 
-  /**
+    /**
      * Register a domain entity
      * @param {string} name - Entity name
      * @param {Function} entityClass - Entity constructor
      */
-  registerEntity(name, entityClass) {
-    this.entities.set(name, entityClass);
-    return this;
-  }
+    registerEntity(name, entityClass) {
+        this.entities.set(name, entityClass);
+        return this;
+    }
 
-  /**
+    /**
      * Register a business rule
      * @param {string} name - Rule name
      * @param {Function} ruleFunction - Rule implementation
      */
-  registerRule(name, ruleFunction) {
-    this.rules.set(name, ruleFunction);
-    return this;
-  }
+    registerRule(name, ruleFunction) {
+        this.rules.set(name, ruleFunction);
+        return this;
+    }
 
-  /**
+    /**
      * Create domain entity
      * @param {string} name - Entity name
      * @param {...any} args - Constructor arguments
      * @returns {Object} Domain entity instance
      */
-  createEntity(name, ...args) {
-    const EntityClass = this.entities.get(name);
-    if (!EntityClass) {
-      throw new Error(`Domain entity '${name}' not registered`);
+    createEntity(name, ...args) {
+        const EntityClass = this.entities.get(name);
+        if (!EntityClass) {
+            throw new Error(`Domain entity '${name}' not registered`);
+        }
+        return new EntityClass(...args);
     }
-    return new EntityClass(...args);
-  }
 
-  /**
+    /**
      * Execute business rule
      * @param {string} name - Rule name
      * @param {...any} args - Rule arguments
      * @returns {any} Rule result
      */
-  executeRule(name, ...args) {
-    const rule = this.rules.get(name);
-    if (!rule) {
-      throw new Error(`Business rule '${name}' not registered`);
+    executeRule(name, ...args) {
+        const rule = this.rules.get(name);
+        if (!rule) {
+            throw new Error(`Business rule '${name}' not registered`);
+        }
+        return rule(...args);
     }
-    return rule(...args);
-  }
 }
 
 /**
  * Application Layer - Use cases and orchestration
  */
 export class ApplicationLayer {
-  constructor(container = globalContainer) {
-    this.container = container;
-    this.useCases = new Map();
-    this.commands = new Map();
-    this.queries = new Map();
-  }
+    constructor(container = globalContainer) {
+        this.container = container;
+        this.useCases = new Map();
+        this.commands = new Map();
+        this.queries = new Map();
+    }
 
-  /**
+    /**
      * Register a use case
      * @param {string} name - Use case name
      * @param {Function} useCase - Use case implementation
      * @param {Array} dependencies - Required dependencies
      */
-  registerUseCase(name, useCase, dependencies = []) {
-    this.useCases.set(name, { useCase, dependencies });
-    return this;
-  }
+    registerUseCase(name, useCase, dependencies = []) {
+        this.useCases.set(name, { useCase, dependencies });
+        return this;
+    }
 
-  /**
+    /**
      * Register a command handler
      * @param {string} name - Command name
      * @param {Function} handler - Command handler
      * @param {Array} dependencies - Required dependencies
      */
-  registerCommand(name, handler, dependencies = []) {
-    this.commands.set(name, { handler, dependencies });
-    return this;
-  }
+    registerCommand(name, handler, dependencies = []) {
+        this.commands.set(name, { handler, dependencies });
+        return this;
+    }
 
-  /**
+    /**
      * Register a query handler
      * @param {string} name - Query name
      * @param {Function} handler - Query handler
      * @param {Array} dependencies - Required dependencies
      */
-  registerQuery(name, handler, dependencies = []) {
-    this.queries.set(name, { handler, dependencies });
-    return this;
-  }
+    registerQuery(name, handler, dependencies = []) {
+        this.queries.set(name, { handler, dependencies });
+        return this;
+    }
 
-  /**
+    /**
      * Execute use case with dependency injection
      * @param {string} name - Use case name
      * @param {Object} request - Use case request
      * @returns {Promise<Object>} Use case response
      */
-  async executeUseCase(name, request = {}) {
-    const useCaseInfo = this.useCases.get(name);
-    if (!useCaseInfo) {
-      throw new Error(`Use case '${name}' not registered`);
+    async executeUseCase(name, request = {}) {
+        const useCaseInfo = this.useCases.get(name);
+        if (!useCaseInfo) {
+            throw new Error(`Use case '${name}' not registered`);
+        }
+
+        const { useCase, dependencies } = useCaseInfo;
+        const resolvedDeps = await this.resolveDependencies(dependencies);
+
+        return await useCase(request, ...resolvedDeps);
     }
 
-    const { useCase, dependencies } = useCaseInfo;
-    const resolvedDeps = await this.resolveDependencies(dependencies);
-
-    return await useCase(request, ...resolvedDeps);
-  }
-
-  /**
+    /**
      * Execute command with dependency injection
      * @param {string} name - Command name
      * @param {Object} command - Command object
      * @returns {Promise<Object>} Command result
      */
-  async executeCommand(name, command = {}) {
-    const commandInfo = this.commands.get(name);
-    if (!commandInfo) {
-      throw new Error(`Command '${name}' not registered`);
+    async executeCommand(name, command = {}) {
+        const commandInfo = this.commands.get(name);
+        if (!commandInfo) {
+            throw new Error(`Command '${name}' not registered`);
+        }
+
+        const { handler, dependencies } = commandInfo;
+        const resolvedDeps = await this.resolveDependencies(dependencies);
+
+        return await handler(command, ...resolvedDeps);
     }
 
-    const { handler, dependencies } = commandInfo;
-    const resolvedDeps = await this.resolveDependencies(dependencies);
-
-    return await handler(command, ...resolvedDeps);
-  }
-
-  /**
+    /**
      * Execute query with dependency injection
      * @param {string} name - Query name
      * @param {Object} query - Query parameters
      * @returns {Promise<Object>} Query result
      */
-  async executeQuery(name, query = {}) {
-    const queryInfo = this.queries.get(name);
-    if (!queryInfo) {
-      throw new Error(`Query '${name}' not registered`);
+    async executeQuery(name, query = {}) {
+        const queryInfo = this.queries.get(name);
+        if (!queryInfo) {
+            throw new Error(`Query '${name}' not registered`);
+        }
+
+        const { handler, dependencies } = queryInfo;
+        const resolvedDeps = await this.resolveDependencies(dependencies);
+
+        return await handler(query, ...resolvedDeps);
     }
 
-    const { handler, dependencies } = queryInfo;
-    const resolvedDeps = await this.resolveDependencies(dependencies);
-
-    return await handler(query, ...resolvedDeps);
-  }
-
-  /**
+    /**
      * Resolve dependencies from container
      * @param {Array} dependencies - Dependency names
      * @returns {Promise<Array>} Resolved dependencies
      */
-  async resolveDependencies(dependencies) {
-    const resolved = [];
-    for (const dep of dependencies) {
-      resolved.push(await this.container.resolve(dep));
+    async resolveDependencies(dependencies) {
+        const resolved = [];
+        for (const dep of dependencies) {
+            resolved.push(await this.container.resolve(dep));
+        }
+        return resolved;
     }
-    return resolved;
-  }
 }
 
 /**
  * Infrastructure Layer - External dependencies and frameworks
  */
 export class InfrastructureLayer {
-  constructor(container = globalContainer) {
-    this.container = container;
-    this.adapters = new Map();
-    this.repositories = new Map();
-    this.services = new Map();
-  }
+    constructor(container = globalContainer) {
+        this.container = container;
+        this.adapters = new Map();
+        this.repositories = new Map();
+        this.services = new Map();
+    }
 
-  /**
+    /**
      * Register external adapter
      * @param {string} name - Adapter name
      * @param {Function} adapter - Adapter implementation
      * @param {Object} config - Adapter configuration
      */
-  registerAdapter(name, adapter, config = {}) {
-    this.adapters.set(name, { adapter, config });
+    registerAdapter(name, adapter, config = {}) {
+        this.adapters.set(name, { adapter, config });
 
-    // Register with DI container
-    this.container.register(`Adapter_${name}`, adapter, {
-      singleton: config.singleton || false,
-      dependencies: config.dependencies || []
-    });
+        // Register with DI container
+        this.container.register(`Adapter_${name}`, adapter, {
+            singleton: config.singleton || false,
+            dependencies: config.dependencies || []
+        });
 
-    return this;
-  }
+        return this;
+    }
 
-  /**
+    /**
      * Register repository implementation
      * @param {string} name - Repository interface name
      * @param {Function} repository - Repository implementation
      * @param {Object} config - Repository configuration
      */
-  registerRepository(name, repository, config = {}) {
-    this.repositories.set(name, { repository, config });
+    registerRepository(name, repository, config = {}) {
+        this.repositories.set(name, { repository, config });
 
-    // Register with DI container
-    this.container.register(name, repository, {
-      singleton: config.singleton || true, // Repositories usually singleton
-      dependencies: config.dependencies || []
-    });
+        // Register with DI container
+        this.container.register(name, repository, {
+            singleton: config.singleton || true, // Repositories usually singleton
+            dependencies: config.dependencies || []
+        });
 
-    return this;
-  }
+        return this;
+    }
 
-  /**
+    /**
      * Register external service
      * @param {string} name - Service name
      * @param {Function} service - Service implementation
      * @param {Object} config - Service configuration
      */
-  registerService(name, service, config = {}) {
-    this.services.set(name, { service, config });
+    registerService(name, service, config = {}) {
+        this.services.set(name, { service, config });
 
-    // Register with DI container
-    this.container.register(name, service, {
-      singleton: config.singleton || false,
-      dependencies: config.dependencies || []
-    });
+        // Register with DI container
+        this.container.register(name, service, {
+            singleton: config.singleton || false,
+            dependencies: config.dependencies || []
+        });
 
-    return this;
-  }
+        return this;
+    }
 
-  /**
+    /**
      * Get adapter instance
      * @param {string} name - Adapter name
      * @returns {Promise<Object>} Adapter instance
      */
-  async getAdapter(name) {
-    return await this.container.resolve(`Adapter_${name}`);
-  }
+    async getAdapter(name) {
+        return await this.container.resolve(`Adapter_${name}`);
+    }
 
-  /**
+    /**
      * Get repository instance
      * @param {string} name - Repository name
      * @returns {Promise<Object>} Repository instance
      */
-  async getRepository(name) {
-    return await this.container.resolve(name);
-  }
+    async getRepository(name) {
+        return await this.container.resolve(name);
+    }
 
-  /**
+    /**
      * Get service instance
      * @param {string} name - Service name
      * @returns {Promise<Object>} Service instance
      */
-  async getService(name) {
-    return await this.container.resolve(name);
-  }
+    async getService(name) {
+        return await this.container.resolve(name);
+    }
 }
 
 /**
  * Interface Layer - Controllers and presentation adapters
  */
 export class InterfaceLayer {
-  constructor(applicationLayer) {
-    this.applicationLayer = applicationLayer;
-    this.controllers = new Map();
-    this.presenters = new Map();
-    this.validators = new Map();
-  }
+    constructor(applicationLayer) {
+        this.applicationLayer = applicationLayer;
+        this.controllers = new Map();
+        this.presenters = new Map();
+        this.validators = new Map();
+    }
 
-  /**
+    /**
      * Register controller
      * @param {string} name - Controller name
      * @param {Function} controller - Controller implementation
      */
-  registerController(name, controller) {
-    this.controllers.set(name, controller);
-    return this;
-  }
+    registerController(name, controller) {
+        this.controllers.set(name, controller);
+        return this;
+    }
 
-  /**
+    /**
      * Register presenter
      * @param {string} name - Presenter name
      * @param {Function} presenter - Presenter implementation
      */
-  registerPresenter(name, presenter) {
-    this.presenters.set(name, presenter);
-    return this;
-  }
+    registerPresenter(name, presenter) {
+        this.presenters.set(name, presenter);
+        return this;
+    }
 
-  /**
+    /**
      * Register input validator
      * @param {string} name - Validator name
      * @param {Function} validator - Validator function
      */
-  registerValidator(name, validator) {
-    this.validators.set(name, validator);
-    return this;
-  }
+    registerValidator(name, validator) {
+        this.validators.set(name, validator);
+        return this;
+    }
 
-  /**
+    /**
      * Handle request through controller
      * @param {string} controllerName - Controller name
      * @param {string} action - Controller action
      * @param {Object} request - Request data
      * @returns {Promise<Object>} Response data
      */
-  async handleRequest(controllerName, action, request = {}) {
-    const controller = this.controllers.get(controllerName);
-    if (!controller) {
-      throw new Error(`Controller '${controllerName}' not registered`);
+    async handleRequest(controllerName, action, request = {}) {
+        const controller = this.controllers.get(controllerName);
+        if (!controller) {
+            throw new Error(`Controller '${controllerName}' not registered`);
+        }
+
+        // Validate input if validator exists
+        const validatorName = `${controllerName}_${action}`;
+        if (this.validators.has(validatorName)) {
+            const validator = this.validators.get(validatorName);
+            const validationResult = validator(request);
+            if (!validationResult.isValid) {
+                throw new Error(`Validation failed: ${validationResult.errors.join(', ')}`);
+            }
+        }
+
+        // Execute controller action
+        const result = await controller[action](request, this.applicationLayer);
+
+        // Present result if presenter exists
+        const presenterName = `${controllerName}_${action}`;
+        if (this.presenters.has(presenterName)) {
+            const presenter = this.presenters.get(presenterName);
+            return presenter(result);
+        }
+
+        return result;
     }
-
-    // Validate input if validator exists
-    const validatorName = `${controllerName}_${action}`;
-    if (this.validators.has(validatorName)) {
-      const validator = this.validators.get(validatorName);
-      const validationResult = validator(request);
-      if (!validationResult.isValid) {
-        throw new Error(`Validation failed: ${validationResult.errors.join(', ')}`);
-      }
-    }
-
-    // Execute controller action
-    const result = await controller[action](request, this.applicationLayer);
-
-    // Present result if presenter exists
-    const presenterName = `${controllerName}_${action}`;
-    if (this.presenters.has(presenterName)) {
-      const presenter = this.presenters.get(presenterName);
-      return presenter(result);
-    }
-
-    return result;
-  }
 }
 
 /**
@@ -357,465 +357,465 @@ export class InterfaceLayer {
  * Provides a unified interface to all architectural layers
  */
 export class CleanArchitecture {
-  constructor(container = globalContainer) {
-    this.container = container;
-    this.domain = new GameDomain();
-    this.application = new ApplicationLayer(container);
-    this.infrastructure = new InfrastructureLayer(container);
-    this.interface = new InterfaceLayer(this.application);
+    constructor(container = globalContainer) {
+        this.container = container;
+        this.domain = new GameDomain();
+        this.application = new ApplicationLayer(container);
+        this.infrastructure = new InfrastructureLayer(container);
+        this.interface = new InterfaceLayer(this.application);
 
-    this.isInitialized = false;
-  }
+        this.isInitialized = false;
+    }
 
-  /**
+    /**
      * Initialize the architecture with default configurations
      */
-  async initialize() {
-    if (this.isInitialized) return this;
+    async initialize() {
+        if (this.isInitialized) return this;
 
-    // Setup default domain entities and rules
-    this.setupDomainLayer();
+        // Setup default domain entities and rules
+        this.setupDomainLayer();
 
-    // Setup default use cases, commands, and queries
-    this.setupApplicationLayer();
+        // Setup default use cases, commands, and queries
+        this.setupApplicationLayer();
 
-    // Setup default adapters and repositories
-    this.setupInfrastructureLayer();
+        // Setup default adapters and repositories
+        this.setupInfrastructureLayer();
 
-    // Setup default controllers and presenters
-    this.setupInterfaceLayer();
+        // Setup default controllers and presenters
+        this.setupInterfaceLayer();
 
-    this.isInitialized = true;
-    return this;
-  }
+        this.isInitialized = true;
+        return this;
+    }
 
-  /**
+    /**
      * Setup domain layer with Connect4 entities and rules
      */
-  setupDomainLayer() {
-    // Register core game entities
-    this.domain.registerEntity(
-      'GameBoard',
-      class GameBoard {
-        constructor(rows = 6, cols = 7) {
-          this.rows = rows;
-          this.cols = cols;
-          this.grid = Array(rows)
-            .fill()
-            .map(() => Array(cols).fill(0));
-        }
+    setupDomainLayer() {
+        // Register core game entities
+        this.domain.registerEntity(
+            'GameBoard',
+            class GameBoard {
+                constructor(rows = 6, cols = 7) {
+                    this.rows = rows;
+                    this.cols = cols;
+                    this.grid = Array(rows)
+                        .fill()
+                        .map(() => Array(cols).fill(0));
+                }
 
-        makeMove(col, player) {
-          const row = this.findLowestRow(col);
-          if (row === -1) return null;
+                makeMove(col, player) {
+                    const row = this.findLowestRow(col);
+                    if (row === -1) return null;
 
-          this.grid[row][col] = player;
-          return { row, col, player };
-        }
+                    this.grid[row][col] = player;
+                    return { row, col, player };
+                }
 
-        findLowestRow(col) {
-          for (let row = this.rows - 1; row >= 0; row--) {
-            if (this.grid[row][col] === 0) return row;
-          }
-          return -1;
-        }
+                findLowestRow(col) {
+                    for (let row = this.rows - 1; row >= 0; row--) {
+                        if (this.grid[row][col] === 0) return row;
+                    }
+                    return -1;
+                }
 
-        isValidMove(col) {
-          return col >= 0 && col < this.cols && this.grid[0][col] === 0;
-        }
+                isValidMove(col) {
+                    return col >= 0 && col < this.cols && this.grid[0][col] === 0;
+                }
 
-        getGrid() {
-          return this.grid.map(row => [...row]);
-        }
-      }
-    );
+                getGrid() {
+                    return this.grid.map(row => [...row]);
+                }
+            }
+        );
 
-    this.domain.registerEntity(
-      'Player',
-      class Player {
-        constructor(id, name, type = 'human') {
-          this.id = id;
-          this.name = name;
-          this.type = type;
-        }
-      }
-    );
+        this.domain.registerEntity(
+            'Player',
+            class Player {
+                constructor(id, name, type = 'human') {
+                    this.id = id;
+                    this.name = name;
+                    this.type = type;
+                }
+            }
+        );
 
-    // Register business rules
-    this.domain.registerRule('checkWin', (grid, row, col, player) => {
-      const directions = [
-        [0, 1],
-        [1, 0],
-        [1, 1],
-        [1, -1]
-      ];
+        // Register business rules
+        this.domain.registerRule('checkWin', (grid, row, col, player) => {
+            const directions = [
+                [0, 1],
+                [1, 0],
+                [1, 1],
+                [1, -1]
+            ];
 
-      for (const [dRow, dCol] of directions) {
-        let count = 1;
+            for (const [dRow, dCol] of directions) {
+                let count = 1;
 
-        // Check positive direction
-        for (let i = 1; i < 4; i++) {
-          const newRow = row + i * dRow;
-          const newCol = col + i * dCol;
-          if (
-            newRow < 0 ||
+                // Check positive direction
+                for (let i = 1; i < 4; i++) {
+                    const newRow = row + i * dRow;
+                    const newCol = col + i * dCol;
+                    if (
+                        newRow < 0 ||
                         newRow >= grid.length ||
                         newCol < 0 ||
                         newCol >= grid[0].length ||
                         grid[newRow][newCol] !== player
-          ) {
-            break;
-          }
-          count++;
-        }
+                    ) {
+                        break;
+                    }
+                    count++;
+                }
 
-        // Check negative direction
-        for (let i = 1; i < 4; i++) {
-          const newRow = row - i * dRow;
-          const newCol = col - i * dCol;
-          if (
-            newRow < 0 ||
+                // Check negative direction
+                for (let i = 1; i < 4; i++) {
+                    const newRow = row - i * dRow;
+                    const newCol = col - i * dCol;
+                    if (
+                        newRow < 0 ||
                         newRow >= grid.length ||
                         newCol < 0 ||
                         newCol >= grid[0].length ||
                         grid[newRow][newCol] !== player
-          ) {
-            break;
-          }
-          count++;
-        }
+                    ) {
+                        break;
+                    }
+                    count++;
+                }
 
-        if (count >= 4) return true;
-      }
-      return false;
-    });
+                if (count >= 4) return true;
+            }
+            return false;
+        });
 
-    this.domain.registerRule('isDraw', grid => {
-      return grid[0].every(cell => cell !== 0);
-    });
-  }
+        this.domain.registerRule('isDraw', grid => {
+            return grid[0].every(cell => cell !== 0);
+        });
+    }
 
-  /**
+    /**
      * Setup application layer with Connect4 use cases
      */
-  setupApplicationLayer() {
-    // Make Move Use Case
-    this.application.registerUseCase(
-      'makeMove',
-      async (request, gameEngine, eventSystem) => {
-        const { column, player } = request;
+    setupApplicationLayer() {
+        // Make Move Use Case
+        this.application.registerUseCase(
+            'makeMove',
+            async (request, gameEngine, eventSystem) => {
+                const { column, player } = request;
 
-        const result = gameEngine.makeMove(column, player);
-        if (result.success) {
-          eventSystem.emit('moveMade', result);
+                const result = gameEngine.makeMove(column, player);
+                if (result.success) {
+                    eventSystem.emit('moveMade', result);
 
-          // Check for win condition
-          if (result.isWin) {
-            eventSystem.emit('gameWon', {
-              winner: player,
-              winningCells: result.winningCells
-            });
-          }
-        }
+                    // Check for win condition
+                    if (result.isWin) {
+                        eventSystem.emit('gameWon', {
+                            winner: player,
+                            winningCells: result.winningCells
+                        });
+                    }
+                }
 
-        return result;
-      },
-      ['IGameEngine', 'IEventSystem']
-    );
+                return result;
+            },
+            ['IGameEngine', 'IEventSystem']
+        );
 
-    // Get Best AI Move Use Case
-    this.application.registerUseCase(
-      'getAIMove',
-      async (request, aiFactory, gameEngine) => {
-        const { difficulty, player } = request;
+        // Get Best AI Move Use Case
+        this.application.registerUseCase(
+            'getAIMove',
+            async (request, aiFactory, gameEngine) => {
+                const { difficulty, player } = request;
 
-        const bot = await aiFactory(difficulty);
-        const bestMove = bot.getBestMove(gameEngine);
+                const bot = await aiFactory(difficulty);
+                const bestMove = bot.getBestMove(gameEngine);
 
-        return { column: bestMove, player, confidence: bot.getConfidence?.() || 1.0 };
-      },
-      ['IAIFactory', 'IGameEngine']
-    );
+                return { column: bestMove, player, confidence: bot.getConfidence?.() || 1.0 };
+            },
+            ['IAIFactory', 'IGameEngine']
+        );
 
-    // Get Hint Use Case
-    this.application.registerUseCase(
-      'getHint',
-      async (request, helperSystem) => {
-        const { level = 1 } = request;
+        // Get Hint Use Case
+        this.application.registerUseCase(
+            'getHint',
+            async (request, helperSystem) => {
+                const { level = 1 } = request;
 
-        const hint = helperSystem.getHint();
-        if (hint) {
-          hint.level = level;
-          hint.timestamp = Date.now();
-        }
+                const hint = helperSystem.getHint();
+                if (hint) {
+                    hint.level = level;
+                    hint.timestamp = Date.now();
+                }
 
-        return hint;
-      },
-      ['IHelperSystem']
-    );
+                return hint;
+            },
+            ['IHelperSystem']
+        );
 
-    // Commands
-    this.application.registerCommand(
-      'resetGame',
-      async (command, gameEngine, scoreManager) => {
-        gameEngine.reset();
-        if (command.resetScore) {
-          scoreManager.resetScore();
-        }
-        return { success: true, message: 'Game reset successfully' };
-      },
-      ['IGameEngine', 'IScoreManager']
-    );
+        // Commands
+        this.application.registerCommand(
+            'resetGame',
+            async (command, gameEngine, scoreManager) => {
+                gameEngine.reset();
+                if (command.resetScore) {
+                    scoreManager.resetScore();
+                }
+                return { success: true, message: 'Game reset successfully' };
+            },
+            ['IGameEngine', 'IScoreManager']
+        );
 
-    // Queries
-    this.application.registerQuery(
-      'getGameState',
-      async (query, gameEngine) => {
-        return {
-          board: gameEngine.getBoard(),
-          currentPlayer: gameEngine.getCurrentPlayer(),
-          isGameOver: gameEngine.isGameOver(),
-          winner: gameEngine.getWinner(),
-          validMoves: gameEngine.getValidMoves()
-        };
-      },
-      ['IGameEngine']
-    );
+        // Queries
+        this.application.registerQuery(
+            'getGameState',
+            async (query, gameEngine) => {
+                return {
+                    board: gameEngine.getBoard(),
+                    currentPlayer: gameEngine.getCurrentPlayer(),
+                    isGameOver: gameEngine.isGameOver(),
+                    winner: gameEngine.getWinner(),
+                    validMoves: gameEngine.getValidMoves()
+                };
+            },
+            ['IGameEngine']
+        );
 
-    this.application.registerQuery(
-      'getScore',
-      async (query, scoreManager) => {
-        return {
-          player1: scoreManager.getScore(1),
-          player2: scoreManager.getScore(2),
-          draws: scoreManager.getScore('draws')
-        };
-      },
-      ['IScoreManager']
-    );
-  }
+        this.application.registerQuery(
+            'getScore',
+            async (query, scoreManager) => {
+                return {
+                    player1: scoreManager.getScore(1),
+                    player2: scoreManager.getScore(2),
+                    draws: scoreManager.getScore('draws')
+                };
+            },
+            ['IScoreManager']
+        );
+    }
 
-  /**
+    /**
      * Setup infrastructure layer with adapters and repositories
      */
-  setupInfrastructureLayer() {
-    // Local Storage Adapter
-    this.infrastructure.registerAdapter(
-      'localStorage',
-      class LocalStorageAdapter {
-        save(key, data) {
-          try {
-            localStorage.setItem(key, JSON.stringify(data));
-            return true;
-          } catch (error) {
-            console.error('LocalStorage save failed:', error);
-            return false;
-          }
-        }
+    setupInfrastructureLayer() {
+        // Local Storage Adapter
+        this.infrastructure.registerAdapter(
+            'localStorage',
+            class LocalStorageAdapter {
+                save(key, data) {
+                    try {
+                        localStorage.setItem(key, JSON.stringify(data));
+                        return true;
+                    } catch (error) {
+                        console.error('LocalStorage save failed:', error);
+                        return false;
+                    }
+                }
 
-        load(key) {
-          try {
-            const data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : null;
-          } catch (error) {
-            console.error('LocalStorage load failed:', error);
-            return null;
-          }
-        }
+                load(key) {
+                    try {
+                        const data = localStorage.getItem(key);
+                        return data ? JSON.parse(data) : null;
+                    } catch (error) {
+                        console.error('LocalStorage load failed:', error);
+                        return null;
+                    }
+                }
 
-        remove(key) {
-          try {
-            localStorage.removeItem(key);
-            return true;
-          } catch (error) {
-            console.error('LocalStorage remove failed:', error);
-            return false;
-          }
-        }
-      }
-    );
+                remove(key) {
+                    try {
+                        localStorage.removeItem(key);
+                        return true;
+                    } catch (error) {
+                        console.error('LocalStorage remove failed:', error);
+                        return false;
+                    }
+                }
+            }
+        );
 
-    // Game State Repository
-    this.infrastructure.registerRepository(
-      'IGameStateRepository',
-      class GameStateRepository {
-        constructor(storageAdapter) {
-          this.storage = storageAdapter;
-          this.key = 'connect4_game_state';
-        }
+        // Game State Repository
+        this.infrastructure.registerRepository(
+            'IGameStateRepository',
+            class GameStateRepository {
+                constructor(storageAdapter) {
+                    this.storage = storageAdapter;
+                    this.key = 'connect4_game_state';
+                }
 
-        async save(gameState) {
-          return this.storage.save(this.key, gameState);
-        }
+                async save(gameState) {
+                    return this.storage.save(this.key, gameState);
+                }
 
-        async load() {
-          return this.storage.load(this.key);
-        }
+                async load() {
+                    return this.storage.load(this.key);
+                }
 
-        async delete() {
-          return this.storage.remove(this.key);
-        }
-      },
-      { dependencies: ['Adapter_localStorage'] }
-    );
+                async delete() {
+                    return this.storage.remove(this.key);
+                }
+            },
+            { dependencies: ['Adapter_localStorage'] }
+        );
 
-    // Analytics Service
-    this.infrastructure.registerService(
-      'IAnalyticsService',
-      class AnalyticsService {
-        trackMove(move) {
-          // Mock analytics - replace with real implementation
-          console.log('Analytics: Move tracked', move);
-        }
+        // Analytics Service
+        this.infrastructure.registerService(
+            'IAnalyticsService',
+            class AnalyticsService {
+                trackMove(move) {
+                    // Mock analytics - replace with real implementation
+                    console.log('Analytics: Move tracked', move);
+                }
 
-        trackGameEnd(result) {
-          console.log('Analytics: Game ended', result);
-        }
+                trackGameEnd(result) {
+                    console.log('Analytics: Game ended', result);
+                }
 
-        trackBotPerformance(botData) {
-          console.log('Analytics: Bot performance', botData);
-        }
-      }
-    );
-  }
+                trackBotPerformance(botData) {
+                    console.log('Analytics: Bot performance', botData);
+                }
+            }
+        );
+    }
 
-  /**
+    /**
      * Setup interface layer with controllers and presenters
      */
-  setupInterfaceLayer() {
-    // Game Controller
-    this.interface.registerController('game', {
-      async makeMove(request, applicationLayer) {
-        return await applicationLayer.executeUseCase('makeMove', request);
-      },
+    setupInterfaceLayer() {
+        // Game Controller
+        this.interface.registerController('game', {
+            async makeMove(request, applicationLayer) {
+                return await applicationLayer.executeUseCase('makeMove', request);
+            },
 
-      async getAIMove(request, applicationLayer) {
-        return await applicationLayer.executeUseCase('getAIMove', request);
-      },
+            async getAIMove(request, applicationLayer) {
+                return await applicationLayer.executeUseCase('getAIMove', request);
+            },
 
-      async getHint(request, applicationLayer) {
-        return await applicationLayer.executeUseCase('getHint', request);
-      },
+            async getHint(request, applicationLayer) {
+                return await applicationLayer.executeUseCase('getHint', request);
+            },
 
-      async reset(request, applicationLayer) {
-        return await applicationLayer.executeCommand('resetGame', request);
-      },
+            async reset(request, applicationLayer) {
+                return await applicationLayer.executeCommand('resetGame', request);
+            },
 
-      async getState(request, applicationLayer) {
-        return await applicationLayer.executeQuery('getGameState', request);
-      }
-    });
+            async getState(request, applicationLayer) {
+                return await applicationLayer.executeQuery('getGameState', request);
+            }
+        });
 
-    // Input Validators
-    this.interface.registerValidator('game_makeMove', request => {
-      const errors = [];
+        // Input Validators
+        this.interface.registerValidator('game_makeMove', request => {
+            const errors = [];
 
-      if (typeof request.column !== 'number' || request.column < 0 || request.column > 6) {
-        errors.push('Invalid column number');
-      }
+            if (typeof request.column !== 'number' || request.column < 0 || request.column > 6) {
+                errors.push('Invalid column number');
+            }
 
-      if (
-        typeof request.player !== 'number' ||
+            if (
+                typeof request.player !== 'number' ||
                 (request.player !== 1 && request.player !== 2)
-      ) {
-        errors.push('Invalid player number');
-      }
+            ) {
+                errors.push('Invalid player number');
+            }
 
-      return {
-        isValid: errors.length === 0,
-        errors
-      };
-    });
+            return {
+                isValid: errors.length === 0,
+                errors
+            };
+        });
 
-    this.interface.registerValidator('game_getAIMove', request => {
-      const validDifficulties = ['easy', 'medium', 'hard', 'expert'];
-      const errors = [];
+        this.interface.registerValidator('game_getAIMove', request => {
+            const validDifficulties = ['easy', 'medium', 'hard', 'expert'];
+            const errors = [];
 
-      if (!validDifficulties.includes(request.difficulty)) {
-        errors.push('Invalid difficulty level');
-      }
+            if (!validDifficulties.includes(request.difficulty)) {
+                errors.push('Invalid difficulty level');
+            }
 
-      return {
-        isValid: errors.length === 0,
-        errors
-      };
-    });
+            return {
+                isValid: errors.length === 0,
+                errors
+            };
+        });
 
-    // Response Presenters
-    this.interface.registerPresenter('game_makeMove', result => {
-      return {
-        success: result.success,
-        move: result.success
-          ? {
-            row: result.row,
-            column: result.col,
-            player: result.player
-          }
-          : null,
-        gameOver: result.isWin || result.isDraw,
-        winner: result.winner || null,
-        message: result.success ? 'Move completed' : 'Invalid move'
-      };
-    });
+        // Response Presenters
+        this.interface.registerPresenter('game_makeMove', result => {
+            return {
+                success: result.success,
+                move: result.success
+                    ? {
+                          row: result.row,
+                          column: result.col,
+                          player: result.player
+                      }
+                    : null,
+                gameOver: result.isWin || result.isDraw,
+                winner: result.winner || null,
+                message: result.success ? 'Move completed' : 'Invalid move'
+            };
+        });
 
-    this.interface.registerPresenter('game_getAIMove', result => {
-      return {
-        recommended: {
-          column: result.column,
-          confidence: result.confidence,
-          player: result.player
-        },
-        timestamp: Date.now()
-      };
-    });
-  }
+        this.interface.registerPresenter('game_getAIMove', result => {
+            return {
+                recommended: {
+                    column: result.column,
+                    confidence: result.confidence,
+                    player: result.player
+                },
+                timestamp: Date.now()
+            };
+        });
+    }
 
-  /**
+    /**
      * Get domain layer
      * @returns {GameDomain} Domain layer instance
      */
-  getDomain() {
-    return this.domain;
-  }
+    getDomain() {
+        return this.domain;
+    }
 
-  /**
+    /**
      * Get application layer
      * @returns {ApplicationLayer} Application layer instance
      */
-  getApplication() {
-    return this.application;
-  }
+    getApplication() {
+        return this.application;
+    }
 
-  /**
+    /**
      * Get infrastructure layer
      * @returns {InfrastructureLayer} Infrastructure layer instance
      */
-  getInfrastructure() {
-    return this.infrastructure;
-  }
+    getInfrastructure() {
+        return this.infrastructure;
+    }
 
-  /**
+    /**
      * Get interface layer
      * @returns {InterfaceLayer} Interface layer instance
      */
-  getInterface() {
-    return this.interface;
-  }
+    getInterface() {
+        return this.interface;
+    }
 
-  /**
+    /**
      * Execute action through the clean architecture
      * @param {string} controller - Controller name
      * @param {string} action - Action name
      * @param {Object} request - Request data
      * @returns {Promise<Object>} Response data
      */
-  async execute(controller, action, request = {}) {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
+    async execute(controller, action, request = {}) {
+        if (!this.isInitialized) {
+            await this.initialize();
+        }
 
-    return await this.interface.handleRequest(controller, action, request);
-  }
+        return await this.interface.handleRequest(controller, action, request);
+    }
 }
 
 /**
@@ -831,5 +831,5 @@ export const defaultCleanArchitecture = new CleanArchitecture();
  * @returns {Promise<Object>} Response data
  */
 export const execute = async (controller, action, request) => {
-  return await defaultCleanArchitecture.execute(controller, action, request);
+    return await defaultCleanArchitecture.execute(controller, action, request);
 };

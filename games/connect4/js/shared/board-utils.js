@@ -10,9 +10,9 @@ import { GAME_CONFIG, PLAYERS, ALL_DIRECTIONS, DIRECTION_NAMES } from './constan
  * @returns {Array[]} Empty 2D board array
  */
 export function createEmptyBoard() {
-  return Array(GAME_CONFIG.ROWS)
-    .fill(null)
-    .map(() => Array(GAME_CONFIG.COLS).fill(PLAYERS.NONE));
+    return Array(GAME_CONFIG.ROWS)
+        .fill(null)
+        .map(() => Array(GAME_CONFIG.COLS).fill(PLAYERS.NONE));
 }
 
 /**
@@ -21,8 +21,8 @@ export function createEmptyBoard() {
  * @returns {Array[]} Deep copy of the board
  */
 export function copyBoard(board) {
-  // Unused parameter prefixed
-  return board.map(row => [...row]);
+    // Unused parameter prefixed
+    return board.map(row => [...row]);
 }
 
 /**
@@ -32,7 +32,7 @@ export function copyBoard(board) {
  * @returns {boolean} Whether column is valid and has space
  */
 export function isValidColumn(board, col) {
-  return col >= 0 && col < GAME_CONFIG.COLS && board[0][col] === PLAYERS.NONE;
+    return col >= 0 && col < GAME_CONFIG.COLS && board[0][col] === PLAYERS.NONE;
 }
 
 /**
@@ -41,14 +41,14 @@ export function isValidColumn(board, col) {
  * @returns {number[]} Array of valid column indices
  */
 export function getValidMoves(board) {
-  // Unused parameter prefixed
-  const validMoves = [];
-  for (let col = 0; col < GAME_CONFIG.COLS; col++) {
-    if (isValidColumn(board, col)) {
-      validMoves.push(col);
+    // Unused parameter prefixed
+    const validMoves = [];
+    for (let col = 0; col < GAME_CONFIG.COLS; col++) {
+        if (isValidColumn(board, col)) {
+            validMoves.push(col);
+        }
     }
-  }
-  return validMoves;
+    return validMoves;
 }
 
 /**
@@ -58,17 +58,17 @@ export function getValidMoves(board) {
  * @returns {number} Row index or -1 if column is full
  */
 export function getLowestEmptyRow(board, col) {
-  if (!isValidColumn(board, col)) {
-    return -1;
-  }
-
-  for (let row = GAME_CONFIG.ROWS - 1; row >= 0; row--) {
-    if (board[row][col] === PLAYERS.NONE) {
-      return row;
+    if (!isValidColumn(board, col)) {
+        return -1;
     }
-  }
 
-  return -1;
+    for (let row = GAME_CONFIG.ROWS - 1; row >= 0; row--) {
+        if (board[row][col] === PLAYERS.NONE) {
+            return row;
+        }
+    }
+
+    return -1;
 }
 
 /**
@@ -79,11 +79,11 @@ export function getLowestEmptyRow(board, col) {
  * @returns {number} Row where piece was placed, or -1 if invalid
  */
 export function simulateMove(board, col, player) {
-  const row = getLowestEmptyRow(board, col);
-  if (row !== -1) {
-    board[row][col] = player;
-  }
-  return row;
+    const row = getLowestEmptyRow(board, col);
+    if (row !== -1) {
+        board[row][col] = player;
+    }
+    return row;
 }
 
 /**
@@ -94,28 +94,28 @@ export function simulateMove(board, col, player) {
  * @returns {Object|null} {newBoard, row, isWin, winningCells} or null if invalid
  */
 export function simulateMoveNonDestructive(board, col, player) {
-  if (!isValidColumn(board, col)) {
-    return null;
-  }
+    if (!isValidColumn(board, col)) {
+        return null;
+    }
 
-  const newBoard = copyBoard(board);
-  const row = simulateMove(newBoard, col, player);
+    const newBoard = copyBoard(board);
+    const row = simulateMove(newBoard, col, player);
 
-  if (row === -1) {
-    return null;
-  }
+    if (row === -1) {
+        return null;
+    }
 
-  const winResult = checkWinAt(newBoard, row, col, player);
+    const winResult = checkWinAt(newBoard, row, col, player);
 
-  return {
-    newBoard,
-    row,
-    column: col,
-    player,
-    isWin: winResult.isWin,
-    winType: winResult.winType,
-    winningCells: winResult.winningCells
-  };
+    return {
+        newBoard,
+        row,
+        column: col,
+        player,
+        isWin: winResult.isWin,
+        winType: winResult.winType,
+        winningCells: winResult.winningCells
+    };
 }
 
 /**
@@ -127,18 +127,18 @@ export function simulateMoveNonDestructive(board, col, player) {
  * @returns {Object} {isWin, winType, winningCells}
  */
 export function checkWinAt(board, row, col, player) {
-  for (const direction of ALL_DIRECTIONS) {
-    const result = checkLineWin(board, row, col, direction, player);
-    if (result.isWin) {
-      return {
-        isWin: true,
-        winType: DIRECTION_NAMES[direction.toString()],
-        winningCells: result.winningCells
-      };
+    for (const direction of ALL_DIRECTIONS) {
+        const result = checkLineWin(board, row, col, direction, player);
+        if (result.isWin) {
+            return {
+                isWin: true,
+                winType: DIRECTION_NAMES[direction.toString()],
+                winningCells: result.winningCells
+            };
+        }
     }
-  }
 
-  return { isWin: false, winType: null, winningCells: [] };
+    return { isWin: false, winType: null, winningCells: [] };
 }
 
 /**
@@ -151,31 +151,31 @@ export function checkWinAt(board, row, col, player) {
  * @returns {Object} {isWin, winningCells}
  */
 export function checkLineWin(board, row, col, direction, player) {
-  const [dRow, dCol] = direction;
-  const winningCells = [{ row, col }];
+    const [dRow, dCol] = direction;
+    const winningCells = [{ row, col }];
 
-  // Count in positive direction
-  let r = row + dRow;
-  let c = col + dCol;
-  while (isInBounds(r, c) && board[r][c] === player) {
-    winningCells.push({ row: r, col: c });
-    r += dRow;
-    c += dCol;
-  }
+    // Count in positive direction
+    let r = row + dRow;
+    let c = col + dCol;
+    while (isInBounds(r, c) && board[r][c] === player) {
+        winningCells.push({ row: r, col: c });
+        r += dRow;
+        c += dCol;
+    }
 
-  // Count in negative direction
-  r = row - dRow;
-  c = col - dCol;
-  while (isInBounds(r, c) && board[r][c] === player) {
-    winningCells.unshift({ row: r, col: c });
-    r -= dRow;
-    c -= dCol;
-  }
+    // Count in negative direction
+    r = row - dRow;
+    c = col - dCol;
+    while (isInBounds(r, c) && board[r][c] === player) {
+        winningCells.unshift({ row: r, col: c });
+        r -= dRow;
+        c -= dCol;
+    }
 
-  return {
-    isWin: winningCells.length >= GAME_CONFIG.WIN_LENGTH,
-    winningCells: winningCells.length >= GAME_CONFIG.WIN_LENGTH ? winningCells : []
-  };
+    return {
+        isWin: winningCells.length >= GAME_CONFIG.WIN_LENGTH,
+        winningCells: winningCells.length >= GAME_CONFIG.WIN_LENGTH ? winningCells : []
+    };
 }
 
 /**
@@ -188,28 +188,28 @@ export function checkLineWin(board, row, col, direction, player) {
  * @returns {number} Total count including the starting position
  */
 export function countInDirection(board, row, col, direction, player) {
-  const [dRow, dCol] = direction;
-  let count = 1; // Count the starting position
+    const [dRow, dCol] = direction;
+    let count = 1; // Count the starting position
 
-  // Count in positive direction
-  let r = row + dRow;
-  let c = col + dCol;
-  while (isInBounds(r, c) && board[r][c] === player) {
-    count++;
-    r += dRow;
-    c += dCol;
-  }
+    // Count in positive direction
+    let r = row + dRow;
+    let c = col + dCol;
+    while (isInBounds(r, c) && board[r][c] === player) {
+        count++;
+        r += dRow;
+        c += dCol;
+    }
 
-  // Count in negative direction
-  r = row - dRow;
-  c = col - dCol;
-  while (isInBounds(r, c) && board[r][c] === player) {
-    count++;
-    r -= dRow;
-    c -= dCol;
-  }
+    // Count in negative direction
+    r = row - dRow;
+    c = col - dCol;
+    while (isInBounds(r, c) && board[r][c] === player) {
+        count++;
+        r -= dRow;
+        c -= dCol;
+    }
 
-  return count;
+    return count;
 }
 
 /**
@@ -219,7 +219,7 @@ export function countInDirection(board, row, col, direction, player) {
  * @returns {boolean} Whether coordinates are in bounds
  */
 export function isInBounds(row, col) {
-  return row >= 0 && row < GAME_CONFIG.ROWS && col >= 0 && col < GAME_CONFIG.COLS;
+    return row >= 0 && row < GAME_CONFIG.ROWS && col >= 0 && col < GAME_CONFIG.COLS;
 }
 
 /**
@@ -228,8 +228,8 @@ export function isInBounds(row, col) {
  * @returns {boolean} Whether board is full
  */
 export function isBoardFull(board) {
-  // Unused parameter prefixed
-  return getValidMoves(board).length === 0;
+    // Unused parameter prefixed
+    return getValidMoves(board).length === 0;
 }
 
 /**
@@ -238,7 +238,7 @@ export function isBoardFull(board) {
  * @returns {number} Opponent player
  */
 export function getOpponent(player) {
-  return player === PLAYERS.PLAYER1 ? PLAYERS.PLAYER2 : PLAYERS.PLAYER1;
+    return player === PLAYERS.PLAYER1 ? PLAYERS.PLAYER2 : PLAYERS.PLAYER1;
 }
 
 /**
@@ -247,10 +247,10 @@ export function getOpponent(player) {
  * @returns {string} String representation of board
  */
 export function boardToString(board) {
-  // Unused parameter prefixed
-  return board
-    .map(row => row.map(cell => (cell === PLAYERS.NONE ? '.' : cell)).join(' '))
-    .join('\n');
+    // Unused parameter prefixed
+    return board
+        .map(row => row.map(cell => (cell === PLAYERS.NONE ? '.' : cell)).join(' '))
+        .join('\n');
 }
 
 /**
@@ -259,31 +259,31 @@ export function boardToString(board) {
  * @returns {Object} Board statistics
  */
 export function getBoardStats(board) {
-  // Unused parameter prefixed
-  let emptyCells = 0;
-  let player1Pieces = 0;
-  let player2Pieces = 0;
+    // Unused parameter prefixed
+    let emptyCells = 0;
+    let player1Pieces = 0;
+    let player2Pieces = 0;
 
-  for (let row = 0; row < GAME_CONFIG.ROWS; row++) {
-    for (let col = 0; col < GAME_CONFIG.COLS; col++) {
-      const cell = board[row][col];
-      if (cell === PLAYERS.NONE) {
-        emptyCells++;
-      } else if (cell === PLAYERS.PLAYER1) {
-        player1Pieces++;
-      } else if (cell === PLAYERS.PLAYER2) {
-        player2Pieces++;
-      }
+    for (let row = 0; row < GAME_CONFIG.ROWS; row++) {
+        for (let col = 0; col < GAME_CONFIG.COLS; col++) {
+            const cell = board[row][col];
+            if (cell === PLAYERS.NONE) {
+                emptyCells++;
+            } else if (cell === PLAYERS.PLAYER1) {
+                player1Pieces++;
+            } else if (cell === PLAYERS.PLAYER2) {
+                player2Pieces++;
+            }
+        }
     }
-  }
 
-  return {
-    emptyCells,
-    player1Pieces,
-    player2Pieces,
-    totalPieces: player1Pieces + player2Pieces,
-    gamePhase: getGamePhase(player1Pieces + player2Pieces)
-  };
+    return {
+        emptyCells,
+        player1Pieces,
+        player2Pieces,
+        totalPieces: player1Pieces + player2Pieces,
+        gamePhase: getGamePhase(player1Pieces + player2Pieces)
+    };
 }
 
 /**
@@ -292,9 +292,9 @@ export function getBoardStats(board) {
  * @returns {string} Game phase
  */
 export function getGamePhase(totalPieces) {
-  if (totalPieces < 8) return 'opening';
-  if (totalPieces < 20) return 'midgame';
-  return 'endgame';
+    if (totalPieces < 8) return 'opening';
+    if (totalPieces < 20) return 'midgame';
+    return 'endgame';
 }
 
 /**
@@ -302,8 +302,8 @@ export function getGamePhase(totalPieces) {
  * @returns {number[]} Array of center column indices
  */
 export function getCenterColumns() {
-  const center = Math.floor(GAME_CONFIG.COLS / 2);
-  return [center - 1, center, center + 1].filter(col => col >= 0 && col < GAME_CONFIG.COLS);
+    const center = Math.floor(GAME_CONFIG.COLS / 2);
+    return [center - 1, center, center + 1].filter(col => col >= 0 && col < GAME_CONFIG.COLS);
 }
 
 /**
@@ -312,29 +312,29 @@ export function getCenterColumns() {
  * @returns {number} Distance from center
  */
 export function getDistanceFromCenter(col) {
-  const center = Math.floor(GAME_CONFIG.COLS / 2);
-  return Math.abs(col - center);
+    const center = Math.floor(GAME_CONFIG.COLS / 2);
+    return Math.abs(col - center);
 }
 
 // Global access for backward compatibility
 if (typeof window !== 'undefined') {
-  window.Connect4BoardUtils = {
-    createEmptyBoard,
-    copyBoard,
-    isValidColumn,
-    getValidMoves,
-    getLowestEmptyRow,
-    simulateMove,
-    checkWinAt,
-    checkLineWin,
-    countInDirection,
-    isInBounds,
-    isBoardFull,
-    getOpponent,
-    boardToString,
-    getBoardStats,
-    getGamePhase,
-    getCenterColumns,
-    getDistanceFromCenter
-  };
+    window.Connect4BoardUtils = {
+        createEmptyBoard,
+        copyBoard,
+        isValidColumn,
+        getValidMoves,
+        getLowestEmptyRow,
+        simulateMove,
+        checkWinAt,
+        checkLineWin,
+        countInDirection,
+        isInBounds,
+        isBoardFull,
+        getOpponent,
+        boardToString,
+        getBoardStats,
+        getGamePhase,
+        getCenterColumns,
+        getDistanceFromCenter
+    };
 }

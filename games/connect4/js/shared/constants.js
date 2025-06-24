@@ -43,7 +43,7 @@ window.DIRECTION_NAMES = {
 };
 
 // Game State Constants
-window. GAME_STATES = {
+window.GAME_STATES = {
     IN_PROGRESS: 'in_progress',
     PLAYER1_WINS: 'player1_wins',
     PLAYER2_WINS: 'player2_wins',
@@ -51,7 +51,7 @@ window. GAME_STATES = {
 };
 
 // AI Difficulty Levels
-window. AI_DIFFICULTIES = {
+window.AI_DIFFICULTIES = {
     EASY: 'easy',
     MEDIUM: 'medium',
     HARD: 'hard',
@@ -59,7 +59,7 @@ window. AI_DIFFICULTIES = {
 };
 
 // Strategy Names for Modular AI
-window. AI_STRATEGIES = {
+window.AI_STRATEGIES = {
     RANDOM: 'random',
     SMART_RANDOM: 'smart-random',
     ENHANCED_SMART: 'enhanced-smart',
@@ -71,7 +71,7 @@ window. AI_STRATEGIES = {
 };
 
 // Hint System Constants
-window. HINT_TYPES = {
+window.HINT_TYPES = {
     WINNING_OPPORTUNITY: 'winning_opportunity',
     FORCED_BLOCK: 'forced_block',
     TRAP_AVOIDANCE: 'trap_avoidance',
@@ -80,7 +80,7 @@ window. HINT_TYPES = {
     DETAILED_ANALYSIS: 'detailed_analysis'
 };
 
-window. HINT_PRIORITIES = {
+window.HINT_PRIORITIES = {
     CRITICAL: 'critical',
     WARNING: 'warning',
     HIGH: 'high',
@@ -91,7 +91,7 @@ window. HINT_PRIORITIES = {
 };
 
 // Help Levels for Hint System
-window. HELP_LEVELS = {
+window.HELP_LEVELS = {
     NONE: 0,
     CRITICAL: 1, // Only wins/blocks
     WARNINGS: 2, // Add dangerous moves
@@ -100,7 +100,7 @@ window. HELP_LEVELS = {
 };
 
 // Event Names for Game Events
-window. GAME_EVENTS = {
+window.GAME_EVENTS = {
     MOVE_MADE: 'moveMade',
     GAME_WON: 'gameWon',
     GAME_DRAW: 'gameDraw',
@@ -110,7 +110,7 @@ window. GAME_EVENTS = {
 };
 
 // Hint System Events
-window. HINT_EVENTS = {
+window.HINT_EVENTS = {
     HINTS_TOGGLED: 'hintsToggled',
     HINTS_UPDATED: 'hintsUpdated',
     FORCED_MOVE_ACTIVATED: 'forcedMoveActivated',
@@ -118,7 +118,7 @@ window. HINT_EVENTS = {
 };
 
 // Performance Constants
-window. PERFORMANCE_CONFIG = {
+window.PERFORMANCE_CONFIG = {
     DEFAULT_TIMEOUT: 5000, // 5 seconds default timeout
     CI_TIMEOUT_MULTIPLIER: 3, // 3x timeout in CI environments
     MAX_SIMULATIONS: 1000, // Maximum simulations for MCTS
@@ -126,7 +126,7 @@ window. PERFORMANCE_CONFIG = {
 };
 
 // Evaluation Weights (for AI scoring)
-window. EVALUATION_WEIGHTS = {
+window.EVALUATION_WEIGHTS = {
     WIN: 1000000, // Immediate win
     BLOCK: 500000, // Block opponent win
     THREE_IN_ROW: 50, // Three pieces in a row

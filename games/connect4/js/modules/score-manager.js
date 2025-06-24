@@ -5,285 +5,285 @@
  * Provides clean separation of scoring logic from core game mechanics.
  */
 class ScoreManager {
-  constructor() {
-    // Color-based scoring instead of player-number-based
-    this.scores = {
-      red: 0,
-      yellow: 0,
-      draws: 0
-    };
+    constructor() {
+        // Color-based scoring instead of player-number-based
+        this.scores = {
+            red: 0,
+            yellow: 0,
+            draws: 0
+        };
 
-    this.matchHistory = [];
-    this.sessionStartTime = new Date();
-    this.storageKey = 'connect4_scores';
-  }
+        this.matchHistory = [];
+        this.sessionStartTime = new Date();
+        this.storageKey = 'connect4_scores';
+    }
 
-  /**
+    /**
      * Record a game result
      * @param {string|null} winnerColor - 'red', 'yellow', or null for draw
      * @param {number} moveCount - Number of moves in the game
      * @param {Array} moveHistory - Array of moves made during the game
      */
-  recordGame(winnerColor, moveCount = 0, moveHistory = []) {
-    // Update scores
-    if (winnerColor === 'red') {
-      this.scores.red++;
-    } else if (winnerColor === 'yellow') {
-      this.scores.yellow++;
-    } else {
-      this.scores.draws++;
+    recordGame(winnerColor, moveCount = 0, moveHistory = []) {
+        // Update scores
+        if (winnerColor === 'red') {
+            this.scores.red++;
+        } else if (winnerColor === 'yellow') {
+            this.scores.yellow++;
+        } else {
+            this.scores.draws++;
+        }
+
+        // Record in match history
+        const gameRecord = {
+            timestamp: new Date().toISOString(),
+            winner: winnerColor,
+            moveCount: moveCount,
+            duration: this.calculateGameDuration(),
+            moves: [...moveHistory]
+        };
+
+        this.matchHistory.push(gameRecord);
+
+        // Auto-save to localStorage if available
+        this.saveToStorage();
     }
 
-    // Record in match history
-    const gameRecord = {
-      timestamp: new Date().toISOString(),
-      winner: winnerColor,
-      moveCount: moveCount,
-      duration: this.calculateGameDuration(),
-      moves: [...moveHistory]
-    };
-
-    this.matchHistory.push(gameRecord);
-
-    // Auto-save to localStorage if available
-    this.saveToStorage();
-  }
-
-  /**
+    /**
      * Get current scores
      * @returns {Object} Current score object
      */
-  getScores() {
-    return { ...this.scores };
-  }
+    getScores() {
+        return { ...this.scores };
+    }
 
-  /**
+    /**
      * Get total games played
      * @returns {number} Total number of games
      */
-  getTotalGames() {
-    return this.scores.red + this.scores.yellow + this.scores.draws;
-  }
+    getTotalGames() {
+        return this.scores.red + this.scores.yellow + this.scores.draws;
+    }
 
-  /**
+    /**
      * Get win percentage for a color
      * @param {string} color - 'red' or 'yellow'
      * @returns {number} Win percentage (0-100)
      */
-  getWinPercentage(color) {
-    const total = this.getTotalGames();
-    if (total === 0) return 0;
+    getWinPercentage(color) {
+        const total = this.getTotalGames();
+        if (total === 0) return 0;
 
-    return Math.round((this.scores[color] / total) * 100);
-  }
+        return Math.round((this.scores[color] / total) * 100);
+    }
 
-  /**
+    /**
      * Get match statistics
      * @returns {Object} Match statistics
      */
-  getStatistics() {
-    const total = this.getTotalGames();
-    const avgMovesPerGame =
+    getStatistics() {
+        const total = this.getTotalGames();
+        const avgMovesPerGame =
             total > 0
-              ? this.matchHistory.reduce((sum, game) => sum + game.moveCount, 0) / total
-              : 0;
+                ? this.matchHistory.reduce((sum, game) => sum + game.moveCount, 0) / total
+                : 0;
 
-    return {
-      totalGames: total,
-      redWins: this.scores.red,
-      yellowWins: this.scores.yellow,
-      draws: this.scores.draws,
-      redWinPercentage: this.getWinPercentage('red'),
-      yellowWinPercentage: this.getWinPercentage('yellow'),
-      drawPercentage: total > 0 ? Math.round((this.scores.draws / total) * 100) : 0,
-      averageMovesPerGame: Math.round(avgMovesPerGame * 10) / 10,
-      sessionDuration: this.getSessionDuration(),
-      firstGame: this.matchHistory.length > 0 ? this.matchHistory[0].timestamp : null,
-      lastGame:
+        return {
+            totalGames: total,
+            redWins: this.scores.red,
+            yellowWins: this.scores.yellow,
+            draws: this.scores.draws,
+            redWinPercentage: this.getWinPercentage('red'),
+            yellowWinPercentage: this.getWinPercentage('yellow'),
+            drawPercentage: total > 0 ? Math.round((this.scores.draws / total) * 100) : 0,
+            averageMovesPerGame: Math.round(avgMovesPerGame * 10) / 10,
+            sessionDuration: this.getSessionDuration(),
+            firstGame: this.matchHistory.length > 0 ? this.matchHistory[0].timestamp : null,
+            lastGame:
                 this.matchHistory.length > 0
-                  ? this.matchHistory[this.matchHistory.length - 1].timestamp
-                  : null
-    };
-  }
+                    ? this.matchHistory[this.matchHistory.length - 1].timestamp
+                    : null
+        };
+    }
 
-  /**
+    /**
      * Get recent match history
      * @param {number} limit - Maximum number of recent games to return
      * @returns {Array} Array of recent game records
      */
-  getRecentHistory(limit = 10) {
-    return this.matchHistory.slice(-limit);
-  }
+    getRecentHistory(limit = 10) {
+        return this.matchHistory.slice(-limit);
+    }
 
-  /**
+    /**
      * Get full match history
      * @returns {Array} Array of all game records
      */
-  getFullHistory() {
-    return [...this.matchHistory];
-  }
+    getFullHistory() {
+        return [...this.matchHistory];
+    }
 
-  /**
+    /**
      * Reset all scores and history
      */
-  resetAll() {
-    this.scores = { red: 0, yellow: 0, draws: 0 };
-    this.matchHistory = [];
-    this.sessionStartTime = new Date();
-    this.saveToStorage();
-  }
+    resetAll() {
+        this.scores = { red: 0, yellow: 0, draws: 0 };
+        this.matchHistory = [];
+        this.sessionStartTime = new Date();
+        this.saveToStorage();
+    }
 
-  /**
+    /**
      * Reset only current session scores (keep history)
      */
-  resetSession() {
-    this.scores = { red: 0, yellow: 0, draws: 0 };
-    this.sessionStartTime = new Date();
-    this.saveToStorage();
-  }
+    resetSession() {
+        this.scores = { red: 0, yellow: 0, draws: 0 };
+        this.sessionStartTime = new Date();
+        this.saveToStorage();
+    }
 
-  /**
+    /**
      * Calculate estimated game duration (simplified)
      * @returns {number} Game duration in seconds
      */
-  calculateGameDuration() {
-    // Simple estimation - in a real implementation, this would track actual game time
-    const avgSecondsPerMove = 10; // Estimated average time per move
-    const lastGame = this.matchHistory[this.matchHistory.length - 1];
-    return lastGame ? lastGame.moveCount * avgSecondsPerMove : 0;
-  }
+    calculateGameDuration() {
+        // Simple estimation - in a real implementation, this would track actual game time
+        const avgSecondsPerMove = 10; // Estimated average time per move
+        const lastGame = this.matchHistory[this.matchHistory.length - 1];
+        return lastGame ? lastGame.moveCount * avgSecondsPerMove : 0;
+    }
 
-  /**
+    /**
      * Get session duration
      * @returns {string} Human-readable session duration
      */
-  getSessionDuration() {
-    const now = new Date();
-    const diffMs = now - this.sessionStartTime;
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMinutes / 60);
+    getSessionDuration() {
+        const now = new Date();
+        const diffMs = now - this.sessionStartTime;
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMinutes / 60);
 
-    if (diffHours > 0) {
-      return `${diffHours}h ${diffMinutes % 60}m`;
+        if (diffHours > 0) {
+            return `${diffHours}h ${diffMinutes % 60}m`;
+        }
+        return `${diffMinutes}m`;
     }
-    return `${diffMinutes}m`;
-  }
 
-  /**
+    /**
      * Check if red is leading
      * @returns {boolean} True if red has more wins
      */
-  isRedLeading() {
-    return this.scores.red > this.scores.yellow;
-  }
+    isRedLeading() {
+        return this.scores.red > this.scores.yellow;
+    }
 
-  /**
+    /**
      * Check if yellow is leading
      * @returns {boolean} True if yellow has more wins
      */
-  isYellowLeading() {
-    return this.scores.yellow > this.scores.red;
-  }
+    isYellowLeading() {
+        return this.scores.yellow > this.scores.red;
+    }
 
-  /**
+    /**
      * Check if scores are tied
      * @returns {boolean} True if red and yellow have equal wins
      */
-  areScoresTied() {
-    return this.scores.red === this.scores.yellow;
-  }
+    areScoresTied() {
+        return this.scores.red === this.scores.yellow;
+    }
 
-  /**
+    /**
      * Get leading player
      * @returns {string|null} 'red', 'yellow', or null if tied
      */
-  getLeadingPlayer() {
-    if (this.isRedLeading()) return 'red';
-    if (this.isYellowLeading()) return 'yellow';
-    return null;
-  }
+    getLeadingPlayer() {
+        if (this.isRedLeading()) return 'red';
+        if (this.isYellowLeading()) return 'yellow';
+        return null;
+    }
 
-  /**
+    /**
      * Save scores to localStorage
      */
-  saveToStorage() {
-    if (typeof localStorage !== 'undefined') {
-      try {
-        const data = {
-          scores: this.scores,
-          matchHistory: this.matchHistory,
-          sessionStartTime: this.sessionStartTime.toISOString()
-        };
-        localStorage.setItem(this.storageKey, JSON.stringify(data));
-      } catch (error) {
-        console.warn('Could not save scores to localStorage:', error.message);
-      }
+    saveToStorage() {
+        if (typeof localStorage !== 'undefined') {
+            try {
+                const data = {
+                    scores: this.scores,
+                    matchHistory: this.matchHistory,
+                    sessionStartTime: this.sessionStartTime.toISOString()
+                };
+                localStorage.setItem(this.storageKey, JSON.stringify(data));
+            } catch (error) {
+                console.warn('Could not save scores to localStorage:', error.message);
+            }
+        }
     }
-  }
 
-  /**
+    /**
      * Load scores from localStorage
      */
-  loadFromStorage() {
-    if (typeof localStorage !== 'undefined') {
-      try {
-        const data = localStorage.getItem(this.storageKey);
-        if (data) {
-          const parsed = JSON.parse(data);
-          this.scores = parsed.scores || { red: 0, yellow: 0, draws: 0 };
-          this.matchHistory = parsed.matchHistory || [];
-          this.sessionStartTime = parsed.sessionStartTime
-            ? new Date(parsed.sessionStartTime)
-            : new Date();
+    loadFromStorage() {
+        if (typeof localStorage !== 'undefined') {
+            try {
+                const data = localStorage.getItem(this.storageKey);
+                if (data) {
+                    const parsed = JSON.parse(data);
+                    this.scores = parsed.scores || { red: 0, yellow: 0, draws: 0 };
+                    this.matchHistory = parsed.matchHistory || [];
+                    this.sessionStartTime = parsed.sessionStartTime
+                        ? new Date(parsed.sessionStartTime)
+                        : new Date();
+                }
+            } catch (error) {
+                console.warn('Could not load scores from localStorage:', error.message);
+            }
         }
-      } catch (error) {
-        console.warn('Could not load scores from localStorage:', error.message);
-      }
     }
-  }
 
-  /**
+    /**
      * Export scores as JSON
      * @returns {string} JSON string of all score data
      */
-  exportData() {
-    return JSON.stringify(
-      {
-        scores: this.scores,
-        statistics: this.getStatistics(),
-        matchHistory: this.matchHistory
-      },
-      null,
-      2
-    );
-  }
+    exportData() {
+        return JSON.stringify(
+            {
+                scores: this.scores,
+                statistics: this.getStatistics(),
+                matchHistory: this.matchHistory
+            },
+            null,
+            2
+        );
+    }
 
-  /**
+    /**
      * Import scores from JSON data
      * @param {string} jsonData - JSON string of score data
      * @returns {boolean} True if import was successful
      */
-  importData(jsonData) {
-    try {
-      const data = JSON.parse(jsonData);
-      if (data.scores) {
-        this.scores = { ...this.scores, ...data.scores };
-      }
-      if (data.matchHistory) {
-        this.matchHistory = [...data.matchHistory];
-      }
-      this.saveToStorage();
-      return true;
-    } catch (error) {
-      console.warn('Could not import score data:', error.message);
-      return false;
+    importData(jsonData) {
+        try {
+            const data = JSON.parse(jsonData);
+            if (data.scores) {
+                this.scores = { ...this.scores, ...data.scores };
+            }
+            if (data.matchHistory) {
+                this.matchHistory = [...data.matchHistory];
+            }
+            this.saveToStorage();
+            return true;
+        } catch (error) {
+            console.warn('Could not import score data:', error.message);
+            return false;
+        }
     }
-  }
 }
 
 // Export for both Node.js and browser environments
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ScoreManager;
+    module.exports = ScoreManager;
 } else if (typeof window !== 'undefined') {
-  window.ScoreManager = ScoreManager;
+    window.ScoreManager = ScoreManager;
 }

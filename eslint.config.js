@@ -109,9 +109,9 @@ export default [
       'no-console': 'off', // Allow console.log for debugging
       'semi': ['error', 'always'],
       'quotes': ['warn', 'single', { avoidEscape: true }],
-      'indent': ['warn', 2],
-      'no-trailing-spaces': 'warn',
-      'eol-last': 'warn',
+      'indent': 'off', // Handled by Prettier
+      'no-trailing-spaces': 'off', // Handled by Prettier
+      'eol-last': 'off', // Handled by Prettier
 
       // Specific to game development
       'no-magic-numbers': 'off', // Games have many constants

@@ -47,12 +47,12 @@ export * from './auto-adapter.js';
 export { GAME_CONFIG, PLAYERS, ALL_DIRECTIONS, GAME_EVENTS, HINT_EVENTS } from './constants.js';
 
 export {
-  createEmptyBoard,
-  copyBoard,
-  simulateMove,
-  getValidMoves,
-  checkWinAtPosition,
-  getOpponent
+    createEmptyBoard,
+    copyBoard,
+    simulateMove,
+    getValidMoves,
+    checkWinAtPosition,
+    getOpponent
 } from './board-utils.js';
 
 export { EventEmitter, GameEventDispatcher } from './event-utils.js';
@@ -60,112 +60,112 @@ export { EventEmitter, GameEventDispatcher } from './event-utils.js';
 export { PerformanceTimer, createTimeout, profileFunction } from './performance-utils.js';
 
 export {
-  ServiceContainer,
-  globalContainer,
-  configureConnect4Services,
-  createTestContainer
+    ServiceContainer,
+    globalContainer,
+    configureConnect4Services,
+    createTestContainer
 } from './service-container.js';
 
 export { validateInterface, createInterfaceProxy, SERVICE_INTERFACES } from './interfaces.js';
 
 export {
-  GameFactory,
-  defaultGameFactory,
-  createGame,
-  createTestGame,
-  createDevGame,
-  GAME_CONFIGURATIONS
+    GameFactory,
+    defaultGameFactory,
+    createGame,
+    createTestGame,
+    createDevGame,
+    GAME_CONFIGURATIONS
 } from './game-factory.js';
 
 export {
-  CleanArchitecture,
-  defaultCleanArchitecture,
-  execute as executeCleanArchitecture
+    CleanArchitecture,
+    defaultCleanArchitecture,
+    execute as executeCleanArchitecture
 } from './clean-architecture.js';
 
 export {
-  ArchitectureBridge,
-  defaultArchitectureBridge,
-  createAdapters,
-  executeAction
+    ArchitectureBridge,
+    defaultArchitectureBridge,
+    createAdapters,
+    executeAction
 } from './architecture-adapters.js';
 
 export {
-  IntegrationBridge,
-  defaultIntegrationBridge,
-  integrateComponents,
-  executeIntegrated
+    IntegrationBridge,
+    defaultIntegrationBridge,
+    integrateComponents,
+    executeIntegrated
 } from './integration-bridge.js';
 
 export {
-  STANDARDIZED_INTERFACES,
-  InterfaceValidator,
-  InterfaceFactory,
-  defaultValidator as standardizedValidator,
-  defaultFactory as interfaceFactory,
-  isValid as isInterfaceValid,
-  validateOrThrow,
-  getCompliance as getInterfaceCompliance,
-  analyzeAllInterfaces
+    STANDARDIZED_INTERFACES,
+    InterfaceValidator,
+    InterfaceFactory,
+    defaultValidator as standardizedValidator,
+    defaultFactory as interfaceFactory,
+    isValid as isInterfaceValid,
+    validateOrThrow,
+    getCompliance as getInterfaceCompliance,
+    analyzeAllInterfaces
 } from './standardized-interfaces.js';
 
 export {
-  ModuleComplianceAnalyzer,
-  defaultComplianceAnalyzer,
-  registerModule as registerForCompliance,
-  getCompliance as getModuleCompliance,
-  createMigrationPlan,
-  generateFullReport as generateComplianceReport
+    ModuleComplianceAnalyzer,
+    defaultComplianceAnalyzer,
+    registerModule as registerForCompliance,
+    getCompliance as getModuleCompliance,
+    createMigrationPlan,
+    generateFullReport as generateComplianceReport
 } from './interface-compliance.js';
 
 export {
-  AutoAdapterGenerator,
-  BatchAdapterManager,
-  defaultAdapterGenerator,
-  defaultBatchManager,
-  adaptModule,
-  autoAdapt,
-  generateCode as generateAdapterCode,
-  batchAdapt
+    AutoAdapterGenerator,
+    BatchAdapterManager,
+    defaultAdapterGenerator,
+    defaultBatchManager,
+    adaptModule,
+    autoAdapt,
+    generateCode as generateAdapterCode,
+    batchAdapt
 } from './auto-adapter.js';
 
 // Global access for backward compatibility
 if (typeof window !== 'undefined') {
-  // Import everything into global namespace
-  import('./constants.js').then(constants => {
-    Object.assign(window, constants);
-  });
+    // Import everything into global namespace
+    import('./constants.js').then(constants => {
+        Object.assign(window, constants);
+    });
 
-  import('./board-utils.js').then(boardUtils => {
-    Object.assign(window, boardUtils);
-  });
+    import('./board-utils.js').then(boardUtils => {
+        Object.assign(window, boardUtils);
+    });
 
-  import('./event-utils.js').then(eventUtils => {
-    Object.assign(window, eventUtils);
-  });
+    import('./event-utils.js').then(eventUtils => {
+        Object.assign(window, eventUtils);
+    });
 
-  import('./performance-utils.js').then(perfUtils => {
-    Object.assign(window, perfUtils);
-  });
+    import('./performance-utils.js').then(perfUtils => {
+        Object.assign(window, perfUtils);
+    });
 
-  // Make clean architecture available globally
-  import('./service-container.js').then(di => {
-    window.ServiceContainer = di.ServiceContainer;
-    window.globalContainer = di.globalContainer;
-  });
+    // Make clean architecture available globally
+    import('./service-container.js').then(di => {
+        window.ServiceContainer = di.ServiceContainer;
+        window.globalContainer = di.globalContainer;
+    });
 
-  import('./game-factory.js').then(factory => {
-    window.GameFactory = factory.GameFactory;
-    window.defaultGameFactory = factory.defaultGameFactory;
-  });
+    import('./game-factory.js').then(factory => {
+        window.GameFactory = factory.GameFactory;
+        window.defaultGameFactory = factory.defaultGameFactory;
+    });
 
-  import('./clean-architecture.js').then(cleanArch => {
-    window.CleanArchitecture = cleanArch.CleanArchitecture;
-    window.defaultCleanArchitecture = cleanArch.defaultCleanArchitecture;
-  });
+    import('./clean-architecture.js').then(cleanArch => {
+        window.CleanArchitecture = cleanArch.CleanArchitecture;
+        window.defaultCleanArchitecture = cleanArch.defaultCleanArchitecture;
+    });
 
-  import('./integration-bridge.js').then(bridge => {
-    window.IntegrationBridge = bridge.IntegrationBridge;
-    window.defaultIntegrationBridge = bridge.defaultIntegrationBridge;
-  });
+    import('./integration-bridge.js').then(bridge => {
+        window.IntegrationBridge = bridge.IntegrationBridge;
+        window.defaultIntegrationBridge = bridge.defaultIntegrationBridge;
+    });
 }
