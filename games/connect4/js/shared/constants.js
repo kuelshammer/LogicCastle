@@ -138,20 +138,20 @@ window. EVALUATION_WEIGHTS = {
 // Global Access for Backward Compatibility
 if (typeof window !== 'undefined') {
     window.Connect4Constants = {
-        GAME_CONFIG,
-        PLAYERS,
-        DIRECTIONS,
-        ALL_DIRECTIONS,
-        DIRECTION_NAMES,
-        GAME_STATES,
-        AI_DIFFICULTIES,
-        AI_STRATEGIES,
-        HINT_TYPES,
-        HINT_PRIORITIES,
-        HELP_LEVELS,
-        GAME_EVENTS,
-        HINT_EVENTS,
-        PERFORMANCE_CONFIG,
-        EVALUATION_WEIGHTS
+        GAME_CONFIG: window.GAME_CONFIG,
+        PLAYERS: window.PLAYERS,
+        DIRECTIONS: window.DIRECTIONS,
+        ALL_DIRECTIONS: window.ALL_DIRECTIONS,
+        DIRECTION_NAMES: window.DIRECTION_NAMES,
+        GAME_STATES: window.GAME_STATES,
+        AI_DIFFICULTIES: window.AI_DIFFICULTIES,
+        AI_STRATEGIES: window.AI_STRATEGIES,
+        HINT_TYPES: window.HINT_TYPES,
+        HINT_PRIORITIES: window.HINT_PRIORITIES,
+        HELP_LEVELS: window.HELP_LEVELS,
+        GAME_EVENTS: window.GAME_EVENTS,
+        HINT_EVENTS: window.HINT_EVENTS,
+        PERFORMANCE_CONFIG: window.PERFORMANCE_CONFIG,
+        EVALUATION_WEIGHTS: window.EVALUATION_WEIGHTS
     };
 }
