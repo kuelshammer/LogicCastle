@@ -18,14 +18,34 @@ class Connect4Game {
         this.winningCells = [];
         this.moveHistory = [];
 
-        // Initialize modular components
-        this.initializeModules();
+        // Initialize basic player management
+        this.playerManager = {
+            getCurrentPlayer: () => this.PLAYER1,
+            nextPlayer: (currentPlayer) => currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1
+        };
+
+        // Initialize basic event system
+        this.eventListeners = {};
+
+        // Initialize player configuration
+        this.playerConfig = {
+            redPlayer: '🔴 Spieler 1',
+            yellowPlayer: '🟡 Spieler 2',
+            startingPlayer: this.PLAYER1,
+            lastWinner: null
+        };
+
+        // Initialize scores
+        this.scores = {
+            red: 0,
+            yellow: 0
+        };
         
         // Initialize game board
         this.initializeBoard();
         
         // Set initial player
-        this.currentPlayer = this.playerManager.getCurrentPlayer();
+        this.currentPlayer = this.PLAYER1;
     }
 
     /**
@@ -546,5 +566,36 @@ class Connect4Game {
         this.winningCells = [];
         
         return true;
+    }
+
+    /**
+     * Basic event system methods
+     */
+    on(event, callback) {
+        if (!this.eventListeners[event]) {
+            this.eventListeners[event] = [];
+        }
+        this.eventListeners[event].push(callback);
+    }
+
+    emit(event, data) {
+        if (this.eventListeners[event]) {
+            this.eventListeners[event].forEach(callback => {
+                try {
+                    callback(data);
+                } catch (e) {
+                    console.error('Event callback error:', e);
+                }
+            });
+        }
+    }
+
+    off(event, callback) {
+        if (this.eventListeners[event]) {
+            const index = this.eventListeners[event].indexOf(callback);
+            if (index > -1) {
+                this.eventListeners[event].splice(index, 1);
+            }
+        }
     }
 }
