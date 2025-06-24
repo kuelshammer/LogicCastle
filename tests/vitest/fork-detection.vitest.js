@@ -148,7 +148,7 @@ describe('Fork Detection Core Logic', () => {
     });
 
     describe('Classic Fork Pattern Detection', () => {
-        it.skip('should detect _ x _ x _ pattern (user example)', () => {
+        it('should detect _ x _ x _ pattern (user example)', () => {
             // KNOWN ISSUE: Complex pattern detection needs real helpers.js
             // Set up the user's example: _ _ x x x _ _ in bottom row
             game.setBoardFromPattern([
