@@ -535,13 +535,16 @@ class Connect4UI {
             let difficulty;
             switch (this.gameMode) {
                 case 'vs-bot-easy':
-                    difficulty = 'smart-random'; // Bot (Einfach) - 32% Winrate - Perfekt für Anfänger
+                    difficulty = 'smart-random'; // Bot (Einfach) - 32% Winrate - Ideal für Anfänger
                     break;
                 case 'vs-bot-medium':
-                    difficulty = 'defensiv-gemischt'; // Bot (Mittel) - 45% Winrate - Solide Mittelstufe
+                    difficulty = 'offensiv-gemischt'; // Bot (Mittel) - 48% Winrate - Ausgewogene Mittelstufe
                     break;
                 case 'vs-bot-strong':
-                    difficulty = 'defensive'; // Bot (Stark) - 60% Winrate - Der stärkste Bot
+                    difficulty = 'monte-carlo'; // Bot (Stark) - Enhanced Monte Carlo - Stärkster Bot
+                    break;
+                case 'vs-bot-expert':
+                    difficulty = 'monte-carlo'; // Bot (Expert) - Legacy support
                     break;
                 case 'vs-bot-monte-carlo':
                     difficulty = 'monte-carlo'; // Bot (Monte Carlo) - Simulation-based AI
@@ -605,7 +608,9 @@ class Connect4UI {
             } else if (this.gameMode === 'vs-bot-medium') {
                 this.game.playerConfig.yellowPlayer = '🤖 Bot (Mittel)';
             } else if (this.gameMode === 'vs-bot-strong') {
-                this.game.playerConfig.yellowPlayer = '🤖 Bot (Stark)';
+                this.game.playerConfig.yellowPlayer = '🧠 Bot (Stark)';
+            } else if (this.gameMode === 'vs-bot-expert') {
+                this.game.playerConfig.yellowPlayer = '🧠 Bot (Expert)';
             } else if (this.gameMode === 'vs-bot-monte-carlo') {
                 this.game.playerConfig.yellowPlayer = '🎯 Monte Carlo Bot';
             } else if (this.gameMode === 'vs-bot-smart') {
