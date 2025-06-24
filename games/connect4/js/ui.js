@@ -463,7 +463,7 @@ class _Connect4UI {
       let aiMove = null;
       try {
         aiMove = this.getAIMove();
-      } catch (_error) {
+      } catch (error) {
         // AI calculation failed, fallback to emergency random move
         const validMoves = this.game.getValidMoves();
         if (validMoves.length > 0) {
@@ -510,7 +510,7 @@ class _Connect4UI {
           return;
         }
       }
-    } catch (_error) {
+    } catch (error) {
       // Critical error in AI move execution
       this.aiThinking = false;
       this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
@@ -1184,6 +1184,6 @@ class _Connect4UI {
 
 
 // Make available globally for backward compatibility
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.Connect4UI = _Connect4UI;
 }
