@@ -14,7 +14,7 @@ const STATIC_FILES = [
   '/styles.css',
   '/script.js',
   '/manifest.json',
-  
+
   // Connect4 game files
   '/games/connect4/',
   '/games/connect4/index.html',
@@ -25,7 +25,7 @@ const STATIC_FILES = [
   '/games/connect4/js/helpers.js',
   '/games/connect4/js/ui.js',
   '/games/connect4/js/fork-detection.js',
-  
+
   // Gobang game files
   '/games/gobang/',
   '/games/gobang/index.html',
@@ -36,7 +36,7 @@ const STATIC_FILES = [
   '/games/gobang/js/helpers.js',
   '/games/gobang/js/ui.js',
   '/games/gobang/js/evaluation.js',
-  
+
   // Trio game files
   '/games/trio/',
   '/games/trio/index.html',
@@ -50,7 +50,7 @@ const STATIC_FILES = [
 // Install event - cache static files
 self.addEventListener('install', (event) => {
   console.log('🔧 Service Worker installing...');
-  
+
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME)
       .then((cache) => {
@@ -70,7 +70,7 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('🚀 Service Worker activating...');
-  
+
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
@@ -93,17 +93,17 @@ self.addEventListener('activate', (event) => {
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
+
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
   }
-  
+
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) {
     return;
   }
-  
+
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
@@ -111,7 +111,7 @@ self.addEventListener('fetch', (event) => {
           // Serve from cache
           return cachedResponse;
         }
-        
+
         // Not in cache, fetch from network
         return fetch(event.request)
           .then((networkResponse) => {
@@ -119,16 +119,16 @@ self.addEventListener('fetch', (event) => {
             if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
               return networkResponse;
             }
-            
+
             // Clone the response (can only be consumed once)
             const responseClone = networkResponse.clone();
-            
+
             // Cache dynamic content
             caches.open(DYNAMIC_CACHE_NAME)
               .then((cache) => {
                 cache.put(event.request, responseClone);
               });
-            
+
             return networkResponse;
           })
           .catch(() => {
@@ -136,7 +136,7 @@ self.addEventListener('fetch', (event) => {
             if (event.request.destination === 'document') {
               return caches.match('/offline.html');
             }
-            
+
             // For other resources, could return a default offline asset
             return new Response('Offline - Resource not available', {
               status: 503,
@@ -152,7 +152,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({
       version: CACHE_NAME,
@@ -169,10 +169,10 @@ self.addEventListener('sync', (event) => {
 // Push notification handler (for future features)
 self.addEventListener('push', (event) => {
   console.log('📬 Push notification received');
-  
+
   if (event.data) {
     const data = event.data.json();
-    
+
     const options = {
       body: data.body || 'Neue Nachrichten von LogicCastle',
       icon: '/icons/icon-192x192.png',
@@ -185,12 +185,12 @@ self.addEventListener('push', (event) => {
           title: 'Öffnen'
         },
         {
-          action: 'close', 
+          action: 'close',
           title: 'Schließen'
         }
       ]
     };
-    
+
     event.waitUntil(
       self.registration.showNotification(data.title || 'LogicCastle', options)
     );

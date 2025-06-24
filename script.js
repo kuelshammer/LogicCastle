@@ -1,96 +1,96 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Register Service Worker for PWA functionality
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then((registration) => {
-                    console.log('✅ SW registered: ', registration);
-                    
-                    // Check for updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New version available
-                                if (confirm('Eine neue Version ist verfügbar. Jetzt aktualisieren?')) {
-                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
-                                    window.location.reload();
-                                }
-                            }
-                        });
-                    });
-                })
-                .catch((error) => {
-                    console.log('❌ SW registration failed: ', error);
-                });
-        });
-    }
+  // Register Service Worker for PWA functionality
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.log('✅ SW registered: ', registration);
 
-    const gameCards = document.querySelectorAll('.game-card');
-    
-    // Handle click events
-    gameCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const gameName = this.dataset.game;
-            navigateToGame(gameName);
-        });
-        
-        // Handle Enter key on focused cards
-        card.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const gameName = this.dataset.game;
-                navigateToGame(gameName);
-            }
+          // Check for updates
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New version available
+                if (confirm('Eine neue Version ist verfügbar. Jetzt aktualisieren?')) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              }
+            });
+          });
+        })
+        .catch((error) => {
+          console.log('❌ SW registration failed: ', error);
         });
     });
-    
-    // Handle keyboard navigation (1-3 keys)
-    document.addEventListener('keydown', function(e) {
-        const key = e.key;
-        
-        if (key >= '1' && key <= '3') {
-            const cardIndex = parseInt(key) - 1;
-            const targetCard = gameCards[cardIndex];
-            
-            if (targetCard) {
-                // Visual feedback
-                targetCard.focus();
-                targetCard.style.transform = 'scale(0.95)';
-                
-                setTimeout(() => {
-                    targetCard.style.transform = '';
-                    const gameName = targetCard.dataset.game;
-                    navigateToGame(gameName);
-                }, 150);
-            }
-        }
+  }
+
+  const gameCards = document.querySelectorAll('.game-card');
+
+  // Handle click events
+  gameCards.forEach(card => {
+    card.addEventListener('click', function() {
+      const gameName = this.dataset.game;
+      navigateToGame(gameName);
     });
-    
-    // Navigation function
-    function navigateToGame(gameName) {
-        const gameUrls = {
-            'connect4': 'games/connect4/index.html',
-            'gobang': 'games/gobang/index.html',
-            'trio': 'games/trio/index.html'
-        };
-        
-        if (gameUrls[gameName]) {
-            window.location.href = gameUrls[gameName];
-        } else {
-            alert(`Das Spiel "${gameName}" ist noch nicht verfügbar!`);
-        }
+
+    // Handle Enter key on focused cards
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const gameName = this.dataset.game;
+        navigateToGame(gameName);
+      }
+    });
+  });
+
+  // Handle keyboard navigation (1-3 keys)
+  document.addEventListener('keydown', function(e) {
+    const key = e.key;
+
+    if (key >= '1' && key <= '3') {
+      const cardIndex = parseInt(key) - 1;
+      const targetCard = gameCards[cardIndex];
+
+      if (targetCard) {
+        // Visual feedback
+        targetCard.focus();
+        targetCard.style.transform = 'scale(0.95)';
+
+        setTimeout(() => {
+          targetCard.style.transform = '';
+          const gameName = targetCard.dataset.game;
+          navigateToGame(gameName);
+        }, 150);
+      }
     }
-    
-    // Add visual feedback for keyboard users
-    let isKeyboardUser = false;
-    
-    document.addEventListener('keydown', function() {
-        isKeyboardUser = true;
-        document.body.classList.add('keyboard-user');
-    });
-    
-    document.addEventListener('mousedown', function() {
-        isKeyboardUser = false;
-        document.body.classList.remove('keyboard-user');
-    });
+  });
+
+  // Navigation function
+  function navigateToGame(gameName) {
+    const gameUrls = {
+      'connect4': 'games/connect4/index.html',
+      'gobang': 'games/gobang/index.html',
+      'trio': 'games/trio/index.html'
+    };
+
+    if (gameUrls[gameName]) {
+      window.location.href = gameUrls[gameName];
+    } else {
+      alert(`Das Spiel "${gameName}" ist noch nicht verfügbar!`);
+    }
+  }
+
+  // Add visual feedback for keyboard users
+  let isKeyboardUser = false;
+
+  document.addEventListener('keydown', function() {
+    isKeyboardUser = true;
+    document.body.classList.add('keyboard-user');
+  });
+
+  document.addEventListener('mousedown', function() {
+    isKeyboardUser = false;
+    document.body.classList.remove('keyboard-user');
+  });
 });

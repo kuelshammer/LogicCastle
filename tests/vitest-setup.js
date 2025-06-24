@@ -46,24 +46,24 @@ beforeEach(() => {
       <button id="newGameBtn">New Game</button>
     `;
   }
-  
+
   // Reset any global state
   if (typeof window !== 'undefined') {
     window.CI_ENVIRONMENT = true;
     window.CI_TIMEOUT_MULTIPLIER = 1; // Faster for unit tests
-    
+
     // Mock Connect4AI for legacy tests
     if (!window.Connect4AI) {
       window.Connect4AI = class MockConnect4AI {
         constructor(difficulty = 'medium') {
           this.difficulty = difficulty;
         }
-        
+
         getBestMove(game, helpers) {
           // Return center column as default
           return 3;
         }
-        
+
         setDifficulty(difficulty) {
           this.difficulty = difficulty;
         }
@@ -76,13 +76,13 @@ afterEach(() => {
   // Preserve DOM structure, just reset values
   const gameMode = document.getElementById('gameMode');
   if (gameMode) gameMode.value = 'two-player';
-  
+
   const player1Name = document.getElementById('player1Name');
   if (player1Name) player1Name.textContent = 'Player 1';
-  
+
   const player2Name = document.getElementById('player2Name');
   if (player2Name) player2Name.textContent = 'Player 2';
-  
+
   // Clear any event listeners
   const elements = document.querySelectorAll('*');
   elements.forEach(element => {

@@ -467,14 +467,14 @@ export class IntegrationBridge {
       // Check services
       try {
         await this.container.resolve('IIntegratedGameService');
-      } catch (_error) {
+      } catch {
         results.issues.push('Integrated game service not available');
         results.status = 'unhealthy';
       }
 
       try {
         await this.container.resolve('IIntegratedAIService');
-      } catch (_error) {
+      } catch {
         results.issues.push('Integrated AI service not available');
         results.status = 'unhealthy';
       }

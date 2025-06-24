@@ -2,7 +2,7 @@
 
 /**
  * Validate Real Bot Implementations
- * 
+ *
  * Simple validation to check if strategic bots are working with real classes
  * Uses minimal testing to verify the core functionality
  */
@@ -14,87 +14,87 @@ console.log('🔍 Real Bot Implementation Validator');
 console.log('='.repeat(40));
 
 try {
-    // Create a mock DOM environment that's more compatible
-    const mockDocument = {
-        getElementById: () => null,
-        querySelectorAll: () => [],
-        addEventListener: () => {},
-        createElement: (tag) => ({
-            style: {},
-            classList: { add: () => {}, remove: () => {}, toggle: () => {} },
-            addEventListener: () => {},
-            appendChild: () => {},
-            innerHTML: '',
-            tagName: tag.toUpperCase()
-        })
-    };
-    
-    // Set up global environment
-    global.window = undefined;
-    global.document = mockDocument;
-    
-    console.log('📂 Reading source files...');
-    
-    // Read all source files
-    const gameJs = fs.readFileSync(path.join(__dirname, 'games/connect4/js/game.js'), 'utf8');
-    const helpersJs = fs.readFileSync(path.join(__dirname, 'games/connect4/js/helpers.js'), 'utf8');
-    const aiJs = fs.readFileSync(path.join(__dirname, 'games/connect4/js/ai.js'), 'utf8');
-    const testUtilsJs = fs.readFileSync(path.join(__dirname, 'tests/connect4-test-utils.js'), 'utf8');
-    
-    console.log('✅ Source files read successfully');
-    
-    console.log('🔧 Creating execution context...');
-    
-    // Create a new execution context
-    const vm = require('vm');
-    const context = {
-        console: console,
-        setTimeout: setTimeout,
-        clearTimeout: clearTimeout,
-        Date: Date,
-        Math: Math,
-        JSON: JSON,
-        Array: Array,
-        Object: Object,
-        Set: Set,
-        Map: Map,
-        window: undefined,
-        document: mockDocument,
-        global: undefined,
-        Connect4Game: undefined,
-        Connect4Helpers: undefined,
-        Connect4AI: undefined,
-        Connect4TestUtils: undefined
-    };
-    
-    vm.createContext(context);
-    
-    console.log('⚙️ Executing game classes...');
-    
-    // Execute source files in order
-    vm.runInContext(gameJs, context);
-    console.log(`   Connect4Game: ${typeof context.Connect4Game}`);
-    
-    vm.runInContext(helpersJs, context);
-    console.log(`   Connect4Helpers: ${typeof context.Connect4Helpers}`);
-    
-    vm.runInContext(aiJs, context);
-    console.log(`   Connect4AI: ${typeof context.Connect4AI}`);
-    
-    vm.runInContext(testUtilsJs, context);
-    console.log(`   Connect4TestUtils: ${typeof context.Connect4TestUtils}`);
-    
-    // Verify classes are available
-    if (!context.Connect4Game || !context.Connect4Helpers || !context.Connect4AI || !context.Connect4TestUtils) {
-        throw new Error('Classes not properly loaded in context');
-    }
-    
-    console.log('✅ All classes loaded in execution context\n');
-    
-    // Test basic functionality
-    console.log('🧪 Testing basic functionality...');
-    
-    const testCode = `
+  // Create a mock DOM environment that's more compatible
+  const mockDocument = {
+    getElementById: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    createElement: (tag) => ({
+      style: {},
+      classList: { add: () => {}, remove: () => {}, toggle: () => {} },
+      addEventListener: () => {},
+      appendChild: () => {},
+      innerHTML: '',
+      tagName: tag.toUpperCase()
+    })
+  };
+
+  // Set up global environment
+  global.window = undefined;
+  global.document = mockDocument;
+
+  console.log('📂 Reading source files...');
+
+  // Read all source files
+  const gameJs = fs.readFileSync(path.join(__dirname, 'games/connect4/js/game.js'), 'utf8');
+  const helpersJs = fs.readFileSync(path.join(__dirname, 'games/connect4/js/helpers.js'), 'utf8');
+  const aiJs = fs.readFileSync(path.join(__dirname, 'games/connect4/js/ai.js'), 'utf8');
+  const testUtilsJs = fs.readFileSync(path.join(__dirname, 'tests/connect4-test-utils.js'), 'utf8');
+
+  console.log('✅ Source files read successfully');
+
+  console.log('🔧 Creating execution context...');
+
+  // Create a new execution context
+  const vm = require('vm');
+  const context = {
+    console: console,
+    setTimeout: setTimeout,
+    clearTimeout: clearTimeout,
+    Date: Date,
+    Math: Math,
+    JSON: JSON,
+    Array: Array,
+    Object: Object,
+    Set: Set,
+    Map: Map,
+    window: undefined,
+    document: mockDocument,
+    global: undefined,
+    Connect4Game: undefined,
+    Connect4Helpers: undefined,
+    Connect4AI: undefined,
+    Connect4TestUtils: undefined
+  };
+
+  vm.createContext(context);
+
+  console.log('⚙️ Executing game classes...');
+
+  // Execute source files in order
+  vm.runInContext(gameJs, context);
+  console.log(`   Connect4Game: ${typeof context.Connect4Game}`);
+
+  vm.runInContext(helpersJs, context);
+  console.log(`   Connect4Helpers: ${typeof context.Connect4Helpers}`);
+
+  vm.runInContext(aiJs, context);
+  console.log(`   Connect4AI: ${typeof context.Connect4AI}`);
+
+  vm.runInContext(testUtilsJs, context);
+  console.log(`   Connect4TestUtils: ${typeof context.Connect4TestUtils}`);
+
+  // Verify classes are available
+  if (!context.Connect4Game || !context.Connect4Helpers || !context.Connect4AI || !context.Connect4TestUtils) {
+    throw new Error('Classes not properly loaded in context');
+  }
+
+  console.log('✅ All classes loaded in execution context\n');
+
+  // Test basic functionality
+  console.log('🧪 Testing basic functionality...');
+
+  const testCode = `
         // Test 1: Basic instantiation
         console.log('   📋 Test 1: Basic instantiation');
         const game = new Connect4Game();
@@ -145,38 +145,38 @@ try {
         
         'ALL_TESTS_PASSED';
     `;
-    
-    const result = vm.runInContext(testCode, context);
-    
-    if (result === 'ALL_TESTS_PASSED') {
-        console.log('\n🎉 Real bot implementation validation PASSED!');
-        console.log('✅ All strategic bots working with real implementations');
-        console.log('✅ Test utilities functioning correctly');
-        console.log('✅ Performance within acceptable bounds');
-        console.log('✅ Strategic scenarios can be created and tested');
-        
-        console.log('\n📋 Summary:');
-        console.log('   • Connect4Game: ✅ Working');
-        console.log('   • Connect4Helpers: ✅ Working');
-        console.log('   • Connect4AI: ✅ Working');
-        console.log('   • Connect4TestUtils: ✅ Working');
-        console.log('   • Strategic bots: ✅ All 5 types responding');
-        console.log('   • Integration: ✅ Complete');
-        
-        process.exit(0);
-    } else {
-        throw new Error('Tests did not complete successfully');
-    }
-    
+
+  const result = vm.runInContext(testCode, context);
+
+  if (result === 'ALL_TESTS_PASSED') {
+    console.log('\n🎉 Real bot implementation validation PASSED!');
+    console.log('✅ All strategic bots working with real implementations');
+    console.log('✅ Test utilities functioning correctly');
+    console.log('✅ Performance within acceptable bounds');
+    console.log('✅ Strategic scenarios can be created and tested');
+
+    console.log('\n📋 Summary:');
+    console.log('   • Connect4Game: ✅ Working');
+    console.log('   • Connect4Helpers: ✅ Working');
+    console.log('   • Connect4AI: ✅ Working');
+    console.log('   • Connect4TestUtils: ✅ Working');
+    console.log('   • Strategic bots: ✅ All 5 types responding');
+    console.log('   • Integration: ✅ Complete');
+
+    process.exit(0);
+  } else {
+    throw new Error('Tests did not complete successfully');
+  }
+
 } catch (error) {
-    console.error(`\n💥 Validation failed: ${error.message}`);
-    console.error('Stack trace:', error.stack);
-    
-    console.log('\n🔧 Possible issues:');
-    console.log('   • Browser dependencies in real implementations');
-    console.log('   • Missing environment setup');
-    console.log('   • Scope or context problems');
-    console.log('   • File loading or parsing errors');
-    
-    process.exit(1);
+  console.error(`\n💥 Validation failed: ${error.message}`);
+  console.error('Stack trace:', error.stack);
+
+  console.log('\n🔧 Possible issues:');
+  console.log('   • Browser dependencies in real implementations');
+  console.log('   • Missing environment setup');
+  console.log('   • Scope or context problems');
+  console.log('   • File loading or parsing errors');
+
+  process.exit(1);
 }

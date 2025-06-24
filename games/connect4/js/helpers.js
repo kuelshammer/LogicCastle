@@ -9,7 +9,7 @@
  *
  * Falls back to integrated implementation when modules unavailable.
  */
-/* global ThreatDetector:readonly, OpportunityAnalyzer:readonly, MoveValidator:readonly, HintManager:readonly */
+// Modular components available when loaded separately
 
 class _Connect4Helpers {
   constructor(game, ui = null) {

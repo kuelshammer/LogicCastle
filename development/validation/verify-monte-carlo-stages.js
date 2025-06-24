@@ -20,7 +20,7 @@ const monteCarloBot = new RealConnect4AI('monte-carlo');
 // Set up a winning scenario for red (current player)
 // Create 3 in a row horizontally, red can win in column 3
 game1.board[5][0] = game1.PLAYER1; // Red
-game1.board[5][1] = game1.PLAYER1; // Red  
+game1.board[5][1] = game1.PLAYER1; // Red
 game1.board[5][2] = game1.PLAYER1; // Red
 // Column 3 is empty and would be a winning move
 
@@ -31,7 +31,7 @@ const move1 = monteCarloBot.getBestMove(game1);
 console.log(`Monte Carlo selected: Column ${move1 + 1}`);
 console.log(`Result: ${move1 === 3 ? '✅ CORRECT - Took winning move' : '❌ WRONG - Did not take winning move'}\n`);
 
-// Test 2: Immediate Block Detection  
+// Test 2: Immediate Block Detection
 console.log('TEST 2: Immediate Block Detection');
 const game2 = new RealConnect4Game();
 game2.currentPlayer = game2.PLAYER1; // Red to move
@@ -60,9 +60,9 @@ let universalLogicCalled = false;
 const originalUniversal = monteCarloBot3.getUniversalBestMove;
 
 monteCarloBot3.getUniversalBestMove = function(...args) {
-    universalLogicCalled = true;
-    console.log('📊 Universal 4-stage logic called!');
-    return originalUniversal.apply(this, args);
+  universalLogicCalled = true;
+  console.log('📊 Universal 4-stage logic called!');
+  return originalUniversal.apply(this, args);
 };
 
 const move3 = monteCarloBot3.getBestMove(game3);
@@ -76,14 +76,14 @@ const test2Pass = move2 === 3;
 const test3Pass = universalLogicCalled;
 
 console.log(`- Win Detection: ${test1Pass ? 'PASS' : 'FAIL'}`);
-console.log(`- Block Detection: ${test2Pass ? 'PASS' : 'FAIL'}`);  
+console.log(`- Block Detection: ${test2Pass ? 'PASS' : 'FAIL'}`);
 console.log(`- Universal Logic: ${test3Pass ? 'PASS' : 'FAIL'}`);
 
 if (test1Pass && test2Pass && test3Pass) {
-    console.log('\n✅ ALL TESTS PASSED - Monte Carlo follows 4-stage logic correctly!');
+  console.log('\n✅ ALL TESTS PASSED - Monte Carlo follows 4-stage logic correctly!');
 } else {
-    console.log('\n❌ STAGE LOGIC PROBLEM DETECTED!');
-    if (!test1Pass) console.log('   - Monte Carlo does not take immediate wins');
-    if (!test2Pass) console.log('   - Monte Carlo does not block opponent wins');
-    if (!test3Pass) console.log('   - Monte Carlo bypasses universal logic');
+  console.log('\n❌ STAGE LOGIC PROBLEM DETECTED!');
+  if (!test1Pass) console.log('   - Monte Carlo does not take immediate wins');
+  if (!test2Pass) console.log('   - Monte Carlo does not block opponent wins');
+  if (!test3Pass) console.log('   - Monte Carlo bypasses universal logic');
 }

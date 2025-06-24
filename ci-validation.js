@@ -77,7 +77,7 @@ try {
     './.github/workflows/ci-comprehensive-old.yml.bak',
     './.github/workflows/tests-old.yml.bak'
   ];
-  
+
   const backedUp = backups.every(file => existsSync(file));
   if (backedUp) {
     console.log('✅ Old workflows properly backed up');
@@ -94,9 +94,9 @@ try {
 try {
   const pkg = JSON.parse(execSync('cat package.json', { encoding: 'utf8' }));
   const hasEslintJs = pkg.devDependencies['@eslint/js'];
-  const hasModernEslint = pkg.devDependencies['eslint'].startsWith('^9');
-  const hasUpdatedPuppeteer = pkg.devDependencies['puppeteer'].startsWith('^23');
-  
+  const hasModernEslint = pkg.devDependencies.eslint.startsWith('^9');
+  const hasUpdatedPuppeteer = pkg.devDependencies.puppeteer.startsWith('^23');
+
   if (hasEslintJs && hasModernEslint && hasUpdatedPuppeteer) {
     console.log('✅ Dependencies updated correctly');
     checks.push({ name: 'Dependencies', status: 'pass' });
@@ -118,8 +118,8 @@ const failed = checks.filter(c => c.status === 'fail').length;
 const total = checks.length;
 
 checks.forEach(check => {
-  const icon = check.status === 'pass' ? '✅' : 
-               check.status === 'warn' ? '⚠️' : '❌';
+  const icon = check.status === 'pass' ? '✅' :
+    check.status === 'warn' ? '⚠️' : '❌';
   console.log(`${icon} ${check.name}: ${check.status.toUpperCase()}`);
 });
 
@@ -131,11 +131,11 @@ console.log(`• Failed: ${failed}/${total}`);
 if (failed === 0) {
   console.log('\n🎉 CI/CD Fix Successfully Completed!');
   console.log('🚀 Ready to commit and push changes');
-  
+
   if (warnings > 0) {
     console.log(`ℹ️  Note: ${warnings} warning(s) exist but are acceptable for CI`);
   }
-  
+
   process.exit(0);
 } else {
   console.log('\n⚠️  Some checks failed. Review and fix before committing.');

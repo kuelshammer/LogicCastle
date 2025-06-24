@@ -28,13 +28,13 @@ console.log('🧪 Running Backend Tests...\n');
 
 // Run all backend tests
 try {
-    runBackendGameCoreTests(testSuite);
-    runBackendGameEdgeCasesTests(testSuite);
-    runBackendSimulationTests(testSuite);
-    runBackendEventsTests(testSuite);
+  runBackendGameCoreTests(testSuite);
+  runBackendGameEdgeCasesTests(testSuite);
+  runBackendSimulationTests(testSuite);
+  runBackendEventsTests(testSuite);
 } catch (error) {
-    console.error('❌ Error running tests:', error.message);
-    process.exit(1);
+  console.error('❌ Error running tests:', error.message);
+  process.exit(1);
 }
 
 // Display results
@@ -45,24 +45,24 @@ console.log(`❌ Failed: ${summary.failed}`);
 console.log(`📊 Total: ${summary.total}`);
 
 if (summary.failed > 0) {
-    console.log('\n❌ Failed tests:');
-    testSuite.results.filter(r => !r.passed).forEach(result => {
-        console.log(`   - ${result.suite}: ${result.name}`);
-        console.log(`     Error: ${result.error}`);
-    });
+  console.log('\n❌ Failed tests:');
+  testSuite.results.filter(r => !r.passed).forEach(result => {
+    console.log(`   - ${result.suite}: ${result.name}`);
+    console.log(`     Error: ${result.error}`);
+  });
 }
 
 // Check if all tests passed
 if (summary.failed > 0) {
-    console.log(`\n❌ ${summary.failed} tests failed!`);
-    process.exit(1);
+  console.log(`\n❌ ${summary.failed} tests failed!`);
+  process.exit(1);
 } else {
-    console.log(`\n✅ All ${summary.total} backend tests passed!`);
-    
-    // Write JSON results
-    const fs = require('fs');
-    fs.writeFileSync('./test-results-backend.json', JSON.stringify(testSuite.toJSON(), null, 2));
-    console.log('📄 Results written to test-results-backend.json');
-    
-    process.exit(0);
+  console.log(`\n✅ All ${summary.total} backend tests passed!`);
+
+  // Write JSON results
+  const fs = require('fs');
+  fs.writeFileSync('./test-results-backend.json', JSON.stringify(testSuite.toJSON(), null, 2));
+  console.log('📄 Results written to test-results-backend.json');
+
+  process.exit(0);
 }

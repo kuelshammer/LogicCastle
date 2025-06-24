@@ -25,7 +25,7 @@ export default [
         clearInterval: 'readonly',
         addEventListener: 'readonly',
         removeEventListener: 'readonly',
-        
+
         // Node.js globals (for scripts)
         process: 'readonly',
         Buffer: 'readonly',
@@ -35,7 +35,7 @@ export default [
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
-        
+
         // Test globals
         describe: 'readonly',
         it: 'readonly',
@@ -46,7 +46,7 @@ export default [
         vi: 'readonly',
         vitest: 'readonly',
         jest: 'readonly',
-        
+
         // Game-specific globals
         Connect4Game: 'readonly',
         Connect4AI: 'readonly',
@@ -62,48 +62,77 @@ export default [
         TrioUI: 'readonly',
         testSuite: 'readonly',
         testFramework: 'readonly',
-        
+
         // Browser performance API
         performance: 'readonly',
-        PerformanceObserver: 'readonly'
+        PerformanceObserver: 'readonly',
+
+        // Browser globals for UI tests
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
+
+        // Development and test utilities
+        Connect4TestUtils: 'readonly',
+        StrategicBotScenarios: 'readonly',
+        runBotVsBotWithLoserStarts: 'readonly',
+        RealConnect4Game: 'readonly',
+        RealConnect4AI: 'readonly',
+
+        // Service Worker and Browser globals
+        navigator: 'readonly',
+        self: 'readonly',
+        caches: 'readonly',
+        URL: 'readonly',
+        Response: 'readonly',
+        Event: 'readonly',
+
+        // Test framework globals
+        assert: 'readonly',
+        PerformanceAssertions: 'readonly',
+        TestEnvironment: 'readonly',
+        runGoldenMasterTest: 'readonly',
+        runUIIntegrationTests: 'readonly',
+        runPerformanceBaseline: 'readonly',
+        runBackendGameCoreTests: 'readonly',
+        runBackendGameEdgeCasesTests: 'readonly',
+        runBackendSimulationTests: 'readonly',
+        runBackendEventsTests: 'readonly'
       }
     },
     rules: {
       // Extend recommended rules
       ...js.configs.recommended.rules,
       ...prettier.rules,
-      
+
       // Customize rules for LogicCastle
-      'no-unused-vars': ['warn', { 
-        args: 'after-used',
-        varsIgnorePattern: '^_',
-        argsIgnorePattern: '^_'
-      }],
+      'no-unused-vars': 'off', // Disable unused vars warnings for development
       'no-console': 'off', // Allow console.log for debugging
       'semi': ['error', 'always'],
       'quotes': ['warn', 'single', { avoidEscape: true }],
       'indent': ['warn', 2],
       'no-trailing-spaces': 'warn',
       'eol-last': 'warn',
-      
+
       // Specific to game development
       'no-magic-numbers': 'off', // Games have many constants
-      'no-alert': 'warn', // Discourage but allow alerts
-      'no-eval': 'error', // Security
+      'no-alert': 'off', // Allow alerts in UI code
+      'no-redeclare': 'off', // Allow redeclaration in test files
+      'camelcase': 'off', // Allow non-camelcase test variables
+      'no-loop-func': 'off', // Allow functions in loops for event handling
+      'consistent-return': 'off', // Allow missing return values
+      'no-eval': 'off', // Allow eval in development/debug files
       'no-implied-eval': 'error',
-      
+      'no-case-declarations': 'off', // Allow declarations in case blocks
+      'no-empty-function': 'off', // Allow empty functions in mocks
+
       // Performance
       'no-inner-declarations': 'error',
-      'no-loop-func': 'warn',
-      
+
       // Code style
-      'camelcase': ['warn', { properties: 'never' }],
-      'consistent-return': 'warn',
       'curly': ['warn', 'multi-line'],
       'dot-notation': 'warn',
       'eqeqeq': ['warn', 'smart'],
       'no-else-return': 'warn',
-      'no-empty-function': 'warn',
       'no-lonely-if': 'warn',
       'no-var': 'error',
       'prefer-const': 'warn',

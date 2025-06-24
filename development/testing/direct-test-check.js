@@ -18,21 +18,21 @@ const game = new Connect4Game();
 console.log('getPlayerName exists:', typeof game.getPlayerName);
 
 if (typeof game.getPlayerName === 'function') {
-    const name1 = game.getPlayerName(game.PLAYER1);
-    const name2 = game.getPlayerName(game.PLAYER2);
-    console.log('Player 1 name:', name1);
-    console.log('Player 2 name:', name2);
-    console.log('Player 1 correct:', name1 === 'Spieler 1 (Rot)');
-    console.log('Player 2 correct:', name2 === 'Spieler 2 (Gelb)');
+  const name1 = game.getPlayerName(game.PLAYER1);
+  const name2 = game.getPlayerName(game.PLAYER2);
+  console.log('Player 1 name:', name1);
+  console.log('Player 2 name:', name2);
+  console.log('Player 1 correct:', name1 === 'Spieler 1 (Rot)');
+  console.log('Player 2 correct:', name2 === 'Spieler 2 (Gelb)');
 }
 
 if (typeof game.getPlayerColorClass === 'function') {
-    const color1 = game.getPlayerColorClass(game.PLAYER1);
-    const color2 = game.getPlayerColorClass(game.PLAYER2);
-    console.log('Player 1 color:', color1);
-    console.log('Player 2 color:', color2);
-    console.log('Color 1 correct:', color1 === 'red');
-    console.log('Color 2 correct:', color2 === 'yellow');
+  const color1 = game.getPlayerColorClass(game.PLAYER1);
+  const color2 = game.getPlayerColorClass(game.PLAYER2);
+  console.log('Player 1 color:', color1);
+  console.log('Player 2 color:', color2);
+  console.log('Color 1 correct:', color1 === 'red');
+  console.log('Color 2 correct:', color2 === 'yellow');
 }
 
 // Test 2: Diagonal win
