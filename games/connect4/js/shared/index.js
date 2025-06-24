@@ -44,13 +44,7 @@ export * from './interface-compliance.js';
 export * from './auto-adapter.js';
 
 // Re-export commonly used items for convenience
-export {
-  GAME_CONFIG,
-  PLAYERS,
-  ALL_DIRECTIONS,
-  GAME_EVENTS,
-  HINT_EVENTS
-} from './constants.js';
+export { GAME_CONFIG, PLAYERS, ALL_DIRECTIONS, GAME_EVENTS, HINT_EVENTS } from './constants.js';
 
 export {
   createEmptyBoard,
@@ -61,16 +55,9 @@ export {
   getOpponent
 } from './board-utils.js';
 
-export {
-  EventEmitter,
-  GameEventDispatcher
-} from './event-utils.js';
+export { EventEmitter, GameEventDispatcher } from './event-utils.js';
 
-export {
-  PerformanceTimer,
-  createTimeout,
-  profileFunction
-} from './performance-utils.js';
+export { PerformanceTimer, createTimeout, profileFunction } from './performance-utils.js';
 
 export {
   ServiceContainer,
@@ -79,11 +66,7 @@ export {
   createTestContainer
 } from './service-container.js';
 
-export {
-  validateInterface,
-  createInterfaceProxy,
-  SERVICE_INTERFACES
-} from './interfaces.js';
+export { validateInterface, createInterfaceProxy, SERVICE_INTERFACES } from './interfaces.js';
 
 export {
   GameFactory,

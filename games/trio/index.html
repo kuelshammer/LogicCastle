@@ -1,164 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trio - Mathematisches Rechenspiel - LogicCastle</title>
-    <link rel="stylesheet" href="css/game.css">
-    <link rel="stylesheet" href="css/ui.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/game.css" />
+    <link rel="stylesheet" href="css/ui.css" />
+  </head>
+  <body>
     <div class="game-container">
-        <header class="game-header">
-            <a href="../../index.html" class="back-button">← Zurück</a>
-            <h1>🧮 Trio - Rechenspiel</h1>
-            <div class="game-mode-selector">
-                <select id="gameMode">
-                    <option value="kinderfreundlich" selected>Kinderfreundlich (1-50)</option>
-                    <option value="vollspektrum">Vollspektrum (1-90)</option>
-                    <option value="strategisch">Strategisch (wenig theoretisch, viel realisiert)</option>
-                    <option value="analytisch">Analytisch (viel theoretisch, wenig realisiert)</option>
-                </select>
-            </div>
-        </header>
+      <header class="game-header">
+        <a href="../../index.html" class="back-button">← Zurück</a>
+        <h1>🧮 Trio - Rechenspiel</h1>
+        <div class="game-mode-selector">
+          <select id="gameMode">
+            <option value="kinderfreundlich" selected>Kinderfreundlich (1-50)</option>
+            <option value="vollspektrum">Vollspektrum (1-90)</option>
+            <option value="strategisch">Strategisch (wenig theoretisch, viel realisiert)</option>
+            <option value="analytisch">Analytisch (viel theoretisch, wenig realisiert)</option>
+          </select>
+        </div>
+      </header>
 
-        <main class="game-main">
-            <!-- Target Number Display -->
-            <div class="target-display" id="targetDisplay">
-                <div class="target-label">Zielzahl:</div>
-                <div class="target-number" id="targetNumber">--</div>
-                <div class="target-subtitle">Finde drei Zahlen: a×b+c oder a×b-c</div>
-                <div class="target-analysis" id="targetAnalysis" style="display: none;">
-                    <small>Kombinationen: <span id="realizedCount">0</span> von <span id="theoreticalCount">0</span> verfügbar</small>
-                </div>
-            </div>
-
-            <!-- Game Controls -->
-            <div class="game-controls">
-                <button class="btn btn-primary" id="startGameBtn" tabindex="1">Spiel starten</button>
-                <button class="btn btn-secondary" id="newRoundBtn" tabindex="2" disabled>Nächste Runde</button>
-                <button class="btn btn-outline" id="showSolutionBtn" tabindex="3" disabled>Lösung zeigen</button>
-                <button class="btn btn-outline" id="newGameBtn" tabindex="4">Neues Spiel</button>
-            </div>
-
-
-            <!-- Game Board Container -->
-            <div class="game-board-container">
-                <div class="number-grid" id="numberGrid">
-                    <!-- 7x7 grid will be generated here -->
-                </div>
-            </div>
-
-            <!-- Solution Input -->
-            <div class="solution-panel">
-                <div class="selected-numbers">
-                    <div class="selection-label">Gewählte Zahlen:</div>
-                    <div class="selected-display" id="selectedDisplay">
-                        <span class="selected-number" id="selected1">?</span>
-                        <span class="operator">×</span>
-                        <span class="selected-number" id="selected2">?</span>
-                        <span class="operator" id="operatorSign">±</span>
-                        <span class="selected-number" id="selected3">?</span>
-                        <span class="equals">=</span>
-                        <span class="result" id="calculatedResult">?</span>
-                    </div>
-                </div>
-                <div class="solution-controls">
-                    <button class="btn btn-primary" id="submitSolutionBtn" disabled>Lösung einreichen</button>
-                    <button class="btn btn-outline" id="clearSelectionBtn">Auswahl löschen</button>
-                </div>
-            </div>
-
-            <!-- Game Info Panel -->
-            <div class="game-info">
-                <div class="score-board">
-                    <div class="score-title">🏆 Gesammelte Chips:</div>
-                    <div class="scores-list" id="scoresList">
-                        <!-- Player scores will be displayed here -->
-                    </div>
-                </div>
-                
-                <div class="game-status">
-                    <div class="status-text" id="gameStatus">Bereit zum Spielen</div>
-                    <div class="chips-remaining">
-                        <span id="chipsRemaining">20</span> Chips übrig
-                    </div>
-                </div>
-            </div>
-
-            <!-- Solution History -->
-            <div class="solution-history" id="solutionHistory" style="display: none;">
-                <h3>Gefundene Lösungen:</h3>
-                <div class="history-list" id="historyList"></div>
-            </div>
-        </main>
-
-        <!-- Help Modal -->
-        <div class="modal" id="helpModal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>🧮 Trio - Spielregeln</h2>
-                    <button class="close-btn" id="closeHelpBtn">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="help-section">
-                        <h3>🎯 Spielziel</h3>
-                        <p>Sammle die meisten Zahlenchips, indem du mathematische Rätsel löst!</p>
-                    </div>
-                    
-                    <div class="help-section">
-                        <h3>📏 Spielregeln</h3>
-                        <ol>
-                            <li>Eine <strong>Zielzahl</strong> wird angezeigt</li>
-                            <li>Wähle <strong>drei Zahlen</strong> aus dem 7×7-Feld</li>
-                            <li>Die drei Zahlen müssen die Formel erfüllen:</li>
-                            <ul>
-                                <li><code>a × b + c = Zielzahl</code> oder</li>
-                                <li><code>a × b - c = Zielzahl</code></li>
-                            </ul>
-                            <li>Der erste Spieler mit der richtigen Lösung gewinnt den Chip</li>
-                            <li>Spiel endet, wenn alle Chips verteilt sind</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="help-section">
-                        <h3>🎮 Bedienung</h3>
-                        <ul>
-                            <li><strong>Zahlen auswählen:</strong> Klicke auf drei Zahlen im Feld</li>
-                            <li><strong>Lösung einreichen:</strong> Klicke auf "Lösung einreichen"</li>
-                            <li><strong>Auswahl löschen:</strong> Klicke auf "Auswahl löschen"</li>
-                            <li><strong>Hilfe:</strong> Drücke F1 oder klicke auf Hilfe</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="help-section">
-                        <h3>💡 Beispiel</h3>
-                        <p>Zielzahl: <strong>14</strong></p>
-                        <p>Lösung: <code>3 × 4 + 2 = 14</code></p>
-                        <p>Wähle die Zahlen 3, 4 und 2 aus dem Feld!</p>
-                    </div>
-                </div>
-            </div>
+      <main class="game-main">
+        <!-- Target Number Display -->
+        <div class="target-display" id="targetDisplay">
+          <div class="target-label">Zielzahl:</div>
+          <div class="target-number" id="targetNumber">--</div>
+          <div class="target-subtitle">Finde drei Zahlen: a×b+c oder a×b-c</div>
+          <div class="target-analysis" id="targetAnalysis" style="display: none">
+            <small
+              >Kombinationen: <span id="realizedCount">0</span> von
+              <span id="theoreticalCount">0</span> verfügbar</small
+            >
+          </div>
         </div>
 
-        <!-- Bottom Controls -->
-        <div class="bottom-controls">
-            <button class="btn btn-outline" id="helpBtn" tabindex="9">Hilfe (F1)</button>
+        <!-- Game Controls -->
+        <div class="game-controls">
+          <button class="btn btn-primary" id="startGameBtn" tabindex="1">Spiel starten</button>
+          <button class="btn btn-secondary" id="newRoundBtn" tabindex="2" disabled>Nächste Runde</button>
+          <button class="btn btn-outline" id="showSolutionBtn" tabindex="3" disabled>Lösung zeigen</button>
+          <button class="btn btn-outline" id="newGameBtn" tabindex="4">Neues Spiel</button>
         </div>
+
+        <!-- Game Board Container -->
+        <div class="game-board-container">
+          <div class="number-grid" id="numberGrid">
+            <!-- 7x7 grid will be generated here -->
+          </div>
+        </div>
+
+        <!-- Solution Input -->
+        <div class="solution-panel">
+          <div class="selected-numbers">
+            <div class="selection-label">Gewählte Zahlen:</div>
+            <div class="selected-display" id="selectedDisplay">
+              <span class="selected-number" id="selected1">?</span>
+              <span class="operator">×</span>
+              <span class="selected-number" id="selected2">?</span>
+              <span class="operator" id="operatorSign">±</span>
+              <span class="selected-number" id="selected3">?</span>
+              <span class="equals">=</span>
+              <span class="result" id="calculatedResult">?</span>
+            </div>
+          </div>
+          <div class="solution-controls">
+            <button class="btn btn-primary" id="submitSolutionBtn" disabled>Lösung einreichen</button>
+            <button class="btn btn-outline" id="clearSelectionBtn">Auswahl löschen</button>
+          </div>
+        </div>
+
+        <!-- Game Info Panel -->
+        <div class="game-info">
+          <div class="score-board">
+            <div class="score-title">🏆 Gesammelte Chips:</div>
+            <div class="scores-list" id="scoresList">
+              <!-- Player scores will be displayed here -->
+            </div>
+          </div>
+
+          <div class="game-status">
+            <div class="status-text" id="gameStatus">Bereit zum Spielen</div>
+            <div class="chips-remaining"><span id="chipsRemaining">20</span> Chips übrig</div>
+          </div>
+        </div>
+
+        <!-- Solution History -->
+        <div class="solution-history" id="solutionHistory" style="display: none">
+          <h3>Gefundene Lösungen:</h3>
+          <div class="history-list" id="historyList"></div>
+        </div>
+      </main>
+
+      <!-- Help Modal -->
+      <div class="modal" id="helpModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>🧮 Trio - Spielregeln</h2>
+            <button class="close-btn" id="closeHelpBtn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="help-section">
+              <h3>🎯 Spielziel</h3>
+              <p>Sammle die meisten Zahlenchips, indem du mathematische Rätsel löst!</p>
+            </div>
+
+            <div class="help-section">
+              <h3>📏 Spielregeln</h3>
+              <ol>
+                <li>Eine <strong>Zielzahl</strong> wird angezeigt</li>
+                <li>Wähle <strong>drei Zahlen</strong> aus dem 7×7-Feld</li>
+                <li>Die drei Zahlen müssen die Formel erfüllen:</li>
+                <ul>
+                  <li><code>a × b + c = Zielzahl</code> oder</li>
+                  <li><code>a × b - c = Zielzahl</code></li>
+                </ul>
+                <li>Der erste Spieler mit der richtigen Lösung gewinnt den Chip</li>
+                <li>Spiel endet, wenn alle Chips verteilt sind</li>
+              </ol>
+            </div>
+
+            <div class="help-section">
+              <h3>🎮 Bedienung</h3>
+              <ul>
+                <li><strong>Zahlen auswählen:</strong> Klicke auf drei Zahlen im Feld</li>
+                <li><strong>Lösung einreichen:</strong> Klicke auf "Lösung einreichen"</li>
+                <li><strong>Auswahl löschen:</strong> Klicke auf "Auswahl löschen"</li>
+                <li><strong>Hilfe:</strong> Drücke F1 oder klicke auf Hilfe</li>
+              </ul>
+            </div>
+
+            <div class="help-section">
+              <h3>💡 Beispiel</h3>
+              <p>Zielzahl: <strong>14</strong></p>
+              <p>Lösung: <code>3 × 4 + 2 = 14</code></p>
+              <p>Wähle die Zahlen 3, 4 und 2 aus dem Feld!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Controls -->
+      <div class="bottom-controls">
+        <button class="btn btn-outline" id="helpBtn" tabindex="9">Hilfe (F1)</button>
+      </div>
     </div>
 
     <!-- Game Scripts -->
     <script src="js/game.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/ui.js"></script>
-    
+
     <script>
-        // Initialize the game when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            const game = new TrioGame();
-            const ui = new TrioUI(game);
-            ui.init();
-        });
+      // Initialize the game when page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        const game = new TrioGame();
+        const ui = new TrioUI(game);
+        ui.init();
+      });
     </script>
-</body>
+  </body>
 </html>

@@ -87,7 +87,11 @@ class _TrioGame {
       const analysis = this.calculateDifficultyRatio(target, grid);
 
       // Strategic: few theoretical (≤8), high realization ratio (≥0.4), at least 2 realized
-      if (analysis.theoreticalCount <= 8 && analysis.ratio >= 0.4 && analysis.realizedCount >= 2) {
+      if (
+        analysis.theoreticalCount <= 8 &&
+                analysis.ratio >= 0.4 &&
+                analysis.realizedCount >= 2
+      ) {
         candidates.push({
           target: target,
           score: analysis.ratio * analysis.realizedCount, // Prioritize high ratio + many realized
@@ -116,7 +120,11 @@ class _TrioGame {
       const analysis = this.calculateDifficultyRatio(target, grid);
 
       // Analytical: many theoretical (≥12), low realization ratio (≤0.25), at least 1 realized
-      if (analysis.theoreticalCount >= 12 && analysis.ratio <= 0.25 && analysis.realizedCount >= 1) {
+      if (
+        analysis.theoreticalCount >= 12 &&
+                analysis.ratio <= 0.25 &&
+                analysis.realizedCount >= 1
+      ) {
         candidates.push({
           target: target,
           score: analysis.theoreticalCount * (1 - analysis.ratio), // Prioritize many theoretical + low ratio
@@ -200,7 +208,10 @@ class _TrioGame {
       }
 
       this.targetChips.sort((a, b) => a - b);
-      console.log(`Generated ${this.targetChips.length} fallback target chips:`, this.targetChips);
+      console.log(
+        `Generated ${this.targetChips.length} fallback target chips:`,
+        this.targetChips
+      );
       return;
     }
 
@@ -223,8 +234,10 @@ class _TrioGame {
       try {
         // Generate strategic targets based on current grid
         const strategicTargets = this.findStrategicTargets(this.numberGrid, 15);
-        this.targetChips = strategicTargets.length > 0 ? strategicTargets :
-          Array.from({length: 15}, () => Math.floor(Math.random() * 50) + 1);
+        this.targetChips =
+                        strategicTargets.length > 0
+                          ? strategicTargets
+                          : Array.from({ length: 15 }, () => Math.floor(Math.random() * 50) + 1);
       } catch (error) {
         console.warn('Error generating strategic targets, using fallback:', error);
         for (let i = 0; i < 15; i++) {
@@ -237,8 +250,10 @@ class _TrioGame {
       try {
         // Generate analytical targets based on current grid
         const analyticalTargets = this.findAnalyticalTargets(this.numberGrid, 15);
-        this.targetChips = analyticalTargets.length > 0 ? analyticalTargets :
-          Array.from({length: 15}, () => Math.floor(Math.random() * 90) + 1);
+        this.targetChips =
+                        analyticalTargets.length > 0
+                          ? analyticalTargets
+                          : Array.from({ length: 15 }, () => Math.floor(Math.random() * 90) + 1);
       } catch (error) {
         console.warn('Error generating analytical targets, using fallback:', error);
         for (let i = 0; i < 15; i++) {
@@ -266,7 +281,10 @@ class _TrioGame {
     // Sort chips by value for progression feel
     this.targetChips.sort((a, b) => a - b);
 
-    console.log(`Generated ${this.targetChips.length} target chips for ${this.difficulty} difficulty:`, this.targetChips);
+    console.log(
+      `Generated ${this.targetChips.length} target chips for ${this.difficulty} difficulty:`,
+      this.targetChips
+    );
 
     // Debug: Show analysis for first few targets (async to avoid blocking)
     if (this.difficulty === 'strategisch' || this.difficulty === 'analytisch') {
@@ -275,7 +293,9 @@ class _TrioGame {
         this.targetChips.slice(0, 3).forEach(target => {
           try {
             const analysis = this.calculateDifficultyRatio(target);
-            console.log(`Target ${target}: ${analysis.realizedCount}/${analysis.theoreticalCount} combinations (${(analysis.ratio * 100).toFixed(1)}%) - ${analysis.difficulty}`);
+            console.log(
+              `Target ${target}: ${analysis.realizedCount}/${analysis.theoreticalCount} combinations (${(analysis.ratio * 100).toFixed(1)}%) - ${analysis.difficulty}`
+            );
           } catch (error) {
             console.warn(`Error analyzing target ${target}:`, error);
           }
@@ -460,9 +480,11 @@ class _TrioGame {
             for (let r3 = 0; r3 < this.ROWS; r3++) {
               for (let c3 = 0; c3 < this.COLS; c3++) {
                 // Skip if positions are the same
-                if ((r1 === r2 && c1 === c2) ||
+                if (
+                  (r1 === r2 && c1 === c2) ||
                                     (r1 === r3 && c1 === c3) ||
-                                    (r2 === r3 && c2 === c3)) {
+                                    (r2 === r3 && c2 === c3)
+                ) {
                   continue;
                 }
 
@@ -472,8 +494,15 @@ class _TrioGame {
                   { row: r3, col: c3 }
                 ];
 
-                const numbers = positions.map(pos => this.numberGrid[pos.row][pos.col]);
-                const solution = this.validateSolution(numbers[0], numbers[1], numbers[2], target);
+                const numbers = positions.map(
+                  pos => this.numberGrid[pos.row][pos.col]
+                );
+                const solution = this.validateSolution(
+                  numbers[0],
+                  numbers[1],
+                  numbers[2],
+                  target
+                );
 
                 if (solution.isValid) {
                   solutions.push({
@@ -554,12 +583,24 @@ class _TrioGame {
         for (let c = 1; c <= 9; c++) {
           // Check a×b+c = target
           if (a * b + c === target) {
-            combinations.push({ a, b, c, operation: 'addition', formula: `${a}×${b}+${c}=${target}` });
+            combinations.push({
+              a,
+              b,
+              c,
+              operation: 'addition',
+              formula: `${a}×${b}+${c}=${target}`
+            });
           }
 
           // Check a×b-c = target
           if (a * b - c === target) {
-            combinations.push({ a, b, c, operation: 'subtraction', formula: `${a}×${b}-${c}=${target}` });
+            combinations.push({
+              a,
+              b,
+              c,
+              operation: 'subtraction',
+              formula: `${a}×${b}-${c}=${target}`
+            });
           }
         }
       }
@@ -590,9 +631,11 @@ class _TrioGame {
             for (let r3 = 0; r3 < this.ROWS; r3++) {
               for (let c3 = 0; c3 < this.COLS; c3++) {
                 // Skip if positions are the same
-                if ((r1 === r2 && c1 === c2) ||
+                if (
+                  (r1 === r2 && c1 === c2) ||
                                     (r1 === r3 && c1 === c3) ||
-                                    (r2 === r3 && c2 === c3)) {
+                                    (r2 === r3 && c2 === c3)
+                ) {
                   continue;
                 }
 
@@ -608,7 +651,9 @@ class _TrioGame {
                 // Check if this combination solves the target
                 if (a * b + c === target) {
                   realizedCombinations.push({
-                    a, b, c,
+                    a,
+                    b,
+                    c,
                     operation: 'addition',
                     formula: `${a}×${b}+${c}=${target}`,
                     positions: positions
@@ -617,7 +662,9 @@ class _TrioGame {
 
                 if (a * b - c === target) {
                   realizedCombinations.push({
-                    a, b, c,
+                    a,
+                    b,
+                    c,
                     operation: 'subtraction',
                     formula: `${a}×${b}-${c}=${target}`,
                     positions: positions

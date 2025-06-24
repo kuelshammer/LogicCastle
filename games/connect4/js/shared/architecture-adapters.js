@@ -224,7 +224,7 @@ export class LegacyUIAdapter {
   setupEventBridge() {
     // Bridge legacy UI events to clean architecture
     if (this.legacyUI.on) {
-      this.legacyUI.on('columnClick', async (column) => {
+      this.legacyUI.on('columnClick', async column => {
         await this.handleColumnClick(column);
       });
 
@@ -232,7 +232,7 @@ export class LegacyUIAdapter {
         await this.handleReset();
       });
 
-      this.legacyUI.on('hintRequest', async (level) => {
+      this.legacyUI.on('hintRequest', async level => {
         await this.handleHintRequest(level);
       });
     }
@@ -454,7 +454,7 @@ export const defaultArchitectureBridge = new ArchitectureBridge();
  * @param {Object} legacyComponents - Legacy components to adapt
  * @returns {Promise<Object>} Created adapters
  */
-export const createAdapters = async (legacyComponents) => {
+export const createAdapters = async legacyComponents => {
   return await defaultArchitectureBridge.createAdapters(legacyComponents);
 };
 

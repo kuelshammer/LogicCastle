@@ -90,7 +90,7 @@ class Connect4Game {
     // Expose legacy properties via getters/setters
     Object.defineProperty(this, 'scores', {
       get: () => this.scoreManager.getScores(),
-      set: (value) => {
+      set: value => {
         // For backward compatibility, but discouraged
         if (value && typeof value === 'object') {
           this.scoreManager.scores = { ...value };
@@ -100,7 +100,7 @@ class Connect4Game {
 
     Object.defineProperty(this, 'playerConfig', {
       get: () => this.playerManager.getPlayerConfig(),
-      set: (value) => {
+      set: value => {
         // For backward compatibility
         if (value && typeof value === 'object') {
           const current = this.playerManager.getPlayerConfig();
@@ -280,10 +280,10 @@ class Connect4Game {
   checkWin(row, col) {
     const player = this.board[row][col];
     const directions = [
-      [0, 1],  // horizontal
-      [1, 0],  // vertical
-      [1, 1],  // diagonal \
-      [1, -1]  // diagonal /
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // diagonal \
+      [1, -1] // diagonal /
     ];
 
     for (const [dRow, dCol] of directions) {
@@ -293,7 +293,13 @@ class Connect4Game {
       // Check positive direction
       let r = row + dRow;
       let c = col + dCol;
-      while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.ROWS &&
+                c >= 0 &&
+                c < this.COLS &&
+                this.board[r][c] === player
+      ) {
         winningCells.push([r, c]);
         count++;
         r += dRow;
@@ -303,7 +309,13 @@ class Connect4Game {
       // Check negative direction
       r = row - dRow;
       c = col - dCol;
-      while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.ROWS &&
+                c >= 0 &&
+                c < this.COLS &&
+                this.board[r][c] === player
+      ) {
         winningCells.unshift([r, c]);
         count++;
         r -= dRow;
@@ -382,13 +394,13 @@ class Connect4Game {
   createBasicEventSystem() {
     return {
       eventListeners: {},
-      on: function(event, callback) {
+      on: function (event, callback) {
         if (!this.eventListeners[event]) {
           this.eventListeners[event] = [];
         }
         this.eventListeners[event].push(callback);
       },
-      off: function(event, callback) {
+      off: function (event, callback) {
         if (this.eventListeners[event]) {
           const index = this.eventListeners[event].indexOf(callback);
           if (index > -1) {
@@ -396,7 +408,7 @@ class Connect4Game {
           }
         }
       },
-      emit: function(event, data, context) {
+      emit: function (event, data, context) {
         if (this.eventListeners[event]) {
           this.eventListeners[event].forEach(callback => {
             try {
@@ -419,20 +431,26 @@ class Connect4Game {
         lastWinner: null,
         startingPlayer: this.PLAYER1
       },
-      getCurrentPlayer: function() { return this.currentPlayer; },
-      switchPlayer: function() {
+      getCurrentPlayer: function () {
+        return this.currentPlayer;
+      },
+      switchPlayer: function () {
         this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
         return this.currentPlayer;
       },
-      getPlayerColor: function(player) { return player === 1 ? 'red' : 'yellow'; },
-      getPlayerConfig: function() { return { ...this.playerConfig }; },
-      setNextGameStarter: function(lastWinner) {
+      getPlayerColor: function (player) {
+        return player === 1 ? 'red' : 'yellow';
+      },
+      getPlayerConfig: function () {
+        return { ...this.playerConfig };
+      },
+      setNextGameStarter: function (lastWinner) {
         this.playerConfig.lastWinner = lastWinner;
         if (lastWinner !== null) {
           this.currentPlayer = lastWinner === 1 ? 2 : 1;
         }
       },
-      reset: function() {
+      reset: function () {
         this.currentPlayer = 1;
         this.playerConfig.lastWinner = null;
       }
@@ -442,19 +460,21 @@ class Connect4Game {
   createBasicScoreManager() {
     return {
       scores: { red: 0, yellow: 0, draws: 0 },
-      getScores: function() { return { ...this.scores }; },
-      recordGame: function(winnerColor) {
+      getScores: function () {
+        return { ...this.scores };
+      },
+      recordGame: function (winnerColor) {
         if (winnerColor === 'red') this.scores.red++;
         else if (winnerColor === 'yellow') this.scores.yellow++;
         else this.scores.draws++;
       },
-      resetAll: function() {
+      resetAll: function () {
         this.scores = { red: 0, yellow: 0, draws: 0 };
       },
-      loadFromStorage: function() {
+      loadFromStorage: function () {
         return null;
       },
-      saveToStorage: function() {
+      saveToStorage: function () {
         return true;
       }
     };
@@ -462,8 +482,12 @@ class Connect4Game {
 
   createBasicStateManager() {
     return {
-      saveState: function() { return false; },
-      loadState: function() { return null; }
+      saveState: function () {
+        return false;
+      },
+      loadState: function () {
+        return null;
+      }
     };
   }
 }

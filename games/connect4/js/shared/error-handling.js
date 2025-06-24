@@ -132,10 +132,7 @@ export class RetryHandler {
         }
 
         // Calculate delay with exponential backoff
-        const delay = Math.min(
-          baseDelay * Math.pow(backoffFactor, attempt - 1),
-          maxDelay
-        );
+        const delay = Math.min(baseDelay * Math.pow(backoffFactor, attempt - 1), maxDelay);
 
         if (onRetry) {
           onRetry(attempt, delay, error);
@@ -145,11 +142,10 @@ export class RetryHandler {
       }
     }
 
-    throw new GameError(
-      `Operation failed after ${maxAttempts} attempts`,
-      'RETRY_EXHAUSTED',
-      { lastError: lastError.message, attempts: maxAttempts }
-    );
+    throw new GameError(`Operation failed after ${maxAttempts} attempts`, 'RETRY_EXHAUSTED', {
+      lastError: lastError.message,
+      attempts: maxAttempts
+    });
   }
 
   static delay(ms) {
@@ -216,24 +212,22 @@ export class AIFallbackHandler {
 export class InputValidator {
   static validateColumn(col) {
     if (typeof col !== 'number') {
-      throw new ValidationError(
-        'Column must be a number',
-        { provided: col, type: typeof col }
-      );
+      throw new ValidationError('Column must be a number', {
+        provided: col,
+        type: typeof col
+      });
     }
 
     if (!Number.isInteger(col)) {
-      throw new ValidationError(
-        'Column must be an integer',
-        { provided: col }
-      );
+      throw new ValidationError('Column must be an integer', { provided: col });
     }
 
     if (col < 0 || col > 6) {
-      throw new ValidationError(
-        'Column must be between 0 and 6',
-        { provided: col, min: 0, max: 6 }
-      );
+      throw new ValidationError('Column must be between 0 and 6', {
+        provided: col,
+        min: 0,
+        max: 6
+      });
     }
 
     return true;
@@ -241,17 +235,14 @@ export class InputValidator {
 
   static validatePlayer(player) {
     if (typeof player !== 'number') {
-      throw new ValidationError(
-        'Player must be a number',
-        { provided: player, type: typeof player }
-      );
+      throw new ValidationError('Player must be a number', {
+        provided: player,
+        type: typeof player
+      });
     }
 
     if (player !== 1 && player !== 2) {
-      throw new ValidationError(
-        'Player must be 1 or 2',
-        { provided: player }
-      );
+      throw new ValidationError('Player must be 1 or 2', { provided: player });
     }
 
     return true;
@@ -259,41 +250,36 @@ export class InputValidator {
 
   static validateBoard(board) {
     if (!Array.isArray(board)) {
-      throw new ValidationError(
-        'Board must be an array',
-        { provided: typeof board }
-      );
+      throw new ValidationError('Board must be an array', { provided: typeof board });
     }
 
     if (board.length !== 6) {
-      throw new ValidationError(
-        'Board must have 6 rows',
-        { provided: board.length }
-      );
+      throw new ValidationError('Board must have 6 rows', { provided: board.length });
     }
 
     for (let i = 0; i < board.length; i++) {
       if (!Array.isArray(board[i])) {
-        throw new ValidationError(
-          `Board row ${i} must be an array`,
-          { row: i, provided: typeof board[i] }
-        );
+        throw new ValidationError(`Board row ${i} must be an array`, {
+          row: i,
+          provided: typeof board[i]
+        });
       }
 
       if (board[i].length !== 7) {
-        throw new ValidationError(
-          `Board row ${i} must have 7 columns`,
-          { row: i, provided: board[i].length }
-        );
+        throw new ValidationError(`Board row ${i} must have 7 columns`, {
+          row: i,
+          provided: board[i].length
+        });
       }
 
       for (let j = 0; j < board[i].length; j++) {
         const cell = board[i][j];
         if (typeof cell !== 'number' || (cell !== 0 && cell !== 1 && cell !== 2)) {
-          throw new ValidationError(
-            `Invalid cell value at row ${i}, col ${j}`,
-            { row: i, col: j, provided: cell }
-          );
+          throw new ValidationError(`Invalid cell value at row ${i}, col ${j}`, {
+            row: i,
+            col: j,
+            provided: cell
+          });
         }
       }
     }
@@ -305,17 +291,17 @@ export class InputValidator {
     const validDifficulties = ['einfach', 'mittel', 'stark', 'expert'];
 
     if (typeof difficulty !== 'string') {
-      throw new ValidationError(
-        'Difficulty must be a string',
-        { provided: difficulty, type: typeof difficulty }
-      );
+      throw new ValidationError('Difficulty must be a string', {
+        provided: difficulty,
+        type: typeof difficulty
+      });
     }
 
     if (!validDifficulties.includes(difficulty.toLowerCase())) {
-      throw new ValidationError(
-        'Invalid difficulty level',
-        { provided: difficulty, valid: validDifficulties }
-      );
+      throw new ValidationError('Invalid difficulty level', {
+        provided: difficulty,
+        valid: validDifficulties
+      });
     }
 
     return true;
@@ -339,11 +325,10 @@ export class CircuitBreaker {
       if (Date.now() - this.lastFailure > this.timeout) {
         this.state = 'HALF_OPEN';
       } else {
-        throw new GameError(
-          'Circuit breaker is OPEN',
-          'CIRCUIT_BREAKER_OPEN',
-          { failures: this.failures, lastFailure: this.lastFailure }
-        );
+        throw new GameError('Circuit breaker is OPEN', 'CIRCUIT_BREAKER_OPEN', {
+          failures: this.failures,
+          lastFailure: this.lastFailure
+        });
       }
     }
 
@@ -387,19 +372,21 @@ export const circuitBreaker = new CircuitBreaker();
 
 // Global error handler
 if (typeof window !== 'undefined') {
-  window.addEventListener('error', (event) => {
-    errorLogger.log(new GameError(
-      event.message,
-      'UNCAUGHT_ERROR',
-      { filename: event.filename, lineno: event.lineno, colno: event.colno }
-    ));
+  window.addEventListener('error', event => {
+    errorLogger.log(
+      new GameError(event.message, 'UNCAUGHT_ERROR', {
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno
+      })
+    );
   });
 
-  window.addEventListener('unhandledrejection', (event) => {
-    errorLogger.log(new GameError(
-      'Unhandled promise rejection',
-      'UNHANDLED_PROMISE',
-      { reason: event.reason }
-    ));
+  window.addEventListener('unhandledrejection', event => {
+    errorLogger.log(
+      new GameError('Unhandled promise rejection', 'UNHANDLED_PROMISE', {
+        reason: event.reason
+      })
+    );
   });
 }

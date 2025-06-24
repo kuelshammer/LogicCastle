@@ -222,7 +222,13 @@ export class AutoAdapterGenerator {
     const analysis = this.analyzeModule(module, interfaceDefinition);
 
     // Generate adapter class
-    const adapterClass = this.generateAdapterClass(module, interfaceName, template, analysis, options);
+    const adapterClass = this.generateAdapterClass(
+      module,
+      interfaceName,
+      template,
+      analysis,
+      options
+    );
 
     // Create and cache adapter instance
     const adapter = new adapterClass(module);
@@ -325,7 +331,7 @@ export class AutoAdapterGenerator {
     for (const [methodName, expectedType] of Object.entries(interfaceDefinition)) {
       if (analysis.existing.includes(methodName)) {
         // Direct pass-through
-        adapterMethods[methodName] = function(...args) {
+        adapterMethods[methodName] = function (...args) {
           return this.target[methodName](...args);
         };
       } else if (analysis.fallbackMap.has(methodName)) {
@@ -334,25 +340,28 @@ export class AutoAdapterGenerator {
         if (template[methodName]) {
           // Use template if available
           const methodCode = template[methodName].generator(module, fallbackMethod);
-          adapterMethods[methodName] = new Function(`return ${  methodCode}`)();
+          adapterMethods[methodName] = new Function(`return ${methodCode}`)();
         } else {
           // Simple fallback
-          adapterMethods[methodName] = function(...args) {
+          adapterMethods[methodName] = function (...args) {
             if (typeof this.target[fallbackMethod] === 'function') {
               return this.target[fallbackMethod](...args);
             }
             return this.target[fallbackMethod];
-
           };
         }
       } else {
         // Generate stub method
-        adapterMethods[methodName] = this.generateStubMethod(methodName, expectedType, options);
+        adapterMethods[methodName] = this.generateStubMethod(
+          methodName,
+          expectedType,
+          options
+        );
       }
     }
 
     // Create adapter class
-    const AdapterClass = function(target) {
+    const AdapterClass = function (target) {
       this.target = target;
       this._interfaceName = interfaceName;
       this._className = className;
@@ -365,7 +374,7 @@ export class AutoAdapterGenerator {
     };
 
     // Add metadata
-    AdapterClass.prototype._getAdapterInfo = function() {
+    AdapterClass.prototype._getAdapterInfo = function () {
       return {
         interfaceName: this._interfaceName,
         className: this._className,
@@ -375,7 +384,7 @@ export class AutoAdapterGenerator {
       };
     };
 
-    AdapterClass.prototype._validateCompliance = function() {
+    AdapterClass.prototype._validateCompliance = function () {
       return defaultValidator.validate(this, this._interfaceName);
     };
 
@@ -392,7 +401,7 @@ export class AutoAdapterGenerator {
   generateStubMethod(methodName, expectedType, options) {
     const stubMode = options.stubMode || 'warning'; // 'warning', 'error', 'silent'
 
-    return function(..._args) {
+    return function (..._args) {
       const message = `Method '${methodName}' not implemented in adapter for ${this.target.constructor.name}`;
 
       switch (stubMode) {
@@ -437,7 +446,9 @@ export class AutoAdapterGenerator {
       throw new Error(`No suitable interface found for ${module.constructor.name}`);
     }
 
-    console.log(`🔄 Auto-adapting ${module.constructor.name} to ${bestMatch.interface} (${bestMatch.compliance}% match)`);
+    console.log(
+      `🔄 Auto-adapting ${module.constructor.name} to ${bestMatch.interface} (${bestMatch.compliance}% match)`
+    );
 
     return this.generateAdapter(module, bestMatch.interface, options);
   }
@@ -451,10 +462,13 @@ export class AutoAdapterGenerator {
     let bestMatch = null;
     let bestCompliance = 0;
 
-    for (const [interfaceName, interfaceDefinition] of Object.entries(STANDARDIZED_INTERFACES)) {
+    for (const [interfaceName, interfaceDefinition] of Object.entries(
+      STANDARDIZED_INTERFACES
+    )) {
       const compliance = this.calculateCompliance(module, interfaceDefinition);
 
-      if (compliance > bestCompliance && compliance > 30) { // Minimum 30% match
+      if (compliance > bestCompliance && compliance > 30) {
+        // Minimum 30% match
         bestCompliance = compliance;
         bestMatch = {
           interface: interfaceName,
@@ -515,7 +529,10 @@ export class AutoAdapterGenerator {
         code += `        return this.target.${methodName}(...args);\n`;
         code += '    }\n\n';
       } else if (analysis.fallbackMap.has(methodName) && template[methodName]) {
-        const methodCode = template[methodName].generator(module, analysis.fallbackMap.get(methodName));
+        const methodCode = template[methodName].generator(
+          module,
+          analysis.fallbackMap.get(methodName)
+        );
         code += `    ${methodCode}\n\n`;
       } else {
         code += `    ${methodName}(...args) {\n`;
@@ -539,12 +556,18 @@ export class AutoAdapterGenerator {
      */
   getDefaultReturn(type) {
     switch (type) {
-    case 'boolean': return 'false';
-    case 'number': return '0';
-    case 'string': return "''";
-    case 'object': return 'null';
-    case 'function': return '() => null';
-    default: return 'undefined';
+    case 'boolean':
+      return 'false';
+    case 'number':
+      return '0';
+    case 'string':
+      return "''";
+    case 'object':
+      return 'null';
+    case 'function':
+      return '() => null';
+    default:
+      return 'undefined';
     }
   }
 
@@ -633,7 +656,6 @@ export class BatchAdapterManager {
 
         this.results.push(result);
         console.log(`✅ Adapted ${item.moduleName} to ${adapter._interfaceName}`);
-
       } catch (error) {
         const result = {
           moduleName: item.moduleName,
@@ -664,11 +686,11 @@ export class BatchAdapterManager {
     const failed = this.results.filter(r => !r.success);
 
     let report = '\n🔧 BATCH ADAPTATION REPORT\n';
-    report += `${'═'.repeat(50)  }\n`;
+    report += `${'═'.repeat(50)}\n`;
     report += `Total Modules: ${this.results.length}\n`;
     report += `Successful: ${successful.length}\n`;
     report += `Failed: ${failed.length}\n`;
-    report += `Success Rate: ${Math.round(successful.length / this.results.length * 100)}%\n\n`;
+    report += `Success Rate: ${Math.round((successful.length / this.results.length) * 100)}%\n\n`;
 
     if (successful.length > 0) {
       report += '✅ SUCCESSFUL ADAPTATIONS:\n';
@@ -723,7 +745,7 @@ export const adaptModule = (module, interfaceName) => {
  * @param {Object} module - Module to adapt
  * @returns {Object} Generated adapter
  */
-export const autoAdapt = (module) => {
+export const autoAdapt = module => {
   return defaultAdapterGenerator.autoAdapt(module);
 };
 
@@ -742,9 +764,9 @@ export const generateCode = (module, interfaceName) => {
  * @param {Array} modules - Array of {module, interface} objects
  * @returns {Promise<Array>} Adaptation results
  */
-export const batchAdapt = async (modules) => {
+export const batchAdapt = async modules => {
   const manager = new BatchAdapterManager();
-  modules.forEach(({module, interface: interfaceName, options}) => {
+  modules.forEach(({ module, interface: interfaceName, options }) => {
     manager.queueModule(module, interfaceName, options);
   });
   return await manager.processQueue();

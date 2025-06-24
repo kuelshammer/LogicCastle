@@ -14,16 +14,16 @@ export const GAME_CONFIG = {
 // Player Constants
 export const PLAYERS = {
   NONE: 0,
-  PLAYER1: 1,  // Red player
-  PLAYER2: 2   // Yellow player
+  PLAYER1: 1, // Red player
+  PLAYER2: 2 // Yellow player
 };
 
 // Direction Vectors for Line Analysis
 export const DIRECTIONS = {
   HORIZONTAL: [0, 1],
   VERTICAL: [1, 0],
-  DIAGONAL_DOWN: [1, 1],   // \\ direction
-  DIAGONAL_UP: [1, -1]     // / direction
+  DIAGONAL_DOWN: [1, 1], // \\ direction
+  DIAGONAL_UP: [1, -1] // / direction
 };
 
 // All directions as array for iteration
@@ -93,10 +93,10 @@ export const HINT_PRIORITIES = {
 // Help Levels for Hint System
 export const HELP_LEVELS = {
   NONE: 0,
-  CRITICAL: 1,      // Only wins/blocks
-  WARNINGS: 2,      // Add dangerous moves
-  STRATEGIC: 3,     // Add strategic suggestions
-  FULL: 4          // Full analysis with explanations
+  CRITICAL: 1, // Only wins/blocks
+  WARNINGS: 2, // Add dangerous moves
+  STRATEGIC: 3, // Add strategic suggestions
+  FULL: 4 // Full analysis with explanations
 };
 
 // Event Names for Game Events
@@ -119,20 +119,20 @@ export const HINT_EVENTS = {
 
 // Performance Constants
 export const PERFORMANCE_CONFIG = {
-  DEFAULT_TIMEOUT: 5000,        // 5 seconds default timeout
-  CI_TIMEOUT_MULTIPLIER: 3,     // 3x timeout in CI environments
-  MAX_SIMULATIONS: 1000,        // Maximum simulations for MCTS
-  MAX_DEPTH: 7                  // Maximum depth for minimax
+  DEFAULT_TIMEOUT: 5000, // 5 seconds default timeout
+  CI_TIMEOUT_MULTIPLIER: 3, // 3x timeout in CI environments
+  MAX_SIMULATIONS: 1000, // Maximum simulations for MCTS
+  MAX_DEPTH: 7 // Maximum depth for minimax
 };
 
 // Evaluation Weights (for AI scoring)
 export const EVALUATION_WEIGHTS = {
-  WIN: 1000000,                 // Immediate win
-  BLOCK: 500000,                // Block opponent win
-  THREE_IN_ROW: 50,             // Three pieces in a row
-  TWO_IN_ROW: 10,               // Two pieces in a row
-  CENTER_BONUS: 3,              // Bonus for center column
-  HEIGHT_PENALTY: 1             // Penalty for height
+  WIN: 1000000, // Immediate win
+  BLOCK: 500000, // Block opponent win
+  THREE_IN_ROW: 50, // Three pieces in a row
+  TWO_IN_ROW: 10, // Two pieces in a row
+  CENTER_BONUS: 3, // Bonus for center column
+  HEIGHT_PENALTY: 1 // Penalty for height
 };
 
 // Global Access for Backward Compatibility

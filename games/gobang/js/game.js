@@ -81,7 +81,12 @@ class _GobangGame {
     this.board[row][col] = this.currentPlayer;
 
     // Record the move
-    const move = { row, col, player: this.currentPlayer, moveNumber: this.moveHistory.length + 1 };
+    const move = {
+      row,
+      col,
+      player: this.currentPlayer,
+      moveNumber: this.moveHistory.length + 1
+    };
     this.moveHistory.push(move);
 
     // Emit move event
@@ -143,10 +148,10 @@ class _GobangGame {
   checkWin(row, col) {
     const player = this.board[row][col];
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -175,7 +180,13 @@ class _GobangGame {
     // Check positive direction
     let r = row + deltaRow;
     let c = col + deltaCol;
-    while (r >= 0 && r < this.BOARD_SIZE && c >= 0 && c < this.BOARD_SIZE && this.board[r][c] === player) {
+    while (
+      r >= 0 &&
+            r < this.BOARD_SIZE &&
+            c >= 0 &&
+            c < this.BOARD_SIZE &&
+            this.board[r][c] === player
+    ) {
       stones.push({ row: r, col: c });
       r += deltaRow;
       c += deltaCol;
@@ -184,7 +195,13 @@ class _GobangGame {
     // Check negative direction
     r = row - deltaRow;
     c = col - deltaCol;
-    while (r >= 0 && r < this.BOARD_SIZE && c >= 0 && c < this.BOARD_SIZE && this.board[r][c] === player) {
+    while (
+      r >= 0 &&
+            r < this.BOARD_SIZE &&
+            c >= 0 &&
+            c < this.BOARD_SIZE &&
+            this.board[r][c] === player
+    ) {
       stones.unshift({ row: r, col: c });
       r -= deltaRow;
       c -= deltaCol;
@@ -339,10 +356,10 @@ class _GobangGame {
      */
   checkWinOnBoard(board, row, col, player) {
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -351,7 +368,13 @@ class _GobangGame {
       // Check positive direction
       let r = row + deltaRow;
       let c = col + deltaCol;
-      while (r >= 0 && r < this.BOARD_SIZE && c >= 0 && c < this.BOARD_SIZE && board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.BOARD_SIZE &&
+                c >= 0 &&
+                c < this.BOARD_SIZE &&
+                board[r][c] === player
+      ) {
         count++;
         r += deltaRow;
         c += deltaCol;
@@ -360,7 +383,13 @@ class _GobangGame {
       // Check negative direction
       r = row - deltaRow;
       c = col - deltaCol;
-      while (r >= 0 && r < this.BOARD_SIZE && c >= 0 && c < this.BOARD_SIZE && board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.BOARD_SIZE &&
+                c >= 0 &&
+                c < this.BOARD_SIZE &&
+                board[r][c] === player
+      ) {
         count++;
         r -= deltaRow;
         c -= deltaCol;
@@ -449,7 +478,13 @@ class _GobangGame {
     let r = row;
     let c = col;
 
-    while (r >= 0 && r < this.BOARD_SIZE && c >= 0 && c < this.BOARD_SIZE && this.board[r][c] === player) {
+    while (
+      r >= 0 &&
+            r < this.BOARD_SIZE &&
+            c >= 0 &&
+            c < this.BOARD_SIZE &&
+            this.board[r][c] === player
+    ) {
       count++;
       r += deltaRow;
       c += deltaCol;
@@ -496,8 +531,7 @@ class _GobangGame {
   }
 }
 
-
 // Make available globally for backward compatibility
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.GobangGame = _GobangGame;
 }

@@ -18,10 +18,10 @@ class _GobangHelpers {
 
     // Directions for line checking
     this.directions = [
-      [0, 1],   // Horizontal →
-      [1, 0],   // Vertical ↓
-      [1, 1],   // Diagonal ↘
-      [1, -1]   // Diagonal ↙
+      [0, 1], // Horizontal →
+      [1, 0], // Vertical ↓
+      [1, 1], // Diagonal ↘
+      [1, -1] // Diagonal ↙
     ];
   }
 
@@ -109,7 +109,8 @@ class _GobangHelpers {
      */
   findBlockingMoves() {
     const blockingMoves = [];
-    const opponent = this.game.currentPlayer === this.game.BLACK ? this.game.WHITE : this.game.BLACK;
+    const opponent =
+            this.game.currentPlayer === this.game.BLACK ? this.game.WHITE : this.game.BLACK;
     const board = this.game.getBoard(); // Get a copy instead of manipulating original
 
     // Check all empty positions on the board
@@ -161,9 +162,10 @@ class _GobangHelpers {
           const checkRow = row + dr * dist;
           const checkCol = col + dc * dist;
 
-          if (this.isValidPosition(checkRow, checkCol) &&
-                        board[checkRow][checkCol] === this.game.EMPTY) {
-
+          if (
+            this.isValidPosition(checkRow, checkCol) &&
+                        board[checkRow][checkCol] === this.game.EMPTY
+          ) {
             // Temporarily place opponent piece on the copy
             board[checkRow][checkCol] = opponent;
 
@@ -190,7 +192,9 @@ class _GobangHelpers {
       }
     }
 
-    console.log(`⚡ Level 2: Found ${safeMoves.length} safe moves out of ${allMoves.length} total`);
+    console.log(
+      `⚡ Level 2: Found ${safeMoves.length} safe moves out of ${allMoves.length} total`
+    );
     return safeMoves.length > 0 ? safeMoves : allMoves; // Fallback to all moves if no safe moves
   }
 
@@ -208,8 +212,10 @@ class _GobangHelpers {
         const newRow = row + dr * i;
         const newCol = col + dc * i;
 
-        if (!this.isValidPosition(newRow, newCol) ||
-                    checkBoard[newRow][newCol] !== player) {
+        if (
+          !this.isValidPosition(newRow, newCol) ||
+                    checkBoard[newRow][newCol] !== player
+        ) {
           break;
         }
         count++;
@@ -220,8 +226,10 @@ class _GobangHelpers {
         const newRow = row - dr * i;
         const newCol = col - dc * i;
 
-        if (!this.isValidPosition(newRow, newCol) ||
-                    checkBoard[newRow][newCol] !== player) {
+        if (
+          !this.isValidPosition(newRow, newCol) ||
+                    checkBoard[newRow][newCol] !== player
+        ) {
           break;
         }
         count++;
@@ -250,8 +258,10 @@ class _GobangHelpers {
         const newRow = row + dr * i;
         const newCol = col + dc * i;
 
-        if (!this.isValidPosition(newRow, newCol) ||
-                    checkBoard[newRow][newCol] !== player) {
+        if (
+          !this.isValidPosition(newRow, newCol) ||
+                    checkBoard[newRow][newCol] !== player
+        ) {
           break;
         }
         sequence++;
@@ -262,8 +272,10 @@ class _GobangHelpers {
         const newRow = row - dr * i;
         const newCol = col - dc * i;
 
-        if (!this.isValidPosition(newRow, newCol) ||
-                    checkBoard[newRow][newCol] !== player) {
+        if (
+          !this.isValidPosition(newRow, newCol) ||
+                    checkBoard[newRow][newCol] !== player
+        ) {
           break;
         }
         sequence++;
@@ -304,10 +316,11 @@ class _GobangHelpers {
               const newCol = col + dc;
               const key = `${newRow},${newCol}`;
 
-              if (this.isValidPosition(newRow, newCol) &&
+              if (
+                this.isValidPosition(newRow, newCol) &&
                                 board[newRow][newCol] === this.game.EMPTY &&
-                                !considered.has(key)) {
-
+                                !considered.has(key)
+              ) {
                 moves.push({ row: newRow, col: newCol });
                 considered.add(key);
               }
@@ -324,8 +337,7 @@ class _GobangHelpers {
      * Check if position is valid on the board
      */
   isValidPosition(row, col) {
-    return row >= 0 && row < this.game.BOARD_SIZE &&
-               col >= 0 && col < this.game.BOARD_SIZE;
+    return row >= 0 && row < this.game.BOARD_SIZE && col >= 0 && col < this.game.BOARD_SIZE;
   }
 
   /**
@@ -374,8 +386,7 @@ class _GobangHelpers {
   }
 }
 
-
 // Make available globally for backward compatibility
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.GobangHelpers = _GobangHelpers;
 }

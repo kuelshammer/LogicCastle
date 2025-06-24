@@ -26,14 +26,14 @@ class _Connect4UI {
     // Individual help settings per color and level
     this.playerHelpEnabled = {
       red: {
-        level0: false,  // Winning opportunities
-        level1: false,  // Block threats
-        level2: false   // Avoid traps
+        level0: false, // Winning opportunities
+        level1: false, // Block threats
+        level2: false // Avoid traps
       },
       yellow: {
-        level0: false,  // Winning opportunities
-        level1: false,  // Block threats
-        level2: false   // Avoid traps
+        level0: false, // Winning opportunities
+        level1: false, // Block threats
+        level2: false // Avoid traps
       }
     };
 
@@ -92,16 +92,16 @@ class _Connect4UI {
     this.updateUI();
 
     // Setup game event listeners
-    this.game.on('moveMade', (move) => this.onMoveMade(move));
-    this.game.on('gameWon', (data) => this.onGameWon(data));
+    this.game.on('moveMade', move => this.onMoveMade(move));
+    this.game.on('gameWon', data => this.onGameWon(data));
     this.game.on('gameDraw', () => this.onGameDraw());
-    this.game.on('playerChanged', (player) => this.onPlayerChanged(player));
+    this.game.on('playerChanged', player => this.onPlayerChanged(player));
     this.game.on('gameReset', () => this.onGameReset());
     this.game.on('fullReset', () => this.onFullReset());
-    this.game.on('moveUndone', (move) => this.onMoveUndone(move));
+    this.game.on('moveUndone', move => this.onMoveUndone(move));
 
     // Setup helpers event listeners
-    this.helpers.on('forcedMoveActivated', (data) => this.onForcedMoveActivated(data));
+    this.helpers.on('forcedMoveActivated', data => this.onForcedMoveActivated(data));
     this.helpers.on('forcedMoveDeactivated', () => this.onForcedMoveDeactivated());
   }
 
@@ -166,7 +166,7 @@ class _Connect4UI {
     // Column indicators for moves
     this.columnIndicators.forEach((indicator, col) => {
       indicator.addEventListener('click', () => this.handleColumnClick(col));
-      indicator.addEventListener('keydown', (e) => {
+      indicator.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           this.handleColumnClick(col);
@@ -183,14 +183,14 @@ class _Connect4UI {
     this.undoBtn.addEventListener('click', this.handleUndo);
     this.helpBtn.addEventListener('click', this.handleHelp);
     this.closeHelpBtn.addEventListener('click', this.handleHelp);
-    this.helpModal.addEventListener('click', (e) => {
+    this.helpModal.addEventListener('click', e => {
       if (e.target === this.helpModal) {
         this.handleHelp();
       }
     });
     this.hintsBtn.addEventListener('click', this.handleHints);
     this.closeHintsBtn.addEventListener('click', this.handleHints);
-    this.hintsModal.addEventListener('click', (e) => {
+    this.hintsModal.addEventListener('click', e => {
       if (e.target === this.hintsModal) {
         this.handleHints();
       }
@@ -210,7 +210,7 @@ class _Connect4UI {
     this.gameModeSelect.addEventListener('change', this.handleGameModeChange);
 
     // Keyboard accessibility for checkboxes
-    this.helpPlayer1Level0.addEventListener('keydown', (e) => {
+    this.helpPlayer1Level0.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.helpPlayer1Level0.checked = !this.helpPlayer1Level0.checked;
@@ -218,7 +218,7 @@ class _Connect4UI {
       }
     });
 
-    this.helpPlayer1Level1.addEventListener('keydown', (e) => {
+    this.helpPlayer1Level1.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.helpPlayer1Level1.checked = !this.helpPlayer1Level1.checked;
@@ -226,7 +226,7 @@ class _Connect4UI {
       }
     });
 
-    this.helpPlayer2Level0.addEventListener('keydown', (e) => {
+    this.helpPlayer2Level0.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.helpPlayer2Level0.checked = !this.helpPlayer2Level0.checked;
@@ -234,7 +234,7 @@ class _Connect4UI {
       }
     });
 
-    this.helpPlayer2Level1.addEventListener('keydown', (e) => {
+    this.helpPlayer2Level1.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.helpPlayer2Level1.checked = !this.helpPlayer2Level1.checked;
@@ -242,7 +242,7 @@ class _Connect4UI {
       }
     });
 
-    this.helpPlayer1Level2.addEventListener('keydown', (e) => {
+    this.helpPlayer1Level2.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.helpPlayer1Level2.checked = !this.helpPlayer1Level2.checked;
@@ -250,7 +250,7 @@ class _Connect4UI {
       }
     });
 
-    this.helpPlayer2Level2.addEventListener('keydown', (e) => {
+    this.helpPlayer2Level2.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         this.helpPlayer2Level2.checked = !this.helpPlayer2Level2.checked;
@@ -411,10 +411,18 @@ class _Connect4UI {
 
     // After player move, check if we need to make AI move
     // Use setTimeout to ensure game state is fully updated
-    if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+    if (
+      !this.game.gameOver &&
+            this.isAIMode() &&
+            this.game.currentPlayer === this.game.PLAYER2
+    ) {
       setTimeout(() => {
         // Double-check conditions after state update
-        if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+        if (
+          !this.game.gameOver &&
+                    this.isAIMode() &&
+                    this.game.currentPlayer === this.game.PLAYER2
+        ) {
           this.scheduleAIMove('after player move');
         }
       }, 10); // Small delay to ensure game state is updated
@@ -424,7 +432,7 @@ class _Connect4UI {
   /**
      * Schedule an AI move with race condition protection
      */
-  scheduleAIMove(reason = 'unknown') {
+  scheduleAIMove(_reason = 'unknown') {
     // Don't schedule if AI is already thinking or a move is already scheduled
     if (this.aiThinking) {
       return;
@@ -463,7 +471,7 @@ class _Connect4UI {
       let aiMove = null;
       try {
         aiMove = this.getAIMove();
-      } catch (error) {
+      } catch (_error) {
         // AI calculation failed, fallback to emergency random move
         const validMoves = this.game.getValidMoves();
         if (validMoves.length > 0) {
@@ -477,7 +485,8 @@ class _Connect4UI {
           // Fallback: try a simple random valid move
           const validMoves = this.game.getValidMoves();
           if (validMoves.length > 0) {
-            const fallbackMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+            const fallbackMove =
+                            validMoves[Math.floor(Math.random() * validMoves.length)];
             const fallbackResult = this.game.makeMove(fallbackMove);
             if (!fallbackResult.success) {
               // Even fallback failed - critical error
@@ -510,7 +519,7 @@ class _Connect4UI {
           return;
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Critical error in AI move execution
       this.aiThinking = false;
       this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
@@ -674,9 +683,10 @@ class _Connect4UI {
     }
 
     const indicator = this.columnIndicators[col];
-    indicator.style.backgroundColor = this.game.currentPlayer === this.game.PLAYER1
-      ? 'rgba(255, 71, 87, 0.3)'
-      : 'rgba(255, 165, 2, 0.3)';
+    indicator.style.backgroundColor =
+            this.game.currentPlayer === this.game.PLAYER1
+              ? 'rgba(255, 71, 87, 0.3)'
+              : 'rgba(255, 165, 2, 0.3)';
   }
 
   /**
@@ -849,7 +859,6 @@ class _Connect4UI {
       return this.game.getPlayerName(player);
     }
     return this.game.getPlayerName(player);
-
   }
 
   /**
@@ -916,7 +925,11 @@ class _Connect4UI {
     this.updateButtonTexts();
 
     // Check if AI should make the first move after reset
-    if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+    if (
+      !this.game.gameOver &&
+            this.isAIMode() &&
+            this.game.currentPlayer === this.game.PLAYER2
+    ) {
       this.scheduleAIMove('after game reset');
     }
   }
@@ -930,7 +943,11 @@ class _Connect4UI {
     this.updateButtonTexts();
 
     // Check if AI should make the first move after full reset
-    if (!this.game.gameOver && this.isAIMode() && this.game.currentPlayer === this.game.PLAYER2) {
+    if (
+      !this.game.gameOver &&
+            this.isAIMode() &&
+            this.game.currentPlayer === this.game.PLAYER2
+    ) {
       this.scheduleAIMove('after full reset');
     }
   }
@@ -947,7 +964,10 @@ class _Connect4UI {
      */
   onForcedMoveActivated(data) {
     this.updateColumnIndicators();
-    this.showMessage(`⚠️ Du MUSST Spalte ${data.requiredMoves.map(col => col + 1).join(' oder ')} spielen!`, 'warning');
+    this.showMessage(
+      `⚠️ Du MUSST Spalte ${data.requiredMoves.map(col => col + 1).join(' oder ')} spielen!`,
+      'warning'
+    );
   }
 
   onForcedMoveDeactivated() {
@@ -1028,10 +1048,11 @@ class _Connect4UI {
     });
 
     // Add new column highlight if column is selected
-    if (this.selectedColumn !== null &&
+    if (
+      this.selectedColumn !== null &&
             !this.game.isColumnFull(this.selectedColumn) &&
-            !this.game.gameOver) {
-
+            !this.game.gameOver
+    ) {
       // Highlight only empty cells in the selected column
       for (let row = 0; row < this.game.ROWS; row++) {
         if (this.game.board[row][this.selectedColumn] === this.game.EMPTY) {
@@ -1051,11 +1072,14 @@ class _Connect4UI {
       const isSelected = this.selectedColumn === col;
 
       // Check if this column is blocked by forced move mode
-      const isBlocked = this.helpers.forcedMoveMode &&
-                            !this.helpers.requiredMoves.includes(col);
+      const isBlocked =
+                this.helpers.forcedMoveMode && !this.helpers.requiredMoves.includes(col);
 
       indicator.classList.toggle('disabled', isFull || isDisabled || isBlocked);
-      indicator.classList.toggle('selected', isSelected && !isFull && !isDisabled && !isBlocked);
+      indicator.classList.toggle(
+        'selected',
+        isSelected && !isFull && !isDisabled && !isBlocked
+      );
       indicator.classList.toggle('blocked', isBlocked);
     });
   }
@@ -1116,7 +1140,11 @@ class _Connect4UI {
   updateControls() {
     const currentPlayerColor = this.game.currentPlayer === this.game.PLAYER1 ? 'red' : 'yellow';
     const undoAllowed = this.undoEnabled[currentPlayerColor];
-    this.undoBtn.disabled = this.game.moveHistory.length === 0 || this.game.gameOver || this.aiThinking || !undoAllowed;
+    this.undoBtn.disabled =
+            this.game.moveHistory.length === 0 ||
+            this.game.gameOver ||
+            this.aiThinking ||
+            !undoAllowed;
   }
 
   /**
@@ -1144,7 +1172,14 @@ class _Connect4UI {
 
   clearBoard() {
     this.boardElement.querySelectorAll('.cell').forEach(cell => {
-      cell.classList.remove('red', 'yellow', 'winning', 'stone-drop', 'column-selected', 'column-highlighted');
+      cell.classList.remove(
+        'red',
+        'yellow',
+        'winning',
+        'stone-drop',
+        'column-selected',
+        'column-highlighted'
+      );
     });
   }
 
@@ -1179,9 +1214,7 @@ class _Connect4UI {
   hideGameOverMessage() {
     // Hide any game over dialogs
   }
-
 }
-
 
 // Make available globally for backward compatibility
 if (typeof window !== 'undefined') {

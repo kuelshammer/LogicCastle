@@ -75,7 +75,13 @@ class Connect4ForkDetection {
           board[row - 3][col + 3]
         ];
 
-        const forkPattern = this.analyzeForkPattern(window, player, row, col, 'diagonal-up');
+        const forkPattern = this.analyzeForkPattern(
+          window,
+          player,
+          row,
+          col,
+          'diagonal-up'
+        );
         if (forkPattern) {
           forks.push(forkPattern);
         }
@@ -92,7 +98,13 @@ class Connect4ForkDetection {
           board[row + 3][col + 3]
         ];
 
-        const forkPattern = this.analyzeForkPattern(window, player, row, col, 'diagonal-down');
+        const forkPattern = this.analyzeForkPattern(
+          window,
+          player,
+          row,
+          col,
+          'diagonal-down'
+        );
         if (forkPattern) {
           forks.push(forkPattern);
         }
@@ -143,16 +155,40 @@ class Connect4ForkDetection {
     // Classic fork patterns
     const forkPatterns = [
       // _ x _ x _ pattern (2 players, 2 empty)
-      { pattern: [this.EMPTY, player, this.EMPTY, player], name: 'classic-fork-1', threat: 'high' },
-      { pattern: [player, this.EMPTY, player, this.EMPTY], name: 'classic-fork-2', threat: 'high' },
+      {
+        pattern: [this.EMPTY, player, this.EMPTY, player],
+        name: 'classic-fork-1',
+        threat: 'high'
+      },
+      {
+        pattern: [player, this.EMPTY, player, this.EMPTY],
+        name: 'classic-fork-2',
+        threat: 'high'
+      },
 
       // _ x x _ _ pattern (2 players, 2 empty)
-      { pattern: [this.EMPTY, player, player, this.EMPTY], name: 'double-threat', threat: 'medium' },
-      { pattern: [this.EMPTY, this.EMPTY, player, player], name: 'edge-threat', threat: 'medium' },
-      { pattern: [player, player, this.EMPTY, this.EMPTY], name: 'edge-threat-2', threat: 'medium' },
+      {
+        pattern: [this.EMPTY, player, player, this.EMPTY],
+        name: 'double-threat',
+        threat: 'medium'
+      },
+      {
+        pattern: [this.EMPTY, this.EMPTY, player, player],
+        name: 'edge-threat',
+        threat: 'medium'
+      },
+      {
+        pattern: [player, player, this.EMPTY, this.EMPTY],
+        name: 'edge-threat-2',
+        threat: 'medium'
+      },
 
       // x _ _ x pattern (2 players, 2 empty, wide gap)
-      { pattern: [player, this.EMPTY, this.EMPTY, player], name: 'wide-fork', threat: 'medium' }
+      {
+        pattern: [player, this.EMPTY, this.EMPTY, player],
+        name: 'wide-fork',
+        threat: 'medium'
+      }
     ];
 
     // Check if window matches any fork pattern
@@ -319,9 +355,7 @@ class Connect4ForkDetection {
     // Only forks that are close to completion and immediately threatening
     const criticalForks = opponentForks.filter(fork => {
       // Must be high threat and have multiple playable counter moves
-      return fork.threat === 'high' &&
-                   fork.counterMoves.length >= 2 &&
-                   fork.playable;
+      return fork.threat === 'high' && fork.counterMoves.length >= 2 && fork.playable;
     });
 
     return criticalForks.map(fork => ({
@@ -448,7 +482,6 @@ class Connect4ForkDetection {
     }
     return -1;
   }
-
 }
 
 // Export for use in other modules

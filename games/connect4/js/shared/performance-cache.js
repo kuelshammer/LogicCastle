@@ -49,7 +49,8 @@ export class LRUCache {
  * Board position hasher for cache keys
  */
 export class BoardHasher {
-  static hash(board) { // Unused parameter prefixed
+  static hash(board) {
+    // Unused parameter prefixed
     // Create hash from board state
     let hash = '';
     for (const row of board) {
@@ -85,7 +86,6 @@ export class AIMoveCache {
     }
     this.misses++;
     return null;
-
   }
 
   set(board, depth, player, move, score) {
@@ -98,7 +98,7 @@ export class AIMoveCache {
     return {
       hits: this.hits,
       misses: this.misses,
-      hitRate: total > 0 ? (this.hits / total * 100).toFixed(1) : 0,
+      hitRate: total > 0 ? ((this.hits / total) * 100).toFixed(1) : 0,
       cacheSize: this.cache.size
     };
   }
@@ -129,7 +129,6 @@ export class EvaluationCache {
     }
     this.stats.misses++;
     return null;
-
   }
 
   set(board, player, evaluation) {
@@ -141,7 +140,7 @@ export class EvaluationCache {
     const total = this.stats.hits + this.stats.misses;
     return {
       ...this.stats,
-      hitRate: total > 0 ? (this.stats.hits / total * 100).toFixed(1) : 0,
+      hitRate: total > 0 ? ((this.stats.hits / total) * 100).toFixed(1) : 0,
       cacheSize: this.cache.size
     };
   }
@@ -168,7 +167,9 @@ export class BoardPool {
   }
 
   createEmptyBoard() {
-    return Array(6).fill(null).map(() => Array(7).fill(0));
+    return Array(6)
+      .fill(null)
+      .map(() => Array(7).fill(0));
   }
 
   acquire() {

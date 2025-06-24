@@ -52,7 +52,12 @@ class MoveValidator {
     }
 
     // Analyze what happens after this move
-    const safetyAnalysis = this.analyzeMoveAftermath(moveResult.newBoard, column, moveResult.row, opponent);
+    const safetyAnalysis = this.analyzeMoveAftermath(
+      moveResult.newBoard,
+      column,
+      moveResult.row,
+      opponent
+    );
 
     return {
       isValid: true,
@@ -158,18 +163,25 @@ class MoveValidator {
      */
   checkWinOnBoard(board, row, col, player) {
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [dRow, dCol] of directions) {
       let count = 1;
 
       // Count in positive direction
-      let r = row + dRow, c = col + dCol;
-      while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+      let r = row + dRow,
+        c = col + dCol;
+      while (
+        r >= 0 &&
+                r < this.game.ROWS &&
+                c >= 0 &&
+                c < this.game.COLS &&
+                board[r][c] === player
+      ) {
         count++;
         r += dRow;
         c += dCol;
@@ -178,7 +190,13 @@ class MoveValidator {
       // Count in negative direction
       r = row - dRow;
       c = col - dCol;
-      while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.game.ROWS &&
+                c >= 0 &&
+                c < this.game.COLS &&
+                board[r][c] === player
+      ) {
         count++;
         r -= dRow;
         c -= dCol;
@@ -204,7 +222,12 @@ class MoveValidator {
       const opponentMove = this.simulateMoveOnBoard(board, column, opponent);
       if (opponentMove) {
         // Check if this gives opponent multiple threats
-        const threats = this.countThreatsFromPosition(opponentMove.newBoard, opponentMove.row, column, opponent);
+        const threats = this.countThreatsFromPosition(
+          opponentMove.newBoard,
+          opponentMove.row,
+          column,
+          opponent
+        );
         if (threats >= 2) {
           return {
             createsOpponentTrap: true,
@@ -228,7 +251,12 @@ class MoveValidator {
      */
   countThreatsFromPosition(board, row, col, player) {
     let threats = 0;
-    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       const lineLength = this.countLineLength(board, row, col, dRow, dCol, player);
@@ -248,8 +276,15 @@ class MoveValidator {
     let count = 1;
 
     // Count in positive direction
-    let r = row + dRow, c = col + dCol;
-    while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+    let r = row + dRow,
+      c = col + dCol;
+    while (
+      r >= 0 &&
+            r < this.game.ROWS &&
+            c >= 0 &&
+            c < this.game.COLS &&
+            board[r][c] === player
+    ) {
       count++;
       r += dRow;
       c += dCol;
@@ -258,7 +293,13 @@ class MoveValidator {
     // Count in negative direction
     r = row - dRow;
     c = col - dCol;
-    while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+    while (
+      r >= 0 &&
+            r < this.game.ROWS &&
+            c >= 0 &&
+            c < this.game.COLS &&
+            board[r][c] === player
+    ) {
       count++;
       r -= dRow;
       c -= dCol;
@@ -308,16 +349,25 @@ class MoveValidator {
      */
   evaluateConnectivity(board, row, column) {
     let connectivity = 0;
-    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       // Check adjacent positions
       const adjRow = row + dRow;
       const adjCol = column + dCol;
 
-      if (adjRow >= 0 && adjRow < this.game.ROWS &&
-                adjCol >= 0 && adjCol < this.game.COLS &&
-                board[adjRow][adjCol] !== 0) {
+      if (
+        adjRow >= 0 &&
+                adjRow < this.game.ROWS &&
+                adjCol >= 0 &&
+                adjCol < this.game.COLS &&
+                board[adjRow][adjCol] !== 0
+      ) {
         connectivity += 0.2;
       }
     }

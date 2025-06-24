@@ -10,6 +10,7 @@
  * Falls back to integrated implementation when modules unavailable.
  */
 /* global ThreatDetector:readonly, OpportunityAnalyzer:readonly, MoveValidator:readonly, HintManager:readonly */
+
 class _Connect4Helpers {
   constructor(game, ui = null) {
     this.game = game;
@@ -27,7 +28,7 @@ class _Connect4Helpers {
     };
 
     // Auto-update when board state changes
-    this.game.on('boardStateChanged', (data) => {
+    this.game.on('boardStateChanged', data => {
       if (this.enabled && !data.gameOver) {
         this.updateHints();
       }
@@ -156,7 +157,6 @@ class _Connect4Helpers {
         requiredMoves: this.requiredMoves,
         opportunities: this.currentHints.opportunities
       });
-
     } else if (this.forcedMoveMode) {
       // No winning moves found
       this.forcedMoveMode = false;
@@ -183,8 +183,8 @@ class _Connect4Helpers {
       return; // No help for this player
     }
 
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
-      this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     const validMoves = this.game.getValidMoves();
     const blockingMoves = [];
@@ -273,12 +273,14 @@ class _Connect4Helpers {
       this.requiredMoves = safeMoves.map(move => move.column);
 
       // Add these as safe move recommendations
-      this.currentHints.suggestions = [{
-        type: 'trap_avoidance',
-        message: `⚠️ Vermeide Spalten ${dangerousMoves.map(m => m.column + 1).join(', ')} - Gegnerfallen!`,
-        priority: 'medium',
-        safeMoves: this.requiredMoves
-      }];
+      this.currentHints.suggestions = [
+        {
+          type: 'trap_avoidance',
+          message: `⚠️ Vermeide Spalten ${dangerousMoves.map(m => m.column + 1).join(', ')} - Gegnerfallen!`,
+          priority: 'medium',
+          safeMoves: this.requiredMoves
+        }
+      ];
 
       // Emit trap avoidance event for UI
       this.emit('trapAvoidanceActivated', {
@@ -286,7 +288,6 @@ class _Connect4Helpers {
         dangerousMoves: dangerousMoves.map(m => m.column),
         reason: 'Avoiding opponent traps'
       });
-
     } else {
       // All moves are safe - no action needed
     }
@@ -319,8 +320,8 @@ class _Connect4Helpers {
     boardCopy[row][col] = this.game.currentPlayer;
 
     // Now check all possible opponent responses
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
-      this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     const opponentMoves = this.getValidMovesForBoard(boardCopy);
 
@@ -344,12 +345,15 @@ class _Connect4Helpers {
     this.requiredMoves = [];
 
     // Add warning about trapped situation
-    this.currentHints.suggestions = [{
-      type: 'trapped_warning',
-      message: '🚨 GEFANGEN! Alle Züge erlauben dem Gegner zu gewinnen. Wähle den besten schlechten Zug.',
-      priority: 'critical',
-      trappedMoves: dangerousMoves.map(m => m.column)
-    }];
+    this.currentHints.suggestions = [
+      {
+        type: 'trapped_warning',
+        message:
+                    '🚨 GEFANGEN! Alle Züge erlauben dem Gegner zu gewinnen. Wähle den besten schlechten Zug.',
+        priority: 'critical',
+        trappedMoves: dangerousMoves.map(m => m.column)
+      }
+    ];
 
     // Emit trapped event for UI
     this.emit('playerTrapped', {
@@ -363,7 +367,8 @@ class _Connect4Helpers {
      * @param {Array} board - Original board
      * @returns {Array} - Copied board
      */
-  copyBoard(board) { // Unused parameter prefixed
+  copyBoard(board) {
+    // Unused parameter prefixed
     return board.map(row => [...row]);
   }
 
@@ -372,7 +377,8 @@ class _Connect4Helpers {
      * @param {Array} board - Board state
      * @returns {Array} - Valid column indices
      */
-  getValidMovesForBoard(board) { // Unused parameter prefixed
+  getValidMovesForBoard(board) {
+    // Unused parameter prefixed
     const validMoves = [];
     for (let col = 0; col < this.game.COLS; col++) {
       if (board[0][col] === this.game.EMPTY) {
@@ -381,7 +387,6 @@ class _Connect4Helpers {
     }
     return validMoves;
   }
-
 
   /**
      * Check if a move would win on a given board state
@@ -446,10 +451,10 @@ class _Connect4Helpers {
      */
   checkWinAtPosition(row, col, player) {
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -458,8 +463,13 @@ class _Connect4Helpers {
       // Check positive direction
       let r = row + deltaRow;
       let c = col + deltaCol;
-      while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS &&
-                   this.game.board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.game.ROWS &&
+                c >= 0 &&
+                c < this.game.COLS &&
+                this.game.board[r][c] === player
+      ) {
         count++;
         r += deltaRow;
         c += deltaCol;
@@ -468,8 +478,13 @@ class _Connect4Helpers {
       // Check negative direction
       r = row - deltaRow;
       c = col - deltaCol;
-      while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS &&
-                   this.game.board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.game.ROWS &&
+                c >= 0 &&
+                c < this.game.COLS &&
+                this.game.board[r][c] === player
+      ) {
         count++;
         r -= deltaRow;
         c -= deltaCol;
@@ -489,8 +504,8 @@ class _Connect4Helpers {
   analyzeThreats() {
     this.currentHints.threats = [];
 
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
-      this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     const validMoves = this.game.getValidMoves();
 
@@ -538,9 +553,6 @@ class _Connect4Helpers {
     }
   }
 
-
-
-
   /**
      * Generate strategic suggestions
      */
@@ -565,7 +577,6 @@ class _Connect4Helpers {
         priority: 'high'
       });
     }
-
 
     // General strategic advice based on game state
     this.addGeneralStrategicAdvice();
@@ -613,8 +624,8 @@ class _Connect4Helpers {
      * Uses simulation instead of modifying game state
      */
   hasOpponentBuiltTrap() {
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
-      this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     // Look for opponent patterns that could become dangerous
     let opponentThreats = 0;
@@ -672,7 +683,11 @@ class _Connect4Helpers {
 
     // Show opportunity indicators (only for Level 2+)
     this.currentHints.opportunities.forEach(opportunity => {
-      const indicator = this.createHintIndicator(opportunity.row, opportunity.column, 'opportunity');
+      const indicator = this.createHintIndicator(
+        opportunity.row,
+        opportunity.column,
+        'opportunity'
+      );
       hintsOverlay.appendChild(indicator);
     });
   }
@@ -711,9 +726,10 @@ class _Connect4Helpers {
     }
 
     // Show help panel if there are hints
-    const hasHints = this.currentHints.threats.length > 0 ||
-                        this.currentHints.opportunities.length > 0 ||
-                        this.currentHints.suggestions.length > 0;
+    const hasHints =
+            this.currentHints.threats.length > 0 ||
+            this.currentHints.opportunities.length > 0 ||
+            this.currentHints.suggestions.length > 0;
 
     helpPanel.style.display = hasHints ? 'block' : 'none';
 
@@ -728,8 +744,9 @@ class _Connect4Helpers {
     // Display strategic suggestions
     if (strategyHint && this.currentHints.suggestions.length > 0) {
       strategyHint.style.display = 'block';
-      const suggestion = this.currentHints.suggestions
-        .sort((a, b) => this.getPriorityValue(b.priority) - this.getPriorityValue(a.priority))[0];
+      const suggestion = this.currentHints.suggestions.sort(
+        (a, b) => this.getPriorityValue(b.priority) - this.getPriorityValue(a.priority)
+      )[0];
       strategyHint.textContent = suggestion.message;
     } else if (strategyHint) {
       strategyHint.style.display = 'none';
@@ -741,11 +758,16 @@ class _Connect4Helpers {
      */
   getPriorityValue(priority) {
     switch (priority) {
-    case 'critical': return 4;
-    case 'high': return 3;
-    case 'medium': return 2;
-    case 'low': return 1;
-    default: return 0;
+    case 'critical':
+      return 4;
+    case 'high':
+      return 3;
+    case 'medium':
+      return 2;
+    case 'low':
+      return 1;
+    default:
+      return 0;
     }
   }
 
@@ -806,8 +828,8 @@ class _Connect4Helpers {
     }
 
     // Check if it blocks opponent using board simulation
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ?
-      this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     // Simulate opponent move on board copy
     const boardCopy = this.copyBoard(this.game.board);
@@ -848,7 +870,9 @@ class _Connect4Helpers {
         const tempHelpers = new Connect4Helpers(tempGame);
         tempHelpers.analyzeOpportunities();
 
-        if (tempHelpers.currentHints.opportunities.some(opp => opp.type === 'winning_move')) {
+        if (
+          tempHelpers.currentHints.opportunities.some(opp => opp.type === 'winning_move')
+        ) {
           analysis.allowsOpponentWin = true;
           analysis.strategicValue = 'poor';
         }
@@ -923,7 +947,8 @@ class _Connect4Helpers {
     };
 
     const currentPlayer = this.game.currentPlayer;
-    const opponent = currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     // Analyze all possible threats on the board
     for (let col = 0; col < this.game.COLS; col++) {
@@ -933,17 +958,17 @@ class _Connect4Helpers {
       // Categorize threats by even/odd
       threatInfo.forEach(threat => {
         if (threat.row % 2 === 0) {
-          analysis.player.odd.push({...threat, column: col});
+          analysis.player.odd.push({ ...threat, column: col });
         } else {
-          analysis.player.even.push({...threat, column: col});
+          analysis.player.even.push({ ...threat, column: col });
         }
       });
 
       opponentThreatInfo.forEach(threat => {
         if (threat.row % 2 === 0) {
-          analysis.opponent.odd.push({...threat, column: col});
+          analysis.opponent.odd.push({ ...threat, column: col });
         } else {
-          analysis.opponent.even.push({...threat, column: col});
+          analysis.opponent.even.push({ ...threat, column: col });
         }
       });
     }
@@ -971,7 +996,14 @@ class _Connect4Helpers {
      * Count connected pieces in a specific direction from a position
      */
   countConnectedPieces(row, col, deltaRow, deltaCol, player) {
-    return this.countConnectedPiecesOnBoard(this.game.board, row, col, deltaRow, deltaCol, player);
+    return this.countConnectedPiecesOnBoard(
+      this.game.board,
+      row,
+      col,
+      deltaRow,
+      deltaCol,
+      player
+    );
   }
 
   /**
@@ -983,8 +1015,13 @@ class _Connect4Helpers {
     // Check positive direction
     let r = row + deltaRow;
     let c = col + deltaCol;
-    while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS &&
-               board[r][c] === player) {
+    while (
+      r >= 0 &&
+            r < this.game.ROWS &&
+            c >= 0 &&
+            c < this.game.COLS &&
+            board[r][c] === player
+    ) {
       count++;
       r += deltaRow;
       c += deltaCol;
@@ -993,8 +1030,13 @@ class _Connect4Helpers {
     // Check negative direction
     r = row - deltaRow;
     c = col - deltaCol;
-    while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS &&
-               board[r][c] === player) {
+    while (
+      r >= 0 &&
+            r < this.game.ROWS &&
+            c >= 0 &&
+            c < this.game.COLS &&
+            board[r][c] === player
+    ) {
       count++;
       r -= deltaRow;
       c -= deltaCol;
@@ -1039,11 +1081,21 @@ class _Connect4Helpers {
 
     let threatLevel = 0;
     const directions = [
-      [0, 1], [1, 0], [1, 1], [1, -1] // horizontal, vertical, diagonals
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1] // horizontal, vertical, diagonals
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
-      const lineLength = this.countConnectedPiecesOnBoard(boardCopy, row, col, deltaRow, deltaCol, player);
+      const lineLength = this.countConnectedPiecesOnBoard(
+        boardCopy,
+        row,
+        col,
+        deltaRow,
+        deltaCol,
+        player
+      );
       if (lineLength === 3) {
         threatLevel = 3; // Immediate win threat
         break;
@@ -1061,7 +1113,8 @@ class _Connect4Helpers {
      */
   detectZugzwang() {
     const validMoves = this.game.getValidMoves();
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
 
     const zugzwangMoves = [];
 
@@ -1076,7 +1129,10 @@ class _Connect4Helpers {
       boardCopy[row][col] = opponent;
 
       // Check if this creates winning opportunities for us
-      const ourWinningMoves = this.findWinningMovesOnBoard(boardCopy, this.game.currentPlayer);
+      const ourWinningMoves = this.findWinningMovesOnBoard(
+        boardCopy,
+        this.game.currentPlayer
+      );
       const opponentCanBlock = ourWinningMoves.length <= 1; // Simple heuristic
 
       if (ourWinningMoves.length > 0 && !opponentCanBlock) {
@@ -1200,7 +1256,6 @@ class _Connect4Helpers {
     return threats >= 2 ? [startCol] : [];
   }
 
-
   /**
      * Find winning moves on a specific board state
      */
@@ -1230,7 +1285,8 @@ class _Connect4Helpers {
   /**
      * Get valid moves for a board state
      */
-  getValidMovesOnBoard(board) { // Unused parameter prefixed
+  getValidMovesOnBoard(board) {
+    // Unused parameter prefixed
     const validMoves = [];
     for (let col = 0; col < this.game.COLS; col++) {
       if (board[0][col] === this.game.EMPTY) {
@@ -1245,7 +1301,10 @@ class _Connect4Helpers {
      */
   checkWinOnBoard(board, row, col, player) {
     const directions = [
-      [0, 1], [1, 0], [1, 1], [1, -1] // horizontal, vertical, diagonals
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1] // horizontal, vertical, diagonals
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -1254,7 +1313,13 @@ class _Connect4Helpers {
       // Check positive direction
       let r = row + deltaRow;
       let c = col + deltaCol;
-      while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.game.ROWS &&
+                c >= 0 &&
+                c < this.game.COLS &&
+                board[r][c] === player
+      ) {
         count++;
         r += deltaRow;
         c += deltaCol;
@@ -1263,7 +1328,13 @@ class _Connect4Helpers {
       // Check negative direction
       r = row - deltaRow;
       c = col - deltaCol;
-      while (r >= 0 && r < this.game.ROWS && c >= 0 && c < this.game.COLS && board[r][c] === player) {
+      while (
+        r >= 0 &&
+                r < this.game.ROWS &&
+                c >= 0 &&
+                c < this.game.COLS &&
+                board[r][c] === player
+      ) {
         count++;
         r -= deltaRow;
         c -= deltaCol;
@@ -1335,7 +1406,7 @@ class _Connect4Helpers {
         const setupValue = isSetup ? 1 : 0;
 
         // Enhanced fork scoring: immediate threats + setup potential
-        const totalForkValue = immediateThreats + (setupValue * 0.5);
+        const totalForkValue = immediateThreats + setupValue * 0.5;
 
         if (immediateThreats >= 2 || (immediateThreats >= 1 && isSetup)) {
           forks.push({
@@ -1343,8 +1414,12 @@ class _Connect4Helpers {
             threats: immediateThreats,
             setupMove: isSetup,
             totalValue: totalForkValue,
-            priority: immediateThreats >= 3 ? 'critical' :
-              immediateThreats >= 2 ? 'high' : 'medium'
+            priority:
+                            immediateThreats >= 3
+                              ? 'critical'
+                              : immediateThreats >= 2
+                                ? 'high'
+                                : 'medium'
           });
         }
       }
@@ -1452,7 +1527,8 @@ class _Connect4Helpers {
     boardCopy[row][col] = this.game.currentPlayer;
 
     // Check if this forces opponent into disadvantageous responses
-    const opponent = this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
+    const opponent =
+            this.game.currentPlayer === this.game.PLAYER1 ? this.game.PLAYER2 : this.game.PLAYER1;
     const opponentMoves = this.getValidMovesOnBoard(boardCopy);
 
     let forcingValue = 0;
@@ -1464,12 +1540,15 @@ class _Connect4Helpers {
         boardCopy[opponentRow][opponentCol] = opponent;
 
         // Check if we get new threats after opponent's move
-        const ourThreatsAfter = this.countThreatsOnBoard(boardCopy, this.game.currentPlayer);
+        const ourThreatsAfter = this.countThreatsOnBoard(
+          boardCopy,
+          this.game.currentPlayer
+        );
         const opponentThreatsAfter = this.countThreatsOnBoard(boardCopy, opponent);
 
         // If we gain more threats than opponent, it's forcing
         if (ourThreatsAfter > opponentThreatsAfter) {
-          forcingValue += (ourThreatsAfter - opponentThreatsAfter);
+          forcingValue += ourThreatsAfter - opponentThreatsAfter;
         }
 
         // Undo opponent move
@@ -1560,7 +1639,6 @@ class _Connect4Helpers {
       this.eventListeners[event].forEach(callback => callback(data));
     }
   }
-
 }
 
 // Make available globally for backward compatibility

@@ -142,7 +142,9 @@ export function createInterfaceProxy(obj, interfaceDefinition, name) {
   return new Proxy(obj, {
     get(target, prop) {
       if (prop in interfaceDefinition && typeof target[prop] !== interfaceDefinition[prop]) {
-        throw new Error(`Interface violation: ${name}.${prop} should be ${interfaceDefinition[prop]}`);
+        throw new Error(
+          `Interface violation: ${name}.${prop} should be ${interfaceDefinition[prop]}`
+        );
       }
       return target[prop];
     }
@@ -154,13 +156,13 @@ export function createInterfaceProxy(obj, interfaceDefinition, name) {
  * @deprecated Use STANDARDIZED_INTERFACES from standardized-interfaces.js for new development
  */
 export const SERVICE_INTERFACES = {
-  'IGameEngine': IGameEngine,
-  'IBotStrategy': IBotStrategy,
-  'IHelperSystem': IHelperSystem,
-  'IEventSystem': IEventSystem,
-  'IUIController': IUIController,
-  'IScoreManager': IScoreManager,
-  'IPlayerManager': IPlayerManager
+  IGameEngine: IGameEngine,
+  IBotStrategy: IBotStrategy,
+  IHelperSystem: IHelperSystem,
+  IEventSystem: IEventSystem,
+  IUIController: IUIController,
+  IScoreManager: IScoreManager,
+  IPlayerManager: IPlayerManager
 };
 
 // Re-export standardized interfaces for compatibility
@@ -184,7 +186,7 @@ export function registerWithValidation(container, interfaceName, constructor, op
   }
 
   // Wrap constructor to validate instances
-  const validatedConstructor = function(...args) {
+  const validatedConstructor = function (...args) {
     const instance = new constructor(...args);
     return createInterfaceProxy(instance, interfaceDefinition, interfaceName);
   };

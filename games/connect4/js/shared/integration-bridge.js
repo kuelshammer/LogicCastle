@@ -67,7 +67,9 @@ export class IntegrationBridge {
     this.setupEventBridges();
 
     this.isIntegrated = true;
-    console.log('🔧 Integration Bridge: Successfully integrated legacy components with clean architecture');
+    console.log(
+      '🔧 Integration Bridge: Successfully integrated legacy components with clean architecture'
+    );
 
     return this;
   }
@@ -77,63 +79,64 @@ export class IntegrationBridge {
      */
   async setupIntegratedServices() {
     // Integrated Game Service
-    this.container.register('IIntegratedGameService', class IntegratedGameService {
-      constructor(cleanArch, legacyGame, featureFlags) {
-        this.cleanArch = cleanArch;
-        this.legacyGame = legacyGame;
-        this.featureFlags = featureFlags;
-      }
-
-      async makeMove(column, player) {
-        if (this.featureFlags.get('useCleanArchitectureForMoves')) {
-          return await this.cleanArch.execute('game', 'makeMove', { column, player });
+    this.container.register(
+      'IIntegratedGameService',
+      class IntegratedGameService {
+        constructor(cleanArch, legacyGame, featureFlags) {
+          this.cleanArch = cleanArch;
+          this.legacyGame = legacyGame;
+          this.featureFlags = featureFlags;
         }
-        // Use legacy implementation
-        return this.legacyGame.makeMove(column);
 
-      }
-
-      async getAIMove(difficulty) {
-        if (this.featureFlags.get('useCleanArchitectureForAI')) {
-          const result = await this.cleanArch.execute('game', 'getAIMove', {
-            difficulty,
-            player: this.getCurrentPlayer()
-          });
-          return result.recommended.column;
+        async makeMove(column, player) {
+          if (this.featureFlags.get('useCleanArchitectureForMoves')) {
+            return await this.cleanArch.execute('game', 'makeMove', { column, player });
+          }
+          // Use legacy implementation
+          return this.legacyGame.makeMove(column);
         }
-        // Use legacy AI
-        return this.legacyGame.ai?.getBestMove(this.legacyGame) || 3;
 
-      }
-
-      async getHint(level = 1) {
-        if (this.featureFlags.get('useCleanArchitectureForHints')) {
-          return await this.cleanArch.execute('game', 'getHint', { level });
+        async getAIMove(difficulty) {
+          if (this.featureFlags.get('useCleanArchitectureForAI')) {
+            const result = await this.cleanArch.execute('game', 'getAIMove', {
+              difficulty,
+              player: this.getCurrentPlayer()
+            });
+            return result.recommended.column;
+          }
+          // Use legacy AI
+          return this.legacyGame.ai?.getBestMove(this.legacyGame) || 3;
         }
-        // Use legacy helpers
-        return this.legacyGame.helpers?.getHint() || null;
 
-      }
+        async getHint(level = 1) {
+          if (this.featureFlags.get('useCleanArchitectureForHints')) {
+            return await this.cleanArch.execute('game', 'getHint', { level });
+          }
+          // Use legacy helpers
+          return this.legacyGame.helpers?.getHint() || null;
+        }
 
-      getCurrentPlayer() {
-        return this.legacyGame.currentPlayer || 1;
-      }
+        getCurrentPlayer() {
+          return this.legacyGame.currentPlayer || 1;
+        }
 
-      getBoard() {
-        return this.legacyGame.getBoard();
-      }
+        getBoard() {
+          return this.legacyGame.getBoard();
+        }
 
-      isGameOver() {
-        return this.legacyGame.gameOver || false;
-      }
+        isGameOver() {
+          return this.legacyGame.gameOver || false;
+        }
 
-      getWinner() {
-        return this.legacyGame.winner || null;
+        getWinner() {
+          return this.legacyGame.winner || null;
+        }
+      },
+      {
+        singleton: true,
+        dependencies: ['ICleanArchitecture', 'ILegacyGame', 'IFeatureFlags']
       }
-    }, {
-      singleton: true,
-      dependencies: ['ICleanArchitecture', 'ILegacyGame', 'IFeatureFlags']
-    });
+    );
 
     // Register dependencies
     this.container.register('ICleanArchitecture', () => this.cleanArchitecture);
@@ -141,54 +144,58 @@ export class IntegrationBridge {
     this.container.register('IFeatureFlags', () => this.featureFlags);
 
     // Integrated AI Service
-    this.container.register('IIntegratedAIService', class IntegratedAIService {
-      constructor(cleanArch, legacyAI, featureFlags) {
-        this.cleanArch = cleanArch;
-        this.legacyAI = legacyAI;
-        this.featureFlags = featureFlags;
-        this.aiCache = new Map();
-      }
-
-      async getBestMove(gameState, difficulty = 'medium') {
-        const cacheKey = `${JSON.stringify(gameState.board)}_${difficulty}`;
-
-        if (this.aiCache.has(cacheKey)) {
-          return this.aiCache.get(cacheKey);
+    this.container.register(
+      'IIntegratedAIService',
+      class IntegratedAIService {
+        constructor(cleanArch, legacyAI, featureFlags) {
+          this.cleanArch = cleanArch;
+          this.legacyAI = legacyAI;
+          this.featureFlags = featureFlags;
+          this.aiCache = new Map();
         }
 
-        let move;
-        if (this.featureFlags.get('useCleanArchitectureForAI')) {
-          const result = await this.cleanArch.execute('game', 'getAIMove', {
-            difficulty,
-            player: gameState.currentPlayer
-          });
-          move = result.recommended.column;
-        } else {
-          move = this.legacyAI.getBestMove(gameState);
+        async getBestMove(gameState, difficulty = 'medium') {
+          const cacheKey = `${JSON.stringify(gameState.board)}_${difficulty}`;
+
+          if (this.aiCache.has(cacheKey)) {
+            return this.aiCache.get(cacheKey);
+          }
+
+          let move;
+          if (this.featureFlags.get('useCleanArchitectureForAI')) {
+            const result = await this.cleanArch.execute('game', 'getAIMove', {
+              difficulty,
+              player: gameState.currentPlayer
+            });
+            move = result.recommended.column;
+          } else {
+            move = this.legacyAI.getBestMove(gameState);
+          }
+
+          // Cache result for performance
+          this.aiCache.set(cacheKey, move);
+
+          // Clear cache when it gets too large
+          if (this.aiCache.size > 100) {
+            this.aiCache.clear();
+          }
+
+          return move;
         }
 
-        // Cache result for performance
-        this.aiCache.set(cacheKey, move);
-
-        // Clear cache when it gets too large
-        if (this.aiCache.size > 100) {
+        clearCache() {
           this.aiCache.clear();
         }
 
-        return move;
+        getDifficulty() {
+          return this.legacyAI?.difficulty || 'medium';
+        }
+      },
+      {
+        singleton: true,
+        dependencies: ['ICleanArchitecture', 'ILegacyAI', 'IFeatureFlags']
       }
-
-      clearCache() {
-        this.aiCache.clear();
-      }
-
-      getDifficulty() {
-        return this.legacyAI?.difficulty || 'medium';
-      }
-    }, {
-      singleton: true,
-      dependencies: ['ICleanArchitecture', 'ILegacyAI', 'IFeatureFlags']
-    });
+    );
 
     this.container.register('ILegacyAI', () => this.legacyComponents.ai);
   }
@@ -199,13 +206,13 @@ export class IntegrationBridge {
   setupEventBridges() {
     // Bridge legacy game events to clean architecture
     if (this.legacyComponents.game?.on) {
-      this.legacyComponents.game.on('moveMade', async (moveData) => {
+      this.legacyComponents.game.on('moveMade', async moveData => {
         if (this.featureFlags.get('enableAnalytics')) {
           await this.logAnalytics('moveMade', moveData);
         }
       });
 
-      this.legacyComponents.game.on('gameWon', async (winData) => {
+      this.legacyComponents.game.on('gameWon', async winData => {
         if (this.featureFlags.get('enableAnalytics')) {
           await this.logAnalytics('gameWon', winData);
         }
@@ -214,7 +221,7 @@ export class IntegrationBridge {
 
     // Bridge UI events if legacy UI exists
     if (this.legacyComponents.ui?.on) {
-      this.legacyComponents.ui.on('columnClick', async (column) => {
+      this.legacyComponents.ui.on('columnClick', async column => {
         await this.handleIntegratedMove(column);
       });
     }
@@ -233,7 +240,10 @@ export class IntegrationBridge {
 
       if (result.success) {
         // Update legacy UI if needed
-        if (this.legacyComponents.ui && !this.featureFlags.get('useCleanArchitectureForUI')) {
+        if (
+          this.legacyComponents.ui &&
+                    !this.featureFlags.get('useCleanArchitectureForUI')
+        ) {
           this.legacyComponents.ui.onMoveMade?.(result.move || result);
         }
 
@@ -457,14 +467,14 @@ export class IntegrationBridge {
       // Check services
       try {
         await this.container.resolve('IIntegratedGameService');
-      } catch (error) {
+      } catch (_error) {
         results.issues.push('Integrated game service not available');
         results.status = 'unhealthy';
       }
 
       try {
         await this.container.resolve('IIntegratedAIService');
-      } catch (error) {
+      } catch (_error) {
         results.issues.push('Integrated AI service not available');
         results.status = 'unhealthy';
       }
@@ -479,10 +489,12 @@ export class IntegrationBridge {
       }
 
       // Check feature flags consistency
-      if (this.migrationMode === 'full' && !this.featureFlags.get('useCleanArchitectureForMoves')) {
+      if (
+        this.migrationMode === 'full' &&
+                !this.featureFlags.get('useCleanArchitectureForMoves')
+      ) {
         results.warnings.push('Migration mode is full but not all features enabled');
       }
-
     } catch (error) {
       results.issues.push(`Health check failed: ${error.message}`);
       results.status = 'unhealthy';
@@ -502,7 +514,7 @@ export const defaultIntegrationBridge = new IntegrationBridge();
  * @param {Object} components - Legacy components to integrate
  * @returns {Promise<IntegrationBridge>} Integration bridge instance
  */
-export const integrateComponents = async (components) => {
+export const integrateComponents = async components => {
   return await defaultIntegrationBridge.integrate(components);
 };
 

@@ -36,7 +36,10 @@ class OpportunityAnalyzer {
       const moveResult = this.game.simulateMove(col, player);
       if (moveResult && !moveResult.isWin) {
         // After this move, count how many winning moves we'd have next turn
-        const _gameState = this.game.createGameStateFromBoard(moveResult.newBoard, player === 1 ? 2 : 1);
+        const _gameState = this.game.createGameStateFromBoard(
+          moveResult.newBoard,
+          player === 1 ? 2 : 1
+        );
         const nextTurnWins = this.countWinningMovesFromState(_gameState, player);
 
         if (nextTurnWins >= 2) {
@@ -114,7 +117,12 @@ class OpportunityAnalyzer {
     let forkPotential = 0;
 
     // Check adjacent positions for potential threats that could be connected
-    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       const threatCount = this.countThreatsInDirection(board, row, col, dRow, dCol, player);
@@ -132,7 +140,12 @@ class OpportunityAnalyzer {
      */
   countConnectedThreats(board, row, col, player) {
     let connectedCount = 0;
-    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       const lineLength = this.countLineLength(board, row, col, dRow, dCol, player);
@@ -154,7 +167,8 @@ class OpportunityAnalyzer {
     const COLS = this.game.COLS;
 
     // Count in positive direction
-    let r = row + dRow, c = col + dCol;
+    let r = row + dRow,
+      c = col + dCol;
     while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
       count++;
       r += dRow;
@@ -195,7 +209,12 @@ class OpportunityAnalyzer {
     for (const col of validMoves) {
       const moveResult = this.game.simulateMove(col, player);
       if (moveResult && !moveResult.isWin) {
-        const chainValue = this.evaluateChainPotential(moveResult.newBoard, moveResult.row, col, player);
+        const chainValue = this.evaluateChainPotential(
+          moveResult.newBoard,
+          moveResult.row,
+          col,
+          player
+        );
         if (chainValue.isChain) {
           chains.push({
             column: col,
@@ -233,7 +252,12 @@ class OpportunityAnalyzer {
      */
   countConnectedLines(board, row, col, player) {
     let lineCount = 0;
-    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       const length = this.countLineLength(board, row, col, dRow, dCol, player);
@@ -249,7 +273,12 @@ class OpportunityAnalyzer {
      */
   getMaxLineLength(board, row, col, player) {
     let maxLength = 0;
-    const directions = [[0,1], [1,0], [1,1], [1,-1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       const length = this.countLineLength(board, row, col, dRow, dCol, player);
@@ -273,7 +302,10 @@ class OpportunityAnalyzer {
       const moveResult = this.game.simulateMove(col, player);
       if (moveResult && !moveResult.isWin) {
         // Check if this move limits opponent's good options
-        const _gameState = this.game.createGameStateFromBoard(moveResult.newBoard, opponent);
+        const _gameState = this.game.createGameStateFromBoard(
+          moveResult.newBoard,
+          opponent
+        );
         const opponentOptions = this.evaluateOpponentOptionsFromState(_gameState, opponent);
 
         if (opponentOptions.limitedGoodMoves) {
@@ -296,7 +328,9 @@ class OpportunityAnalyzer {
      * @private
      */
   evaluateOpponentOptionsFromState(gameState, opponent) {
-    const validMoves = gameState.getValidMoves ? gameState.getValidMoves() : this.game.getValidMoves();
+    const validMoves = gameState.getValidMoves
+      ? gameState.getValidMoves()
+      : this.game.getValidMoves();
     let goodMoves = 0;
     let badMoves = 0;
 
@@ -326,7 +360,9 @@ class OpportunityAnalyzer {
      * @private
      */
   countWinningMovesFromState(gameState, player) {
-    const validMoves = gameState.getValidMoves ? gameState.getValidMoves() : this.game.getValidMoves();
+    const validMoves = gameState.getValidMoves
+      ? gameState.getValidMoves()
+      : this.game.getValidMoves();
     let winningMoves = 0;
 
     for (const col of validMoves) {

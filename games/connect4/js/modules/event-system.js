@@ -86,7 +86,9 @@ class EventSystem {
     return new Proxy(context, {
       set(target, property, value) {
         if (criticalProperties.includes(property)) {
-          console.warn(`Event handler attempted to modify protected property: ${property}`);
+          console.warn(
+            `Event handler attempted to modify protected property: ${property}`
+          );
           return false; // Prevent modification
         }
         return Reflect.set(target, property, value);

@@ -130,9 +130,11 @@ class ServiceContainer {
      * @returns {boolean} True if registered
      */
   has(serviceName) {
-    return this.services.has(serviceName) ||
-               this.factories.has(serviceName) ||
-               this.singletons.has(serviceName);
+    return (
+      this.services.has(serviceName) ||
+            this.factories.has(serviceName) ||
+            this.singletons.has(serviceName)
+    );
   }
 
   /**
@@ -192,141 +194,175 @@ const globalContainer = new ServiceContainer();
  */
 function configureConnect4Services(container = globalContainer, environment = 'production') {
   // Performance Services
-  container.registerSingleton('IPerformanceManager', class PerformanceManager {
-    constructor() {
-      this.cacheEnabled = environment !== 'testing';
-      this.stats = { hits: 0, misses: 0 };
-    }
+  container.registerSingleton(
+    'IPerformanceManager',
+    class PerformanceManager {
+      constructor() {
+        this.cacheEnabled = environment !== 'testing';
+        this.stats = { hits: 0, misses: 0 };
+      }
 
-    getMoveFromCache() { return null; }
-    cacheMoveResult() { return true; }
-    getPerformanceStats() { return this.stats; }
-    clearCaches() { this.stats = { hits: 0, misses: 0 }; }
-  });
+      getMoveFromCache() {
+        return null;
+      }
+      cacheMoveResult() {
+        return true;
+      }
+      getPerformanceStats() {
+        return this.stats;
+      }
+      clearCaches() {
+        this.stats = { hits: 0, misses: 0 };
+      }
+    }
+  );
 
   // Error Handling Services
-  container.registerSingleton('IErrorLogger', class ErrorLogger {
-    constructor() {
-      this.errors = [];
-    }
+  container.registerSingleton(
+    'IErrorLogger',
+    class ErrorLogger {
+      constructor() {
+        this.errors = [];
+      }
 
-    log(error, severity = 'ERROR') {
-      this.errors.push({ error, severity, timestamp: Date.now() });
-      if (environment === 'development') {
-        console.error(`[${severity}]`, error);
+      log(error, severity = 'ERROR') {
+        this.errors.push({ error, severity, timestamp: Date.now() });
+        if (environment === 'development') {
+          console.error(`[${severity}]`, error);
+        }
+      }
+
+      getErrors() {
+        return [...this.errors];
+      }
+      clear() {
+        this.errors = [];
       }
     }
+  );
 
-    getErrors() { return [...this.errors]; }
-    clear() { this.errors = []; }
-  });
-
-  container.register('IInputValidator', class InputValidator {
-    static validateColumn(col) {
-      if (typeof col !== 'number' || col < 0 || col > 6) {
-        throw new Error(`Invalid column: ${col}`);
+  container.register(
+    'IInputValidator',
+    class InputValidator {
+      static validateColumn(col) {
+        if (typeof col !== 'number' || col < 0 || col > 6) {
+          throw new Error(`Invalid column: ${col}`);
+        }
+        return true;
       }
-      return true;
-    }
 
-    static validatePlayer(player) {
-      if (player !== 1 && player !== 2) {
-        throw new Error(`Invalid player: ${player}`);
+      static validatePlayer(player) {
+        if (player !== 1 && player !== 2) {
+          throw new Error(`Invalid player: ${player}`);
+        }
+        return true;
       }
-      return true;
     }
-  });
+  );
   // Game Engine Services - Using mock implementations for now
-  container.registerSingleton('IEventSystem', class MockEventSystem {
-    constructor() {
-      this.listeners = new Map();
-    }
-
-    on(event, callback) {
-      if (!this.listeners.has(event)) {
-        this.listeners.set(event, []);
+  container.registerSingleton(
+    'IEventSystem',
+    class MockEventSystem {
+      constructor() {
+        this.listeners = new Map();
       }
-      this.listeners.get(event).push(callback);
-    }
 
-    emit(event, data) {
-      if (this.listeners.has(event)) {
-        this.listeners.get(event).forEach(callback => callback(data));
+      on(event, callback) {
+        if (!this.listeners.has(event)) {
+          this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(callback);
       }
-    }
 
-    off(event, callback) {
-      if (this.listeners.has(event)) {
-        const callbacks = this.listeners.get(event);
-        const index = callbacks.indexOf(callback);
-        if (index > -1) callbacks.splice(index, 1);
+      emit(event, data) {
+        if (this.listeners.has(event)) {
+          this.listeners.get(event).forEach(callback => callback(data));
+        }
       }
-    }
 
-    once(event, callback) {
-      const onceCallback = (data) => {
-        callback(data);
-        this.off(event, onceCallback);
-      };
-      this.on(event, onceCallback);
-    }
+      off(event, callback) {
+        if (this.listeners.has(event)) {
+          const callbacks = this.listeners.get(event);
+          const index = callbacks.indexOf(callback);
+          if (index > -1) callbacks.splice(index, 1);
+        }
+      }
 
-    removeAllListeners() {
-      this.listeners.clear();
-    }
-  });
+      once(event, callback) {
+        const onceCallback = data => {
+          callback(data);
+          this.off(event, onceCallback);
+        };
+        this.on(event, onceCallback);
+      }
 
-  container.registerSingleton('IPlayerManager', class MockPlayerManager {
-    constructor() {
-      this.players = { 1: 'Player 1', 2: 'Player 2' };
-      this.currentPlayer = 1;
-    }
-
-    setPlayer(playerNum, name) {
-      this.players[playerNum] = name;
-    }
-
-    getPlayer(playerNum) {
-      return this.players[playerNum];
-    }
-
-    switchPlayer() {
-      this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
-    }
-
-    resetPlayers() {
-      this.currentPlayer = 1;
-    }
-  });
-
-  container.registerSingleton('IScoreManager', class MockScoreManager {
-    constructor() {
-      this.scores = { 1: 0, 2: 0, draws: 0 };
-    }
-
-    updateScore(player) {
-      if (player) {
-        this.scores[player]++;
-      } else {
-        this.scores.draws++;
+      removeAllListeners() {
+        this.listeners.clear();
       }
     }
+  );
 
-    getScore(player) {
-      return this.scores[player];
+  container.registerSingleton(
+    'IPlayerManager',
+    class MockPlayerManager {
+      constructor() {
+        this.players = { 1: 'Player 1', 2: 'Player 2' };
+        this.currentPlayer = 1;
+      }
+
+      setPlayer(playerNum, name) {
+        this.players[playerNum] = name;
+      }
+
+      getPlayer(playerNum) {
+        return this.players[playerNum];
+      }
+
+      switchPlayer() {
+        this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+      }
+
+      resetPlayers() {
+        this.currentPlayer = 1;
+      }
     }
+  );
 
-    resetScore() {
-      this.scores = { 1: 0, 2: 0, draws: 0 };
+  container.registerSingleton(
+    'IScoreManager',
+    class MockScoreManager {
+      constructor() {
+        this.scores = { 1: 0, 2: 0, draws: 0 };
+      }
+
+      updateScore(player) {
+        if (player) {
+          this.scores[player]++;
+        } else {
+          this.scores.draws++;
+        }
+      }
+
+      getScore(player) {
+        return this.scores[player];
+      }
+
+      resetScore() {
+        this.scores = { 1: 0, 2: 0, draws: 0 };
+      }
+
+      saveScore() {
+        /* Mock - no persistence */
+      }
+      loadScore() {
+        /* Mock - no persistence */
+      }
     }
-
-    saveScore() { /* Mock - no persistence */ }
-    loadScore() { /* Mock - no persistence */ }
-  });
+  );
 
   // AI Strategy Services - Mock implementations
-  container.registerFactory('IBotStrategy', (_container) => {
-    return (difficulty) => {
+  container.registerFactory('IBotStrategy', _container => {
+    return difficulty => {
       return {
         getBestMove: () => 3, // Always center column
         getDifficulty: () => difficulty,
@@ -336,15 +372,29 @@ function configureConnect4Services(container = globalContainer, environment = 'p
   });
 
   // Helper System Services - Mock implementations
-  container.registerSingleton('IThreatDetector', class MockThreatDetector {
-    detectWinningMoves() { return []; }
-    detectBlockingMoves() { return []; }
-  });
+  container.registerSingleton(
+    'IThreatDetector',
+    class MockThreatDetector {
+      detectWinningMoves() {
+        return [];
+      }
+      detectBlockingMoves() {
+        return [];
+      }
+    }
+  );
 
-  container.registerSingleton('ISafetyAnalyzer', class MockSafetyAnalyzer {
-    analyzeMoveConsequences() { return { isWinning: false, blocksOpponent: false }; }
-    getForkOpportunities() { return []; }
-  });
+  container.registerSingleton(
+    'ISafetyAnalyzer',
+    class MockSafetyAnalyzer {
+      analyzeMoveConsequences() {
+        return { isWinning: false, blocksOpponent: false };
+      }
+      getForkOpportunities() {
+        return [];
+      }
+    }
+  );
 
   return container;
 }
@@ -357,22 +407,31 @@ function createTestContainer() {
   const container = new ServiceContainer();
 
   // Register mock implementations for testing
-  container.register('IEventSystem', class MockEventSystem {
-    on() { return this; }
-    emit() { return this; }
-    off() { return this; }
-  });
+  container.register(
+    'IEventSystem',
+    class MockEventSystem {
+      on() {
+        return this;
+      }
+      emit() {
+        return this;
+      }
+      off() {
+        return this;
+      }
+    }
+  );
 
-  container.register('IBotStrategy', class MockBotStrategy {
-    getBestMove() { return 3; } // Always center column
-  });
+  container.register(
+    'IBotStrategy',
+    class MockBotStrategy {
+      getBestMove() {
+        return 3;
+      } // Always center column
+    }
+  );
 
   return container;
 }
 
-export {
-  ServiceContainer,
-  globalContainer,
-  configureConnect4Services,
-  createTestContainer
-};
+export { ServiceContainer, globalContainer, configureConnect4Services, createTestContainer };

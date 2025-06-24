@@ -14,11 +14,16 @@ class _Connect4AI {
      */
   getMaxDepth(difficulty) {
     switch (difficulty) {
-    case 'easy': return 1;
-    case 'medium': return 3;
-    case 'hard': return 5;
-    case 'expert': return 7;
-    default: return 3;
+    case 'easy':
+      return 1;
+    case 'medium':
+      return 3;
+    case 'hard':
+      return 5;
+    case 'expert':
+      return 7;
+    default:
+      return 3;
     }
   }
 
@@ -87,10 +92,7 @@ class _Connect4AI {
      */
   isExactForkPattern(window, player) {
     // Must be EXACT pattern: [empty, player, empty, player]
-    return window[0] === 0 &&
-               window[1] === player &&
-               window[2] === 0 &&
-               window[3] === player;
+    return window[0] === 0 && window[1] === player && window[2] === 0 && window[3] === player;
   }
 
   /**
@@ -301,7 +303,6 @@ class _Connect4AI {
       };
     });
 
-
     // Calculate total weight
     const totalWeight = moveWeights.reduce((sum, move) => sum + move.weight, 0);
 
@@ -474,7 +475,11 @@ class _Connect4AI {
 
     for (const col of validMoves) {
       // Calculate offensive potential (how many 4-possibilities this move creates)
-      const offensivePotential = this.evaluatePositionPotential(game, col, game.currentPlayer);
+      const offensivePotential = this.evaluatePositionPotential(
+        game,
+        col,
+        game.currentPlayer
+      );
 
       // Calculate defensive value (how many opponent patterns this move disrupts)
       const defensivePotential = this.evaluateDefensivePotential(game, col);
@@ -566,7 +571,11 @@ class _Connect4AI {
 
     for (const col of validMoves) {
       // Calculate offensive potential (how many 4-possibilities this move creates)
-      const offensivePotential = this.evaluatePositionPotential(game, col, game.currentPlayer);
+      const offensivePotential = this.evaluatePositionPotential(
+        game,
+        col,
+        game.currentPlayer
+      );
 
       // Calculate defensive value (how many opponent patterns this move disrupts)
       const defensivePotential = this.evaluateDefensivePotential(game, col);
@@ -624,9 +633,7 @@ class _Connect4AI {
     }
 
     // 4. Control center columns (prioritize 3, 2, 4, 1, 5, 0, 6)
-    const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col =>
-      validMoves.includes(col)
-    );
+    const centerMoves = [3, 2, 4, 1, 5, 0, 6].filter(col => validMoves.includes(col));
 
     if (centerMoves.length > 0) {
       return centerMoves[0];
@@ -653,10 +660,10 @@ class _Connect4AI {
 
     let potential = 0;
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     // Check each direction for potential 4-in-a-row patterns
@@ -682,11 +689,16 @@ class _Connect4AI {
       const endRow = startRow + 3 * deltaRow;
       const endCol = startCol + 3 * deltaCol;
 
-      if (startRow >= 0 && startRow < game.ROWS &&
-                startCol >= 0 && startCol < game.COLS &&
-                endRow >= 0 && endRow < game.ROWS &&
-                endCol >= 0 && endCol < game.COLS) {
-
+      if (
+        startRow >= 0 &&
+                startRow < game.ROWS &&
+                startCol >= 0 &&
+                startCol < game.COLS &&
+                endRow >= 0 &&
+                endRow < game.ROWS &&
+                endCol >= 0 &&
+                endCol < game.COLS
+      ) {
         // Check if this window could potentially form a 4-in-a-row
         if (this.isWindowViable(game, startRow, startCol, deltaRow, deltaCol, player)) {
           potential++;
@@ -717,7 +729,10 @@ class _Connect4AI {
         // Check if this cell is reachable (no floating pieces)
         if (game.board[checkRow][checkCol] === game.EMPTY) {
           // Check if there's support below (or it's the bottom row)
-          if (checkRow < game.ROWS - 1 && game.board[checkRow + 1][checkCol] === game.EMPTY) {
+          if (
+            checkRow < game.ROWS - 1 &&
+                        game.board[checkRow + 1][checkCol] === game.EMPTY
+          ) {
             return false; // Would be floating
           }
         }
@@ -837,7 +852,6 @@ class _Connect4AI {
     }
 
     return minScore;
-
   }
 
   /**
@@ -887,8 +901,10 @@ class _Connect4AI {
     for (let row = 0; row < game.ROWS; row++) {
       for (let col = 0; col <= game.COLS - 4; col++) {
         const window = [
-          board[row][col], board[row][col + 1],
-          board[row][col + 2], board[row][col + 3]
+          board[row][col],
+          board[row][col + 1],
+          board[row][col + 2],
+          board[row][col + 3]
         ];
         score += this.evaluateWindow(window, aiPlayer, humanPlayer, game);
       }
@@ -898,8 +914,10 @@ class _Connect4AI {
     for (let col = 0; col < game.COLS; col++) {
       for (let row = 0; row <= game.ROWS - 4; row++) {
         const window = [
-          board[row][col], board[row + 1][col],
-          board[row + 2][col], board[row + 3][col]
+          board[row][col],
+          board[row + 1][col],
+          board[row + 2][col],
+          board[row + 3][col]
         ];
         score += this.evaluateWindow(window, aiPlayer, humanPlayer, game);
       }
@@ -909,8 +927,10 @@ class _Connect4AI {
     for (let row = 0; row <= game.ROWS - 4; row++) {
       for (let col = 0; col <= game.COLS - 4; col++) {
         const window = [
-          board[row][col], board[row + 1][col + 1],
-          board[row + 2][col + 2], board[row + 3][col + 3]
+          board[row][col],
+          board[row + 1][col + 1],
+          board[row + 2][col + 2],
+          board[row + 3][col + 3]
         ];
         score += this.evaluateWindow(window, aiPlayer, humanPlayer, game);
       }
@@ -920,8 +940,10 @@ class _Connect4AI {
     for (let row = 3; row < game.ROWS; row++) {
       for (let col = 0; col <= game.COLS - 4; col++) {
         const window = [
-          board[row][col], board[row - 1][col + 1],
-          board[row - 2][col + 2], board[row - 3][col + 3]
+          board[row][col],
+          board[row - 1][col + 1],
+          board[row - 2][col + 2],
+          board[row - 3][col + 3]
         ];
         score += this.evaluateWindow(window, aiPlayer, humanPlayer, game);
       }
@@ -1013,15 +1035,23 @@ class _Connect4AI {
 
     // Check for dangerous fork patterns in all directions
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
       for (let row = 0; row < game.ROWS; row++) {
         for (let col = 0; col <= game.COLS - 4; col++) {
-          const forkMove = this.checkForkPattern(game, row, col, deltaRow, deltaCol, opponent, validMoves);
+          const forkMove = this.checkForkPattern(
+            game,
+            row,
+            col,
+            deltaRow,
+            deltaCol,
+            opponent,
+            validMoves
+          );
           if (forkMove !== null) {
             return forkMove;
           }
@@ -1053,18 +1083,29 @@ class _Connect4AI {
     }
 
     // Check for _ x _ x pattern (empty-opponent-empty-opponent)
-    if (window[0] === game.EMPTY &&
+    if (
+      window[0] === game.EMPTY &&
             window[1] === opponent &&
             window[2] === game.EMPTY &&
-            window[3] === opponent) {
-
+            window[3] === opponent
+    ) {
       // Check which empty positions are actually playable
       const emptyPos0 = positions[0];
       const emptyPos2 = positions[2];
 
       // For vertical moves, check if positions are reachable
-      const canPlay0 = this.isPositionPlayable(game, emptyPos0.row, emptyPos0.col, validMoves);
-      const canPlay2 = this.isPositionPlayable(game, emptyPos2.row, emptyPos2.col, validMoves);
+      const canPlay0 = this.isPositionPlayable(
+        game,
+        emptyPos0.row,
+        emptyPos0.col,
+        validMoves
+      );
+      const canPlay2 = this.isPositionPlayable(
+        game,
+        emptyPos2.row,
+        emptyPos2.col,
+        validMoves
+      );
 
       if (canPlay0 && canPlay2) {
         // This is a dangerous fork - opponent can win by playing either position
@@ -1140,7 +1181,15 @@ class _Connect4AI {
     for (const opponentCol of opponentValidMoves) {
       const opponentRow = this.simulateMove(boardCopy, opponentCol, opponent);
       if (opponentRow !== -1) {
-        if (this.checkWinOnBoardAtPosition(boardCopy, opponentRow, opponentCol, opponent, game)) {
+        if (
+          this.checkWinOnBoardAtPosition(
+            boardCopy,
+            opponentRow,
+            opponentCol,
+            opponent,
+            game
+          )
+        ) {
           // This opponent move would win - our move creates a trap
           boardCopy[opponentRow][opponentCol] = game.EMPTY; // Undo
           return false; // Move is NOT safe
@@ -1364,15 +1413,22 @@ class _Connect4AI {
 
     let defensiveValue = 0;
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     // For each direction, count how many opponent 4-in-a-row patterns we would disrupt
     for (const [deltaRow, deltaCol] of directions) {
-      defensiveValue += this.countDisruptedOpponentPatterns(game, row, col, opponent, deltaRow, deltaCol);
+      defensiveValue += this.countDisruptedOpponentPatterns(
+        game,
+        row,
+        col,
+        opponent,
+        deltaRow,
+        deltaCol
+      );
     }
 
     return defensiveValue;
@@ -1393,13 +1449,29 @@ class _Connect4AI {
       const endRow = startRow + 3 * deltaRow;
       const endCol = startCol + 3 * deltaCol;
 
-      if (startRow >= 0 && startRow < game.ROWS &&
-                startCol >= 0 && startCol < game.COLS &&
-                endRow >= 0 && endRow < game.ROWS &&
-                endCol >= 0 && endCol < game.COLS) {
-
+      if (
+        startRow >= 0 &&
+                startRow < game.ROWS &&
+                startCol >= 0 &&
+                startCol < game.COLS &&
+                endRow >= 0 &&
+                endRow < game.ROWS &&
+                endCol >= 0 &&
+                endCol < game.COLS
+      ) {
         // Check if this window contains a potential opponent pattern that we would disrupt
-        if (this.wouldDisruptOpponentPattern(game, startRow, startCol, deltaRow, deltaCol, opponent, row, col)) {
+        if (
+          this.wouldDisruptOpponentPattern(
+            game,
+            startRow,
+            startCol,
+            deltaRow,
+            deltaCol,
+            opponent,
+            row,
+            col
+          )
+        ) {
           disruptedPatterns++;
         }
       }
@@ -1411,7 +1483,16 @@ class _Connect4AI {
   /**
      * Check if placing our piece would disrupt an opponent pattern in this 4-cell window
      */
-  wouldDisruptOpponentPattern(game, startRow, startCol, deltaRow, deltaCol, opponent, ourRow, ourCol) {
+  wouldDisruptOpponentPattern(
+    game,
+    startRow,
+    startCol,
+    deltaRow,
+    deltaCol,
+    opponent,
+    ourRow,
+    ourCol
+  ) {
     let opponentPieces = 0;
     let emptySpaces = 0;
     let wouldBlockPattern = false;
@@ -1430,7 +1511,10 @@ class _Connect4AI {
 
         // For vertical direction, check if this empty space is actually reachable
         if (deltaRow === 1 && deltaCol === 0) {
-          if (checkRow < game.ROWS - 1 && game.board[checkRow + 1][checkCol] === game.EMPTY) {
+          if (
+            checkRow < game.ROWS - 1 &&
+                        game.board[checkRow + 1][checkCol] === game.EMPTY
+          ) {
             // This would be a floating piece, so this pattern isn't viable anyway
             return false;
           }
@@ -1445,7 +1529,7 @@ class _Connect4AI {
     // 1. The pattern was viable for the opponent (had opponent pieces + empty spaces)
     // 2. Our piece would be placed in this pattern
     // 3. The opponent had at least 1 piece in this pattern (making it worth disrupting)
-    return wouldBlockPattern && opponentPieces >= 1 && (opponentPieces + emptySpaces === 4);
+    return wouldBlockPattern && opponentPieces >= 1 && opponentPieces + emptySpaces === 4;
   }
 
   orderMoves(moves) {
@@ -1454,7 +1538,8 @@ class _Connect4AI {
     return moves.sort((a, b) => Math.abs(a - center) - Math.abs(b - center));
   }
 
-  copyBoard(board) { // Unused parameter prefixed
+  copyBoard(board) {
+    // Unused parameter prefixed
     return board.map(row => [...row]);
   }
 
@@ -1507,10 +1592,10 @@ class _Connect4AI {
 
   checkWinOnBoardAtPosition(board, row, col, player, game) {
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -1618,18 +1703,27 @@ class _Connect4AI {
 
         // PRIORITY 3B: Even/Odd threat strategy
         const evenOddAnalysis = strategicEval.evenOddAnalysis;
-        if (evenOddAnalysis.parity === 'player_winning_odd' && evenOddAnalysis.player.odd.length > 0) {
+        if (
+          evenOddAnalysis.parity === 'player_winning_odd' &&
+                    evenOddAnalysis.player.odd.length > 0
+        ) {
           const oddThreat = evenOddAnalysis.player.odd[0];
           return oddThreat.column;
         }
 
-        if (evenOddAnalysis.parity === 'player_even_advantage' && evenOddAnalysis.player.even.length > 0) {
+        if (
+          evenOddAnalysis.parity === 'player_even_advantage' &&
+                    evenOddAnalysis.player.even.length > 0
+        ) {
           const evenThreat = evenOddAnalysis.player.even[0];
           return evenThreat.column;
         }
 
         // PRIORITY 3C: Zugzwang opportunities (forcing sequences)
-        if (strategicEval.zugzwangOpportunities && strategicEval.zugzwangOpportunities.length > 0) {
+        if (
+          strategicEval.zugzwangOpportunities &&
+                    strategicEval.zugzwangOpportunities.length > 0
+        ) {
           const bestZugzwang = strategicEval.zugzwangOpportunities[0];
           return bestZugzwang.column;
         }
@@ -1638,7 +1732,6 @@ class _Connect4AI {
         if (strategicEval.recommendedMove !== null && strategicEval.confidence >= 0.3) {
           return strategicEval.recommendedMove;
         }
-
       } catch {
         // Continue with fallback strategy below
       }
@@ -1734,7 +1827,10 @@ class _Connect4AI {
       return safeColumns[0];
     }
 
-    const simulationsPerColumn = Math.min(100, Math.max(50, Math.floor(500 / safeColumns.length)));
+    const simulationsPerColumn = Math.min(
+      100,
+      Math.max(50, Math.floor(500 / safeColumns.length))
+    );
     const startTime = performance.now();
     const timeLimit = 1000; // 1 second maximum
 
@@ -1752,7 +1848,12 @@ class _Connect4AI {
         break;
       }
 
-      const columnResults = this.runSimulationsForColumn(game, col, simulationsPerColumn, timeLimit - elapsedTime);
+      const columnResults = this.runSimulationsForColumn(
+        game,
+        col,
+        simulationsPerColumn,
+        timeLimit - elapsedTime
+      );
       results[col] = columnResults;
     }
 
@@ -1824,7 +1925,7 @@ class _Connect4AI {
 
     // Continue simulation until game ends
     while (!simGame.gameOver && moveCount < maxMoves) {
-      const currentAI = (simGame.currentPlayer === ourPlayer) ? ai1 : ai2;
+      const currentAI = simGame.currentPlayer === ourPlayer ? ai1 : ai2;
       const move = currentAI.getBestMove(simGame);
 
       if (move === null) {
@@ -1841,10 +1942,9 @@ class _Connect4AI {
 
     // Determine result from our perspective
     if (simGame.gameOver && simGame.winner !== null) {
-      return (simGame.winner === ourPlayer) ? 'win' : 'loss';
+      return simGame.winner === ourPlayer ? 'win' : 'loss';
     }
     return 'draw';
-
   }
 
   /**
@@ -1883,7 +1983,7 @@ class _Connect4AI {
       // Calculate win percentage with draw bonus
       const winRate = result.wins / result.total;
       const drawRate = result.draws / result.total;
-      const score = winRate + (drawRate * 0.5); // Draws count as half points
+      const score = winRate + drawRate * 0.5; // Draws count as half points
 
       if (score > bestScore) {
         bestScore = score;
@@ -1905,7 +2005,9 @@ class _Connect4AI {
       if (result.total > 0) {
         const winRate = ((result.wins / result.total) * 100).toFixed(1);
         const drawRate = ((result.draws / result.total) * 100).toFixed(1);
-        formatted.push(`Col ${parseInt(col) + 1}: ${winRate}% wins, ${drawRate}% draws (${result.total} games)`);
+        formatted.push(
+          `Col ${parseInt(col) + 1}: ${winRate}% wins, ${drawRate}% draws (${result.total} games)`
+        );
       }
     }
     return formatted.join('; ');
@@ -1928,7 +2030,6 @@ class _Connect4AI {
       return availableCenterMoves[0];
     }
     return safeColumns[Math.floor(Math.random() * safeColumns.length)];
-
   }
 
   /**
@@ -1985,9 +2086,11 @@ class _Connect4AI {
         const strategicEval = helpers.getEnhancedStrategicEvaluation();
 
         // If strategic evaluation provides good recommendations, use them
-        if (strategicEval.recommendedMove !== null &&
+        if (
+          strategicEval.recommendedMove !== null &&
                     safeColumns.includes(strategicEval.recommendedMove) &&
-                    strategicEval.confidence >= 0.4) {
+                    strategicEval.confidence >= 0.4
+        ) {
           return strategicEval.recommendedMove;
         }
       } catch {

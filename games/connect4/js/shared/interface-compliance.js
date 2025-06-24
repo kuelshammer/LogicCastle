@@ -152,8 +152,8 @@ export class ModuleComplianceAnalyzer {
     }
 
     // Alternative interface recommendations
-    const betterMatch = allMatches.find(match =>
-      match.compliance > complianceResult.compliance.percentage + 20
+    const betterMatch = allMatches.find(
+      match => match.compliance > complianceResult.compliance.percentage + 20
     );
 
     if (betterMatch) {
@@ -479,27 +479,30 @@ export class ModuleComplianceAnalyzer {
   generateComprehensiveReport() {
     const allResults = this.analyzeAll();
     let report = '\n🔍 MODULE COMPLIANCE ANALYSIS REPORT\n';
-    report += `${'═'.repeat(60)  }\n`;
+    report += `${'═'.repeat(60)}\n`;
 
     // Overview stats
     const totalModules = Object.keys(allResults).length;
     const compliantModules = Object.values(allResults).filter(r => r.compliance.isValid).length;
-    const avgCompliance = Object.values(allResults).reduce((sum, r) =>
-      sum + r.compliance.compliance.percentage, 0) / totalModules;
+    const avgCompliance =
+            Object.values(allResults).reduce(
+              (sum, r) => sum + r.compliance.compliance.percentage,
+              0
+            ) / totalModules;
 
     report += '📊 Overview:\n';
     report += `   Total Modules: ${totalModules}\n`;
-    report += `   Fully Compliant: ${compliantModules} (${Math.round(compliantModules/totalModules*100)}%)\n`;
+    report += `   Fully Compliant: ${compliantModules} (${Math.round((compliantModules / totalModules) * 100)}%)\n`;
     report += `   Average Compliance: ${Math.round(avgCompliance)}%\n\n`;
 
     // Individual module reports
-    const sortedResults = Object.entries(allResults).sort((a, b) =>
-      a[1].priority - b[1].priority
+    const sortedResults = Object.entries(allResults).sort(
+      (a, b) => a[1].priority - b[1].priority
     );
 
     for (const [moduleName, analysis] of sortedResults) {
       report += this.generateModuleReport(moduleName, analysis);
-      report += `\n${  '-'.repeat(40)  }\n`;
+      report += `\n${'-'.repeat(40)}\n`;
     }
 
     // Migration recommendations
@@ -509,12 +512,12 @@ export class ModuleComplianceAnalyzer {
 
     if (highPriority.length > 0) {
       report += '\n🔴 High Priority (Immediate Action):\n';
-      highPriority.forEach(([name, _]) => report += `   • ${name}\n`);
+      highPriority.forEach(([name, _]) => (report += `   • ${name}\n`));
     }
 
     if (mediumPriority.length > 0) {
       report += '\n🟡 Medium Priority (Next Sprint):\n';
-      mediumPriority.forEach(([name, _]) => report += `   • ${name}\n`);
+      mediumPriority.forEach(([name, _]) => (report += `   • ${name}\n`));
     }
 
     return report;
@@ -549,7 +552,8 @@ export class ModuleComplianceAnalyzer {
     if (recommendations.length > 0) {
       report += '   Top Recommendations:\n';
       recommendations.slice(0, 3).forEach(rec => {
-        const emoji = rec.priority === 'high' ? '🔥' : rec.priority === 'medium' ? '⚡' : '💡';
+        const emoji =
+                    rec.priority === 'high' ? '🔥' : rec.priority === 'medium' ? '⚡' : '💡';
         report += `     ${emoji} ${rec.action}\n`;
       });
     }
@@ -616,7 +620,7 @@ export const registerModule = (name, module, expectedInterface) => {
  * @param {string} moduleName - Module name
  * @returns {number} Compliance percentage
  */
-export const getCompliance = (moduleName) => {
+export const getCompliance = moduleName => {
   const analysis = defaultComplianceAnalyzer.analyzeModule(moduleName);
   return analysis.compliance.compliance.percentage;
 };
@@ -626,7 +630,7 @@ export const getCompliance = (moduleName) => {
  * @param {string} moduleName - Module name
  * @returns {Object} Migration plan
  */
-export const createMigrationPlan = (moduleName) => {
+export const createMigrationPlan = moduleName => {
   return defaultComplianceAnalyzer.generateMigrationPlan(moduleName);
 };
 

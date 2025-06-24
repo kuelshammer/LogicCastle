@@ -36,7 +36,7 @@ class HintManager {
      */
   setupEventListeners() {
     // Auto-update when board state changes
-    this.game.on('boardStateChanged', (data) => {
+    this.game.on('boardStateChanged', data => {
       if (this.enabled && !data.gameOver) {
         this.updateHints();
       }
@@ -342,22 +342,23 @@ class HintManager {
     if (!this.enabled) return '';
 
     // Priority: Critical > Warning > Strategic > Info
-    const critical = this.currentHints.threats.concat(this.currentHints.opportunities)
+    const critical = this.currentHints.threats
+      .concat(this.currentHints.opportunities)
       .filter(hint => hint.priority === 'critical');
 
     if (critical.length > 0) {
       return critical[0].message;
     }
 
-    const warnings = this.currentHints.warnings
-      .filter(hint => hint.priority === 'warning');
+    const warnings = this.currentHints.warnings.filter(hint => hint.priority === 'warning');
 
     if (warnings.length > 0) {
       return warnings[0].message;
     }
 
-    const suggestions = this.currentHints.suggestions
-      .filter(hint => hint.priority === 'medium');
+    const suggestions = this.currentHints.suggestions.filter(
+      hint => hint.priority === 'medium'
+    );
 
     if (suggestions.length > 0) {
       return suggestions[0].message;
@@ -454,9 +455,7 @@ class HintManager {
     const center = Math.floor(this.game.COLS / 2);
     const validMoves = this.game.getValidMoves();
 
-    return validMoves
-      .filter(col => Math.abs(col - center) <= 1)
-      .map(col => ({ column: col }));
+    return validMoves.filter(col => Math.abs(col - center) <= 1).map(col => ({ column: col }));
   }
 
   // Event system methods

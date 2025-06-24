@@ -21,7 +21,8 @@ class _Connect4Game {
     // Initialize basic player management
     this.playerManager = {
       getCurrentPlayer: () => this.PLAYER1,
-      nextPlayer: (currentPlayer) => currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1
+      nextPlayer: currentPlayer =>
+        currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1
     };
 
     // Initialize basic event system
@@ -70,7 +71,8 @@ class _Connect4Game {
     // Determine starting player: loser of previous game starts, or configured starting player
     if (this.playerConfig.lastWinner !== null) {
       // Loser starts next game
-      this.currentPlayer = this.playerConfig.lastWinner === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+      this.currentPlayer =
+                this.playerConfig.lastWinner === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
       this.playerConfig.startingPlayer = this.currentPlayer;
     } else {
       // First game or no previous winner (draw) - use configured starting player
@@ -163,7 +165,14 @@ class _Connect4Game {
       this.playerConfig.lastWinner = this.currentPlayer;
 
       this.emit('gameWon', { winner: this.winner, winningCells: this.winningCells });
-      return { success: true, row, col, gameWon: true, winner: this.winner, player: move.player };
+      return {
+        success: true,
+        row,
+        col,
+        gameWon: true,
+        winner: this.winner,
+        player: move.player
+      };
     }
 
     // Check for draw
@@ -222,10 +231,10 @@ class _Connect4Game {
   checkWin(row, col) {
     const player = this.board[row][col];
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -479,10 +488,10 @@ class _Connect4Game {
      */
   checkWinOnBoard(board, row, col, player) {
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [deltaRow, deltaCol] of directions) {
@@ -513,7 +522,6 @@ class _Connect4Game {
 
     return false;
   }
-
 
   /**
      * Undo the last move (for strategic analysis)

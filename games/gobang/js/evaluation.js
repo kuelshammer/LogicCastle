@@ -14,10 +14,10 @@ class _GobangEvaluation {
 
     // All four directions for 5-in-a-row
     this.directions = [
-      [0, 1],   // Horizontal →
-      [1, 0],   // Vertical ↓
-      [1, 1],   // Diagonal ↘
-      [1, -1]   // Diagonal ↙
+      [0, 1], // Horizontal →
+      [1, 0], // Vertical ↓
+      [1, 1], // Diagonal ↘
+      [1, -1] // Diagonal ↙
     ];
   }
 
@@ -45,7 +45,16 @@ class _GobangEvaluation {
         const startCol = col + offset * deltaCol;
 
         // Check if this 5-sequence is still possible
-        if (this.isFiveSequencePossible(board, startRow, startCol, deltaRow, deltaCol, player)) {
+        if (
+          this.isFiveSequencePossible(
+            board,
+            startRow,
+            startCol,
+            deltaRow,
+            deltaCol,
+            player
+          )
+        ) {
           score++;
         }
       }
@@ -137,10 +146,11 @@ class _GobangEvaluation {
               const newCol = col + dc;
               const key = `${newRow},${newCol}`;
 
-              if (this.isValidPosition(newRow, newCol) &&
+              if (
+                this.isValidPosition(newRow, newCol) &&
                                 game.board[newRow][newCol] === this.EMPTY &&
-                                !considered.has(key)) {
-
+                                !considered.has(key)
+              ) {
                 moves.push({ row: newRow, col: newCol });
                 considered.add(key);
               }
@@ -157,8 +167,7 @@ class _GobangEvaluation {
      * Check if position is valid on the board
      */
   isValidPosition(row, col) {
-    return row >= 0 && row < this.BOARD_SIZE &&
-               col >= 0 && col < this.BOARD_SIZE;
+    return row >= 0 && row < this.BOARD_SIZE && col >= 0 && col < this.BOARD_SIZE;
   }
 
   /**
@@ -202,9 +211,12 @@ class _GobangEvaluation {
     }
 
     console.log('🎯 Gobang weighted selection:');
-    evaluations.slice(0, 10).forEach(evaluation => { // Show top 10
+    evaluations.slice(0, 10).forEach(evaluation => {
+      // Show top 10
       const weight = Math.max(1, evaluation.score);
-      console.log(`  (${evaluation.row + 1}, ${String.fromCharCode(65 + evaluation.col)}): Score ${evaluation.score} → Weight ${weight}`);
+      console.log(
+        `  (${evaluation.row + 1}, ${String.fromCharCode(65 + evaluation.col)}): Score ${evaluation.score} → Weight ${weight}`
+      );
     });
     console.log(`🎯 Total weighted options: ${weightedList.length}`);
 
@@ -212,7 +224,9 @@ class _GobangEvaluation {
     const selectedIndex = Math.floor(Math.random() * weightedList.length);
     const selectedMove = weightedList[selectedIndex];
 
-    console.log(`🎯 Selected: (${selectedMove.row + 1}, ${String.fromCharCode(65 + selectedMove.col)}) (index ${selectedIndex})`);
+    console.log(
+      `🎯 Selected: (${selectedMove.row + 1}, ${String.fromCharCode(65 + selectedMove.col)}) (index ${selectedIndex})`
+    );
 
     return selectedMove;
   }
@@ -243,8 +257,7 @@ class _GobangEvaluation {
   }
 }
 
-
-// Make available globally for backward compatibility  
-if (typeof window !== "undefined") {
+// Make available globally for backward compatibility
+if (typeof window !== 'undefined') {
   window.GobangEvaluation = _GobangEvaluation;
 }

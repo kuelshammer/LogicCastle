@@ -54,7 +54,9 @@ class GameStateManager {
     } else {
       // Check board dimensions
       if (snapshot.board.length !== this.ROWS) {
-        errors.push(`Invalid board height: expected ${this.ROWS}, got ${snapshot.board.length}`);
+        errors.push(
+          `Invalid board height: expected ${this.ROWS}, got ${snapshot.board.length}`
+        );
       }
 
       // Check each row
@@ -65,7 +67,9 @@ class GameStateManager {
         }
 
         if (snapshot.board[row].length !== this.COLS) {
-          errors.push(`Invalid row ${row} width: expected ${this.COLS}, got ${snapshot.board[row].length}`);
+          errors.push(
+            `Invalid row ${row} width: expected ${this.COLS}, got ${snapshot.board[row].length}`
+          );
         }
 
         // Check cell values
@@ -120,14 +124,18 @@ class GameStateManager {
 
     // Check for inconsistent game state
     if (snapshot.gameOver && !snapshot.winner && snapshot.winningCells.length > 0) {
-      warnings.push('Game marked as over with winning cells but no winner (possible draw state issue)');
+      warnings.push(
+        'Game marked as over with winning cells but no winner (possible draw state issue)'
+      );
     }
 
     // Check move history consistency
     if (snapshot.moveHistory && snapshot.board) {
       const expectedMoves = this.countPiecesOnBoard(snapshot.board);
       if (snapshot.moveHistory.length !== expectedMoves) {
-        warnings.push(`Move history length (${snapshot.moveHistory.length}) doesn't match pieces on board (${expectedMoves})`);
+        warnings.push(
+          `Move history length (${snapshot.moveHistory.length}) doesn't match pieces on board (${expectedMoves})`
+        );
       }
     }
 
@@ -262,12 +270,13 @@ class GameStateManager {
      * @param {Array} board - Game board to copy
      * @returns {Array} Deep copy of the board
      */
-  deepCopyBoard(board) { // Unused parameter prefixed
+  deepCopyBoard(board) {
+    // Unused parameter prefixed
     if (!board || !Array.isArray(board)) {
       return [];
     }
 
-    return board.map(row => Array.isArray(row) ? [...row] : row);
+    return board.map(row => (Array.isArray(row) ? [...row] : row));
   }
 
   /**
@@ -275,7 +284,8 @@ class GameStateManager {
      * @param {Array} board - Game board
      * @returns {number} Number of pieces on the board
      */
-  countPiecesOnBoard(board) { // Unused parameter prefixed
+  countPiecesOnBoard(board) {
+    // Unused parameter prefixed
     if (!board || !Array.isArray(board)) {
       return 0;
     }

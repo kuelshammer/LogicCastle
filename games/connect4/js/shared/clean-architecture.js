@@ -394,48 +394,61 @@ export class CleanArchitecture {
      */
   setupDomainLayer() {
     // Register core game entities
-    this.domain.registerEntity('GameBoard', class GameBoard {
-      constructor(rows = 6, cols = 7) {
-        this.rows = rows;
-        this.cols = cols;
-        this.grid = Array(rows).fill().map(() => Array(cols).fill(0));
-      }
-
-      makeMove(col, player) {
-        const row = this.findLowestRow(col);
-        if (row === -1) return null;
-
-        this.grid[row][col] = player;
-        return { row, col, player };
-      }
-
-      findLowestRow(col) {
-        for (let row = this.rows - 1; row >= 0; row--) {
-          if (this.grid[row][col] === 0) return row;
+    this.domain.registerEntity(
+      'GameBoard',
+      class GameBoard {
+        constructor(rows = 6, cols = 7) {
+          this.rows = rows;
+          this.cols = cols;
+          this.grid = Array(rows)
+            .fill()
+            .map(() => Array(cols).fill(0));
         }
-        return -1;
-      }
 
-      isValidMove(col) {
-        return col >= 0 && col < this.cols && this.grid[0][col] === 0;
-      }
+        makeMove(col, player) {
+          const row = this.findLowestRow(col);
+          if (row === -1) return null;
 
-      getGrid() {
-        return this.grid.map(row => [...row]);
-      }
-    });
+          this.grid[row][col] = player;
+          return { row, col, player };
+        }
 
-    this.domain.registerEntity('Player', class Player {
-      constructor(id, name, type = 'human') {
-        this.id = id;
-        this.name = name;
-        this.type = type;
+        findLowestRow(col) {
+          for (let row = this.rows - 1; row >= 0; row--) {
+            if (this.grid[row][col] === 0) return row;
+          }
+          return -1;
+        }
+
+        isValidMove(col) {
+          return col >= 0 && col < this.cols && this.grid[0][col] === 0;
+        }
+
+        getGrid() {
+          return this.grid.map(row => [...row]);
+        }
       }
-    });
+    );
+
+    this.domain.registerEntity(
+      'Player',
+      class Player {
+        constructor(id, name, type = 'human') {
+          this.id = id;
+          this.name = name;
+          this.type = type;
+        }
+      }
+    );
 
     // Register business rules
     this.domain.registerRule('checkWin', (grid, row, col, player) => {
-      const directions = [[0,1], [1,0], [1,1], [1,-1]];
+      const directions = [
+        [0, 1],
+        [1, 0],
+        [1, 1],
+        [1, -1]
+      ];
 
       for (const [dRow, dCol] of directions) {
         let count = 1;
@@ -444,9 +457,15 @@ export class CleanArchitecture {
         for (let i = 1; i < 4; i++) {
           const newRow = row + i * dRow;
           const newCol = col + i * dCol;
-          if (newRow < 0 || newRow >= grid.length ||
-                        newCol < 0 || newCol >= grid[0].length ||
-                        grid[newRow][newCol] !== player) break;
+          if (
+            newRow < 0 ||
+                        newRow >= grid.length ||
+                        newCol < 0 ||
+                        newCol >= grid[0].length ||
+                        grid[newRow][newCol] !== player
+          ) {
+            break;
+          }
           count++;
         }
 
@@ -454,9 +473,15 @@ export class CleanArchitecture {
         for (let i = 1; i < 4; i++) {
           const newRow = row - i * dRow;
           const newCol = col - i * dCol;
-          if (newRow < 0 || newRow >= grid.length ||
-                        newCol < 0 || newCol >= grid[0].length ||
-                        grid[newRow][newCol] !== player) break;
+          if (
+            newRow < 0 ||
+                        newRow >= grid.length ||
+                        newCol < 0 ||
+                        newCol >= grid[0].length ||
+                        grid[newRow][newCol] !== player
+          ) {
+            break;
+          }
           count++;
         }
 
@@ -465,7 +490,7 @@ export class CleanArchitecture {
       return false;
     });
 
-    this.domain.registerRule('isDraw', (grid) => {
+    this.domain.registerRule('isDraw', grid => {
       return grid[0].every(cell => cell !== 0);
     });
   }
@@ -475,72 +500,99 @@ export class CleanArchitecture {
      */
   setupApplicationLayer() {
     // Make Move Use Case
-    this.application.registerUseCase('makeMove', async (request, gameEngine, eventSystem) => {
-      const { column, player } = request;
+    this.application.registerUseCase(
+      'makeMove',
+      async (request, gameEngine, eventSystem) => {
+        const { column, player } = request;
 
-      const result = gameEngine.makeMove(column, player);
-      if (result.success) {
-        eventSystem.emit('moveMade', result);
+        const result = gameEngine.makeMove(column, player);
+        if (result.success) {
+          eventSystem.emit('moveMade', result);
 
-        // Check for win condition
-        if (result.isWin) {
-          eventSystem.emit('gameWon', { winner: player, winningCells: result.winningCells });
+          // Check for win condition
+          if (result.isWin) {
+            eventSystem.emit('gameWon', {
+              winner: player,
+              winningCells: result.winningCells
+            });
+          }
         }
-      }
 
-      return result;
-    }, ['IGameEngine', 'IEventSystem']);
+        return result;
+      },
+      ['IGameEngine', 'IEventSystem']
+    );
 
     // Get Best AI Move Use Case
-    this.application.registerUseCase('getAIMove', async (request, aiFactory, gameEngine) => {
-      const { difficulty, player } = request;
+    this.application.registerUseCase(
+      'getAIMove',
+      async (request, aiFactory, gameEngine) => {
+        const { difficulty, player } = request;
 
-      const bot = await aiFactory(difficulty);
-      const bestMove = bot.getBestMove(gameEngine);
+        const bot = await aiFactory(difficulty);
+        const bestMove = bot.getBestMove(gameEngine);
 
-      return { column: bestMove, player, confidence: bot.getConfidence?.() || 1.0 };
-    }, ['IAIFactory', 'IGameEngine']);
+        return { column: bestMove, player, confidence: bot.getConfidence?.() || 1.0 };
+      },
+      ['IAIFactory', 'IGameEngine']
+    );
 
     // Get Hint Use Case
-    this.application.registerUseCase('getHint', async (request, helperSystem) => {
-      const { level = 1 } = request;
+    this.application.registerUseCase(
+      'getHint',
+      async (request, helperSystem) => {
+        const { level = 1 } = request;
 
-      const hint = helperSystem.getHint();
-      if (hint) {
-        hint.level = level;
-        hint.timestamp = Date.now();
-      }
+        const hint = helperSystem.getHint();
+        if (hint) {
+          hint.level = level;
+          hint.timestamp = Date.now();
+        }
 
-      return hint;
-    }, ['IHelperSystem']);
+        return hint;
+      },
+      ['IHelperSystem']
+    );
 
     // Commands
-    this.application.registerCommand('resetGame', async (command, gameEngine, scoreManager) => {
-      gameEngine.reset();
-      if (command.resetScore) {
-        scoreManager.resetScore();
-      }
-      return { success: true, message: 'Game reset successfully' };
-    }, ['IGameEngine', 'IScoreManager']);
+    this.application.registerCommand(
+      'resetGame',
+      async (command, gameEngine, scoreManager) => {
+        gameEngine.reset();
+        if (command.resetScore) {
+          scoreManager.resetScore();
+        }
+        return { success: true, message: 'Game reset successfully' };
+      },
+      ['IGameEngine', 'IScoreManager']
+    );
 
     // Queries
-    this.application.registerQuery('getGameState', async (query, gameEngine) => {
-      return {
-        board: gameEngine.getBoard(),
-        currentPlayer: gameEngine.getCurrentPlayer(),
-        isGameOver: gameEngine.isGameOver(),
-        winner: gameEngine.getWinner(),
-        validMoves: gameEngine.getValidMoves()
-      };
-    }, ['IGameEngine']);
+    this.application.registerQuery(
+      'getGameState',
+      async (query, gameEngine) => {
+        return {
+          board: gameEngine.getBoard(),
+          currentPlayer: gameEngine.getCurrentPlayer(),
+          isGameOver: gameEngine.isGameOver(),
+          winner: gameEngine.getWinner(),
+          validMoves: gameEngine.getValidMoves()
+        };
+      },
+      ['IGameEngine']
+    );
 
-    this.application.registerQuery('getScore', async (query, scoreManager) => {
-      return {
-        player1: scoreManager.getScore(1),
-        player2: scoreManager.getScore(2),
-        draws: scoreManager.getScore('draws')
-      };
-    }, ['IScoreManager']);
+    this.application.registerQuery(
+      'getScore',
+      async (query, scoreManager) => {
+        return {
+          player1: scoreManager.getScore(1),
+          player2: scoreManager.getScore(2),
+          draws: scoreManager.getScore('draws')
+        };
+      },
+      ['IScoreManager']
+    );
   }
 
   /**
@@ -548,73 +600,83 @@ export class CleanArchitecture {
      */
   setupInfrastructureLayer() {
     // Local Storage Adapter
-    this.infrastructure.registerAdapter('localStorage', class LocalStorageAdapter {
-      save(key, data) {
-        try {
-          localStorage.setItem(key, JSON.stringify(data));
-          return true;
-        } catch (error) {
-          console.error('LocalStorage save failed:', error);
-          return false;
+    this.infrastructure.registerAdapter(
+      'localStorage',
+      class LocalStorageAdapter {
+        save(key, data) {
+          try {
+            localStorage.setItem(key, JSON.stringify(data));
+            return true;
+          } catch (error) {
+            console.error('LocalStorage save failed:', error);
+            return false;
+          }
         }
-      }
 
-      load(key) {
-        try {
-          const data = localStorage.getItem(key);
-          return data ? JSON.parse(data) : null;
-        } catch (error) {
-          console.error('LocalStorage load failed:', error);
-          return null;
+        load(key) {
+          try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+          } catch (error) {
+            console.error('LocalStorage load failed:', error);
+            return null;
+          }
         }
-      }
 
-      remove(key) {
-        try {
-          localStorage.removeItem(key);
-          return true;
-        } catch (error) {
-          console.error('LocalStorage remove failed:', error);
-          return false;
+        remove(key) {
+          try {
+            localStorage.removeItem(key);
+            return true;
+          } catch (error) {
+            console.error('LocalStorage remove failed:', error);
+            return false;
+          }
         }
       }
-    });
+    );
 
     // Game State Repository
-    this.infrastructure.registerRepository('IGameStateRepository', class GameStateRepository {
-      constructor(storageAdapter) {
-        this.storage = storageAdapter;
-        this.key = 'connect4_game_state';
-      }
+    this.infrastructure.registerRepository(
+      'IGameStateRepository',
+      class GameStateRepository {
+        constructor(storageAdapter) {
+          this.storage = storageAdapter;
+          this.key = 'connect4_game_state';
+        }
 
-      async save(gameState) {
-        return this.storage.save(this.key, gameState);
-      }
+        async save(gameState) {
+          return this.storage.save(this.key, gameState);
+        }
 
-      async load() {
-        return this.storage.load(this.key);
-      }
+        async load() {
+          return this.storage.load(this.key);
+        }
 
-      async delete() {
-        return this.storage.remove(this.key);
-      }
-    }, { dependencies: ['Adapter_localStorage'] });
+        async delete() {
+          return this.storage.remove(this.key);
+        }
+      },
+      { dependencies: ['Adapter_localStorage'] }
+    );
 
     // Analytics Service
-    this.infrastructure.registerService('IAnalyticsService', class AnalyticsService {
-      trackMove(move) {
-        // Mock analytics - replace with real implementation
-        console.log('Analytics: Move tracked', move);
-      }
+    this.infrastructure.registerService(
+      'IAnalyticsService',
+      class AnalyticsService {
+        trackMove(move) {
+          // Mock analytics - replace with real implementation
+          console.log('Analytics: Move tracked', move);
+        }
 
-      trackGameEnd(result) {
-        console.log('Analytics: Game ended', result);
-      }
+        trackGameEnd(result) {
+          console.log('Analytics: Game ended', result);
+        }
 
-      trackBotPerformance(botData) {
-        console.log('Analytics: Bot performance', botData);
+        trackBotPerformance(botData) {
+          console.log('Analytics: Bot performance', botData);
+        }
       }
-    });
+    );
   }
 
   /**
@@ -645,14 +707,17 @@ export class CleanArchitecture {
     });
 
     // Input Validators
-    this.interface.registerValidator('game_makeMove', (request) => {
+    this.interface.registerValidator('game_makeMove', request => {
       const errors = [];
 
       if (typeof request.column !== 'number' || request.column < 0 || request.column > 6) {
         errors.push('Invalid column number');
       }
 
-      if (typeof request.player !== 'number' || (request.player !== 1 && request.player !== 2)) {
+      if (
+        typeof request.player !== 'number' ||
+                (request.player !== 1 && request.player !== 2)
+      ) {
         errors.push('Invalid player number');
       }
 
@@ -662,7 +727,7 @@ export class CleanArchitecture {
       };
     });
 
-    this.interface.registerValidator('game_getAIMove', (request) => {
+    this.interface.registerValidator('game_getAIMove', request => {
       const validDifficulties = ['easy', 'medium', 'hard', 'expert'];
       const errors = [];
 
@@ -677,21 +742,23 @@ export class CleanArchitecture {
     });
 
     // Response Presenters
-    this.interface.registerPresenter('game_makeMove', (result) => {
+    this.interface.registerPresenter('game_makeMove', result => {
       return {
         success: result.success,
-        move: result.success ? {
-          row: result.row,
-          column: result.col,
-          player: result.player
-        } : null,
+        move: result.success
+          ? {
+            row: result.row,
+            column: result.col,
+            player: result.player
+          }
+          : null,
         gameOver: result.isWin || result.isDraw,
         winner: result.winner || null,
         message: result.success ? 'Move completed' : 'Invalid move'
       };
     });
 
-    this.interface.registerPresenter('game_getAIMove', (result) => {
+    this.interface.registerPresenter('game_getAIMove', result => {
       return {
         recommended: {
           column: result.column,

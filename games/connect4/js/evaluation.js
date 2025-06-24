@@ -26,10 +26,10 @@ class _Connect4Evaluation {
 
     // All four directions for 4-in-a-row
     const directions = [
-      [0, 1],   // Horizontal →
-      [1, 0],   // Vertical ↓
-      [1, 1],   // Diagonal ↘
-      [1, -1]   // Diagonal ↙
+      [0, 1], // Horizontal →
+      [1, 0], // Vertical ↓
+      [1, 1], // Diagonal ↘
+      [1, -1] // Diagonal ↙
     ];
 
     // For each direction, check all possible 4-sequences that pass through (row, col)
@@ -44,7 +44,16 @@ class _Connect4Evaluation {
         const startCol = col + offset * deltaCol;
 
         // Check if this 4-sequence is still possible
-        if (this.isFourSequencePossible(board, startRow, startCol, deltaRow, deltaCol, player)) {
+        if (
+          this.isFourSequencePossible(
+            board,
+            startRow,
+            startCol,
+            deltaRow,
+            deltaCol,
+            player
+          )
+        ) {
           score++;
         }
       }

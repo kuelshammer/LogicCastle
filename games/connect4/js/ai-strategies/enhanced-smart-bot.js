@@ -85,8 +85,8 @@ class EnhancedSmartBot extends BaseBotStrategy {
       }
 
       // Expand to adjacent columns if center taken
-      const adjacentColumns = [center - 1, center + 1].filter(col =>
-        col >= 0 && col < this.COLS && safeColumns.includes(col)
+      const adjacentColumns = [center - 1, center + 1].filter(
+        col => col >= 0 && col < this.COLS && safeColumns.includes(col)
       );
 
       if (adjacentColumns.length > 0) {
@@ -205,8 +205,8 @@ class EnhancedSmartBot extends BaseBotStrategy {
     if (row === -1) return 0;
 
     let score = 0;
-    const isEvenRow = (row % 2) === 0;
-    const isEvenCol = (col % 2) === 0;
+    const isEvenRow = row % 2 === 0;
+    const isEvenCol = col % 2 === 0;
 
     // Prefer controlling even positions in mid-game
     if (game.moveHistory.length >= 8 && game.moveHistory.length <= 20) {

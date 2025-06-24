@@ -40,13 +40,13 @@ class Connect4HelperSystem {
      */
   setupIntegration() {
     // Sync state with hint manager
-    this.hintManager.on('hintsToggled', (data) => {
+    this.hintManager.on('hintsToggled', data => {
       this.enabled = data.enabled;
       this.helpLevel = data.helpLevel;
       this.emit('hintsToggled', data);
     });
 
-    this.hintManager.on('hintsUpdated', (data) => {
+    this.hintManager.on('hintsUpdated', data => {
       this.currentHints = data.hints;
       this.forcedMoveMode = data.forcedMode;
       this.requiredMoves = this.extractRequiredMoves(data.hints);

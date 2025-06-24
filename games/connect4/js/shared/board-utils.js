@@ -10,7 +10,8 @@ import { GAME_CONFIG, PLAYERS, ALL_DIRECTIONS, DIRECTION_NAMES } from './constan
  * @returns {Array[]} Empty 2D board array
  */
 export function createEmptyBoard() {
-  return Array(GAME_CONFIG.ROWS).fill(null)
+  return Array(GAME_CONFIG.ROWS)
+    .fill(null)
     .map(() => Array(GAME_CONFIG.COLS).fill(PLAYERS.NONE));
 }
 
@@ -19,7 +20,8 @@ export function createEmptyBoard() {
  * @param {Array[]} board - Board to copy
  * @returns {Array[]} Deep copy of the board
  */
-export function copyBoard(board) { // Unused parameter prefixed
+export function copyBoard(board) {
+  // Unused parameter prefixed
   return board.map(row => [...row]);
 }
 
@@ -38,7 +40,8 @@ export function isValidColumn(board, col) {
  * @param {Array[]} board - Game board
  * @returns {number[]} Array of valid column indices
  */
-export function getValidMoves(board) { // Unused parameter prefixed
+export function getValidMoves(board) {
+  // Unused parameter prefixed
   const validMoves = [];
   for (let col = 0; col < GAME_CONFIG.COLS; col++) {
     if (isValidColumn(board, col)) {
@@ -224,7 +227,8 @@ export function isInBounds(row, col) {
  * @param {Array[]} board - Game board
  * @returns {boolean} Whether board is full
  */
-export function isBoardFull(board) { // Unused parameter prefixed
+export function isBoardFull(board) {
+  // Unused parameter prefixed
   return getValidMoves(board).length === 0;
 }
 
@@ -242,10 +246,11 @@ export function getOpponent(player) {
  * @param {Array[]} board - Game board
  * @returns {string} String representation of board
  */
-export function boardToString(board) { // Unused parameter prefixed
-  return board.map(row =>
-    row.map(cell => cell === PLAYERS.NONE ? '.' : cell).join(' ')
-  ).join('\n');
+export function boardToString(board) {
+  // Unused parameter prefixed
+  return board
+    .map(row => row.map(cell => (cell === PLAYERS.NONE ? '.' : cell)).join(' '))
+    .join('\n');
 }
 
 /**
@@ -253,7 +258,8 @@ export function boardToString(board) { // Unused parameter prefixed
  * @param {Array[]} board - Game board
  * @returns {Object} Board statistics
  */
-export function getBoardStats(board) { // Unused parameter prefixed
+export function getBoardStats(board) {
+  // Unused parameter prefixed
   let emptyCells = 0;
   let player1Pieces = 0;
   let player2Pieces = 0;

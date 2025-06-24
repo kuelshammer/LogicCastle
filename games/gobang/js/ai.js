@@ -63,7 +63,12 @@ class _GobangAI {
 
         // Copy the moves array BEFORE restoring state
         const blockingMoves = [...helpers.requiredMoves];
-        console.log('🤖 Smart Bot: Copied blocking moves:', blockingMoves, 'length:', blockingMoves.length);
+        console.log(
+          '🤖 Smart Bot: Copied blocking moves:',
+          blockingMoves,
+          'length:',
+          blockingMoves.length
+        );
 
         // Restore original helpers state
         helpers.setEnabled(wasEnabled, wasLevel);
@@ -84,7 +89,12 @@ class _GobangAI {
 
         // Copy the moves array BEFORE restoring state
         const safeMoves = [...helpers.requiredMoves];
-        console.log('🤖 Smart Bot: Copied safe moves:', safeMoves, 'length:', safeMoves.length);
+        console.log(
+          '🤖 Smart Bot: Copied safe moves:',
+          safeMoves,
+          'length:',
+          safeMoves.length
+        );
 
         // Restore original helpers state
         helpers.setEnabled(wasEnabled, wasLevel);
@@ -113,7 +123,12 @@ class _GobangAI {
     const evaluations = [];
 
     for (const move of moves) {
-      const score = this.evaluator.evaluatePosition(game.board, move.row, move.col, game.currentPlayer);
+      const score = this.evaluator.evaluatePosition(
+        game.board,
+        move.row,
+        move.col,
+        game.currentPlayer
+      );
       evaluations.push({ row: move.row, col: move.col, score });
     }
 
@@ -140,7 +155,9 @@ class _GobangAI {
     const selectedMove = weightedList[selectedIndex];
 
     const coord = `(${selectedMove.row + 1}, ${String.fromCharCode(65 + selectedMove.col)})`;
-    console.log(`🎯 Selected: ${coord} (index ${selectedIndex} from ${weightedList.length} options)`);
+    console.log(
+      `🎯 Selected: ${coord} (index ${selectedIndex} from ${weightedList.length} options)`
+    );
 
     return selectedMove;
   }
@@ -203,9 +220,13 @@ class _GobangAI {
               const newRow = row + dr;
               const newCol = col + dc;
 
-              if (newRow >= 0 && newRow < game.BOARD_SIZE &&
-                                newCol >= 0 && newCol < game.BOARD_SIZE &&
-                                board[newRow][newCol] === game.EMPTY) {
+              if (
+                newRow >= 0 &&
+                                newRow < game.BOARD_SIZE &&
+                                newCol >= 0 &&
+                                newCol < game.BOARD_SIZE &&
+                                board[newRow][newCol] === game.EMPTY
+              ) {
                 moves.add(`${newRow},${newCol}`);
               }
             }
@@ -222,8 +243,7 @@ class _GobangAI {
   }
 }
 
-
 // Make available globally for backward compatibility
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.GobangAI = _GobangAI;
 }

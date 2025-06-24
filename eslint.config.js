@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
 
 export default [
   {
@@ -70,6 +71,7 @@ export default [
     rules: {
       // Extend recommended rules
       ...js.configs.recommended.rules,
+      ...prettier.rules,
       
       // Customize rules for LogicCastle
       'no-unused-vars': ['warn', { 

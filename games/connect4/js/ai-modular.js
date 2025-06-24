@@ -41,9 +41,15 @@ class Connect4AI {
     for (const strategy of availableStrategies) {
       try {
         if (typeof window !== 'undefined' && window[strategy.class]) {
-          this.strategies.set(strategy.name, new window[strategy.class](this.gameConstants));
+          this.strategies.set(
+            strategy.name,
+            new window[strategy.class](this.gameConstants)
+          );
         } else if (typeof global !== 'undefined' && global[strategy.class]) {
-          this.strategies.set(strategy.name, new global[strategy.class](this.gameConstants));
+          this.strategies.set(
+            strategy.name,
+            new global[strategy.class](this.gameConstants)
+          );
         }
       } catch (error) {
         console.warn(`Could not initialize strategy ${strategy.name}:`, error.message);
@@ -89,16 +95,16 @@ class Connect4AI {
      */
   mapDifficultyToStrategy(difficulty) {
     const mapping = {
-      'easy': 'smart-random',
+      easy: 'smart-random',
       'smart-random': 'smart-random',
-      'medium': 'offensiv-gemischt',
+      medium: 'offensiv-gemischt',
       'offensiv-gemischt': 'offensiv-gemischt',
       'defensiv-gemischt': 'defensiv-gemischt',
-      'hard': 'enhanced-smart',
+      hard: 'enhanced-smart',
       'enhanced-smart': 'enhanced-smart',
-      'strong': 'defensive',
-      'defensive': 'defensive',
-      'expert': 'monte-carlo',
+      strong: 'defensive',
+      defensive: 'defensive',
+      expert: 'monte-carlo',
       'monte-carlo': 'monte-carlo'
     };
 
@@ -305,10 +311,10 @@ class Connect4AI {
      */
   getMaxDepth(difficulty) {
     const depths = {
-      'easy': 1,
-      'medium': 3,
-      'hard': 5,
-      'expert': 7
+      easy: 1,
+      medium: 3,
+      hard: 5,
+      expert: 7
     };
     return depths[difficulty] || 3;
   }

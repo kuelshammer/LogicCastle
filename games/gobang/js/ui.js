@@ -78,12 +78,12 @@ class _GobangUI {
      */
   setupEventListeners() {
     // Game events
-    this.game.on('moveMade', (move) => this.onMoveMade(move));
-    this.game.on('gameWon', (data) => this.onGameWon(data));
+    this.game.on('moveMade', move => this.onMoveMade(move));
+    this.game.on('gameWon', data => this.onGameWon(data));
     this.game.on('gameDraw', () => this.onGameDraw());
     this.game.on('gameReset', () => this.onGameReset());
-    this.game.on('playerChanged', (_player) => this.onPlayerChanged(_player));
-    this.game.on('moveUndone', (move) => this.onMoveUndone(move));
+    this.game.on('playerChanged', _player => this.onPlayerChanged(_player));
+    this.game.on('moveUndone', move => this.onMoveUndone(move));
 
     // UI controls
     this.elements.newGameBtn.addEventListener('click', () => this.newGame());
@@ -96,13 +96,13 @@ class _GobangUI {
     this.elements.gameMode.addEventListener('change', () => this.updateGameMode());
 
     // Modal overlay clicks
-    this.elements.helpModal.addEventListener('click', (e) => {
+    this.elements.helpModal.addEventListener('click', e => {
       if (e.target === this.elements.helpModal) {
         this.toggleHelp();
       }
     });
 
-    this.elements.gameHelpModal.addEventListener('click', (e) => {
+    this.elements.gameHelpModal.addEventListener('click', e => {
       if (e.target === this.elements.gameHelpModal) {
         this.toggleGameHelp();
       }
@@ -116,7 +116,7 @@ class _GobangUI {
      * Setup keyboard controls
      */
   setupKeyboardControls() {
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
       // Don't handle keys when modal is open
       if (this.elements.helpModal.classList.contains('active')) {
         if (e.key === 'Escape' || e.key === 'F1') {
@@ -207,8 +207,12 @@ class _GobangUI {
         }
 
         intersection.addEventListener('click', () => this.onIntersectionClick(row, col));
-        intersection.addEventListener('mouseenter', () => this.onIntersectionHover(row, col));
-        intersection.addEventListener('mouseleave', () => this.onIntersectionLeave(row, col));
+        intersection.addEventListener('mouseenter', () =>
+          this.onIntersectionHover(row, col)
+        );
+        intersection.addEventListener('mouseleave', () =>
+          this.onIntersectionLeave(row, col)
+        );
 
         this.elements.gameBoard.appendChild(intersection);
       }
@@ -262,7 +266,11 @@ class _GobangUI {
      */
   isStarPoint(row, col) {
     const starPoints = [
-      [3, 3], [3, 11], [7, 7], [11, 3], [11, 11]
+      [3, 3],
+      [3, 11],
+      [7, 7],
+      [11, 3],
+      [11, 11]
     ];
     return starPoints.some(([r, c]) => r === row && c === col);
   }
@@ -299,8 +307,9 @@ class _GobangUI {
 
     // Check if this move is required by helpers
     if (this.helpers && this.helpers.forcedMoveMode) {
-      const isRequiredMove = this.helpers.requiredMoves.some(move =>
-        move.row === row && move.col === col);
+      const isRequiredMove = this.helpers.requiredMoves.some(
+        move => move.row === row && move.col === col
+      );
 
       if (!isRequiredMove) {
         console.log('⚠️ Move not allowed - must play one of the highlighted moves');
@@ -501,13 +510,13 @@ class _GobangUI {
      * Update control buttons
      */
   updateControls() {
-    this.elements.undoBtn.disabled = this.game.moveHistory.length === 0 || this.isProcessingMove;
+    this.elements.undoBtn.disabled =
+            this.game.moveHistory.length === 0 || this.isProcessingMove;
   }
 
   /**
      * Event handlers
      */
-
 
   onGameWon(data) {
     // Highlight winning stones
@@ -527,8 +536,6 @@ class _GobangUI {
     this.updateDisplay();
     this.showMessage('Unentschieden! Das Spielfeld ist voll.', 'draw');
   }
-
-
 
   onMoveUndone(move) {
     const intersection = this.getIntersection(move.row, move.col);
@@ -608,7 +615,7 @@ class _GobangUI {
     this.helpers = new GobangHelpers(this.game, this);
 
     // Listen to helper events
-    this.helpers.on('forcedMoveActivated', (data) => this.onForcedMoveActivated(data));
+    this.helpers.on('forcedMoveActivated', data => this.onForcedMoveActivated(data));
     this.helpers.on('forcedMoveDeactivated', () => this.onForcedMoveDeactivated());
   }
 
@@ -617,20 +624,26 @@ class _GobangUI {
      */
   setupHelperCheckboxes() {
     // Player 1 (Black) checkboxes
-    this.elements.helpPlayer1Level0.addEventListener('change', (e) =>
-      this.updateHelperSettings('player1', 'level0', e.target.checked));
-    this.elements.helpPlayer1Level1.addEventListener('change', (e) =>
-      this.updateHelperSettings('player1', 'level1', e.target.checked));
-    this.elements.helpPlayer1Level2.addEventListener('change', (e) =>
-      this.updateHelperSettings('player1', 'level2', e.target.checked));
+    this.elements.helpPlayer1Level0.addEventListener('change', e =>
+      this.updateHelperSettings('player1', 'level0', e.target.checked)
+    );
+    this.elements.helpPlayer1Level1.addEventListener('change', e =>
+      this.updateHelperSettings('player1', 'level1', e.target.checked)
+    );
+    this.elements.helpPlayer1Level2.addEventListener('change', e =>
+      this.updateHelperSettings('player1', 'level2', e.target.checked)
+    );
 
     // Player 2 (White) checkboxes
-    this.elements.helpPlayer2Level0.addEventListener('change', (e) =>
-      this.updateHelperSettings('player2', 'level0', e.target.checked));
-    this.elements.helpPlayer2Level1.addEventListener('change', (e) =>
-      this.updateHelperSettings('player2', 'level1', e.target.checked));
-    this.elements.helpPlayer2Level2.addEventListener('change', (e) =>
-      this.updateHelperSettings('player2', 'level2', e.target.checked));
+    this.elements.helpPlayer2Level0.addEventListener('change', e =>
+      this.updateHelperSettings('player2', 'level0', e.target.checked)
+    );
+    this.elements.helpPlayer2Level1.addEventListener('change', e =>
+      this.updateHelperSettings('player2', 'level1', e.target.checked)
+    );
+    this.elements.helpPlayer2Level2.addEventListener('change', e =>
+      this.updateHelperSettings('player2', 'level2', e.target.checked)
+    );
   }
 
   /**
@@ -649,7 +662,8 @@ class _GobangUI {
       return;
     }
 
-    const currentPlayerKey = this.game.currentPlayer === this.game.BLACK ? 'player1' : 'player2';
+    const currentPlayerKey =
+            this.game.currentPlayer === this.game.BLACK ? 'player1' : 'player2';
     const settings = this.helpSettings[currentPlayerKey];
 
     // Determine the highest enabled level
@@ -699,7 +713,12 @@ class _GobangUI {
      */
   clearHintHighlights() {
     document.querySelectorAll('.intersection.hint-move').forEach(intersection => {
-      intersection.classList.remove('hint-move', 'hint-level-0', 'hint-level-1', 'hint-level-2');
+      intersection.classList.remove(
+        'hint-move',
+        'hint-level-0',
+        'hint-level-1',
+        'hint-level-2'
+      );
     });
   }
 
@@ -785,8 +804,7 @@ class _GobangUI {
   }
 }
 
-
 // Make available globally for backward compatibility
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   window.GobangUI = _GobangUI;
 }

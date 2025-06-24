@@ -214,10 +214,12 @@ class BaseBotStrategy {
      * @returns {boolean} True if exact fork pattern
      */
   isExactForkPattern(window, player) {
-    return window[0] === this.EMPTY &&
-               window[1] === player &&
-               window[2] === this.EMPTY &&
-               window[3] === player;
+    return (
+      window[0] === this.EMPTY &&
+            window[1] === player &&
+            window[2] === this.EMPTY &&
+            window[3] === player
+    );
   }
 
   /**
@@ -225,7 +227,8 @@ class BaseBotStrategy {
      * @param {Array} board - Game board
      * @returns {Array} Deep copy of board
      */
-  deepCopyBoard(board) { // Unused parameter prefixed
+  deepCopyBoard(board) {
+    // Unused parameter prefixed
     return board.map(row => [...row]);
   }
 
@@ -254,10 +257,10 @@ class BaseBotStrategy {
      */
   checkWinOnBoard(board, row, col, player) {
     const directions = [
-      [0, 1],  // horizontal
-      [1, 0],  // vertical
-      [1, 1],  // diagonal \
-      [1, -1]  // diagonal /
+      [0, 1], // horizontal
+      [1, 0], // vertical
+      [1, 1], // diagonal \
+      [1, -1] // diagonal /
     ];
 
     for (const [dRow, dCol] of directions) {

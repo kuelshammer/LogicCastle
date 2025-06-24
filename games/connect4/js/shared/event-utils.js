@@ -28,7 +28,9 @@ export class EventEmitter {
 
     // Check for memory leaks
     if (this.eventListeners[event].length >= this.maxListeners) {
-      console.warn(`EventEmitter: Possible memory leak detected. Event '${event}' has ${this.eventListeners[event].length} listeners.`);
+      console.warn(
+        `EventEmitter: Possible memory leak detected. Event '${event}' has ${this.eventListeners[event].length} listeners.`
+      );
     }
 
     const listener = {
@@ -39,7 +41,9 @@ export class EventEmitter {
     this.eventListeners[event].push(listener);
 
     if (this.debugMode) {
-      console.debug(`EventEmitter: Added listener for '${event}'. Total: ${this.eventListeners[event].length}`);
+      console.debug(
+        `EventEmitter: Added listener for '${event}'. Total: ${this.eventListeners[event].length}`
+      );
     }
   }
 
@@ -96,8 +100,9 @@ export class EventEmitter {
     }
 
     const initialLength = this.eventListeners[event].length;
-    this.eventListeners[event] = this.eventListeners[event]
-      .filter(listener => listener.callback !== callback);
+    this.eventListeners[event] = this.eventListeners[event].filter(
+      listener => listener.callback !== callback
+    );
 
     if (this.debugMode) {
       const removedCount = initialLength - this.eventListeners[event].length;
@@ -183,12 +188,14 @@ export class GameEventDispatcher extends EventEmitter {
     const eventData = {
       ...data,
       timestamp: new Date().toISOString(),
-      gameState: this.gameState ? {
-        currentPlayer: this.gameState.currentPlayer,
-        moveCount: this.gameState.moveHistory ? this.gameState.moveHistory.length : 0,
-        gameOver: this.gameState.gameOver,
-        winner: this.gameState.winner
-      } : null
+      gameState: this.gameState
+        ? {
+          currentPlayer: this.gameState.currentPlayer,
+          moveCount: this.gameState.moveHistory ? this.gameState.moveHistory.length : 0,
+          gameOver: this.gameState.gameOver,
+          winner: this.gameState.winner
+        }
+        : null
     };
 
     // Add to history

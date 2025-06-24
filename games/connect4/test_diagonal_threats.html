@@ -1,71 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect4 Diagonal Threat Detection Test</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f0f0f0;
-        }
-        .test-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(7, 40px);
-            grid-template-rows: repeat(6, 40px);
-            gap: 2px;
-            margin: 10px 0;
-        }
-        .cell {
-            width: 40px;
-            height: 40px;
-            border: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-        .cell.red { background: #ff4444; color: white; }
-        .cell.yellow { background: #ffdd44; color: black; }
-        .cell.empty { background: #eee; }
-        .test-result {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        .test-result.pass { background: #d4edda; border-left: 4px solid #28a745; }
-        .test-result.fail { background: #f8d7da; border-left: 4px solid #dc3545; }
-        .test-result.info { background: #d1ecf1; border-left: 4px solid #17a2b8; }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f0f0f0;
+      }
+      .test-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .board {
+        display: grid;
+        grid-template-columns: repeat(7, 40px);
+        grid-template-rows: repeat(6, 40px);
+        gap: 2px;
+        margin: 10px 0;
+      }
+      .cell {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+      .cell.red {
+        background: #ff4444;
+        color: white;
+      }
+      .cell.yellow {
+        background: #ffdd44;
+        color: black;
+      }
+      .cell.empty {
+        background: #eee;
+      }
+      .test-result {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+      }
+      .test-result.pass {
+        background: #d4edda;
+        border-left: 4px solid #28a745;
+      }
+      .test-result.fail {
+        background: #f8d7da;
+        border-left: 4px solid #dc3545;
+      }
+      .test-result.info {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>🔍 Connect4 Diagonal Threat Detection Test</h1>
     <p>Dieses Tool testet die diagonale Bedrohungserkennung der Connect4 AI.</p>
-    
+
     <div class="test-container">
-        <h2>Test-Steuerung</h2>
-        <button onclick="runAllTests()">Alle Tests ausführen</button>
-        <button onclick="clearResults()">Ergebnisse löschen</button>
+      <h2>Test-Steuerung</h2>
+      <button onclick="runAllTests()">Alle Tests ausführen</button>
+      <button onclick="clearResults()">Ergebnisse löschen</button>
     </div>
 
     <div id="testResults"></div>
@@ -73,228 +90,230 @@
     <script src="js/game.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/helpers.js"></script>
-    
+
     <script>
-        class DiagonalThreatTester {
-            constructor() {
-                this.testResults = [];
+      class DiagonalThreatTester {
+        constructor() {
+          this.testResults = [];
+        }
+
+        createTestBoard(config) {
+          const board = [];
+          for (let row = 0; row < 6; row++) {
+            board[row] = [];
+            for (let col = 0; col < 7; col++) {
+              board[row][col] = 0; // EMPTY
             }
-            
-            createTestBoard(config) {
-                const board = [];
-                for (let row = 0; row < 6; row++) {
-                    board[row] = [];
-                    for (let col = 0; col < 7; col++) {
-                        board[row][col] = 0; // EMPTY
-                    }
-                }
-                
-                // Place pieces according to config
-                config.forEach(piece => {
-                    board[piece.row][piece.col] = piece.player;
-                });
-                
-                return board;
+          }
+
+          // Place pieces according to config
+          config.forEach(piece => {
+            board[piece.row][piece.col] = piece.player;
+          });
+
+          return board;
+        }
+
+        renderBoard(board, title) {
+          let html = `<h3>${title}</h3><div class="board">`;
+
+          for (let row = 0; row < 6; row++) {
+            for (let col = 0; col < 7; col++) {
+              const value = board[row][col];
+              let cellClass = 'cell ';
+              let content = '';
+
+              if (value === 1) {
+                cellClass += 'red';
+                content = '🔴';
+              } else if (value === 2) {
+                cellClass += 'yellow';
+                content = '🟡';
+              } else {
+                cellClass += 'empty';
+                content = `${row},${col}`;
+              }
+
+              html += `<div class="${cellClass}">${content}</div>`;
             }
-            
-            renderBoard(board, title) {
-                let html = `<h3>${title}</h3><div class="board">`;
-                
-                for (let row = 0; row < 6; row++) {
-                    for (let col = 0; col < 7; col++) {
-                        const value = board[row][col];
-                        let cellClass = 'cell ';
-                        let content = '';
-                        
-                        if (value === 1) {
-                            cellClass += 'red';
-                            content = '🔴';
-                        } else if (value === 2) {
-                            cellClass += 'yellow';
-                            content = '🟡';
-                        } else {
-                            cellClass += 'empty';
-                            content = `${row},${col}`;
-                        }
-                        
-                        html += `<div class="${cellClass}">${content}</div>`;
-                    }
-                }
-                
-                html += '</div>';
-                return html;
-            }
-            
-            testDiagonalThreat1() {
-                // Test Case 1: Diagonal \ threat (top-left to bottom-right)
-                // Player 2 (yellow) has 3 in diagonal, piece would land at (2,3) and complete win
-                const config = [
-                    {row: 5, col: 0, player: 2}, // Bottom-left of diagonal
-                    {row: 4, col: 1, player: 2}, // Middle of diagonal
-                    {row: 3, col: 2, player: 2}, // Upper-middle of diagonal
-                    // Column 3 is empty, so piece would land at (5,3), but we need it at (2,3)
-                    // Fill column 3 to make piece land at (2,3)
-                    {row: 5, col: 3, player: 1}, 
-                    {row: 4, col: 3, player: 1},
-                    {row: 3, col: 3, player: 1},
-                    // Now if yellow plays column 3, piece lands at (2,3) completing diagonal
-                    {row: 1, col: 4, player: 1}, // Some other red pieces
-                    {row: 0, col: 5, player: 1}
-                ];
-                
-                const board = this.createTestBoard(config);
-                const game = new Connect4Game();
-                game.board = board;
-                game.currentPlayer = 1; // Red's turn
-                
-                const helpers = new Connect4Helpers(game);
-                
-                // Test if AI recognizes that column 3 must be blocked
-                const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
-                
-                const testResult = {
-                    name: "Diagonal \\ Threat Detection",
-                    description: "Yellow has 3 diagonal pieces (5,0)-(4,1)-(3,2), playing column 3 lands at (2,3) completing diagonal win",
-                    board: board,
-                    expectedResult: true,
-                    actualResult: wouldOpponentWin,
-                    passed: wouldOpponentWin === true,
-                    details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
-                };
-                
-                return testResult;
-            }
-            
-            testDiagonalThreat2() {
-                // Test Case 2: Diagonal / threat (bottom-left to top-right)
-                // Player 2 (yellow) has 3 in diagonal, piece would land at (2,3) and complete win
-                const config = [
-                    {row: 5, col: 6, player: 2}, // Bottom-right of diagonal
-                    {row: 4, col: 5, player: 2}, // Middle of diagonal
-                    {row: 3, col: 4, player: 2}, // Upper-middle of diagonal
-                    // Fill column 3 to make piece land at (2,3)
-                    {row: 5, col: 3, player: 1}, 
-                    {row: 4, col: 3, player: 1},
-                    {row: 3, col: 3, player: 1},
-                    // Now if yellow plays column 3, piece lands at (2,3) completing diagonal
-                    {row: 1, col: 2, player: 1}, // Some other red pieces
-                    {row: 0, col: 1, player: 1}
-                ];
-                
-                const board = this.createTestBoard(config);
-                const game = new Connect4Game();
-                game.board = board;
-                game.currentPlayer = 1; // Red's turn
-                
-                const helpers = new Connect4Helpers(game);
-                
-                // Test if AI recognizes that column 3 must be blocked
-                const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
-                
-                const testResult = {
-                    name: "Diagonal / Threat Detection",
-                    description: "Yellow has 3 diagonal pieces (5,6)-(4,5)-(3,4), playing column 3 lands at (2,3) completing diagonal win",
-                    board: board,
-                    expectedResult: true,
-                    actualResult: wouldOpponentWin,
-                    passed: wouldOpponentWin === true,
-                    details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
-                };
-                
-                return testResult;
-            }
-            
-            testHorizontalThreat() {
-                // Control Test: Horizontal threat should work
-                const config = [
-                    {row: 5, col: 0, player: 2}, // Yellow pieces horizontally
-                    {row: 5, col: 1, player: 2},
-                    {row: 5, col: 2, player: 2},
-                    // Missing piece at (5,3) would complete 4-in-a-row
-                    {row: 4, col: 3, player: 1}, // Some red pieces
-                    {row: 3, col: 4, player: 1}
-                ];
-                
-                const board = this.createTestBoard(config);
-                const game = new Connect4Game();
-                game.board = board;
-                game.currentPlayer = 1; // Red's turn
-                
-                const helpers = new Connect4Helpers(game);
-                
-                // Test if AI recognizes that column 3 must be blocked
-                const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
-                
-                const testResult = {
-                    name: "Horizontal Threat Detection (Control)",
-                    description: "Yellow has 3 horizontal pieces, red should block at column 3",
-                    board: board,
-                    expectedResult: true,
-                    actualResult: wouldOpponentWin,
-                    passed: wouldOpponentWin === true,
-                    details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
-                };
-                
-                return testResult;
-            }
-            
-            testVerticalThreat() {
-                // Control Test: Vertical threat should work
-                const config = [
-                    {row: 5, col: 3, player: 2}, // Yellow pieces vertically
-                    {row: 4, col: 3, player: 2},
-                    {row: 3, col: 3, player: 2},
-                    // Missing piece at (2,3) would complete 4-in-a-row
-                    {row: 1, col: 2, player: 1}, // Some red pieces
-                    {row: 0, col: 1, player: 1}
-                ];
-                
-                const board = this.createTestBoard(config);
-                const game = new Connect4Game();
-                game.board = board;
-                game.currentPlayer = 1; // Red's turn
-                
-                const helpers = new Connect4Helpers(game);
-                
-                // Test if AI recognizes that column 3 must be blocked
-                const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
-                
-                const testResult = {
-                    name: "Vertical Threat Detection (Control)",
-                    description: "Yellow has 3 vertical pieces, red should block at column 3",
-                    board: board,
-                    expectedResult: true,
-                    actualResult: wouldOpponentWin,
-                    passed: wouldOpponentWin === true,
-                    details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
-                };
-                
-                return testResult;
-            }
-            
-            runAllTests() {
-                this.testResults = [];
-                
-                this.testResults.push(this.testDiagonalThreat1());
-                this.testResults.push(this.testDiagonalThreat2());
-                this.testResults.push(this.testHorizontalThreat());
-                this.testResults.push(this.testVerticalThreat());
-                
-                this.displayResults();
-            }
-            
-            displayResults() {
-                const container = document.getElementById('testResults');
-                container.innerHTML = '';
-                
-                this.testResults.forEach((result, index) => {
-                    const resultDiv = document.createElement('div');
-                    resultDiv.className = 'test-container';
-                    
-                    const statusClass = result.passed ? 'pass' : 'fail';
-                    const statusText = result.passed ? '✅ PASSED' : '❌ FAILED';
-                    
-                    resultDiv.innerHTML = `
+          }
+
+          html += '</div>';
+          return html;
+        }
+
+        testDiagonalThreat1() {
+          // Test Case 1: Diagonal \ threat (top-left to bottom-right)
+          // Player 2 (yellow) has 3 in diagonal, piece would land at (2,3) and complete win
+          const config = [
+            { row: 5, col: 0, player: 2 }, // Bottom-left of diagonal
+            { row: 4, col: 1, player: 2 }, // Middle of diagonal
+            { row: 3, col: 2, player: 2 }, // Upper-middle of diagonal
+            // Column 3 is empty, so piece would land at (5,3), but we need it at (2,3)
+            // Fill column 3 to make piece land at (2,3)
+            { row: 5, col: 3, player: 1 },
+            { row: 4, col: 3, player: 1 },
+            { row: 3, col: 3, player: 1 },
+            // Now if yellow plays column 3, piece lands at (2,3) completing diagonal
+            { row: 1, col: 4, player: 1 }, // Some other red pieces
+            { row: 0, col: 5, player: 1 }
+          ];
+
+          const board = this.createTestBoard(config);
+          const game = new Connect4Game();
+          game.board = board;
+          game.currentPlayer = 1; // Red's turn
+
+          const helpers = new Connect4Helpers(game);
+
+          // Test if AI recognizes that column 3 must be blocked
+          const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
+
+          const testResult = {
+            name: 'Diagonal \\ Threat Detection',
+            description:
+              'Yellow has 3 diagonal pieces (5,0)-(4,1)-(3,2), playing column 3 lands at (2,3) completing diagonal win',
+            board: board,
+            expectedResult: true,
+            actualResult: wouldOpponentWin,
+            passed: wouldOpponentWin === true,
+            details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
+          };
+
+          return testResult;
+        }
+
+        testDiagonalThreat2() {
+          // Test Case 2: Diagonal / threat (bottom-left to top-right)
+          // Player 2 (yellow) has 3 in diagonal, piece would land at (2,3) and complete win
+          const config = [
+            { row: 5, col: 6, player: 2 }, // Bottom-right of diagonal
+            { row: 4, col: 5, player: 2 }, // Middle of diagonal
+            { row: 3, col: 4, player: 2 }, // Upper-middle of diagonal
+            // Fill column 3 to make piece land at (2,3)
+            { row: 5, col: 3, player: 1 },
+            { row: 4, col: 3, player: 1 },
+            { row: 3, col: 3, player: 1 },
+            // Now if yellow plays column 3, piece lands at (2,3) completing diagonal
+            { row: 1, col: 2, player: 1 }, // Some other red pieces
+            { row: 0, col: 1, player: 1 }
+          ];
+
+          const board = this.createTestBoard(config);
+          const game = new Connect4Game();
+          game.board = board;
+          game.currentPlayer = 1; // Red's turn
+
+          const helpers = new Connect4Helpers(game);
+
+          // Test if AI recognizes that column 3 must be blocked
+          const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
+
+          const testResult = {
+            name: 'Diagonal / Threat Detection',
+            description:
+              'Yellow has 3 diagonal pieces (5,6)-(4,5)-(3,4), playing column 3 lands at (2,3) completing diagonal win',
+            board: board,
+            expectedResult: true,
+            actualResult: wouldOpponentWin,
+            passed: wouldOpponentWin === true,
+            details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
+          };
+
+          return testResult;
+        }
+
+        testHorizontalThreat() {
+          // Control Test: Horizontal threat should work
+          const config = [
+            { row: 5, col: 0, player: 2 }, // Yellow pieces horizontally
+            { row: 5, col: 1, player: 2 },
+            { row: 5, col: 2, player: 2 },
+            // Missing piece at (5,3) would complete 4-in-a-row
+            { row: 4, col: 3, player: 1 }, // Some red pieces
+            { row: 3, col: 4, player: 1 }
+          ];
+
+          const board = this.createTestBoard(config);
+          const game = new Connect4Game();
+          game.board = board;
+          game.currentPlayer = 1; // Red's turn
+
+          const helpers = new Connect4Helpers(game);
+
+          // Test if AI recognizes that column 3 must be blocked
+          const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
+
+          const testResult = {
+            name: 'Horizontal Threat Detection (Control)',
+            description: 'Yellow has 3 horizontal pieces, red should block at column 3',
+            board: board,
+            expectedResult: true,
+            actualResult: wouldOpponentWin,
+            passed: wouldOpponentWin === true,
+            details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
+          };
+
+          return testResult;
+        }
+
+        testVerticalThreat() {
+          // Control Test: Vertical threat should work
+          const config = [
+            { row: 5, col: 3, player: 2 }, // Yellow pieces vertically
+            { row: 4, col: 3, player: 2 },
+            { row: 3, col: 3, player: 2 },
+            // Missing piece at (2,3) would complete 4-in-a-row
+            { row: 1, col: 2, player: 1 }, // Some red pieces
+            { row: 0, col: 1, player: 1 }
+          ];
+
+          const board = this.createTestBoard(config);
+          const game = new Connect4Game();
+          game.board = board;
+          game.currentPlayer = 1; // Red's turn
+
+          const helpers = new Connect4Helpers(game);
+
+          // Test if AI recognizes that column 3 must be blocked
+          const wouldOpponentWin = helpers.wouldOpponentWinAt(3, 2); // Check if yellow wins at col 3
+
+          const testResult = {
+            name: 'Vertical Threat Detection (Control)',
+            description: 'Yellow has 3 vertical pieces, red should block at column 3',
+            board: board,
+            expectedResult: true,
+            actualResult: wouldOpponentWin,
+            passed: wouldOpponentWin === true,
+            details: `wouldOpponentWinAt(3, 2) returned: ${wouldOpponentWin}`
+          };
+
+          return testResult;
+        }
+
+        runAllTests() {
+          this.testResults = [];
+
+          this.testResults.push(this.testDiagonalThreat1());
+          this.testResults.push(this.testDiagonalThreat2());
+          this.testResults.push(this.testHorizontalThreat());
+          this.testResults.push(this.testVerticalThreat());
+
+          this.displayResults();
+        }
+
+        displayResults() {
+          const container = document.getElementById('testResults');
+          container.innerHTML = '';
+
+          this.testResults.forEach((result, index) => {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'test-container';
+
+            const statusClass = result.passed ? 'pass' : 'fail';
+            const statusText = result.passed ? '✅ PASSED' : '❌ FAILED';
+
+            resultDiv.innerHTML = `
                         <h3>Test ${index + 1}: ${result.name}</h3>
                         <div class="test-result ${statusClass}">
                             <strong>${statusText}</strong> - ${result.description}
@@ -302,47 +321,48 @@
                         <div class="test-result info">
                             <strong>Details:</strong> ${result.details}
                         </div>
-                        ${this.renderBoard(result.board, "Board State")}
+                        ${this.renderBoard(result.board, 'Board State')}
                     `;
-                    
-                    container.appendChild(resultDiv);
-                });
-                
-                // Summary
-                const passed = this.testResults.filter(r => r.passed).length;
-                const total = this.testResults.length;
-                
-                const summaryDiv = document.createElement('div');
-                summaryDiv.className = 'test-container';
-                summaryDiv.innerHTML = `
+
+            container.appendChild(resultDiv);
+          });
+
+          // Summary
+          const passed = this.testResults.filter(r => r.passed).length;
+          const total = this.testResults.length;
+
+          const summaryDiv = document.createElement('div');
+          summaryDiv.className = 'test-container';
+          summaryDiv.innerHTML = `
                     <h2>📊 Test Summary</h2>
                     <div class="test-result ${passed === total ? 'pass' : 'fail'}">
                         <strong>${passed}/${total} Tests bestanden</strong>
-                        ${passed === total ? 
-                            " - Alle Tests erfolgreich! 🎉" : 
-                            " - Einige Tests fehlgeschlagen. Diagonal threat detection needs fixing! ⚠️"
+                        ${
+                          passed === total
+                            ? ' - Alle Tests erfolgreich! 🎉'
+                            : ' - Einige Tests fehlgeschlagen. Diagonal threat detection needs fixing! ⚠️'
                         }
                     </div>
                 `;
-                
-                container.insertBefore(summaryDiv, container.firstChild);
-            }
+
+          container.insertBefore(summaryDiv, container.firstChild);
         }
-        
-        const tester = new DiagonalThreatTester();
-        
-        function runAllTests() {
-            tester.runAllTests();
-        }
-        
-        function clearResults() {
-            document.getElementById('testResults').innerHTML = '';
-        }
-        
-        // Auto-run tests on page load
-        window.addEventListener('load', () => {
-            runAllTests();
-        });
+      }
+
+      const tester = new DiagonalThreatTester();
+
+      function runAllTests() {
+        tester.runAllTests();
+      }
+
+      function clearResults() {
+        document.getElementById('testResults').innerHTML = '';
+      }
+
+      // Auto-run tests on page load
+      window.addEventListener('load', () => {
+        runAllTests();
+      });
     </script>
-</body>
+  </body>
 </html>

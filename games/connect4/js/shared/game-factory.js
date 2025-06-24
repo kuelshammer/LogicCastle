@@ -66,101 +66,127 @@ export class GameFactory {
      */
   configureTesting() {
     // Mock implementations for fast testing
-    this.container.register('IGameEngine', class MockGameEngine {
-      constructor() {
-        this.board = Array(6).fill().map(() => Array(7).fill(0));
-        this.currentPlayer = 1;
-        this.gameOver = false;
-        this.winner = null;
-        this.listeners = new Map();
-      }
-
-      makeMove(col) {
-        if (this.gameOver || col < 0 || col >= 7) {
-          return { success: false };
+    this.container.register(
+      'IGameEngine',
+      class MockGameEngine {
+        constructor() {
+          this.board = Array(6)
+            .fill()
+            .map(() => Array(7).fill(0));
+          this.currentPlayer = 1;
+          this.gameOver = false;
+          this.winner = null;
+          this.listeners = new Map();
         }
 
-        const row = this.findLowestRow(col);
-        if (row === -1) {
-          return { success: false };
+        makeMove(col) {
+          if (this.gameOver || col < 0 || col >= 7) {
+            return { success: false };
+          }
+
+          const row = this.findLowestRow(col);
+          if (row === -1) {
+            return { success: false };
+          }
+
+          this.board[row][col] = this.currentPlayer;
+          this.emit('moveMade', { row, col, player: this.currentPlayer });
+
+          if (this.checkWin(row, col)) {
+            this.gameOver = true;
+            this.winner = this.currentPlayer;
+            this.emit('gameWon', { winner: this.winner });
+          }
+
+          this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+          return { success: true, row, col };
         }
 
-        this.board[row][col] = this.currentPlayer;
-        this.emit('moveMade', { row, col, player: this.currentPlayer });
-
-        if (this.checkWin(row, col)) {
-          this.gameOver = true;
-          this.winner = this.currentPlayer;
-          this.emit('gameWon', { winner: this.winner });
+        findLowestRow(col) {
+          for (let row = 5; row >= 0; row--) {
+            if (this.board[row][col] === 0) return row;
+          }
+          return -1;
         }
 
-        this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
-        return { success: true, row, col };
-      }
-
-      findLowestRow(col) {
-        for (let row = 5; row >= 0; row--) {
-          if (this.board[row][col] === 0) return row;
+        checkWin(_row, _col) {
+          // Simplified win check for testing
+          return false;
         }
-        return -1;
-      }
 
-      checkWin(_row, _col) {
-        // Simplified win check for testing
-        return false;
-      }
-
-      getValidMoves() {
-        return [0, 1, 2, 3, 4, 5, 6].filter(col => this.board[0][col] === 0);
-      }
-
-      getBoard() {
-        return this.board.map(row => [...row]);
-      }
-
-      simulateMove(col, player = null) {
-        const currentPlayer = player || this.currentPlayer;
-        const row = this.findLowestRow(col);
-        return row !== -1 ? { row, col, player: currentPlayer } : null;
-      }
-
-      isGameOver() { return this.gameOver; }
-      getCurrentPlayer() { return this.currentPlayer; }
-      getWinner() { return this.winner; }
-
-      on(event, callback) {
-        if (!this.listeners.has(event)) {
-          this.listeners.set(event, []);
+        getValidMoves() {
+          return [0, 1, 2, 3, 4, 5, 6].filter(col => this.board[0][col] === 0);
         }
-        this.listeners.get(event).push(callback);
-      }
 
-      emit(event, data) {
-        if (this.listeners.has(event)) {
-          this.listeners.get(event).forEach(callback => callback(data));
+        getBoard() {
+          return this.board.map(row => [...row]);
         }
-      }
 
-      off(event, callback) {
-        if (this.listeners.has(event)) {
-          const callbacks = this.listeners.get(event);
-          const index = callbacks.indexOf(callback);
-          if (index > -1) callbacks.splice(index, 1);
+        simulateMove(col, player = null) {
+          const currentPlayer = player || this.currentPlayer;
+          const row = this.findLowestRow(col);
+          return row !== -1 ? { row, col, player: currentPlayer } : null;
+        }
+
+        isGameOver() {
+          return this.gameOver;
+        }
+        getCurrentPlayer() {
+          return this.currentPlayer;
+        }
+        getWinner() {
+          return this.winner;
+        }
+
+        on(event, callback) {
+          if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+          }
+          this.listeners.get(event).push(callback);
+        }
+
+        emit(event, data) {
+          if (this.listeners.has(event)) {
+            this.listeners.get(event).forEach(callback => callback(data));
+          }
+        }
+
+        off(event, callback) {
+          if (this.listeners.has(event)) {
+            const callbacks = this.listeners.get(event);
+            const index = callbacks.indexOf(callback);
+            if (index > -1) callbacks.splice(index, 1);
+          }
         }
       }
-    });
+    );
 
-    this.container.register('IHelperSystem', class MockHelperSystem {
-      detectWinningMoves() { return []; }
-      detectBlockingMoves() { return []; }
-      analyzeMoveConsequences() { return { isWinning: false, blocksOpponent: false }; }
-      getForkOpportunities() { return []; }
-      getHint() { return null; }
-      updateHintLevel() { return true; }
-    });
+    this.container.register(
+      'IHelperSystem',
+      class MockHelperSystem {
+        detectWinningMoves() {
+          return [];
+        }
+        detectBlockingMoves() {
+          return [];
+        }
+        analyzeMoveConsequences() {
+          return { isWinning: false, blocksOpponent: false };
+        }
+        getForkOpportunities() {
+          return [];
+        }
+        getHint() {
+          return null;
+        }
+        updateHintLevel() {
+          return true;
+        }
+      }
+    );
 
     this.container.registerFactory('IAIFactory', () => {
-      return (difficulty) => ({
+      return difficulty => ({
         getBestMove: () => 3, // Always center
         getDifficulty: () => difficulty,
         getName: () => `Mock${difficulty}Bot`
@@ -175,33 +201,47 @@ export class GameFactory {
     this.configureProduction();
 
     // Add development-specific services
-    this.container.register('ILogger', class DevLogger {
-      log(level, message, data = {}) {
-        console.log(`[${level.toUpperCase()}] ${message}`, data);
-      }
-
-      debug(message, data) { this.log('debug', message, data); }
-      info(message, data) { this.log('info', message, data); }
-      warn(message, data) { this.log('warn', message, data); }
-      error(message, data) { this.log('error', message, data); }
-    });
-
-    this.container.register('IPerformanceMonitor', class DevPerformanceMonitor {
-      startTimer(name) {
-        this.timers = this.timers || new Map();
-        this.timers.set(name, performance.now());
-      }
-
-      endTimer(name) {
-        if (this.timers && this.timers.has(name)) {
-          const duration = performance.now() - this.timers.get(name);
-          console.log(`⏱️ ${name}: ${duration.toFixed(2)}ms`);
-          this.timers.delete(name);
-          return duration;
+    this.container.register(
+      'ILogger',
+      class DevLogger {
+        log(level, message, data = {}) {
+          console.log(`[${level.toUpperCase()}] ${message}`, data);
         }
-        return 0;
+
+        debug(message, data) {
+          this.log('debug', message, data);
+        }
+        info(message, data) {
+          this.log('info', message, data);
+        }
+        warn(message, data) {
+          this.log('warn', message, data);
+        }
+        error(message, data) {
+          this.log('error', message, data);
+        }
       }
-    });
+    );
+
+    this.container.register(
+      'IPerformanceMonitor',
+      class DevPerformanceMonitor {
+        startTimer(name) {
+          this.timers = this.timers || new Map();
+          this.timers.set(name, performance.now());
+        }
+
+        endTimer(name) {
+          if (this.timers && this.timers.has(name)) {
+            const duration = performance.now() - this.timers.get(name);
+            console.log(`⏱️ ${name}: ${duration.toFixed(2)}ms`);
+            this.timers.delete(name);
+            return duration;
+          }
+          return 0;
+        }
+      }
+    );
   }
 
   /**
@@ -287,12 +327,12 @@ export const defaultGameFactory = new GameFactory();
 /**
  * Convenience functions for common use cases
  */
-export const createGame = (options) => defaultGameFactory.createGame(options);
+export const createGame = options => defaultGameFactory.createGame(options);
 export const createTestGame = () => {
   const testFactory = new GameFactory();
   return testFactory.configure(GAME_CONFIGURATIONS.TESTING).createGame();
 };
-export const createDevGame = (gameBoard) => {
+export const createDevGame = gameBoard => {
   const devFactory = new GameFactory();
   return devFactory.configure(GAME_CONFIGURATIONS.DEVELOPMENT).createGameWithUI(gameBoard);
 };

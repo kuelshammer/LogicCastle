@@ -109,8 +109,10 @@ class DefensiveBot extends BaseBotStrategy {
     disruptionScores.sort((a, b) => b.score - a.score);
 
     // Return best if significantly better than others
-    if (disruptionScores.length > 1 &&
-            disruptionScores[0].score > disruptionScores[1].score + 3) {
+    if (
+      disruptionScores.length > 1 &&
+            disruptionScores[0].score > disruptionScores[1].score + 3
+    ) {
       return disruptionScores[0].col;
     }
 
@@ -159,20 +161,39 @@ class DefensiveBot extends BaseBotStrategy {
      */
   countDisruptedPatterns(beforeBoard, afterBoard, row, col, opponent) {
     let disrupted = 0;
-    const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (const [dRow, dCol] of directions) {
       // Check 4-cell windows around the move position
       for (let offset = -3; offset <= 0; offset++) {
-        const startRow = row + (dRow * offset);
-        const startCol = col + (dCol * offset);
+        const startRow = row + dRow * offset;
+        const startCol = col + dCol * offset;
 
         if (this.isValidWindow(startRow, startCol, dRow, dCol)) {
-          const beforePattern = this.getPattern(beforeBoard, startRow, startCol, dRow, dCol);
-          const afterPattern = this.getPattern(afterBoard, startRow, startCol, dRow, dCol);
+          const beforePattern = this.getPattern(
+            beforeBoard,
+            startRow,
+            startCol,
+            dRow,
+            dCol
+          );
+          const afterPattern = this.getPattern(
+            afterBoard,
+            startRow,
+            startCol,
+            dRow,
+            dCol
+          );
 
-          if (this.isOpponentThreatPattern(beforePattern, opponent) &&
-                        !this.isOpponentThreatPattern(afterPattern, opponent)) {
+          if (
+            this.isOpponentThreatPattern(beforePattern, opponent) &&
+                        !this.isOpponentThreatPattern(afterPattern, opponent)
+          ) {
             disrupted++;
           }
         }
@@ -191,13 +212,19 @@ class DefensiveBot extends BaseBotStrategy {
      * @returns {boolean} True if valid window
      */
   isValidWindow(startRow, startCol, dRow, dCol) {
-    const endRow = startRow + (dRow * 3);
-    const endCol = startCol + (dCol * 3);
+    const endRow = startRow + dRow * 3;
+    const endCol = startCol + dCol * 3;
 
-    return startRow >= 0 && startRow < this.ROWS &&
-               startCol >= 0 && startCol < this.COLS &&
-               endRow >= 0 && endRow < this.ROWS &&
-               endCol >= 0 && endCol < this.COLS;
+    return (
+      startRow >= 0 &&
+            startRow < this.ROWS &&
+            startCol >= 0 &&
+            startCol < this.COLS &&
+            endRow >= 0 &&
+            endRow < this.ROWS &&
+            endCol >= 0 &&
+            endCol < this.COLS
+    );
   }
 
   /**
@@ -212,8 +239,8 @@ class DefensiveBot extends BaseBotStrategy {
   getPattern(board, startRow, startCol, dRow, dCol) {
     const pattern = [];
     for (let i = 0; i < 4; i++) {
-      const row = startRow + (dRow * i);
-      const col = startCol + (dCol * i);
+      const row = startRow + dRow * i;
+      const col = startCol + dCol * i;
       pattern.push(board[row][col]);
     }
     return pattern;
@@ -230,8 +257,9 @@ class DefensiveBot extends BaseBotStrategy {
     const emptyCount = pattern.filter(cell => cell === this.EMPTY).length;
 
     // Threat if 3 opponent pieces and 1 empty, or 2 opponent pieces and 2 empty
-    return (opponentCount === 3 && emptyCount === 1) ||
-               (opponentCount === 2 && emptyCount === 2);
+    return (
+      (opponentCount === 3 && emptyCount === 1) || (opponentCount === 2 && emptyCount === 2)
+    );
   }
 
   /**

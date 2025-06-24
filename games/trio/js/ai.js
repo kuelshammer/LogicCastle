@@ -14,10 +14,14 @@ class _TrioAI {
      */
   getSearchDepth(difficulty) {
     switch (difficulty) {
-    case 'easy': return { maxSolutions: 1, timeLimit: 500 };
-    case 'medium': return { maxSolutions: 3, timeLimit: 1000 };
-    case 'hard': return { maxSolutions: 5, timeLimit: 2000 };
-    default: return { maxSolutions: 3, timeLimit: 1000 };
+    case 'easy':
+      return { maxSolutions: 1, timeLimit: 500 };
+    case 'medium':
+      return { maxSolutions: 3, timeLimit: 1000 };
+    case 'hard':
+      return { maxSolutions: 5, timeLimit: 2000 };
+    default:
+      return { maxSolutions: 3, timeLimit: 1000 };
     }
   }
 
@@ -43,15 +47,37 @@ class _TrioAI {
 
     // Find all possible solutions
     for (let r1 = 0; r1 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r1++) {
-      for (let c1 = 0; c1 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c1++) {
-        for (let r2 = 0; r2 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r2++) {
-          for (let c2 = 0; c2 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c2++) {
-            for (let r3 = 0; r3 < game.ROWS && solutions.length < this.searchDepth.maxSolutions; r3++) {
-              for (let c3 = 0; c3 < game.COLS && solutions.length < this.searchDepth.maxSolutions; c3++) {
+      for (
+        let c1 = 0;
+        c1 < game.COLS && solutions.length < this.searchDepth.maxSolutions;
+        c1++
+      ) {
+        for (
+          let r2 = 0;
+          r2 < game.ROWS && solutions.length < this.searchDepth.maxSolutions;
+          r2++
+        ) {
+          for (
+            let c2 = 0;
+            c2 < game.COLS && solutions.length < this.searchDepth.maxSolutions;
+            c2++
+          ) {
+            for (
+              let r3 = 0;
+              r3 < game.ROWS && solutions.length < this.searchDepth.maxSolutions;
+              r3++
+            ) {
+              for (
+                let c3 = 0;
+                c3 < game.COLS && solutions.length < this.searchDepth.maxSolutions;
+                c3++
+              ) {
                 // Skip if positions are the same
-                if ((r1 === r2 && c1 === c2) ||
+                if (
+                  (r1 === r2 && c1 === c2) ||
                                     (r1 === r3 && c1 === c3) ||
-                                    (r2 === r3 && c2 === c3)) {
+                                    (r2 === r3 && c2 === c3)
+                ) {
                   continue;
                 }
 
@@ -66,8 +92,15 @@ class _TrioAI {
                   { row: r3, col: c3 }
                 ];
 
-                const numbers = positions.map(pos => game.numberGrid[pos.row][pos.col]);
-                const solution = game.validateSolution(numbers[0], numbers[1], numbers[2], target);
+                const numbers = positions.map(
+                  pos => game.numberGrid[pos.row][pos.col]
+                );
+                const solution = game.validateSolution(
+                  numbers[0],
+                  numbers[1],
+                  numbers[2],
+                  target
+                );
 
                 if (solution.isValid) {
                   solutions.push({
@@ -195,7 +228,7 @@ class _TrioAI {
     // Add some thinking delay for realism
     const thinkingTime = this.getThinkingTime();
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(() => {
         const solution = this.findBestSolution(game, game.currentTarget);
 
@@ -215,11 +248,12 @@ class _TrioAI {
      * Get AI thinking time based on difficulty
      */
   getThinkingTime() {
-    const baseTime = {
-      'easy': 1000,
-      'medium': 2000,
-      'hard': 3000
-    }[this.difficulty] || 2000;
+    const baseTime =
+            {
+              easy: 1000,
+              medium: 2000,
+              hard: 3000
+            }[this.difficulty] || 2000;
 
     // Add random variation
     return baseTime + Math.random() * 1000;

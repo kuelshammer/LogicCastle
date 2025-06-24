@@ -81,7 +81,8 @@ class ThreatDetector {
     // Check all positions for 3-in-a-row patterns that could become 4
     for (let row = 0; row < ROWS; row++) {
       for (let col = 0; col < COLS; col++) {
-        if (board[row][col] === 0) { // Empty cell
+        if (board[row][col] === 0) {
+          // Empty cell
           // Check if placing piece here creates a threat
           const threatInfo = this.analyzeThreatAtPosition(row, col, targetPlayer, board);
           if (threatInfo.isThreat) {
@@ -105,10 +106,10 @@ class ThreatDetector {
      */
   analyzeThreatAtPosition(row, col, player, board) {
     const directions = [
-      [0, 1],   // Horizontal
-      [1, 0],   // Vertical
-      [1, 1],   // Diagonal /
-      [1, -1]   // Diagonal \
+      [0, 1], // Horizontal
+      [1, 0], // Vertical
+      [1, 1], // Diagonal /
+      [1, -1] // Diagonal \
     ];
 
     for (const [dRow, dCol] of directions) {

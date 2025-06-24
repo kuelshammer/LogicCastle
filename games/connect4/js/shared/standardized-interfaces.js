@@ -526,7 +526,9 @@ export class InterfaceValidator {
 
       const actualType = typeof obj[property];
       if (actualType !== expectedType) {
-        errors.push(`Wrong type for ${property}: expected ${expectedType}, got ${actualType}`);
+        errors.push(
+          `Wrong type for ${property}: expected ${expectedType}, got ${actualType}`
+        );
       }
     }
 
@@ -592,7 +594,15 @@ export class InterfaceValidator {
      * @returns {string} Formatted report
      */
   generateReport(validationResult) {
-    const { isValid: _isValid, errors, warnings, missing, extra, summary, compliance } = validationResult;
+    const {
+      isValid: _isValid,
+      errors,
+      warnings,
+      missing,
+      extra,
+      summary,
+      compliance
+    } = validationResult;
 
     let report = '\n📋 Interface Validation Report\n';
     report += `${'='.repeat(40)}\n`;
@@ -604,22 +614,22 @@ export class InterfaceValidator {
 
     if (errors.length > 0) {
       report += `\n❌ Errors (${errors.length}):\n`;
-      errors.forEach(error => report += `  • ${error}\n`);
+      errors.forEach(error => (report += `  • ${error}\n`));
     }
 
     if (warnings.length > 0) {
       report += `\n⚠️  Warnings (${warnings.length}):\n`;
-      warnings.forEach(warning => report += `  • ${warning}\n`);
+      warnings.forEach(warning => (report += `  • ${warning}\n`));
     }
 
     if (missing.length > 0) {
       report += `\n📋 Missing Properties (${missing.length}):\n`;
-      missing.forEach(prop => report += `  • ${prop}\n`);
+      missing.forEach(prop => (report += `  • ${prop}\n`));
     }
 
     if (extra.length > 0) {
       report += `\n➕ Extra Properties (${extra.length}):\n`;
-      extra.forEach(prop => report += `  • ${prop}\n`);
+      extra.forEach(prop => (report += `  • ${prop}\n`));
     }
 
     return report;
@@ -669,7 +679,9 @@ export class InterfaceFactory {
     const validation = this.validator.validate(obj, interfaceName);
 
     if (!validation.isValid) {
-      throw new Error(`Created object doesn't comply with ${interfaceName}:\n${this.validator.generateReport(validation)}`);
+      throw new Error(
+        `Created object doesn't comply with ${interfaceName}:\n${this.validator.generateReport(validation)}`
+      );
     }
 
     return obj;
@@ -720,7 +732,9 @@ export const isValid = (obj, interfaceName) => {
 export const validateOrThrow = (obj, interfaceName, objectName = 'Object') => {
   const result = defaultValidator.validate(obj, interfaceName);
   if (!result.isValid) {
-    throw new Error(`${objectName} doesn't implement ${interfaceName}:\n${defaultValidator.generateReport(result)}`);
+    throw new Error(
+      `${objectName} doesn't implement ${interfaceName}:\n${defaultValidator.generateReport(result)}`
+    );
   }
 };
 
@@ -751,12 +765,13 @@ export const generateComplianceReport = (obj, interfaceName) => {
  * @param {Object} obj - Object to analyze
  * @returns {Array} Array of interface compliance results
  */
-export const analyzeAllInterfaces = (obj) => {
+export const analyzeAllInterfaces = obj => {
   const results = [];
 
   for (const interfaceName of Object.keys(STANDARDIZED_INTERFACES)) {
     const result = defaultValidator.validate(obj, interfaceName);
-    if (result.compliance.percentage > 50) { // Only include likely matches
+    if (result.compliance.percentage > 50) {
+      // Only include likely matches
       results.push({
         interface: interfaceName,
         compliance: result.compliance.percentage,

@@ -72,8 +72,9 @@ export class PerformanceTimer {
      * @returns {Object|null} Last measurement or null
      */
   getLastMeasurement() {
-    return this.measurements.length > 0 ?
-      this.measurements[this.measurements.length - 1] : null;
+    return this.measurements.length > 0
+      ? this.measurements[this.measurements.length - 1]
+      : null;
   }
 
   /**
@@ -112,12 +113,13 @@ export class PerformanceTimer {
 export function profileFunction(fn, name = 'Function') {
   const timer = new PerformanceTimer(name);
 
-  return function(...args) {
+  return function (...args) {
     timer.start();
     const result = fn.apply(this, args);
     const duration = timer.stop();
 
-    if (duration > 10) { // Only log slow functions
+    if (duration > 10) {
+      // Only log slow functions
       console.debug(`Performance: ${name} took ${duration.toFixed(2)}ms`);
     }
 
@@ -160,7 +162,6 @@ export class MemoryTracker {
     }
     console.warn('MemoryTracker: Performance memory API not available');
     return null;
-
   }
 
   /**
@@ -209,7 +210,7 @@ export class MemoryTracker {
 export function throttle(fn, delay) {
   let lastExecution = 0;
 
-  return function(...args) {
+  return function (...args) {
     const now = Date.now();
 
     if (now - lastExecution >= delay) {
@@ -229,7 +230,7 @@ export function throttle(fn, delay) {
 export function debounce(fn, delay) {
   let timeoutId;
 
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn.apply(this, args), delay);
   };
@@ -301,9 +302,9 @@ export async function batchProcess(items, processor, batchSize = 10, delay = 10)
 export class PerformanceBudget {
   constructor(budgets = {}) {
     this.budgets = {
-      moveCalculation: 100,  // 100ms budget for move calculation
-      boardRender: 16,       // 16ms budget for 60fps rendering
-      aiThinking: 1000,      // 1s budget for AI thinking
+      moveCalculation: 100, // 100ms budget for move calculation
+      boardRender: 16, // 16ms budget for 60fps rendering
+      aiThinking: 1000, // 1s budget for AI thinking
       ...budgets
     };
     this.violations = [];
@@ -328,7 +329,9 @@ export class PerformanceBudget {
       };
 
       this.violations.push(violation);
-      console.warn(`Performance Budget Violation: ${operation} took ${duration.toFixed(2)}ms (budget: ${budget}ms)`);
+      console.warn(
+        `Performance Budget Violation: ${operation} took ${duration.toFixed(2)}ms (budget: ${budget}ms)`
+      );
 
       return false;
     }

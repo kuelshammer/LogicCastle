@@ -61,7 +61,6 @@ export class Connect4GameDI {
         environment: this.config.environment,
         hasUI: !!this.ui
       });
-
     } catch (error) {
       this.log('error', 'Failed to initialize game', { error: error.message });
       throw error;
@@ -76,12 +75,12 @@ export class Connect4GameDI {
   setupEventListeners() {
     if (!this.game) return;
 
-    this.game.on('moveMade', (data) => {
+    this.game.on('moveMade', data => {
       this.log('debug', 'Move made', data);
       this.onMoveMade(data);
     });
 
-    this.game.on('gameWon', (data) => {
+    this.game.on('gameWon', data => {
       this.log('info', 'Game won', data);
       this.onGameWon(data);
     });
@@ -130,9 +129,7 @@ export class Connect4GameDI {
      * Check if bot move should be triggered
      */
   shouldTriggerBot() {
-    return this.currentBot &&
-               !this.game.isGameOver() &&
-               this.game.getCurrentPlayer() === 2; // Assuming bot is Player 2
+    return this.currentBot && !this.game.isGameOver() && this.game.getCurrentPlayer() === 2; // Assuming bot is Player 2
   }
 
   /**
@@ -156,11 +153,13 @@ export class Connect4GameDI {
 
       if (typeof move === 'number' && move >= 0 && move < 7) {
         // Delay bot move for better UX
-        setTimeout(() => {
-          this.makeMove(move);
-        }, Math.min(500, Math.max(100, thinkTime * 2)));
+        setTimeout(
+          () => {
+            this.makeMove(move);
+          },
+          Math.min(500, Math.max(100, thinkTime * 2))
+        );
       }
-
     } catch (error) {
       this.log('error', 'Bot move failed', { error: error.message });
     }
@@ -329,11 +328,13 @@ if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
       const gameBoard = document.querySelector('#gameBoard');
       if (gameBoard && !globalGameInstance) {
-        initializeConnect4DI().then(instance => {
-          setGlobalGameInstance(instance);
-        }).catch(error => {
-          console.error('Failed to auto-initialize Connect4DI:', error);
-        });
+        initializeConnect4DI()
+          .then(instance => {
+            setGlobalGameInstance(instance);
+          })
+          .catch(error => {
+            console.error('Failed to auto-initialize Connect4DI:', error);
+          });
       }
     });
   }

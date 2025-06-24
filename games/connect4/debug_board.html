@@ -1,201 +1,200 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Debug Board - 4 Gewinnt</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f0f0f0;
-        }
-        
-        .debug-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .test-board {
-            background: linear-gradient(145deg, #2196F3, #1976D2);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            display: grid;
-            grid-template-columns: repeat(7, 60px);
-            grid-template-rows: repeat(6, 60px);
-            gap: 8px;
-            width: max-content;
-            margin: 20px auto;
-        }
-        
-        .test-cell {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: white;
-            border: 3px solid #1565C0;
-            position: relative;
-            overflow: visible;
-        }
-        
-        .test-cell.red {
-            background: linear-gradient(145deg, #ff4757, #c44569);
-            border-color: #c44569;
-        }
-        
-        .test-cell.yellow {
-            background: linear-gradient(145deg, #ffdd00, #ffc107);
-            border-color: #ffc107;
-        }
-        
-        .debug-info {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f0f0f0;
+      }
+
+      .debug-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .test-board {
+        background: linear-gradient(145deg, #2196f3, #1976d2);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        display: grid;
+        grid-template-columns: repeat(7, 60px);
+        grid-template-rows: repeat(6, 60px);
+        gap: 8px;
+        width: max-content;
+        margin: 20px auto;
+      }
+
+      .test-cell {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #1565c0;
+        position: relative;
+        overflow: visible;
+      }
+
+      .test-cell.red {
+        background: linear-gradient(145deg, #ff4757, #c44569);
+        border-color: #c44569;
+      }
+
+      .test-cell.yellow {
+        background: linear-gradient(145deg, #ffdd00, #ffc107);
+        border-color: #ffc107;
+      }
+
+      .debug-info {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="debug-container">
-        <h1>🔍 Connect4 Board Debug</h1>
-        
-        <div class="debug-info">
-            <h2>Test 1: Static Board</h2>
-            <p>Dieser Board sollte sichtbar sein:</p>
-            <div class="test-board">
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell red"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell yellow"></div>
-                <div class="test-cell red"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell red"></div>
-                <div class="test-cell yellow"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                
-                <div class="test-cell"></div>
-                <div class="test-cell yellow"></div>
-                <div class="test-cell yellow"></div>
-                <div class="test-cell red"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                
-                <div class="test-cell red"></div>
-                <div class="test-cell red"></div>
-                <div class="test-cell red"></div>
-                <div class="test-cell yellow"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-                <div class="test-cell"></div>
-            </div>
+      <h1>🔍 Connect4 Board Debug</h1>
+
+      <div class="debug-info">
+        <h2>Test 1: Static Board</h2>
+        <p>Dieser Board sollte sichtbar sein:</p>
+        <div class="test-board">
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell red"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell yellow"></div>
+          <div class="test-cell red"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell red"></div>
+          <div class="test-cell yellow"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+
+          <div class="test-cell"></div>
+          <div class="test-cell yellow"></div>
+          <div class="test-cell yellow"></div>
+          <div class="test-cell red"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+
+          <div class="test-cell red"></div>
+          <div class="test-cell red"></div>
+          <div class="test-cell red"></div>
+          <div class="test-cell yellow"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
+          <div class="test-cell"></div>
         </div>
-        
-        <div class="debug-info">
-            <h2>Test 2: JavaScript Board</h2>
-            <p>Dieser Board wird durch JavaScript generiert:</p>
-            <div id="jsBoard" class="test-board">
-                <!-- Wird durch JavaScript gefüllt -->
-            </div>
+      </div>
+
+      <div class="debug-info">
+        <h2>Test 2: JavaScript Board</h2>
+        <p>Dieser Board wird durch JavaScript generiert:</p>
+        <div id="jsBoard" class="test-board">
+          <!-- Wird durch JavaScript gefüllt -->
         </div>
-        
-        <div class="debug-info">
-            <h2>Test 3: Element Check</h2>
-            <div id="elementCheck">
-                <p>Prüfe gameBoard Element...</p>
-            </div>
+      </div>
+
+      <div class="debug-info">
+        <h2>Test 3: Element Check</h2>
+        <div id="elementCheck">
+          <p>Prüfe gameBoard Element...</p>
         </div>
+      </div>
     </div>
 
     <script>
-        // Test 2: JavaScript Board Generation
-        function createJSBoard() {
-            const board = document.getElementById('jsBoard');
-            board.innerHTML = '';
-            
-            for (let row = 0; row < 6; row++) {
-                for (let col = 0; col < 7; col++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'test-cell';
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    
-                    // Add some test pieces
-                    if (row === 5 && col === 3) cell.classList.add('red');
-                    if (row === 4 && col === 3) cell.classList.add('yellow');
-                    if (row === 5 && col === 2) cell.classList.add('yellow');
-                    
-                    board.appendChild(cell);
-                }
-            }
-            
-            console.log('✅ JavaScript board created with', board.children.length, 'cells');
+      // Test 2: JavaScript Board Generation
+      function createJSBoard() {
+        const board = document.getElementById('jsBoard');
+        board.innerHTML = '';
+
+        for (let row = 0; row < 6; row++) {
+          for (let col = 0; col < 7; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'test-cell';
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+
+            // Add some test pieces
+            if (row === 5 && col === 3) cell.classList.add('red');
+            if (row === 4 && col === 3) cell.classList.add('yellow');
+            if (row === 5 && col === 2) cell.classList.add('yellow');
+
+            board.appendChild(cell);
+          }
         }
-        
-        // Test 3: Element Check
-        function checkElements() {
-            const elementCheck = document.getElementById('elementCheck');
-            let html = '<p>Prüfe gameBoard Element...</p>';
-            
-            // Check if gameBoard exists in parent page
-            try {
-                const gameBoard = document.getElementById('gameBoard');
-                if (gameBoard) {
-                    html += '<p>✅ gameBoard Element gefunden!</p>';
-                    html += `<p>Klassen: ${gameBoard.className}</p>`;
-                    html += `<p>Kinder: ${gameBoard.children.length}</p>`;
-                    html += `<p>HTML: ${gameBoard.innerHTML.substring(0, 100)}...</p>`;
-                } else {
-                    html += '<p>❌ gameBoard Element NICHT gefunden!</p>';
-                }
-                
-                // Check parent page elements
-                const testBoard = parent.document ? parent.document.getElementById('gameBoard') : null;
-                if (testBoard) {
-                    html += '<p>✅ gameBoard in parent gefunden!</p>';
-                    html += `<p>Parent Kinder: ${testBoard.children.length}</p>`;
-                } else {
-                    html += '<p>❌ gameBoard in parent NICHT gefunden!</p>';
-                }
-                
-            } catch (error) {
-                html += `<p>❌ Fehler: ${error.message}</p>`;
-            }
-            
-            elementCheck.innerHTML = html;
+
+        console.log('✅ JavaScript board created with', board.children.length, 'cells');
+      }
+
+      // Test 3: Element Check
+      function checkElements() {
+        const elementCheck = document.getElementById('elementCheck');
+        let html = '<p>Prüfe gameBoard Element...</p>';
+
+        // Check if gameBoard exists in parent page
+        try {
+          const gameBoard = document.getElementById('gameBoard');
+          if (gameBoard) {
+            html += '<p>✅ gameBoard Element gefunden!</p>';
+            html += `<p>Klassen: ${gameBoard.className}</p>`;
+            html += `<p>Kinder: ${gameBoard.children.length}</p>`;
+            html += `<p>HTML: ${gameBoard.innerHTML.substring(0, 100)}...</p>`;
+          } else {
+            html += '<p>❌ gameBoard Element NICHT gefunden!</p>';
+          }
+
+          // Check parent page elements
+          const testBoard = parent.document ? parent.document.getElementById('gameBoard') : null;
+          if (testBoard) {
+            html += '<p>✅ gameBoard in parent gefunden!</p>';
+            html += `<p>Parent Kinder: ${testBoard.children.length}</p>`;
+          } else {
+            html += '<p>❌ gameBoard in parent NICHT gefunden!</p>';
+          }
+        } catch (error) {
+          html += `<p>❌ Fehler: ${error.message}</p>`;
         }
-        
-        // Run tests
-        document.addEventListener('DOMContentLoaded', function() {
-            createJSBoard();
-            checkElements();
-            
-            console.log('🔍 Debug page loaded');
-        });
+
+        elementCheck.innerHTML = html;
+      }
+
+      // Run tests
+      document.addEventListener('DOMContentLoaded', function () {
+        createJSBoard();
+        checkElements();
+
+        console.log('🔍 Debug page loaded');
+      });
     </script>
-</body>
+  </body>
 </html>

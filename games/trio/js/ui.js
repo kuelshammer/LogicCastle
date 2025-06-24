@@ -142,11 +142,14 @@ class _TrioUI {
     }
 
     if (this.elements.startWithPlayersBtn) {
-      this.elements.startWithPlayersBtn.addEventListener('click', this.handleStartWithPlayers);
+      this.elements.startWithPlayersBtn.addEventListener(
+        'click',
+        this.handleStartWithPlayers
+      );
     }
 
     if (this.elements.playerNameInput) {
-      this.elements.playerNameInput.addEventListener('keypress', (e) => {
+      this.elements.playerNameInput.addEventListener('keypress', e => {
         if (e.key === 'Enter') {
           this.handleAddPlayer();
         }
@@ -163,7 +166,7 @@ class _TrioUI {
     }
 
     if (this.elements.helpModal) {
-      this.elements.helpModal.addEventListener('click', (e) => {
+      this.elements.helpModal.addEventListener('click', e => {
         if (e.target === this.elements.helpModal) {
           this.handleHelp();
         }
@@ -183,10 +186,10 @@ class _TrioUI {
      * Setup game event listeners
      */
   setupGameEventListeners() {
-    this.game.on('newRound', (data) => this.onNewRound(data));
-    this.game.on('solutionFound', (data) => this.onSolutionFound(data));
-    this.game.on('gameEnded', (data) => this.onGameEnded(data));
-    this.game.on('playerAdded', (data) => this.onPlayerAdded(data));
+    this.game.on('newRound', data => this.onNewRound(data));
+    this.game.on('solutionFound', data => this.onSolutionFound(data));
+    this.game.on('gameEnded', data => this.onGameEnded(data));
+    this.game.on('playerAdded', data => this.onPlayerAdded(data));
     this.game.on('gameReset', () => this.onGameReset());
   }
 
@@ -233,7 +236,9 @@ class _TrioUI {
       }
     }
 
-    console.log(`Created ${this.game.ROWS}x${this.game.COLS} number grid with ${this.elements.numberGrid.children.length} cells`);
+    console.log(
+      `Created ${this.game.ROWS}x${this.game.COLS} number grid with ${this.elements.numberGrid.children.length} cells`
+    );
   }
 
   /**
@@ -246,23 +251,21 @@ class _TrioUI {
     }
 
     const position = { row, col };
-    const positionExists = this.selectedPositions.some(pos =>
-      pos.row === row && pos.col === col
+    const positionExists = this.selectedPositions.some(
+      pos => pos.row === row && pos.col === col
     );
 
     if (positionExists) {
       // Remove from selection
-      this.selectedPositions = this.selectedPositions.filter(pos =>
-        !(pos.row === row && pos.col === col)
+      this.selectedPositions = this.selectedPositions.filter(
+        pos => !(pos.row === row && pos.col === col)
       );
-    } else {
+    } else if (this.selectedPositions.length < 3) {
       // Add to selection (max 3)
-      if (this.selectedPositions.length < 3) {
-        this.selectedPositions.push(position);
-      } else {
-        this.showMessage('Du kannst maximal 3 Zahlen auswählen!', 'warning');
-        return;
-      }
+      this.selectedPositions.push(position);
+    } else {
+      this.showMessage('Du kannst maximal 3 Zahlen auswählen!', 'warning');
+      return;
     }
 
     this.updateGridSelection();
@@ -293,9 +296,7 @@ class _TrioUI {
      * Update the selected numbers display
      */
   updateSelectedDisplay() {
-    const numbers = this.selectedPositions.map(pos =>
-      this.game.getNumberAt(pos.row, pos.col)
-    );
+    const numbers = this.selectedPositions.map(pos => this.game.getNumberAt(pos.row, pos.col));
 
     // Update display
     this.elements.selected1.textContent = numbers[0] || '?';
@@ -310,7 +311,8 @@ class _TrioUI {
       if (solution.isValid) {
         this.elements.calculatedResult.textContent = this.game.currentTarget;
         this.elements.calculatedResult.className = 'result valid';
-        this.elements.operatorSign.textContent = solution.operation === 'multiplication_addition' ? '+' : '-';
+        this.elements.operatorSign.textContent =
+                    solution.operation === 'multiplication_addition' ? '+' : '-';
         this.elements.submitSolutionBtn.disabled = false;
       } else {
         this.elements.calculatedResult.textContent = '✗';
@@ -367,7 +369,9 @@ class _TrioUI {
     this.elements.newRoundBtn.disabled = false;
     this.elements.showSolutionBtn.disabled = false;
 
-    this.updateGameStatus(`Spiel gestartet! Schwierigkeit: ${this.game.difficulty.toUpperCase()}. Klicke "Nächste Runde" für die erste Aufgabe.`);
+    this.updateGameStatus(
+      `Spiel gestartet! Schwierigkeit: ${this.game.difficulty.toUpperCase()}. Klicke "Nächste Runde" für die erste Aufgabe.`
+    );
     this.updateUI();
   }
 
@@ -397,7 +401,10 @@ class _TrioUI {
       this.handleClearSelection();
       this.addToHistory(result.solution, this.selectedPositions);
     } else {
-      this.showMessage(`Falsch! ${result.attempted?.attempted || 'Keine gültige Lösung'}`, 'error');
+      this.showMessage(
+        `Falsch! ${result.attempted?.attempted || 'Keine gültige Lösung'}`,
+        'error'
+      );
     }
   }
 
@@ -422,7 +429,10 @@ class _TrioUI {
     const solutions = this.game.findAllSolutions(this.game.currentTarget);
     if (solutions.length > 0) {
       this.displayAllSolutions(solutions);
-      this.showMessage(`${solutions.length} Lösung(en) für Zielzahl ${this.game.currentTarget} gefunden!`, 'info');
+      this.showMessage(
+        `${solutions.length} Lösung(en) für Zielzahl ${this.game.currentTarget} gefunden!`,
+        'info'
+      );
     } else {
       this.showMessage('Keine Lösung für diese Zielzahl gefunden!', 'warning');
     }
@@ -475,9 +485,9 @@ class _TrioUI {
       solutionItem.className = 'solution-item';
 
       // Create position text for all positions of this formula
-      const allPositionsText = group.positions.map(posArray =>
-        posArray.map(pos => `(${pos.row + 1},${pos.col + 1})`).join(',')
-      ).join(' | ');
+      const allPositionsText = group.positions
+        .map(posArray => posArray.map(pos => `(${pos.row + 1},${pos.col + 1})`).join(','))
+        .join(' | ');
 
       solutionItem.innerHTML = `
                 <div class="solution-formula">${group.formula}</div>
@@ -581,7 +591,14 @@ class _TrioUI {
 
     // Clear existing highlights
     this.elements.numberGrid.querySelectorAll('.number-cell').forEach(cell => {
-      cell.classList.remove('multiple-solution', 'solution-1', 'solution-2', 'solution-3', 'solution-4', 'solution-5');
+      cell.classList.remove(
+        'multiple-solution',
+        'solution-1',
+        'solution-2',
+        'solution-3',
+        'solution-4',
+        'solution-5'
+      );
     });
 
     // Highlight all positions with different colors/styles
@@ -599,12 +616,22 @@ class _TrioUI {
     });
 
     // Show message with count
-    this.showMessage(`${group.positions.length} Positionen für "${group.formula}" markiert`, 'info');
+    this.showMessage(
+      `${group.positions.length} Positionen für "${group.formula}" markiert`,
+      'info'
+    );
 
     // Clear highlights after 5 seconds
     setTimeout(() => {
       this.elements.numberGrid.querySelectorAll('.number-cell').forEach(cell => {
-        cell.classList.remove('multiple-solution', 'solution-1', 'solution-2', 'solution-3', 'solution-4', 'solution-5');
+        cell.classList.remove(
+          'multiple-solution',
+          'solution-1',
+          'solution-2',
+          'solution-3',
+          'solution-4',
+          'solution-5'
+        );
       });
     }, 5000);
   }
@@ -713,7 +740,9 @@ class _TrioUI {
   }
 
   onSolutionFound(data) {
-    this.updateGameStatus(`${this.getPlayerName(data.playerId)} hat die Lösung gefunden: ${data.solution.formula}`);
+    this.updateGameStatus(
+      `${this.getPlayerName(data.playerId)} hat die Lösung gefunden: ${data.solution.formula}`
+    );
     this.updateUI();
   }
 
@@ -777,7 +806,7 @@ class _TrioUI {
 
     // Add remove functionality
     this.elements.playersList.querySelectorAll('.remove-player').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', e => {
         const playerId = e.target.dataset.playerId;
         this.removePlayer(playerId);
       });
@@ -798,7 +827,7 @@ class _TrioUI {
     this.elements.gameStatus.textContent = message;
   }
 
-  addToHistory(solution, positions) {
+  addToHistory(solution, _positions) {
     const historyItem = document.createElement('div');
     historyItem.className = 'history-item';
     historyItem.innerHTML = `

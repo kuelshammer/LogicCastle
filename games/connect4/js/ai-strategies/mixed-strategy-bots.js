@@ -197,7 +197,12 @@ class OffensiveMixedBot extends BaseBotStrategy {
      */
   countFormations(board, player, length) {
     let count = 0;
-    const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (let row = 0; row < this.ROWS; row++) {
       for (let col = 0; col < this.COLS; col++) {
@@ -227,8 +232,8 @@ class OffensiveMixedBot extends BaseBotStrategy {
     let consecutiveCount = 0;
 
     for (let i = 0; i < 4; i++) {
-      const r = row + (dRow * i);
-      const c = col + (dCol * i);
+      const r = row + dRow * i;
+      const c = col + dCol * i;
 
       if (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS) {
         if (board[r][c] === player) {
@@ -448,10 +453,12 @@ class DefensiveMixedBot extends BaseBotStrategy {
      * @returns {number} Formations disrupted
      */
   countFormationsDisrupted(originalGame, resultGame, opponent) {
-    const originalFormations = this.countFormations(originalGame.board, opponent, 2) +
-                                  this.countFormations(originalGame.board, opponent, 3);
-    const resultFormations = this.countFormations(resultGame.board, opponent, 2) +
-                                this.countFormations(resultGame.board, opponent, 3);
+    const originalFormations =
+            this.countFormations(originalGame.board, opponent, 2) +
+            this.countFormations(originalGame.board, opponent, 3);
+    const resultFormations =
+            this.countFormations(resultGame.board, opponent, 2) +
+            this.countFormations(resultGame.board, opponent, 3);
 
     return Math.max(0, originalFormations - resultFormations);
   }
@@ -563,7 +570,12 @@ class DefensiveMixedBot extends BaseBotStrategy {
   countFormations(board, player, length) {
     // Reuse implementation from OffensiveMixedBot
     let count = 0;
-    const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    const directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
 
     for (let row = 0; row < this.ROWS; row++) {
       for (let col = 0; col < this.COLS; col++) {
@@ -585,8 +597,8 @@ class DefensiveMixedBot extends BaseBotStrategy {
     let consecutiveCount = 0;
 
     for (let i = 0; i < 4; i++) {
-      const r = row + (dRow * i);
-      const c = col + (dCol * i);
+      const r = row + dRow * i;
+      const c = col + dCol * i;
 
       if (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS) {
         if (board[r][c] === player) {

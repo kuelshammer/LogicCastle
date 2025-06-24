@@ -83,8 +83,10 @@ class ScoreManager {
      */
   getStatistics() {
     const total = this.getTotalGames();
-    const avgMovesPerGame = total > 0 ?
-      this.matchHistory.reduce((sum, game) => sum + game.moveCount, 0) / total : 0;
+    const avgMovesPerGame =
+            total > 0
+              ? this.matchHistory.reduce((sum, game) => sum + game.moveCount, 0) / total
+              : 0;
 
     return {
       totalGames: total,
@@ -97,7 +99,10 @@ class ScoreManager {
       averageMovesPerGame: Math.round(avgMovesPerGame * 10) / 10,
       sessionDuration: this.getSessionDuration(),
       firstGame: this.matchHistory.length > 0 ? this.matchHistory[0].timestamp : null,
-      lastGame: this.matchHistory.length > 0 ? this.matchHistory[this.matchHistory.length - 1].timestamp : null
+      lastGame:
+                this.matchHistory.length > 0
+                  ? this.matchHistory[this.matchHistory.length - 1].timestamp
+                  : null
     };
   }
 
@@ -162,7 +167,6 @@ class ScoreManager {
       return `${diffHours}h ${diffMinutes % 60}m`;
     }
     return `${diffMinutes}m`;
-
   }
 
   /**
@@ -228,8 +232,9 @@ class ScoreManager {
           const parsed = JSON.parse(data);
           this.scores = parsed.scores || { red: 0, yellow: 0, draws: 0 };
           this.matchHistory = parsed.matchHistory || [];
-          this.sessionStartTime = parsed.sessionStartTime ?
-            new Date(parsed.sessionStartTime) : new Date();
+          this.sessionStartTime = parsed.sessionStartTime
+            ? new Date(parsed.sessionStartTime)
+            : new Date();
         }
       } catch (error) {
         console.warn('Could not load scores from localStorage:', error.message);
@@ -242,11 +247,15 @@ class ScoreManager {
      * @returns {string} JSON string of all score data
      */
   exportData() {
-    return JSON.stringify({
-      scores: this.scores,
-      statistics: this.getStatistics(),
-      matchHistory: this.matchHistory
-    }, null, 2);
+    return JSON.stringify(
+      {
+        scores: this.scores,
+        statistics: this.getStatistics(),
+        matchHistory: this.matchHistory
+      },
+      null,
+      2
+    );
   }
 
   /**

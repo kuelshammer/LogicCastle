@@ -81,7 +81,11 @@ class MonteCarloBot extends BaseBotStrategy {
         break;
       }
 
-      const selectedColumn = this.selectColumnForSimulation(columns, columnScores, columnVisits);
+      const selectedColumn = this.selectColumnForSimulation(
+        columns,
+        columnScores,
+        columnVisits
+      );
       const score = this.runSimulation(game, selectedColumn);
 
       // Update scores and visit counts
@@ -97,7 +101,7 @@ class MonteCarloBot extends BaseBotStrategy {
         const rawScore = columnScores[col] / columnVisits[col];
         // Add confidence bonus for more visited columns
         const confidence = Math.min(columnVisits[col] / 50, 1.0);
-        averageScores[col] = rawScore + (confidence * 0.1 * rawScore);
+        averageScores[col] = rawScore + confidence * 0.1 * rawScore;
       } else {
         averageScores[col] = 0;
       }
@@ -131,8 +135,8 @@ class MonteCarloBot extends BaseBotStrategy {
       }
 
       const averageScore = columnScores[col] / columnVisits[col];
-      const exploration = this.explorationConstant *
-                Math.sqrt(Math.log(totalVisits) / columnVisits[col]);
+      const exploration =
+                this.explorationConstant * Math.sqrt(Math.log(totalVisits) / columnVisits[col]);
       const ucb = averageScore + exploration;
 
       if (ucb > bestUCB) {
@@ -179,7 +183,6 @@ class MonteCarloBot extends BaseBotStrategy {
       return 0; // Draw
     }
     return -1; // Loss
-
   }
 
   /**
@@ -202,7 +205,7 @@ class MonteCarloBot extends BaseBotStrategy {
       winner: null,
       moveHistory: [...originalGame.moveHistory],
 
-      makeMove: function(col) {
+      makeMove: function (col) {
         if (this.gameOver || !this.isValidMove(col)) {
           return false;
         }
@@ -220,17 +223,18 @@ class MonteCarloBot extends BaseBotStrategy {
           this.gameOver = true;
           this.winner = null;
         } else {
-          this.currentPlayer = this.currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+          this.currentPlayer =
+                        this.currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
         }
 
         return true;
       },
 
-      isValidMove: function(col) {
+      isValidMove: function (col) {
         return col >= 0 && col < this.COLS && this.board[0][col] === this.EMPTY;
       },
 
-      getLowestEmptyRow: function(col) {
+      getLowestEmptyRow: function (col) {
         for (let row = this.ROWS - 1; row >= 0; row--) {
           if (this.board[row][col] === this.EMPTY) {
             return row;
@@ -239,7 +243,7 @@ class MonteCarloBot extends BaseBotStrategy {
         return -1;
       },
 
-      getValidMoves: function() {
+      getValidMoves: function () {
         const validMoves = [];
         for (let col = 0; col < this.COLS; col++) {
           if (this.isValidMove(col)) {
@@ -249,9 +253,14 @@ class MonteCarloBot extends BaseBotStrategy {
         return validMoves;
       },
 
-      checkWin: function(row, col) {
+      checkWin: function (row, col) {
         const player = this.board[row][col];
-        const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        const directions = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1]
+        ];
 
         for (const [dRow, dCol] of directions) {
           let count = 1;
@@ -259,7 +268,13 @@ class MonteCarloBot extends BaseBotStrategy {
           // Check positive direction
           let r = row + dRow;
           let c = col + dCol;
-          while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
+          while (
+            r >= 0 &&
+                        r < this.ROWS &&
+                        c >= 0 &&
+                        c < this.COLS &&
+                        this.board[r][c] === player
+          ) {
             count++;
             r += dRow;
             c += dCol;
@@ -268,7 +283,13 @@ class MonteCarloBot extends BaseBotStrategy {
           // Check negative direction
           r = row - dRow;
           c = col - dCol;
-          while (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS && this.board[r][c] === player) {
+          while (
+            r >= 0 &&
+                        r < this.ROWS &&
+                        c >= 0 &&
+                        c < this.COLS &&
+                        this.board[r][c] === player
+          ) {
             count++;
             r -= dRow;
             c -= dCol;
@@ -282,7 +303,7 @@ class MonteCarloBot extends BaseBotStrategy {
         return false;
       },
 
-      isDraw: function() {
+      isDraw: function () {
         return this.getValidMoves().length === 0;
       }
     };

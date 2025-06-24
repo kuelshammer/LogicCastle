@@ -11,9 +11,9 @@ class PlayerManager {
 
     // Player configuration
     this.playerConfig = {
-      redPlayer: '🔴',      // Player name for red pieces
-      yellowPlayer: '🟡',   // Player name for yellow pieces
-      lastWinner: null,     // Who won the last game
+      redPlayer: '🔴', // Player name for red pieces
+      yellowPlayer: '🟡', // Player name for yellow pieces
+      lastWinner: null, // Who won the last game
       startingPlayer: this.PLAYER1 // Who starts the current game
     };
 
@@ -65,7 +65,8 @@ class PlayerManager {
       // Draw - keep the same starting player (no change needed)
     } else {
       // Loser starts next game
-      this.playerConfig.startingPlayer = lastWinner === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+      this.playerConfig.startingPlayer =
+                lastWinner === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
     }
 
     this.currentPlayer = this.playerConfig.startingPlayer;
@@ -86,7 +87,9 @@ class PlayerManager {
      * @returns {string} Player display name
      */
   getPlayerDisplayName(player) {
-    return player === this.PLAYER1 ? this.playerConfig.redPlayer : this.playerConfig.yellowPlayer;
+    return player === this.PLAYER1
+      ? this.playerConfig.redPlayer
+      : this.playerConfig.yellowPlayer;
   }
 
   /**
