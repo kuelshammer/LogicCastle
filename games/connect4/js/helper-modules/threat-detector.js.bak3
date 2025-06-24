@@ -1,0 +1,179 @@
+/**
+ * ThreatDetector - Detects immediate winning and blocking positions
+ *
+ * Core responsibility: Identify critical moves (wins/blocks) that must be handled immediately
+ */
+class ThreatDetector {
+  constructor(game) {
+    this.game = game;
+  }
+
+  /**
+     * Detect all immediate winning moves for current player
+     * @returns {Array} Array of winning moves {column, row, player}
+     */
+  detectWinningMoves(player = null) {
+    const currentPlayer = player || this.game.currentPlayer;
+    const winningMoves = [];
+    const validMoves = this.game.getValidMoves();
+
+    for (const col of validMoves) {
+      const moveResult = this.game.simulateMove(col, currentPlayer);
+      if (moveResult && moveResult.isWin) {
+        winningMoves.push({
+          column: col,
+          row: moveResult.row,
+          player: currentPlayer,
+          winType: moveResult.winType,
+          winningCells: moveResult.winningCells
+        });
+      }
+    }
+
+    return winningMoves;
+  }
+
+  /**
+     * Detect all moves that block opponent's immediate wins
+     * @returns {Array} Array of blocking moves {column, row, blocks}
+     */
+  detectBlockingMoves() {
+    const opponent = this.game.currentPlayer === 1 ? 2 : 1;
+    const opponentWins = this.detectWinningMoves(_opponent);
+
+    return opponentWins.map(win => ({
+      column: win.column,
+      row: win.row,
+      blocks: win,
+      reason: 'Blocks opponent winning move',
+      urgency: 'critical'
+    }));
+  }
+
+  /**
+     * Detect immediate threats (opponent can win next turn)
+     * @returns {Object} {winningMoves, blockingMoves, hasImmediateThreat}
+     */
+  detectImmediateThreats() {
+    const winningMoves = this.detectWinningMoves();
+    const blockingMoves = this.detectBlockingMoves();
+
+    return {
+      winningMoves,
+      blockingMoves,
+      hasImmediateThreat: blockingMoves.length > 0,
+      hasWinningOpportunity: winningMoves.length > 0
+    };
+  }
+
+  /**
+     * Count threats (near-wins) for a player in all directions
+     * @param {number} player - Player to count threats for
+     * @returns {Array} Array of threat positions
+     */
+  countThreats(player = null) {
+    const targetPlayer = player || this.game.currentPlayer;
+    const threats = [];
+    const board = this.game.getBoard();
+    const ROWS = this.game.ROWS;
+    const COLS = this.game.COLS;
+
+    // Check all positions for 3-in-a-row patterns that could become 4
+    for (let row = 0; row < ROWS; row++) {
+      for (let col = 0; col < COLS; col++) {
+        if (board[row][col] === 0) { // Empty cell
+          // Check if placing piece here creates a threat
+          const threatInfo = this.analyzeThreatAtPosition(row, col, targetPlayer, board);
+          if (threatInfo.isThreat) {
+            threats.push({
+              row,
+              col,
+              player: targetPlayer,
+              ...threatInfo
+            });
+          }
+        }
+      }
+    }
+
+    return threats;
+  }
+
+  /**
+     * Analyze if a position would create a threat for the given player
+     * @private
+     */
+  analyzeThreatAtPosition(row, col, player, board) {
+    const directions = [
+      [0, 1],   // Horizontal
+      [1, 0],   // Vertical
+      [1, 1],   // Diagonal /
+      [1, -1]   // Diagonal \
+    ];
+
+    for (const [dRow, dCol] of directions) {
+      const count = this.countInDirection(row, col, dRow, dCol, player, board);
+      if (count >= 3) {
+        return {
+          isThreat: true,
+          direction: [dRow, dCol],
+          count,
+          type: this.getDirectionName(dRow, dCol)
+        };
+      }
+    }
+
+    return { isThreat: false };
+  }
+
+  /**
+     * Count pieces in a direction from a position (including the position itself)
+     * @private
+     */
+  countInDirection(row, col, dRow, dCol, player, board) {
+    let count = 1; // Count the position itself
+    const ROWS = this.game.ROWS;
+    const COLS = this.game.COLS;
+
+    // Count in positive direction
+    let r = row + dRow;
+    let c = col + dCol;
+    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
+      count++;
+      r += dRow;
+      c += dCol;
+    }
+
+    // Count in negative direction
+    r = row - dRow;
+    c = col - dCol;
+    while (r >= 0 && r < ROWS && c >= 0 && c < COLS && board[r][c] === player) {
+      count++;
+      r -= dRow;
+      c -= dCol;
+    }
+
+    return count;
+  }
+
+  /**
+     * Get human-readable direction name
+     * @private
+     */
+  getDirectionName(dRow, dCol) {
+    if (dRow === 0) return 'horizontal';
+    if (dCol === 0) return 'vertical';
+    if (dRow === dCol) return 'diagonal-down';
+    return 'diagonal-up';
+  }
+}
+
+// Export for modular usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { ThreatDetector };
+}
+
+// Global access for backward compatibility
+if (typeof window !== 'undefined') {
+  window.ThreatDetector = ThreatDetector;
+}

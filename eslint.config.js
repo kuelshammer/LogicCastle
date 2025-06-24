@@ -51,6 +51,8 @@ export default [
         Connect4AI: 'readonly',
         Connect4UI: 'readonly',
         Connect4Helpers: 'readonly',
+        Connect4ForkDetection: 'readonly',
+        BaseBotStrategy: 'readonly',
         GobangGame: 'readonly',
         GobangAI: 'readonly',
         GobangUI: 'readonly',
@@ -58,7 +60,11 @@ export default [
         TrioAI: 'readonly',
         TrioUI: 'readonly',
         testSuite: 'readonly',
-        testFramework: 'readonly'
+        testFramework: 'readonly',
+        
+        // Browser performance API
+        performance: 'readonly',
+        PerformanceObserver: 'readonly'
       }
     },
     rules: {

@@ -1,0 +1,331 @@
+/**
+ * GameStateManager - Game state serialization and management
+ *
+ * Handles saving, loading, and validating game states.
+ * Provides state persistence and recovery functionality.
+ */
+class GameStateManager {
+  constructor(gameConstants) {
+    this.ROWS = gameConstants.ROWS || 6;
+    this.COLS = gameConstants.COLS || 7;
+    this.EMPTY = gameConstants.EMPTY || 0;
+    this.PLAYER1 = gameConstants.PLAYER1 || 1;
+    this.PLAYER2 = gameConstants.PLAYER2 || 2;
+
+    this.storageKey = 'connect4_gamestate';
+  }
+
+  /**
+     * Create a state snapshot of the current game
+     * @param {Object} gameData - Game data to serialize
+     * @returns {Object} Serializable game state
+     */
+  createSnapshot(gameData) {
+    return {
+      version: '2.0',
+      timestamp: new Date().toISOString(),
+      board: this.deepCopyBoard(gameData.board),
+      currentPlayer: gameData.currentPlayer,
+      gameOver: gameData.gameOver,
+      winner: gameData.winner,
+      winningCells: [...(gameData.winningCells || [])],
+      moveHistory: [...(gameData.moveHistory || [])],
+      playerConfig: gameData.playerConfig ? { ...gameData.playerConfig } : null,
+      scores: gameData.scores ? { ...gameData.scores } : null
+    };
+  }
+
+  /**
+     * Validate a game state snapshot
+     * @param {Object} snapshot - State snapshot to validate
+     * @returns {Object} Validation result with success flag and errors
+     */
+  validateSnapshot(snapshot) {
+    const errors = [];
+
+    // Check version compatibility
+    if (!snapshot.version) {
+      errors.push('Missing version information');
+    }
+
+    // Validate board structure
+    if (!snapshot.board || !Array.isArray(snapshot.board)) {
+      errors.push('Invalid board structure');
+    } else {
+      // Check board dimensions
+      if (snapshot.board.length !== this.ROWS) {
+        errors.push(`Invalid board height: expected ${this.ROWS}, got ${snapshot.board.length}`);
+      }
+
+      // Check each row
+      for (let row = 0; row < snapshot.board.length; row++) {
+        if (!Array.isArray(snapshot.board[row])) {
+          errors.push(`Invalid row ${row}: not an array`);
+          continue;
+        }
+
+        if (snapshot.board[row].length !== this.COLS) {
+          errors.push(`Invalid row ${row} width: expected ${this.COLS}, got ${snapshot.board[row].length}`);
+        }
+
+        // Check cell values
+        for (let col = 0; col < snapshot.board[row].length; col++) {
+          const cell = snapshot.board[row][col];
+          if (![this.EMPTY, this.PLAYER1, this.PLAYER2].includes(cell)) {
+            errors.push(`Invalid cell value at (${row},${col}): ${cell}`);
+          }
+        }
+      }
+    }
+
+    // Validate current player
+    if (![this.PLAYER1, this.PLAYER2].includes(snapshot.currentPlayer)) {
+      errors.push(`Invalid current player: ${snapshot.currentPlayer}`);
+    }
+
+    // Validate game state consistency
+    if (typeof snapshot.gameOver !== 'boolean') {
+      errors.push('Invalid gameOver flag');
+    }
+
+    // Validate winner
+    if (snapshot.winner !== null && ![this.PLAYER1, this.PLAYER2].includes(snapshot.winner)) {
+      errors.push(`Invalid winner: ${snapshot.winner}`);
+    }
+
+    // Validate move history
+    if (snapshot.moveHistory && !Array.isArray(snapshot.moveHistory)) {
+      errors.push('Invalid move history: not an array');
+    }
+
+    // Validate winning cells
+    if (snapshot.winningCells && !Array.isArray(snapshot.winningCells)) {
+      errors.push('Invalid winning cells: not an array');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors: errors,
+      warnings: this.checkStateWarnings(snapshot)
+    };
+  }
+
+  /**
+     * Check for potential state warnings (non-blocking issues)
+     * @param {Object} snapshot - State snapshot to check
+     * @returns {Array} Array of warning messages
+     */
+  checkStateWarnings(snapshot) {
+    const warnings = [];
+
+    // Check for inconsistent game state
+    if (snapshot.gameOver && !snapshot.winner && snapshot.winningCells.length > 0) {
+      warnings.push('Game marked as over with winning cells but no winner (possible draw state issue)');
+    }
+
+    // Check move history consistency
+    if (snapshot.moveHistory && snapshot.board) {
+      const expectedMoves = this.countPiecesOnBoard(snapshot.board);
+      if (snapshot.moveHistory.length !== expectedMoves) {
+        warnings.push(`Move history length (${snapshot.moveHistory.length}) doesn't match pieces on board (${expectedMoves})`);
+      }
+    }
+
+    // Check timestamp validity
+    if (snapshot.timestamp) {
+      const stateDate = new Date(snapshot.timestamp);
+      const now = new Date();
+      if (stateDate > now) {
+        warnings.push('State timestamp is in the future');
+      }
+    }
+
+    return warnings;
+  }
+
+  /**
+     * Save game state to localStorage
+     * @param {Object} gameData - Game data to save
+     * @returns {boolean} True if save was successful
+     */
+  saveState(gameData) {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    try {
+      const snapshot = this.createSnapshot(gameData);
+      const validation = this.validateSnapshot(snapshot);
+
+      if (!validation.isValid) {
+        console.warn('Cannot save invalid game state:', validation.errors);
+        return false;
+      }
+
+      localStorage.setItem(this.storageKey, JSON.stringify(snapshot));
+      return true;
+    } catch (error) {
+      console.warn('Could not save game state:', error.message);
+      return false;
+    }
+  }
+
+  /**
+     * Load game state from localStorage
+     * @returns {Object|null} Loaded game state or null if not available
+     */
+  loadState() {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    try {
+      const data = localStorage.getItem(this.storageKey);
+      if (!data) {
+        return null;
+      }
+
+      const snapshot = JSON.parse(data);
+      const validation = this.validateSnapshot(snapshot);
+
+      if (!validation.isValid) {
+        console.warn('Loaded game state is invalid:', validation.errors);
+        return null;
+      }
+
+      if (validation.warnings.length > 0) {
+        console.warn('Game state warnings:', validation.warnings);
+      }
+
+      return snapshot;
+    } catch (error) {
+      console.warn('Could not load game state:', error.message);
+      return null;
+    }
+  }
+
+  /**
+     * Clear saved game state
+     */
+  clearState() {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(this.storageKey);
+    }
+  }
+
+  /**
+     * Check if saved state exists
+     * @returns {boolean} True if saved state exists
+     */
+  hasSavedState() {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    return localStorage.getItem(this.storageKey) !== null;
+  }
+
+  /**
+     * Export game state as JSON string
+     * @param {Object} gameData - Game data to export
+     * @returns {string} JSON representation of game state
+     */
+  exportState(gameData) {
+    const snapshot = this.createSnapshot(gameData);
+    return JSON.stringify(snapshot, null, 2);
+  }
+
+  /**
+     * Import game state from JSON string
+     * @param {string} jsonData - JSON string containing game state
+     * @returns {Object|null} Imported game state or null if invalid
+     */
+  importState(jsonData) {
+    try {
+      const snapshot = JSON.parse(jsonData);
+      const validation = this.validateSnapshot(snapshot);
+
+      if (!validation.isValid) {
+        console.warn('Cannot import invalid game state:', validation.errors);
+        return null;
+      }
+
+      return snapshot;
+    } catch (error) {
+      console.warn('Could not import game state:', error.message);
+      return null;
+    }
+  }
+
+  /**
+     * Create a deep copy of the game board
+     * @param {Array} board - Game board to copy
+     * @returns {Array} Deep copy of the board
+     */
+  deepCopyBoard(board) {
+    if (!board || !Array.isArray(board)) {
+      return [];
+    }
+
+    return board.map(row => Array.isArray(row) ? [...row] : row);
+  }
+
+  /**
+     * Count total pieces on the board
+     * @param {Array} board - Game board
+     * @returns {number} Number of pieces on the board
+     */
+  countPiecesOnBoard(board) {
+    if (!board || !Array.isArray(board)) {
+      return 0;
+    }
+
+    let count = 0;
+    for (let row = 0; row < board.length; row++) {
+      for (let col = 0; col < board[row].length; col++) {
+        if (board[row][col] !== this.EMPTY) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  /**
+     * Create a minimal state for quick saves (board + essential info only)
+     * @param {Object} gameData - Game data
+     * @returns {Object} Minimal state snapshot
+     */
+  createMinimalSnapshot(gameData) {
+    return {
+      board: this.deepCopyBoard(gameData.board),
+      currentPlayer: gameData.currentPlayer,
+      moveHistory: [...(gameData.moveHistory || [])]
+    };
+  }
+
+  /**
+     * Restore a game from a minimal snapshot
+     * @param {Object} minimalSnapshot - Minimal state snapshot
+     * @returns {Object} Expanded game state
+     */
+  expandMinimalSnapshot(minimalSnapshot) {
+    return {
+      ...minimalSnapshot,
+      gameOver: false,
+      winner: null,
+      winningCells: [],
+      playerConfig: null,
+      scores: null,
+      timestamp: new Date().toISOString(),
+      version: '2.0'
+    };
+  }
+}
+
+// Export for both Node.js and browser environments
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = GameStateManager;
+} else if (typeof window !== 'undefined') {
+  window.GameStateManager = GameStateManager;
+}

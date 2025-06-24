@@ -1,25 +1,463 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites name="vitest tests" tests="10" failures="0" errors="0" time="0.020341792">
-    <testsuite name="tests/vitest/new-bot-mapping.vitest.js" timestamp="2025-06-24T06:17:47.125Z" hostname="m-kuelshammer-fa2a77bb0c7c.rgsinzig.de" tests="10" failures="0" errors="0" skipped="0" time="0.020341792">
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; 3-Tier Bot Progression &gt; Easy bot should map to smart-random" time="0.011414959">
+<testsuites name="vitest tests" tests="199" failures="1" errors="0" time="6.871344378">
+    <testsuite name="tests/vitest/ai-strategy-dom-tests.vitest.js" timestamp="2025-06-24T11:49:12.666Z" hostname="Mac" tests="16" failures="0" errors="0" skipped="0" time="0.14443525">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should handle strategic analysis integration" time="0.089102334">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; 3-Tier Bot Progression &gt; Medium bot should map to offensiv-gemischt" time="0.001092334">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should handle multiple consecutive moves without corruption" time="0.009241458">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; 3-Tier Bot Progression &gt; Strong bot should map to monte-carlo" time="0.001195583">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should apply even/odd strategy with DOM feedback" time="0.002088291">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Bot Strength Progression &gt; Should have clear win rate progression" time="0.000991208">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should detect Zugzwang situations with UI integration" time="0.00767375">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Bot Strength Progression &gt; Should have meaningful difficulty gaps" time="0.000889917">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should analyze fork opportunities with DOM updates" time="0.006251417">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; UI Options Validation &gt; Should have exactly 4 game modes (including 2-player)" time="0.0009195">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should fallback to safe random with DOM state" time="0.00213775">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; UI Options Validation &gt; Should have clear bot names" time="0.000890917">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Enhanced Smart (DOM-dependent) &gt; should maintain performance under complex board states" time="0.001292375">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Expected Performance Ranges &gt; Easy bot should be beginner-friendly" time="0.00066775">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should maintain move determinism for identical states" time="0.001171167">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Expected Performance Ranges &gt; Medium bot should provide balanced challenge" time="0.000772042">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should show differences between random vs strategic bots" time="0.002406333">
         </testcase>
-        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Expected Performance Ranges &gt; Strong bot should be challenging for experienced players" time="0.000660584">
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should show defensive vs offensive preferences" time="0.006042916">
+        </testcase>
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should prevent state corruption during analysis" time="0.001001875">
+        </testcase>
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Consistency (DOM-dependent) &gt; should handle cross-bot performance in complex positions" time="0.001202542">
+        </testcase>
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should handle random fallback behavior with DOM" time="0.0070855">
+        </testcase>
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should maintain multiple move sequence consistency" time="0.001195458">
+        </testcase>
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should perform well with helper analysis integration" time="0.001247417">
+        </testcase>
+        <testcase classname="tests/vitest/ai-strategy-dom-tests.vitest.js" name="AI Strategy Smart Random (DOM-dependent) &gt; should handle state isolation across multiple calls" time="0.0007695">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/bot-matrix-demo.vitest.js" timestamp="2025-06-24T11:49:12.670Z" hostname="Mac" tests="1" failures="0" errors="0" skipped="0" time="0.040396">
+        <testcase classname="tests/vitest/bot-matrix-demo.vitest.js" name="Bot Matrix Demo Tests &gt; Demo: 50-Game Bot Matrix with &quot;Verlierer beginnt&quot; Logic" time="0.039330708">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/bot-performance-100-series.vitest.js" timestamp="2025-06-24T11:49:12.670Z" hostname="Mac" tests="6" failures="0" errors="0" skipped="0" time="0.264534875">
+        <testcase classname="tests/vitest/bot-performance-100-series.vitest.js" name="Bot Performance Validation - 100 Game Series &gt; Universal Logic Consistency &gt; should complete 100 games without errors (Easy vs Medium)" time="0.064837125">
+        </testcase>
+        <testcase classname="tests/vitest/bot-performance-100-series.vitest.js" name="Bot Performance Validation - 100 Game Series &gt; Universal Logic Consistency &gt; should complete 100 games without errors (Medium vs Hard)" time="0.098259625">
+        </testcase>
+        <testcase classname="tests/vitest/bot-performance-100-series.vitest.js" name="Bot Performance Validation - 100 Game Series &gt; Universal Logic Consistency &gt; should show skill differential (Hard vs Easy)" time="0.056000709">
+        </testcase>
+        <testcase classname="tests/vitest/bot-performance-100-series.vitest.js" name="Bot Performance Validation - 100 Game Series &gt; Universal Logic Implementation Validation &gt; all bots should follow 4-stage decision process" time="0.011402291">
+            <system-out>
+
+🔧 Universal Logic Tests: 150/150 passed
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/vitest/bot-performance-100-series.vitest.js" name="Bot Performance Validation - 100 Game Series &gt; Universal Logic Implementation Validation &gt; no bot should make illegal moves in extended play" time="0.014642209">
+        </testcase>
+        <testcase classname="tests/vitest/bot-performance-100-series.vitest.js" name="Bot Performance Validation - 100 Game Series &gt; Performance Metrics &gt; game completion rate should be 100%" time="0.018023583">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/bot-strength-comparison.vitest.js" timestamp="2025-06-24T11:49:12.672Z" hostname="Mac" tests="8" failures="0" errors="0" skipped="1" time="0.0937335">
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; Enhanced Smart Bot should beat Smart Random Bot majority of time" time="0.052763834">
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; Enhanced Smart Bot should dominate Easy Bot" time="0.004294">
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; Smart Random Bot should beat Easy Bot" time="0.002662583">
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; Enhanced Smart Bot should have higher strategic move ratio" time="0.010783375">
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; All bots should prefer strategic opening moves" time="0.00938875">
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; Bots should handle complex board states without crashing" time="0.010673042">
+            <system-out>
+Complex Board State Test:
+
+            </system-out>
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; Bot strength hierarchy should be maintained" time="0.001874458">
+        </testcase>
+        <testcase classname="tests/vitest/bot-strength-comparison.vitest.js" name="Bot Strength Comparison Tests &gt; 1000-Game Bot Matrix Analysis with &quot;Verlierer beginnt&quot; Logic" time="0">
+            <skipped/>
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/bot-tournament.vitest.js" timestamp="2025-06-24T11:49:12.673Z" hostname="Mac" tests="3" failures="0" errors="0" skipped="0" time="0.085629917">
+        <testcase classname="tests/vitest/bot-tournament.vitest.js" name="Bot Tournament System &gt; should run complete tournament and establish rankings" time="0.029941084">
+        </testcase>
+        <testcase classname="tests/vitest/bot-tournament.vitest.js" name="Bot Tournament System &gt; should validate Enhanced Smart Bot performance metrics" time="0.039928125">
+        </testcase>
+        <testcase classname="tests/vitest/bot-tournament.vitest.js" name="Bot Tournament System &gt; should demonstrate strategic improvement over time" time="0.015195584">
+            <system-out>
+
+📈 Strategic Evolution Test...
+
+
+            </system-out>
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/comprehensive-bot-matrix-5x5.vitest.js" timestamp="2025-06-24T11:49:12.675Z" hostname="Mac" tests="1" failures="0" errors="0" skipped="0" time="0.687284792">
+        <testcase classname="tests/vitest/comprehensive-bot-matrix-5x5.vitest.js" name="Comprehensive 5x5 Bot Matrix - 100 Game Series &gt; should run complete 5x5 matrix and generate performance table" time="0.685668125">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/debug-bot-matrix.vitest.js" timestamp="2025-06-24T11:49:12.675Z" hostname="Mac" tests="2" failures="0" errors="0" skipped="0" time="0.023952042">
+        <testcase classname="tests/vitest/debug-bot-matrix.vitest.js" name="Debug Bot Matrix &gt; should count all games correctly" time="0.021673083">
+        </testcase>
+        <testcase classname="tests/vitest/debug-bot-matrix.vitest.js" name="Debug Bot Matrix &gt; should run small matrix without errors" time="0.00169775">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/dependency-injection.vitest.js" timestamp="2025-06-24T11:49:12.676Z" hostname="Mac" tests="22" failures="0" errors="0" skipped="0" time="0.195430125">
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; ServiceContainer Core Functionality &gt; should register and resolve simple services" time="0.081130875">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; ServiceContainer Core Functionality &gt; should support singleton services" time="0.003226041">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; ServiceContainer Core Functionality &gt; should handle factory functions" time="0.003518167">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; ServiceContainer Core Functionality &gt; should inject dependencies correctly" time="0.002862792">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; ServiceContainer Core Functionality &gt; should throw error for unregistered services" time="0.002519959">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; ServiceContainer Core Functionality &gt; should support child containers" time="0.002171667">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Interface Validation &gt; should validate objects against interfaces" time="0.002104333">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Interface Validation &gt; should create interface proxies for runtime validation" time="0.00091">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Interface Validation &gt; should validate known service interfaces" time="0.004374084">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; GameFactory Configuration &gt; should configure for testing environment" time="0.008097834">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; GameFactory Configuration &gt; should create bots with different difficulties" time="0.001995584">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; GameFactory Configuration &gt; should handle configuration errors gracefully" time="0.000842917">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; GameFactory Configuration &gt; should not reconfigure when already configured" time="0.000713041">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; GameFactory Configuration &gt; should reset configuration properly" time="0.00074425">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Game Instance Creation &gt; should create functional game instances" time="0.002806959">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Game Instance Creation &gt; should create game with UI when DOM element provided" time="0.000728625">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Game Instance Creation &gt; should validate interfaces when requested" time="0.000753958">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Integration with Legacy Code &gt; should maintain backward compatibility" time="0.001155291">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Integration with Legacy Code &gt; should support asynchronous service resolution" time="0.01526375">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Error Handling and Edge Cases &gt; should handle circular dependencies gracefully" time="0.002064375">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Error Handling and Edge Cases &gt; should handle malformed service registrations" time="0.001571292">
+        </testcase>
+        <testcase classname="tests/vitest/dependency-injection.vitest.js" name="Dependency Injection System &gt; Error Handling and Edge Cases &gt; should clear all services properly" time="0.004123417">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/expert-bot-quick-test.vitest.js" timestamp="2025-06-24T11:49:12.681Z" hostname="Mac" tests="8" failures="0" errors="0" skipped="0" time="0.027869667">
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; UI Mode Mapping &gt; Expert mode should map to monte-carlo difficulty" time="0.014893833">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; UI Mode Mapping &gt; Expert should use enhanced Monte Carlo configuration" time="0.0012655">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; Performance Validation &gt; Monte Carlo bot should make strategic moves" time="0.001954791">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; Performance Validation &gt; Expert bot should show center preference in opening" time="0.002433084">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; Performance Validation &gt; Expert bot should handle complex positions" time="0.003654708">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; Bot Hierarchy Validation &gt; Bot difficulty progression should be logical" time="0.000976208">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; Bot Hierarchy Validation &gt; Expert should be the highest difficulty available in UI" time="0.000789041">
+        </testcase>
+        <testcase classname="tests/vitest/expert-bot-quick-test.vitest.js" name="Expert Bot Integration Tests &gt; Monte Carlo Implementation Access &gt; Monte Carlo should use enhanced simulation count" time="0.000922708">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/expert-vs-strategic-quick.vitest.js" timestamp="2025-06-24T11:49:12.686Z" hostname="Mac" tests="7" failures="0" errors="0" skipped="0" time="0.133836209">
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Monte Carlo vs Strategic Bots &gt; Monte Carlo should outperform Defensive bot" time="0.064206417">
+        </testcase>
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Monte Carlo vs Strategic Bots &gt; Monte Carlo should outperform Enhanced Smart bot" time="0.011020625">
+        </testcase>
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Monte Carlo vs Strategic Bots &gt; Monte Carlo should dominate Smart Random bot" time="0.007481958">
+        </testcase>
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Expert Mode Validation &gt; Expert should be strongest available bot in UI hierarchy" time="0.001172833">
+        </testcase>
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Expert Mode Validation &gt; Monte Carlo should show consistent performance advantage" time="0.01086825">
+        </testcase>
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Strategic Depth Comparison &gt; Monte Carlo should show better opening play" time="0.000981625">
+        </testcase>
+        <testcase classname="tests/vitest/expert-vs-strategic-quick.vitest.js" name="Expert vs Strategic Bots Performance Tests &gt; Strategic Depth Comparison &gt; Monte Carlo should handle complex positions better" time="0.036482459">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/fork-detection.vitest.js" timestamp="2025-06-24T11:49:12.688Z" hostname="Mac" tests="14" failures="1" errors="0" skipped="0" time="0.105051625">
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Classic Fork Pattern Detection &gt; should detect _ x _ x _ pattern (user example)" time="0.041657375">
+            <failure message="expected 0 to be greater than or equal to 1" type="AssertionError">
+AssertionError: expected 0 to be greater than or equal to 1
+ ❯ tests/vitest/fork-detection.vitest.js:161:34
+            </failure>
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Classic Fork Pattern Detection &gt; should detect _ x _ x pattern" time="0.001452666">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Classic Fork Pattern Detection &gt; should detect x _ x _ pattern" time="0.009717041">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Classic Fork Pattern Detection &gt; should detect _ x x _ pattern" time="0.00121925">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Fork Counter-Move Calculation &gt; should calculate correct counter moves for _ x _ x pattern" time="0.010763625">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Fork Counter-Move Calculation &gt; should prioritize center positions in counter moves" time="0.005158416">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Critical Fork Defense &gt; should identify opponent forks as critical threats" time="0.004041833">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Critical Fork Defense &gt; should provide specific columns for counter-moves" time="0.004622667">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Fork Opportunity Detection &gt; should find opportunities to create our own forks" time="0.004806166">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Edge Cases and Validation &gt; should not detect forks when opponent pieces block pattern" time="0.00443475">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Edge Cases and Validation &gt; should handle empty board gracefully" time="0.000762834">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Edge Cases and Validation &gt; should handle full board gracefully" time="0.001612458">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Real Game Scenario Testing &gt; should solve the user reported problem: _ _ x x x _ _" time="0.006447042">
+        </testcase>
+        <testcase classname="tests/vitest/fork-detection.vitest.js" name="Fork Detection Core Logic &gt; Real Game Scenario Testing &gt; should recognize when player X can create winning fork" time="0.000709083">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/monte-carlo-enhanced.vitest.js" timestamp="2025-06-24T11:49:12.692Z" hostname="Mac" tests="17" failures="0" errors="0" skipped="0" time="0.224224834">
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Performance Improvements &gt; should use 1000 simulations instead of 100" time="0.049511458">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Performance Improvements &gt; should have time-boxing enabled" time="0.001685666">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Performance Improvements &gt; should complete thinking within time limit" time="0.017860292">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Adaptive Simulation Counts &gt; should adjust simulations based on game phase" time="0.001111625">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Adaptive Simulation Counts &gt; should use more simulations in mid-game" time="0.005260042">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Adaptive Simulation Counts &gt; should respect minimum simulations" time="0.000858875">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Adaptive Simulation Counts &gt; should respect maximum simulations" time="0.001230958">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; UCB1 Selection Strategy &gt; should explore unvisited columns first" time="0.003899459">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; UCB1 Selection Strategy &gt; should balance exploitation and exploration" time="0.001023125">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Confidence Weighting &gt; should apply confidence bonus to well-explored columns" time="0.000736167">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Strategic Strength &gt; should prefer winning moves in tactical positions" time="0.092717375">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Strategic Strength &gt; should avoid losing moves when possible" time="0.01228225">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Performance Benchmarks &gt; should run significantly more simulations than basic bot" time="0.009858667">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Performance Benchmarks &gt; should maintain good performance under time pressure" time="0.015629167">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Integration with Universal 4-Stage Logic &gt; should work as Stage 4 strategy within safe columns only" time="0.007300667">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Integration with Universal 4-Stage Logic &gt; should handle empty safe columns gracefully" time="0.000681042">
+        </testcase>
+        <testcase classname="tests/vitest/monte-carlo-enhanced.vitest.js" name="Enhanced Monte Carlo Bot Tests &gt; Integration with Universal 4-Stage Logic &gt; should handle single safe column efficiently" time="0.000562625">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/new-bot-mapping.vitest.js" timestamp="2025-06-24T11:49:12.699Z" hostname="Mac" tests="10" failures="0" errors="0" skipped="0" time="0.13921">
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; 3-Tier Bot Progression &gt; Easy bot should map to smart-random" time="0.0189055">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; 3-Tier Bot Progression &gt; Medium bot should map to offensiv-gemischt" time="0.001214166">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; 3-Tier Bot Progression &gt; Strong bot should map to monte-carlo" time="0.001146416">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Bot Strength Progression &gt; Should have clear win rate progression" time="0.045462792">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Bot Strength Progression &gt; Should have meaningful difficulty gaps" time="0.002601875">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; UI Options Validation &gt; Should have exactly 4 game modes (including 2-player)" time="0.004731333">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; UI Options Validation &gt; Should have clear bot names" time="0.003945542">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Expected Performance Ranges &gt; Easy bot should be beginner-friendly" time="0.003546459">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Expected Performance Ranges &gt; Medium bot should provide balanced challenge" time="0.002973209">
+        </testcase>
+        <testcase classname="tests/vitest/new-bot-mapping.vitest.js" name="Updated Bot Mapping Tests &gt; Expected Performance Ranges &gt; Strong bot should be challenging for experienced players" time="0.001613417">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/simple-backend.vitest.js" timestamp="2025-06-24T11:49:12.700Z" hostname="Mac" tests="12" failures="0" errors="0" skipped="0" time="0.065326">
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should perform basic calculations" time="0.028035625">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should work with DOM elements" time="0.001758792">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should handle async operations" time="0.016271292">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Simple Math Tests (Vitest Demo) &gt; should provide performance timing" time="0.004043083">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle array operations" time="0.001574125">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle object operations" time="0.002352959">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Array and Object Tests &gt; should handle deep equality" time="0.000947958">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Error Handling Tests &gt; should catch thrown errors" time="0.000968959">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Error Handling Tests &gt; should handle function calls that should not throw" time="0.000882">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate board operations" time="0.003929333">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate win detection logic" time="0.000716375">
+        </testcase>
+        <testcase classname="tests/vitest/simple-backend.vitest.js" name="Game Logic Simulation (without actual classes) &gt; should simulate valid moves checking" time="0.000823291">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/strategic-bot-fix-validation.vitest.js" timestamp="2025-06-24T11:49:12.702Z" hostname="Mac" tests="5" failures="0" errors="0" skipped="0" time="0.100676792">
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; Each strategic bot type uses distinct implementation" time="0.061625834">
+        </testcase>
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; getBestMove routes to specific strategy methods" time="0.009765417">
+        </testcase>
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; Strategic bots show different move preferences" time="0.002968833">
+        </testcase>
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Strategic Bot Fix Validation &gt; Universal logic fallback works for unknown bot types" time="0.001019542">
+        </testcase>
+        <testcase classname="tests/vitest/strategic-bot-fix-validation.vitest.js" name="Performance Impact Assessment &gt; Strategic routing does not significantly impact performance" time="0.00762575">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/ui-bot-mapping-simple.vitest.js" timestamp="2025-06-24T11:49:12.703Z" hostname="Mac" tests="12" failures="0" errors="0" skipped="0" time="0.121781">
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Difficulty Mapping &gt; should map vs-bot-easy to offensiv-gemischt (Rank #4)" time="0.089103042">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Difficulty Mapping &gt; should map vs-bot-medium to enhanced-smart (Rank #2)" time="0.001182791">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Difficulty Mapping &gt; should map vs-bot-strong to defensive (Rank #1)" time="0.008383083">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Difficulty Mapping &gt; should maintain legacy vs-bot-smart compatibility" time="0.002639125">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Difficulty Mapping &gt; should default to easy for unknown modes" time="0.006459916">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; AI Mode Detection &gt; should correctly identify AI modes" time="0.004967958">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Player Name Configuration &gt; should set correct player names for bot modes" time="0.001871834">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Player Name Configuration &gt; should return default name for non-bot modes" time="0.001537917">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Strength Hierarchy Validation &gt; should implement correct strength ordering based on scientific analysis" time="0.001384708">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Bot Strength Hierarchy Validation &gt; should provide meaningful difficulty progression" time="0.000898583">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Performance Validation Documentation &gt; should document that bot selection is scientifically validated" time="0.001364667">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mapping-simple.vitest.js" name="UI Bot Mapping Logic &gt; Performance Validation Documentation &gt; should validate available bot modes match HTML select options" time="0.000812541">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/ui-bot-mode-validation.vitest.js" timestamp="2025-06-24T11:49:12.706Z" hostname="Mac" tests="14" failures="0" errors="0" skipped="0" time="0.003500333">
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Mode Detection &gt; should correctly identify AI modes" time="0.001098667">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Difficulty Mapping &gt; should map vs-bot-easy to offensiv-gemischt (Rank #4)" time="0.000154667">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Difficulty Mapping &gt; should map vs-bot-medium to enhanced-smart (Rank #2)" time="0.000173375">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Difficulty Mapping &gt; should map vs-bot-strong to defensive (Rank #1)" time="0.000070666">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Difficulty Mapping &gt; should maintain legacy vs-bot-smart compatibility" time="0.000102875">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Strength Hierarchy &gt; should implement correct strength ordering" time="0.000100042">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Bot Strength Hierarchy &gt; should use scientifically validated bot rankings" time="0.000095333">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Player Name Configuration &gt; should set correct player names for bot modes" time="0.000132292">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Player Name Configuration &gt; should reset player names for two-player mode" time="0.000174834">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; AI Move Generation &gt; should generate valid moves for all bot difficulties" time="0.000160875">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; AI Move Generation &gt; should handle empty board scenarios" time="0.0000575">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Legacy Compatibility &gt; should maintain backward compatibility with existing modes" time="0.000045083">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="UI Bot Mode Validation &gt; Legacy Compatibility &gt; should handle unknown modes gracefully" time="0.000032792">
+        </testcase>
+        <testcase classname="tests/vitest/ui-bot-mode-validation.vitest.js" name="Bot Mode Performance Validation &gt; should validate that chosen bots are performance-tested" time="0.000091541">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/ui-hints-modal-integration.vitest.js" timestamp="2025-06-24T11:49:12.708Z" hostname="Mac" tests="12" failures="0" errors="0" skipped="0" time="0.184405917">
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Hints button should exist and have correct styling" time="0.103239083">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Hints modal should toggle on button click" time="0.010447666">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; F2 keyboard shortcut should toggle hints modal" time="0.005677458">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; F1 keyboard shortcut should still work for help modal" time="0.007987333">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Close button should close hints modal" time="0.022262875">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Click outside modal should close it" time="0.002939542">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; All help checkboxes should be present in modal" time="0.005700208">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Modal structure should be correct" time="0.005047542">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Modal should not interfere with game functionality" time="0.008036625">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Both modals should be able to coexist" time="0.002085">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Checkbox states should persist across modal toggles" time="0.003603625">
+        </testcase>
+        <testcase classname="tests/vitest/ui-hints-modal-integration.vitest.js" name="UI Hints Modal Integration Tests &gt; Event listeners should be properly attached" time="0.005220334">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/ui-undo-conditional.vitest.js" timestamp="2025-06-24T11:49:12.710Z" hostname="Mac" tests="12" failures="0" errors="0" skipped="0" time="0.158667875">
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should initialize undo state as disabled for both players" time="0.058663417">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should bind undo checkbox elements correctly" time="0.0069175">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should update undo state when Player 1 checkbox is toggled" time="0.008366458">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should update undo state when Player 2 checkbox is toggled" time="0.007674625">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should disable undo button when current player has undo disabled" time="0.009649">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should enable undo button when current player has undo enabled" time="0.036488834">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should prevent undo when current player has undo disabled" time="0.004221041">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should allow undo when current player has undo enabled" time="0.001831083">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should work independently for different players" time="0.009301417">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should persist checkbox states correctly" time="0.009629417">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should respect undo settings during game state changes" time="0.001882917">
+        </testcase>
+        <testcase classname="tests/vitest/ui-undo-conditional.vitest.js" name="UI Undo Conditional (Vitest Integration) &gt; should handle AI thinking state correctly" time="0.001976292">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/ultimate-bot-matrix-1000.vitest.js" timestamp="2025-06-24T11:49:12.712Z" hostname="Mac" tests="1" failures="0" errors="0" skipped="0" time="3.957558959">
+        <testcase classname="tests/vitest/ultimate-bot-matrix-1000.vitest.js" name="Ultimate 5x5 Bot Matrix - 1000 Games with &quot;Verlierer beginnt&quot; Logic &gt; should run complete 5x5 matrix with all bots and generate comprehensive analysis" time="3.95614175">
+        </testcase>
+    </testsuite>
+    <testsuite name="tests/vitest/universal-bot-logic.vitest.js" timestamp="2025-06-24T11:49:12.712Z" hostname="Mac" tests="16" failures="0" errors="0" skipped="0" time="0.113838666">
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 1: Direct Win Detection &gt; should detect horizontal winning move" time="0.021209417">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 1: Direct Win Detection &gt; should detect vertical winning move" time="0.001203084">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 1: Direct Win Detection &gt; should return null when no winning move exists" time="0.002368125">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 2: Comprehensive Blocking (includes _ x _ x _ pattern) &gt; should block immediate opponent winning move" time="0.0023275">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 2: Comprehensive Blocking (includes _ x _ x _ pattern) &gt; should block dangerous fork pattern _ x _ x" time="0.042597333">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 2: Comprehensive Blocking (includes _ x _ x _ pattern) &gt; should return null when no blocking needed" time="0.001000375">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 3: Safe Column Identification &gt; should identify safe columns (no traps)" time="0.001113834">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 3: Safe Column Identification &gt; should return all moves if no safe moves exist" time="0.001092709">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 4: Bot-Specific Selection &gt; easy bot should select randomly from safe columns" time="0.004263125">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 4: Bot-Specific Selection &gt; medium bot should prefer center columns" time="0.0008475">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 4: Bot-Specific Selection &gt; should handle single safe column" time="0.000741417">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; STAGE 4: Bot-Specific Selection &gt; should return null for empty safe columns" time="0.000651291">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; Universal Bot Logic Integration &gt; all bot difficulties should follow 4-stage process" time="0.007048542">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; Universal Bot Logic Integration &gt; should prioritize winning over blocking" time="0.016330792">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Universal Bot Logic (4-Stage System) &gt; Universal Bot Logic Integration &gt; should prioritize blocking over safe random moves" time="0.001039916">
+        </testcase>
+        <testcase classname="tests/vitest/universal-bot-logic.vitest.js" name="Bot Performance Validation &gt; should run game series between bots without errors" time="0.008740208">
         </testcase>
     </testsuite>
 </testsuites>
