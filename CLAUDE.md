@@ -171,6 +171,73 @@ All high-priority tasks completed:
 - **Browser Compatibility**: Fixed ES6 module exports for production deployment
 - **Zero Regressions**: All existing functionality preserved during migration
 
+## 🎯 NEXT PRIORITY: CI/CD TEST-REPARATUR PLAN (2025-06-24)
+
+**Aktueller Status:** Code Quality 100% ✅, aber Tests teilweise fehlerhaft (61% Pass Rate)
+
+### 📊 **Situation Analysis**
+**Pipeline Status:**
+- ✅ **Code Quality**: ESLint + Prettier = 100% ✅
+- ❌ **Integration Tests**: 191/314 (61% Pass Rate)  
+- ❌ **Unit Tests**: Vitest teilweise fehlerhaft
+- ⚠️ **Kernproblem**: `testSuite.group is not a function`
+
+### 🛠️ **3-Phasen Reparatur-Plan**
+
+#### 📋 **PHASE 1: Test Framework Reparatur (Priorität: KRITISCH)**
+**Ziel**: 0% → 60% UI/Integration Tests
+
+**Step 1.1: TestSuite.group() Methode hinzufügen**
+- ✅ Erweitere TestSuite-Klasse um fehlende `group()` Methode
+- ✅ Backward-Compatibility für bestehende Tests
+- ✅ CI/CD-freundliche JSON-Ausgabe
+
+**Step 1.2: Test Runner Updates** 
+- ✅ Update `run-all-tests-headless.js` für neue TestSuite API
+- ✅ Verbesserte Error Handling in CI environment
+- ✅ Puppeteer-Mock für DOM-Tests
+
+**Step 1.3: DOM-Mocking für UI-Tests**
+- ✅ Fix UI-Component-Tests (aktuell 0/53)
+- ✅ Browser-kompatible Event-Simulation
+- ✅ Mock-DOM für headless Testing
+
+#### 🧩 **PHASE 2: Modular AI Test-Migration (Priorität: HOCH)**
+**Ziel**: 61% → 85% Overall Pass Rate
+
+**Step 2.1: Legacy AI Tests Update**
+- ✅ Migration von `_Connect4AI` → `Connect4AI`
+- ✅ Modular AI Strategy Tests
+- ✅ Monte Carlo Expert-Mode Validation
+
+**Step 2.2: Browser-kompatible Test-Mocks**
+- ✅ Mock-Factories für modular AI Strategien
+- ✅ Window.* Globals für Browser-Tests  
+- ✅ Dynamic AI loading in tests
+
+#### 🔧 **PHASE 3: Test Suite Modernisierung (Priorität: MEDIUM)**
+**Ziel**: 85% → 100% Pass Rate
+
+**Step 3.1: UI Component Tests Completion**
+- ✅ Fix alle 53 UI-Component-Tests
+- ✅ End-to-End Game-Flow Tests
+- ✅ Multi-browser compatibility
+
+**Step 3.2: Performance & Cleanup**
+- ✅ Test-Timeout-Optimierung für CI
+- ✅ Parallele Test-Ausführung
+- ✅ Memory-Leak-Prevention
+
+### 🎯 **Success Metrics**
+- **Phase 1**: CI Pipeline grün, UI Tests 0% → 60%
+- **Phase 2**: Modular AI integriert, Pass Rate 85%+
+- **Phase 3**: 100% Test Pass Rate erreicht
+
+### ⚡ **Ausführungsplan**
+- **Woche 1**: Kritische Framework-Reparaturen (Phase 1)
+- **Woche 2**: AI-Migration & Integration (Phase 2) 
+- **Woche 3**: Finalisierung & Validation (Phase 3)
+
 ## 🏗️ CONNECT4 REFACTORING PROGRESS
 
 ### ✅ COMPLETED PHASES

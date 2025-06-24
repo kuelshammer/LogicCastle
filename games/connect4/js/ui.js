@@ -110,6 +110,9 @@ class _Connect4UI {
      */
     createBoard() {
         this.boardElement = document.getElementById('gameBoard');
+        if (!this.boardElement) {
+            return; // Skip if no DOM element available (e.g., in tests)
+        }
         this.boardElement.innerHTML = '';
 
         // Create cells
@@ -164,15 +167,17 @@ class _Connect4UI {
      */
     attachEventListeners() {
         // Column indicators for moves
-        this.columnIndicators.forEach((indicator, col) => {
-            indicator.addEventListener('click', () => this.handleColumnClick(col));
-            indicator.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.handleColumnClick(col);
-                }
+        if (this.columnIndicators && this.columnIndicators.length > 0) {
+            this.columnIndicators.forEach((indicator, col) => {
+                indicator.addEventListener('click', () => this.handleColumnClick(col));
+                indicator.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.handleColumnClick(col);
+                    }
+                });
             });
-        });
+        }
 
         // Keyboard controls
         document.addEventListener('keydown', this.handleKeyPress);
@@ -259,10 +264,12 @@ class _Connect4UI {
         });
 
         // Board hover effects
-        this.columnIndicators.forEach((indicator, col) => {
-            indicator.addEventListener('mouseenter', () => this.showPreview(col));
-            indicator.addEventListener('mouseleave', () => this.hidePreview());
-        });
+        if (this.columnIndicators && this.columnIndicators.length > 0) {
+            this.columnIndicators.forEach((indicator, col) => {
+                indicator.addEventListener('mouseenter', () => this.showPreview(col));
+                indicator.addEventListener('mouseleave', () => this.hidePreview());
+            });
+        }
     }
 
     /**
@@ -678,7 +685,7 @@ class _Connect4UI {
      * Show column preview on hover
      */
     showPreview(col) {
-        if (this.game.gameOver || this.game.isColumnFull(col)) {
+        if (this.game.gameOver || this.game.isColumnFull(col) || !this.columnIndicators || !this.columnIndicators[col]) {
             return;
         }
 
@@ -693,9 +700,11 @@ class _Connect4UI {
      * Hide column preview
      */
     hidePreview() {
-        this.columnIndicators.forEach(indicator => {
-            indicator.style.backgroundColor = '';
-        });
+        if (this.columnIndicators && this.columnIndicators.length > 0) {
+            this.columnIndicators.forEach(indicator => {
+                indicator.style.backgroundColor = '';
+            });
+        }
     }
 
     /**
@@ -1066,6 +1075,9 @@ class _Connect4UI {
     }
 
     updateColumnIndicators() {
+        if (!this.columnIndicators || this.columnIndicators.length === 0) {
+            return; // Skip if no DOM elements available (e.g., in tests)
+        }
         this.columnIndicators.forEach((indicator, col) => {
             const isFull = this.game.isColumnFull(col);
             const isDisabled = this.game.gameOver || this.aiThinking;
@@ -1109,30 +1121,40 @@ class _Connect4UI {
         }
 
         if (customMessage) {
-            this.gameStatus.textContent = customMessage;
+            if (this.gameStatus) {
+                this.gameStatus.textContent = customMessage;
+            }
             return;
         }
 
         if (this.game.gameOver) {
             if (this.game.winner) {
                 const displayName = this.getPlayerDisplayName(this.game.winner);
-                this.gameStatus.textContent = `${displayName} hat gewonnen!`;
+                if (this.gameStatus) {
+                    this.gameStatus.textContent = `${displayName} hat gewonnen!`;
+                }
             } else {
-                this.gameStatus.textContent = 'Unentschieden!';
+                if (this.gameStatus) {
+                    this.gameStatus.textContent = 'Unentschieden!';
+                }
             }
         } else if (this.aiThinking) {
-            this.gameStatus.textContent = '🤖 Smart Bot denkt nach...';
+            if (this.gameStatus) {
+                this.gameStatus.textContent = '🤖 Smart Bot denkt nach...';
+            }
         } else {
             const displayName = this.getPlayerDisplayName(this.game.currentPlayer);
-            this.gameStatus.textContent = `${displayName} ist am Zug`;
+            if (this.gameStatus) {
+                this.gameStatus.textContent = `${displayName} ist am Zug`;
+            }
         }
     }
 
     updateScores() {
-        if (this.scoreElements.red) {
+        if (this.scoreElements && this.scoreElements.red) {
             this.scoreElements.red.textContent = this.game.scores.red;
         }
-        if (this.scoreElements.yellow) {
+        if (this.scoreElements && this.scoreElements.yellow) {
             this.scoreElements.yellow.textContent = this.game.scores.yellow;
         }
     }
@@ -1140,27 +1162,33 @@ class _Connect4UI {
     updateControls() {
         const currentPlayerColor = this.game.currentPlayer === this.game.PLAYER1 ? 'red' : 'yellow';
         const undoAllowed = this.undoEnabled[currentPlayerColor];
-        this.undoBtn.disabled =
-            this.game.moveHistory.length === 0 ||
-            this.game.gameOver ||
-            this.aiThinking ||
-            !undoAllowed;
+        if (this.undoBtn) {
+            this.undoBtn.disabled =
+                this.game.moveHistory.length === 0 ||
+                this.game.gameOver ||
+                this.aiThinking ||
+                !undoAllowed;
+        }
     }
 
     /**
      * Update button texts based on game state
      */
     updateButtonTexts() {
-        if (this.game.gameOver) {
-            // After game ended - offer next game
-            this.newGameBtn.textContent = 'Nächstes Spiel';
-        } else {
-            // During active game - offer new game
-            this.newGameBtn.textContent = 'Neues Spiel';
+        if (this.newGameBtn) {
+            if (this.game.gameOver) {
+                // After game ended - offer next game
+                this.newGameBtn.textContent = 'Nächstes Spiel';
+            } else {
+                // During active game - offer new game
+                this.newGameBtn.textContent = 'Neues Spiel';
+            }
         }
 
         // Reset button is always the same
-        this.resetScoreBtn.textContent = 'Score zurücksetzen';
+        if (this.resetScoreBtn) {
+            this.resetScoreBtn.textContent = 'Score zurücksetzen';
+        }
     }
 
     /**

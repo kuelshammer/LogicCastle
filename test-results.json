@@ -1,16 +1,16 @@
 {
-  "timestamp": "2025-06-24T15:45:34.321Z",
+  "timestamp": "2025-06-24T20:49:52.958Z",
   "environment": {
     "ci": true,
     "node_version": "v23.11.0",
     "platform": "darwin"
   },
   "summary": {
-    "total": 303,
-    "passed": 181,
-    "failed": 122,
+    "total": 314,
+    "passed": 248,
+    "failed": 66,
     "success": false,
-    "success_rate": 60
+    "success_rate": 79
   },
   "categories": {
     "backend": {
@@ -19,7 +19,7 @@
       "success": false
     },
     "aiStrategy": {
-      "passed": 32,
+      "passed": 30,
       "total": 36,
       "success": false
     },
@@ -29,19 +29,19 @@
       "success": false
     },
     "uiComponents": {
-      "passed": 0,
+      "passed": 34,
       "total": 53,
       "success": false
     },
     "integration": {
-      "passed": 0,
+      "passed": 25,
       "total": 36,
       "success": false
     },
     "regression": {
-      "passed": 9,
-      "total": 9,
-      "success": true
+      "passed": 19,
+      "total": 20,
+      "success": false
     },
     "legacy": {
       "passed": 18,
@@ -69,7 +69,7 @@
       "name": "Valid move",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Game-Core",
@@ -97,7 +97,7 @@
       "name": "Vertical win detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Game-Core",
@@ -125,21 +125,21 @@
       "name": "AI initialization",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Game-Core",
       "name": "AI move generation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.3
     },
     {
       "suite": "Backend-Game-Core",
       "name": "Helper methods",
       "passed": false,
       "error": "Should return correct player 1 name",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Game-Edge-Cases",
@@ -153,14 +153,14 @@
       "name": "Complex diagonal win - negative slope",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Game-Edge-Cases",
       "name": "Win at leftmost edge",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Game-Edge-Cases",
@@ -209,7 +209,7 @@
       "name": "Basic event emission and listening",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Events",
@@ -272,14 +272,14 @@
       "name": "Event isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Events",
       "name": "Event memory management",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.3
     },
     {
       "suite": "Backend-Events",
@@ -349,7 +349,7 @@
       "name": "Simulation performance",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.8
     },
     {
       "suite": "Backend-Simulation",
@@ -363,7 +363,7 @@
       "name": "Simulation on empty board",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Simulation",
@@ -377,91 +377,91 @@
       "name": "Enhanced Smart Bot initialization",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Center opening move preference",
-      "passed": true,
-      "error": null,
-      "duration": 0
+      "passed": false,
+      "error": "Should choose center column (3) as opening move",
+      "duration": 0.5
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Winning move detection",
-      "passed": true,
-      "error": null,
-      "duration": 0
+      "passed": false,
+      "error": "Should choose winning move in column 3",
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Blocking opponent win",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "State isolation - no corruption",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Strategic analysis integration",
       "passed": true,
       "error": null,
-      "duration": 0.9
+      "duration": 0.7
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Multiple consecutive moves without corruption",
-      "passed": false,
-      "error": "Should successfully play multiple moves",
-      "duration": 0.8
+      "passed": true,
+      "error": null,
+      "duration": 1.4
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Even/odd strategy application",
       "passed": true,
       "error": null,
-      "duration": 1
+      "duration": 0.4
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Zugzwang detection",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Fork opportunity analysis",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Fallback to safe random",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Performance under complex board states",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Move determinism for identical states",
       "passed": false,
       "error": "Both bots should choose winning move (column 3)",
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "AI-Strategy-Consistency",
@@ -475,56 +475,56 @@
       "name": "All bots choose valid moves",
       "passed": true,
       "error": null,
-      "duration": 11.8
+      "duration": 0.8
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Opening move preferences",
-      "passed": true,
-      "error": null,
-      "duration": 0
+      "passed": false,
+      "error": "smart-random bot should prefer center-ish opening (columns 2-4), chose 1",
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Response time consistency",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.4
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Blocking behavior consistency",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Random vs strategic bot differences",
       "passed": true,
       "error": null,
-      "duration": 0.6
+      "duration": 0.3
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Defensive vs offensive preferences",
       "passed": true,
       "error": null,
-      "duration": 0.9
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "No state corruption during analysis",
       "passed": true,
       "error": null,
-      "duration": 1.5
+      "duration": 0.6
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Cross-bot performance in complex position",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.5
     },
     {
       "suite": "AI-Strategy-Smart-Random",
@@ -536,22 +536,22 @@
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Center opening preference",
-      "passed": true,
-      "error": null,
-      "duration": 0
+      "passed": false,
+      "error": "Should prefer center column (3) for opening move",
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Level 0 - Own winning opportunities",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Level 0 - Vertical winning opportunity",
-      "passed": true,
-      "error": null,
+      "passed": false,
+      "error": "Should choose vertical winning move in column 3",
       "duration": 0
     },
     {
@@ -564,8 +564,8 @@
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Level 1 - Vertical blocking",
-      "passed": false,
-      "error": "Should block vertical threat in column 2",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
@@ -587,21 +587,21 @@
       "name": "Random fallback behavior",
       "passed": true,
       "error": null,
-      "duration": 1.7
+      "duration": 0.8
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Multiple move sequence consistency",
       "passed": true,
       "error": null,
-      "duration": 0.7
+      "duration": 0.4
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Performance with helper analysis",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Smart-Random",
@@ -613,8 +613,8 @@
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Nearly full board behavior",
-      "passed": false,
-      "error": "Should choose valid move on nearly full board",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
@@ -622,28 +622,28 @@
       "name": "State isolation across multiple calls",
       "passed": true,
       "error": null,
-      "duration": 0.9
+      "duration": 0.5
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 0 - Horizontal winning move detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 0 - Vertical winning move detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 0 - Diagonal winning move detection",
       "passed": false,
       "error": "Should enter forced move mode for diagonal win, got false",
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Levels",
@@ -657,7 +657,7 @@
       "name": "Level 1 - Horizontal threat blocking",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Levels",
@@ -678,28 +678,28 @@
       "name": "Priority - Level 0 wins override Level 1 blocks",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 2 - Trap avoidance safe moves",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 2 - Trapped situation handling",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Help level analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.7
     },
     {
       "suite": "Helper-System-Levels",
@@ -720,7 +720,7 @@
       "name": "Opponent winning detection accuracy",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
@@ -755,7 +755,7 @@
       "name": "Zugzwang detection accuracy",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Strategic",
@@ -776,21 +776,21 @@
       "name": "Fork analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Enhanced strategic evaluation integration",
       "passed": false,
       "error": "Confidence should be low, medium, or high",
-      "duration": 0.4
+      "duration": 0.6
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Enhanced strategic evaluation state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.4
     },
     {
       "suite": "Helper-System-Strategic",
@@ -804,7 +804,7 @@
       "name": "Threat evaluation state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Strategic",
@@ -818,35 +818,35 @@
       "name": "Strategic analysis performance",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.5
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Column threat analysis completeness",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Multiple player strategic analysis",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint initialization and clearing",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Threat hint generation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
@@ -860,21 +860,21 @@
       "name": "Strategic suggestion generation",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Defensive suggestion generation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "General strategic advice generation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
@@ -888,14 +888,14 @@
       "name": "Move consequence analysis",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Move consequence analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Hints",
@@ -909,56 +909,56 @@
       "name": "Opponent trap detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint state management during game progression",
       "passed": true,
       "error": null,
-      "duration": 1.2
+      "duration": 0.8
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint system with disabled help",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint system re-enabling",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint message content and localization",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint update performance",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Event listener registration and removal",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Multiple event listeners for same event",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
@@ -972,42 +972,42 @@
       "name": "Game reset event handling",
       "passed": false,
       "error": "Suggestions should be cleared after reset",
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
       "name": "Winning opportunity activated event",
       "passed": false,
       "error": "Should emit winning opportunity activated event",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Winning opportunity deactivated event",
       "passed": false,
       "error": "Should emit winning opportunity deactivated event",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Forced move activated event",
       "passed": false,
       "error": "Should emit forced move activated event",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
       "name": "Forced move deactivated event",
       "passed": false,
       "error": "Should emit forced move deactivated event",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Trap avoidance activated event",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
@@ -1028,28 +1028,28 @@
       "name": "Event timing and order",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Event data integrity",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Event system performance",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
       "name": "Event system memory management",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
@@ -1063,14 +1063,14 @@
       "name": "Helper initialization performance",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Hint updates on empty board",
       "passed": true,
       "error": null,
-      "duration": 1.7
+      "duration": 2.3
     },
     {
       "suite": "Helper-System-Performance",
@@ -1084,14 +1084,14 @@
       "name": "Strategic analysis performance scaling",
       "passed": true,
       "error": null,
-      "duration": 2.1
+      "duration": 2.3
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Move consequence analysis performance",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Performance",
@@ -1105,14 +1105,14 @@
       "name": "Board simulation performance",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.3
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Connected pieces counting performance",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Performance",
@@ -1133,35 +1133,35 @@
       "name": "Memory usage stability",
       "passed": true,
       "error": null,
-      "duration": 32.5
+      "duration": 53
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Concurrent analysis simulation",
       "passed": true,
       "error": null,
-      "duration": 2.1
+      "duration": 3.9
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Performance regression detection",
       "passed": true,
       "error": null,
-      "duration": 0.9
+      "duration": 1.6
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Helper state corruption prevention",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.4
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Board simulation vs live board isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Regression",
@@ -1175,686 +1175,686 @@
       "name": "Move safety checking isolation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Fork evaluation isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Zugzwang detection state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Even/odd analysis game parity isolation",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Helpers do not trigger unexpected game events",
       "passed": true,
       "error": null,
-      "duration": 0.6
+      "duration": 0.3
     },
     {
       "suite": "Helper-System-Regression",
       "name": "CurrentPlayer manipulation prevention",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Board copy independence validation",
       "passed": false,
       "error": "Copy 0 and copy 1 should be independent",
-      "duration": 0.3
+      "duration": 0
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Board state immutability during complex analysis",
       "passed": true,
       "error": null,
-      "duration": 1.6
+      "duration": 0.9
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Historical corruption bug prevention",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board DOM structure creation",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "error": "Should create 42 cells (6 rows × 7 columns)",
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Board",
       "name": "Cell creation and data attributes",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Top-left cell should exist",
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Column indicators creation",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board state rendering",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Cannot read properties of null (reading 'classList')",
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Column selection visual feedback",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Column preview on hover",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Full column interaction handling",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Column 0 should be full, got false",
       "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Game over state board interaction",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board reset and cleanup",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board responsive behavior",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Cells should be created regardless of container size",
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board accessibility attributes",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board event propagation handling",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Board should capture cell click events, got false",
       "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board animation state handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "UI-Component-Controls",
-      "name": "Game control buttons initialization",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Controls",
+      "name": "Game control buttons initialization",
+      "passed": true,
+      "error": null,
+      "duration": 0.2
+    },
+    {
+      "suite": "UI-Component-Controls",
       "name": "New game button functionality",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Reset score button functionality",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Cannot set properties of undefined (setting 'red')",
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Undo button functionality",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Move history should be reduced by 1 after undo",
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Game mode selection",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "error": "Cannot read properties of null (reading 'closest')",
+      "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Help system controls",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Cannot read properties of null (reading 'querySelector')",
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Score display updates",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Cannot set properties of undefined (setting 'red')",
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Current player indicator",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "error": "Indicator should show red player",
+      "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Game status messages",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Button state during animations",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "AI thinking state indicators",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Help modal functionality",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Help modal should be shown when help button is clicked",
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Keyboard shortcuts for controls",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Button text updates",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Column click handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Cell click handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Keyboard input handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Mouse hover interactions",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Forced move mode interactions",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Double-click prevention",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Touch event handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Event delegation handling",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Events should bubble up for delegation, got false",
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Interaction state management",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Cannot read properties of null (reading 'querySelectorAll')",
       "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Accessibility keyboard navigation",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Context menu handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "UI-Component-Interactions",
-      "name": "Focus management",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Interactions",
+      "name": "Focus management",
+      "passed": true,
+      "error": null,
+      "duration": 0.5
+    },
+    {
+      "suite": "UI-Component-Interactions",
       "name": "Gesture recognition handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Piece placement animation",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.2
-    },
-    {
-      "suite": "UI-Component-Visual",
-      "name": "Winning sequence highlighting",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
+      "name": "Winning sequence highlighting",
+      "passed": true,
+      "error": null,
+      "duration": 0.2
+    },
+    {
+      "suite": "UI-Component-Visual",
       "name": "Color scheme consistency",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Column hover effects",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Responsive board sizing",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Should create all cells in small container",
+      "duration": 0.4
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Current player visual indicator",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "error": "Player 1 indicator should have content, got false",
+      "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual feedback for invalid moves",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Theme consistency",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Accessibility visual features",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Animation performance",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual state transitions",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "error": "Cell should transition to filled state, got null",
+      "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual debugging aids",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual consistency across game states",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Should maintain cell count in playing state",
       "duration": 0
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Complete two-player game",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0.5
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Game flow with AI opponent",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 1
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Game reset and new game flow",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Cannot set properties of undefined (setting 'red')",
+      "duration": 0.1
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Help system integration with game flow",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Should detect winning opportunity",
+      "duration": 0.1
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Undo functionality in game flow",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Move history should be reduced by 1",
+      "duration": 0.2
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Score tracking across multiple games",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Cannot read properties of undefined (reading 'red')",
+      "duration": 0.5
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Error handling in game flow",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.2
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Performance under continuous play",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 5.1
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Component state synchronization",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.2
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI move integration with UI updates",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0.4
     },
     {
       "suite": "Integration-AI-UI",
       "name": "Different AI difficulty levels with UI",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "error": "Cannot read properties of null (reading 'closest')",
+      "duration": 0
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI with helper system integration",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI thinking state with UI feedback",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0.2
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI timeout handling",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "Integration-AI-UI",
-      "name": "Multiple AI instances isolation",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "Integration-AI-UI",
-      "name": "AI error recovery with UI",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "Integration-AI-UI",
-      "name": "AI performance under UI stress",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "Integration-AI-UI",
+      "name": "Multiple AI instances isolation",
+      "passed": true,
+      "error": null,
+      "duration": 0.1
+    },
+    {
+      "suite": "Integration-AI-UI",
+      "name": "AI error recovery with UI",
+      "passed": true,
+      "error": null,
+      "duration": 0.1
+    },
+    {
+      "suite": "Integration-AI-UI",
+      "name": "AI performance under UI stress",
+      "passed": true,
+      "error": null,
+      "duration": 3
+    },
+    {
+      "suite": "Integration-AI-UI",
       "name": "AI state consistency across UI updates",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.6
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Helper system initialization with UI",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "UI should reference helpers",
       "duration": 0.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Help level toggle integration",
       "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "error": "Helpers should be enabled, got false",
+      "duration": 0.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Forced move mode integration",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Should not allow non-required move selection",
       "duration": 0.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Visual hints integration",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Event communication between helpers and UI",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Should receive forced move deactivated event",
       "duration": 0.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Help system with different game modes",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.2
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Helper performance with UI updates",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 1.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Helper system state synchronization with UI",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Helpers should be enabled for Player 1, got false",
       "duration": 0.1
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Helper system error handling with UI",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.1
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "Complete system initialization",
       "passed": false,
-      "error": "Connect4UI is not defined",
+      "error": "Cannot read properties of null (reading 'addEventListener')",
       "duration": 0.1
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "Event cascade through all components",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "State synchronization across all components",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 0.4
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "Complex workflow - Human vs AI with helpers",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0.1
+      "passed": true,
+      "error": null,
+      "duration": 0.9
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "System recovery from errors",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "Integration-Cross-Component",
-      "name": "Memory management across components",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "Integration-Cross-Component",
-      "name": "Concurrent operations across components",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
-    },
-    {
-      "suite": "Integration-Cross-Component",
-      "name": "System performance under load",
-      "passed": false,
-      "error": "Connect4UI is not defined",
+      "passed": true,
+      "error": null,
       "duration": 0.1
     },
     {
       "suite": "Integration-Cross-Component",
+      "name": "Memory management across components",
+      "passed": true,
+      "error": null,
+      "duration": 8.3
+    },
+    {
+      "suite": "Integration-Cross-Component",
+      "name": "Concurrent operations across components",
+      "passed": true,
+      "error": null,
+      "duration": 0.2
+    },
+    {
+      "suite": "Integration-Cross-Component",
+      "name": "System performance under load",
+      "passed": true,
+      "error": null,
+      "duration": 15.4
+    },
+    {
+      "suite": "Integration-Cross-Component",
       "name": "Component isolation under stress",
-      "passed": false,
-      "error": "Connect4UI is not defined",
-      "duration": 0
+      "passed": true,
+      "error": null,
+      "duration": 23.7
     },
     {
       "suite": "Regression-Animation-Chaos",
@@ -1868,7 +1868,7 @@
       "name": "Strategic analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.2
     },
     {
       "suite": "Regression-Animation-Chaos",
@@ -1882,14 +1882,14 @@
       "name": "Multiple Enhanced Bot calls isolation",
       "passed": true,
       "error": null,
-      "duration": 2.8
+      "duration": 0.3
     },
     {
       "suite": "Regression-Animation-Chaos",
       "name": "No spurious events during AI analysis",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Regression-Animation-Chaos",
@@ -1903,21 +1903,98 @@
       "name": "Bug reproduction scenario prevention",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0
     },
     {
       "suite": "Regression-Animation-Chaos",
       "name": "Memory stability during extended play",
       "passed": true,
       "error": null,
-      "duration": 2.7
+      "duration": 0.6
     },
     {
       "suite": "Regression-Animation-Chaos",
       "name": "Stress test - rapid AI calls",
       "passed": true,
       "error": null,
-      "duration": 11.9
+      "duration": 1.7
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "Helper functions state isolation",
+      "passed": true,
+      "error": null,
+      "duration": 0.3
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "AI functions use board simulation",
+      "passed": true,
+      "error": null,
+      "duration": 0.2
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "findBlockingMove player isolation",
+      "passed": false,
+      "error": "ai.findBlockingMove is not a function",
+      "duration": 0
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "Strategic analysis event isolation",
+      "passed": true,
+      "error": null,
+      "duration": 0.2
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "makeMove vs simulateMove isolation",
+      "passed": true,
+      "error": null,
+      "duration": 0
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "undoMove state protection",
+      "passed": true,
+      "error": null,
+      "duration": 0
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "Cascading state change prevention",
+      "passed": true,
+      "error": null,
+      "duration": 1
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "Error condition state protection",
+      "passed": true,
+      "error": null,
+      "duration": 0
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "Multiple game instance isolation",
+      "passed": true,
+      "error": null,
+      "duration": 0.3
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "AI analysis doesn't affect real moves",
+      "passed": true,
+      "error": null,
+      "duration": 0.3
+    },
+    {
+      "suite": "Regression-State-Corruption",
+      "name": "Concurrent analysis protection",
+      "passed": true,
+      "error": null,
+      "duration": 0.3
     },
     {
       "suite": "Trio",
@@ -1938,7 +2015,7 @@
       "name": "Valid move",
       "passed": false,
       "error": "TrioGame is not defined",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Trio",
@@ -1994,7 +2071,7 @@
       "name": "Undo move",
       "passed": false,
       "error": "TrioGame is not defined",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Trio",
@@ -2029,7 +2106,7 @@
       "name": "Move simulation",
       "passed": false,
       "error": "TrioGame is not defined",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Trio",
@@ -2050,7 +2127,7 @@
       "name": "Board initialization",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Gobang",
@@ -2078,7 +2155,7 @@
       "name": "Horizontal win detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Gobang",
@@ -2092,14 +2169,14 @@
       "name": "Diagonal win detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Gobang",
       "name": "Anti-diagonal win detection",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Gobang",
@@ -2113,7 +2190,7 @@
       "name": "Game reset",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "Gobang",
@@ -2134,21 +2211,21 @@
       "name": "AI move generation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Gobang",
       "name": "AI relevant moves",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.1
     },
     {
       "suite": "Gobang",
       "name": "Helper methods",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "Gobang",
@@ -2169,11 +2246,8 @@
       "name": "Win with more than 5 stones",
       "passed": false,
       "error": "Should detect win with 6 stones, got undefined",
-      "duration": 0.1
+      "duration": 0
     }
   ],
-  "errors": [
-    "Page Error: missing ) after argument list",
-    "Page Error: testSuite.group is not a function"
-  ]
+  "errors": []
 }

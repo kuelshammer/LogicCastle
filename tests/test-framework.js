@@ -4,6 +4,7 @@
 class TestSuite {
   constructor() {
     this.results = [];
+    this.currentGroup = null;
   }
 
   /**
@@ -14,11 +15,15 @@ class TestSuite {
      */
   test(suite, name, testFn) {
     const startTime = performance.now();
+    
+    // Use current group if available, otherwise use provided suite name
+    const effectiveSuite = this.currentGroup || suite;
+    
     try {
       testFn();
       const duration = performance.now() - startTime;
       this.results.push({
-        suite,
+        suite: effectiveSuite,
         name,
         passed: true,
         error: null,
@@ -27,12 +32,28 @@ class TestSuite {
     } catch (error) {
       const duration = performance.now() - startTime;
       this.results.push({
-        suite,
+        suite: effectiveSuite,
         name,
         passed: false,
         error: error.message,
         duration: Math.round(duration * 100) / 100
       });
+    }
+  }
+
+  /**
+   * Group tests together with a descriptive name
+   * @param {string} groupName - Name of the test group
+   * @param {Function} testFn - Function containing grouped tests
+   */
+  group(groupName, testFn) {
+    console.log(`\n🧪 ${groupName}`);
+    this.currentGroup = groupName;
+    
+    try {
+      testFn();
+    } finally {
+      this.currentGroup = null;
     }
   }
 
