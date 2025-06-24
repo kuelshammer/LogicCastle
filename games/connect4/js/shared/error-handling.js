@@ -168,7 +168,7 @@ export class AIFallbackHandler {
 
   setupDefaultFallbacks() {
     // Fallback for AI bot failures
-    this.fallbackStrategies.set('AI_FAILURE', (game, difficulty) => {
+    this.fallbackStrategies.set('AI_FAILURE', (game, _difficulty) => {
       errorLogger.log(new AIError('AI bot failed, using random fallback'), 'WARN');
 
       // Simple random move as fallback
@@ -257,8 +257,8 @@ export class InputValidator {
     return true;
   }
 
-  static validateBoard(_board) { // Unused parameter prefixed
-    if (!Array.isArray(_board)) {
+  static validateBoard(board) {
+    if (!Array.isArray(board)) {
       throw new ValidationError(
         'Board must be an array',
         { provided: typeof board }
@@ -301,7 +301,7 @@ export class InputValidator {
     return true;
   }
 
-  static validateDifficulty(_difficulty) {
+  static validateDifficulty(difficulty) {
     const validDifficulties = ['einfach', 'mittel', 'stark', 'expert'];
 
     if (typeof difficulty !== 'string') {

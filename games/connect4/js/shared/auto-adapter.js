@@ -392,7 +392,7 @@ export class AutoAdapterGenerator {
   generateStubMethod(methodName, expectedType, options) {
     const stubMode = options.stubMode || 'warning'; // 'warning', 'error', 'silent'
 
-    return function(...args) {
+    return function(..._args) {
       const message = `Method '${methodName}' not implemented in adapter for ${this.target.constructor.name}`;
 
       switch (stubMode) {

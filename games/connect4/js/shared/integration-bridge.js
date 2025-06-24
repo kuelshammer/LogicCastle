@@ -242,7 +242,7 @@ export class IntegrationBridge {
           await this.handleAIMove();
         }
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('Integrated move handling failed:', error);
     }
   }
@@ -270,7 +270,7 @@ export class IntegrationBridge {
           this.legacyComponents.ui.onMoveMade?.(result.move || result);
         }
       }
-    } catch (_error) {
+    } catch (error) {
       console.error('AI move handling failed:', error);
     }
   }
@@ -303,7 +303,7 @@ export class IntegrationBridge {
       default:
         console.log(`Analytics: ${event}`, data);
       }
-    } catch (_error) {
+    } catch (error) {
       console.warn('Analytics logging failed:', error);
     }
   }
@@ -457,14 +457,14 @@ export class IntegrationBridge {
       // Check services
       try {
         await this.container.resolve('IIntegratedGameService');
-      } catch (_error) {
+      } catch (error) {
         results.issues.push('Integrated game service not available');
         results.status = 'unhealthy';
       }
 
       try {
         await this.container.resolve('IIntegratedAIService');
-      } catch (_error) {
+      } catch (error) {
         results.issues.push('Integrated AI service not available');
         results.status = 'unhealthy';
       }
@@ -483,7 +483,7 @@ export class IntegrationBridge {
         results.warnings.push('Migration mode is full but not all features enabled');
       }
 
-    } catch (_error) {
+    } catch (error) {
       results.issues.push(`Health check failed: ${error.message}`);
       results.status = 'unhealthy';
     }
