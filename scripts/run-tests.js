@@ -89,7 +89,7 @@ async function runSmartBotTests() {
 
     // Test Smart Bot scenarios
     const testResults = await page.evaluate(() => {
-      /* global Connect4Game:false, Connect4AI:false, Connect4Helpers:false, Connect4TestUtils:false */
+      /* global Connect4TestUtils:false */
       const results = [];
 
       // Test 1: Empty board opening

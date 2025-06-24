@@ -2,7 +2,7 @@
  * GobangAI - Smart Bot AI for Gobang game
  * Uses helpers system for strategic decisions and weighted random moves
  */
-class GobangAI {
+class _GobangAI {
   constructor(difficulty = 'smart-random') {
     this.difficulty = difficulty;
     this.evaluator = null; // Will be created when needed
@@ -220,4 +220,10 @@ class GobangAI {
       return { row, col };
     });
   }
+}
+
+
+// Make available globally for backward compatibility
+if (typeof window \!== "undefined") {
+  window.GobangAI = _GobangAI;
 }
