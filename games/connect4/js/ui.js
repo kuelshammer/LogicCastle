@@ -1,7 +1,7 @@
 /**
  * Connect4UI - User Interface controller for Connect 4 game
  */
-class Connect4UI {
+class _Connect4UI {
   constructor(game) {
     this.game = game;
     this.boardElement = null;
@@ -463,7 +463,7 @@ class Connect4UI {
       let aiMove = null;
       try {
         aiMove = this.getAIMove();
-      } catch (error) {
+      } catch (_error) {
         // AI calculation failed, fallback to emergency random move
         const validMoves = this.game.getValidMoves();
         if (validMoves.length > 0) {
@@ -510,7 +510,7 @@ class Connect4UI {
           return;
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Critical error in AI move execution
       this.aiThinking = false;
       this.updateGameStatus('🚨 Bot-Fehler - Bitte neues Spiel starten');
@@ -1155,7 +1155,7 @@ class Connect4UI {
 
   showMessage(message, type = 'info') {
     // Display message in game status temporarily
-    const originalStatus = this.gameStatus?.textContent;
+    const _originalStatus = this.gameStatus?.textContent;
 
     if (this.gameStatus) {
       this.gameStatus.textContent = message;
@@ -1180,4 +1180,10 @@ class Connect4UI {
     // Hide any game over dialogs
   }
 
+}
+
+
+// Make available globally for backward compatibility
+if (typeof window \!== "undefined") {
+  window.Connect4UI = _Connect4UI;
 }

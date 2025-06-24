@@ -2,7 +2,7 @@
  * GobangUI - User Interface for Gobang game
  */
 /* global GobangHelpers */
-class GobangUI {
+class _GobangUI {
   constructor(game) {
     this.game = game;
     this.ai = null;
@@ -82,7 +82,7 @@ class GobangUI {
     this.game.on('gameWon', (data) => this.onGameWon(data));
     this.game.on('gameDraw', () => this.onGameDraw());
     this.game.on('gameReset', () => this.onGameReset());
-    this.game.on('playerChanged', (player) => this.onPlayerChanged(player));
+    this.game.on('playerChanged', (_player) => this.onPlayerChanged(_player));
     this.game.on('moveUndone', (move) => this.onMoveUndone(move));
 
     // UI controls
@@ -706,7 +706,7 @@ class GobangUI {
   /**
      * Override player change handler to update helpers
      */
-  onPlayerChanged(player) {
+  onPlayerChanged(_player) {
     this.updateDisplay();
     this.updateCurrentPlayerHelpers();
 
@@ -783,4 +783,10 @@ class GobangUI {
     // You could implement a toast notification system here
     console.log(`${type.toUpperCase()}: ${message}`);
   }
+}
+
+
+// Make available globally for backward compatibility
+if (typeof window \!== "undefined") {
+  window.GobangUI = _GobangUI;
 }

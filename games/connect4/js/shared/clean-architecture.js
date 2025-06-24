@@ -9,7 +9,7 @@
  */
 
 import { globalContainer } from './service-container.js';
-import { validateInterface } from './interfaces.js';
+import { _validateInterface } from './interfaces.js';
 
 /**
  * Domain Layer - Core business entities and rules

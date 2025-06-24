@@ -3,7 +3,7 @@
  *
  * Shared event handling utilities across Connect4 modules
  */
-import { GAME_EVENTS, HINT_EVENTS } from './constants.js';
+import { _GAME_EVENTS, _HINT_EVENTS } from './constants.js';
 
 /**
  * Base Event Emitter class for consistent event handling

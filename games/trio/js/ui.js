@@ -724,7 +724,7 @@ class _TrioUI {
     this.elements.showSolutionBtn.disabled = true;
   }
 
-  onPlayerAdded(player) {
+  onPlayerAdded(_player) {
     this.updatePlayersList();
   }
 

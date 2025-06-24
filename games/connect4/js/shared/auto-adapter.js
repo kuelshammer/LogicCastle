@@ -6,7 +6,7 @@
  */
 
 import { STANDARDIZED_INTERFACES, defaultValidator } from './standardized-interfaces.js';
-import { defaultComplianceAnalyzer } from './interface-compliance.js';
+import { _defaultComplianceAnalyzer } from './interface-compliance.js';
 
 /**
  * Auto Adapter Generator

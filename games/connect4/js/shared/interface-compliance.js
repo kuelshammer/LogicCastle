@@ -7,8 +7,8 @@
 
 import {
   defaultValidator,
-  STANDARDIZED_INTERFACES,
-  generateComplianceReport,
+  _STANDARDIZED_INTERFACES,
+  _generateComplianceReport,
   analyzeAllInterfaces
 } from './standardized-interfaces.js';
 

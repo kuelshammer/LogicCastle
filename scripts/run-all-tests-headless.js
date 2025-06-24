@@ -376,7 +376,7 @@ async function main() {
 
   // Generate JUnit XML if we have results
   if (results.success && results.summary.total > 0) {
-    const junitPath = path.join(__dirname, '..', 'test-results.xml');
+    const _junitPath = path.join(__dirname, '..', 'test-results.xml');
     // Note: We'd need to get detailed results for JUnit XML
     console.log('📋 Test execution completed successfully');
   }

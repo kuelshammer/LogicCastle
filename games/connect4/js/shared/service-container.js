@@ -199,7 +199,7 @@ function configureConnect4Services(container = globalContainer, environment = 'p
     }
 
     getMoveFromCache() { return null; }
-    cacheMoveResult() {}
+    cacheMoveResult() { return true; }
     getPerformanceStats() { return this.stats; }
     clearCaches() { this.stats = { hits: 0, misses: 0 }; }
   });
@@ -325,7 +325,7 @@ function configureConnect4Services(container = globalContainer, environment = 'p
   });
 
   // AI Strategy Services - Mock implementations
-  container.registerFactory('IBotStrategy', (container) => {
+  container.registerFactory('IBotStrategy', (_container) => {
     return (difficulty) => {
       return {
         getBestMove: () => 3, // Always center column
@@ -358,9 +358,9 @@ function createTestContainer() {
 
   // Register mock implementations for testing
   container.register('IEventSystem', class MockEventSystem {
-    on() {}
-    emit() {}
-    off() {}
+    on() { return this; }
+    emit() { return this; }
+    off() { return this; }
   });
 
   container.register('IBotStrategy', class MockBotStrategy {

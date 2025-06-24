@@ -6,7 +6,7 @@
  */
 
 import { defaultCleanArchitecture } from './clean-architecture.js';
-import { globalContainer } from './service-container.js';
+import { globalContainer as _globalContainer } from './service-container.js';
 
 /**
  * Legacy Game Adapter

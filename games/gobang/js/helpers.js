@@ -2,7 +2,7 @@
  * GobangHelpers - Helper system for Gobang strategic assistance
  * Provides winning opportunities, threat detection, and trap avoidance
  */
-class GobangHelpers {
+class _GobangHelpers {
   constructor(game, ui = null) {
     this.game = game;
     this.ui = ui;
@@ -372,4 +372,10 @@ class GobangHelpers {
       this.eventListeners[event].forEach(callback => callback(data));
     }
   }
+}
+
+
+// Make available globally for backward compatibility
+if (typeof window \!== "undefined") {
+  window.GobangHelpers = _GobangHelpers;
 }

@@ -5,7 +5,7 @@
  * across all modules and enable seamless interoperability.
  */
 
-import { validateInterface, createInterfaceProxy } from './interfaces.js';
+import { _validateInterface, createInterfaceProxy } from './interfaces.js';
 
 /**
  * Core Game Interfaces

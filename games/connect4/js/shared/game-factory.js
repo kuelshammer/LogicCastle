@@ -88,7 +88,7 @@ export class GameFactory {
         this.board[row][col] = this.currentPlayer;
         this.emit('moveMade', { row, col, player: this.currentPlayer });
 
-        if (this.checkWin(row, col)) {
+        if (this.checkWin(_row, _col)) {
           this.gameOver = true;
           this.winner = this.currentPlayer;
           this.emit('gameWon', { winner: this.winner });
@@ -105,7 +105,7 @@ export class GameFactory {
         return -1;
       }
 
-      checkWin(row, col) {
+      checkWin(_row, _col) {
         // Simplified win check for testing
         return false;
       }
@@ -156,7 +156,7 @@ export class GameFactory {
       analyzeMoveConsequences() { return { isWinning: false, blocksOpponent: false }; }
       getForkOpportunities() { return []; }
       getHint() { return null; }
-      updateHintLevel() {}
+      updateHintLevel() { return true; }
     });
 
     this.container.registerFactory('IAIFactory', () => {

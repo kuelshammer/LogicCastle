@@ -4,7 +4,7 @@
  * Evaluates positions by counting how many possible 5-in-a-row combinations
  * can still be made through a given position.
  */
-class GobangEvaluation {
+class _GobangEvaluation {
   constructor() {
     this.BOARD_SIZE = 15;
     this.EMPTY = 0;
@@ -241,4 +241,10 @@ class GobangEvaluation {
       console.log(`Best move: ${bestCoord} with score ${best.score}`);
     }
   }
+}
+
+
+// Make available globally for backward compatibility  
+if (typeof window \!== "undefined") {
+  window.GobangEvaluation = _GobangEvaluation;
 }

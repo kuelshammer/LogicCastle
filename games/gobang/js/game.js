@@ -1,7 +1,7 @@
 /**
  * GobangGame - Core game logic for Gobang (5-in-a-row)
  */
-class GobangGame {
+class _GobangGame {
   constructor() {
     this.BOARD_SIZE = 15;
     this.EMPTY = 0;
@@ -494,4 +494,10 @@ class GobangGame {
 
     return score;
   }
+}
+
+
+// Make available globally for backward compatibility
+if (typeof window \!== "undefined") {
+  window.GobangGame = _GobangGame;
 }

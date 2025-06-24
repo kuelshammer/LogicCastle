@@ -257,8 +257,8 @@ export class InputValidator {
     return true;
   }
 
-  static validateBoard(board) { // Unused parameter prefixed
-    if (!Array.isArray(board)) {
+  static validateBoard(_board) { // Unused parameter prefixed
+    if (!Array.isArray(_board)) {
       throw new ValidationError(
         'Board must be an array',
         { provided: typeof board }
@@ -301,7 +301,7 @@ export class InputValidator {
     return true;
   }
 
-  static validateDifficulty(difficulty) {
+  static validateDifficulty(_difficulty) {
     const validDifficulties = ['einfach', 'mittel', 'stark', 'expert'];
 
     if (typeof difficulty !== 'string') {

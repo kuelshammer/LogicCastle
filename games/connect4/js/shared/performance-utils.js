@@ -216,6 +216,7 @@ export function throttle(fn, delay) {
       lastExecution = now;
       return fn.apply(this, args);
     }
+    return undefined;
   };
 }
 

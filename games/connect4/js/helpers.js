@@ -9,7 +9,7 @@
  *
  * Falls back to integrated implementation when modules unavailable.
  */
-/* global ThreatDetector, OpportunityAnalyzer, MoveValidator, HintManager */
+/* global ThreatDetector:readonly, OpportunityAnalyzer:readonly, MoveValidator:readonly, HintManager:readonly */
 class _Connect4Helpers {
   constructor(game, ui = null) {
     this.game = game;
@@ -157,13 +157,11 @@ class _Connect4Helpers {
         opportunities: this.currentHints.opportunities
       });
 
-    } else {
+    } else if (this.forcedMoveMode) {
       // No winning moves found
-      if (this.forcedMoveMode) {
-        this.forcedMoveMode = false;
-        this.requiredMoves = [];
-        this.emit('winningOpportunityDeactivated');
-      }
+      this.forcedMoveMode = false;
+      this.requiredMoves = [];
+      this.emit('winningOpportunityDeactivated');
     }
   }
 
@@ -229,13 +227,11 @@ class _Connect4Helpers {
         requiredMoves: this.requiredMoves,
         threats: this.currentHints.threats
       });
-    } else {
+    } else if (this.forcedMoveMode) {
       // No forced moves - deactivate if previously active
-      if (this.forcedMoveMode) {
-        this.forcedMoveMode = false;
-        this.requiredMoves = [];
-        this.emit('forcedMoveDeactivated');
-      }
+      this.forcedMoveMode = false;
+      this.requiredMoves = [];
+      this.emit('forcedMoveDeactivated');
     }
   }
 
@@ -1098,7 +1094,7 @@ class _Connect4Helpers {
   /**
      * Find all winning moves for a player
      */
-  findWinningMoves(player) {
+  findWinningMoves(_player) {
     const winningMoves = [];
     const validMoves = this.game.getValidMoves();
 
@@ -1115,7 +1111,7 @@ class _Connect4Helpers {
   /**
      * Check if opponent can block all our threats
      */
-  canOpponentBlockAllThreats(threats, opponent) {
+  canOpponentBlockAllThreats(threats, _opponent) {
     if (threats.length === 0) return true;
     if (threats.length === 1) return true; // Can always block one threat
 
@@ -1284,7 +1280,7 @@ class _Connect4Helpers {
   /**
      * Analyze potential winning paths on a board (simplified version)
      */
-  analyzePotentialWinPathsOnBoard(board) { // Unused parameter prefixed
+  analyzePotentialWinPathsOnBoard(_board) {
     // Simplified implementation for now
     return [];
   }
