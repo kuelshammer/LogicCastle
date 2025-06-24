@@ -2,7 +2,7 @@
  * Connect4Game - Core game logic for Connect 4
  * Now using modular architecture with extracted components
  */
-class Connect4Game {
+class _Connect4Game {
   constructor() {
     // Game constants
     this.ROWS = 6;
@@ -542,4 +542,9 @@ class Connect4Game {
   /**
      * Basic event system methods
      */
+}
+
+// Make available globally for backward compatibility
+if (typeof window !== 'undefined') {
+  window.Connect4Game = _Connect4Game;
 }

@@ -6,7 +6,7 @@
  */
 
 import { defaultGameFactory, GAME_CONFIGURATIONS } from './shared/game-factory.js';
-import { globalContainer } from './shared/service-container.js';
+import { globalContainer as _globalContainer } from './shared/service-container.js';
 
 /**
  * Enhanced Connect4 Game with Dependency Injection

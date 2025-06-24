@@ -1,7 +1,7 @@
 /**
  * Connect4AI - AI opponents for Connect 4 game
  */
-class Connect4AI {
+class _Connect4AI {
   constructor(difficulty = 'medium') {
     this.difficulty = difficulty;
     this.maxDepth = this.getMaxDepth(difficulty);
@@ -2035,4 +2035,9 @@ class Connect4AI {
 
     return bestCol;
   }
+}
+
+// Make available globally for backward compatibility
+if (typeof window !== 'undefined') {
+  window.Connect4AI = _Connect4AI;
 }

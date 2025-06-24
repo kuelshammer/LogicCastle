@@ -96,13 +96,13 @@ export function simulateMoveNonDestructive(board, col, player) {
   }
 
   const newBoard = copyBoard(board);
-  const row = placePiece(newBoard, col, player);
+  const row = simulateMove(newBoard, col, player);
 
   if (row === -1) {
     return null;
   }
 
-  const winResult = checkWinAtPosition(newBoard, row, col, player);
+  const winResult = checkWinAt(newBoard, row, col, player);
 
   return {
     newBoard,
@@ -318,11 +318,10 @@ if (typeof window !== 'undefined') {
     isValidColumn,
     getValidMoves,
     getLowestEmptyRow,
-    placePiece,
     simulateMove,
-    checkWinAtPosition,
+    checkWinAt,
     checkLineWin,
-    countLineLength,
+    countInDirection,
     isInBounds,
     isBoardFull,
     getOpponent,

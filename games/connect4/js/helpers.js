@@ -10,7 +10,7 @@
  * Falls back to integrated implementation when modules unavailable.
  */
 /* global ThreatDetector, OpportunityAnalyzer, MoveValidator, HintManager */
-class Connect4Helpers {
+class _Connect4Helpers {
   constructor(game, ui = null) {
     this.game = game;
     this.ui = ui; // Reference to UI for player help checking
@@ -1565,4 +1565,9 @@ class Connect4Helpers {
     }
   }
 
+}
+
+// Make available globally for backward compatibility
+if (typeof window !== 'undefined') {
+  window.Connect4Helpers = _Connect4Helpers;
 }

@@ -451,8 +451,12 @@ class Connect4Game {
       resetAll: function() {
         this.scores = { red: 0, yellow: 0, draws: 0 };
       },
-      loadFromStorage: function() {},
-      saveToStorage: function() {}
+      loadFromStorage: function() {
+        return null;
+      },
+      saveToStorage: function() {
+        return true;
+      }
     };
   }
 

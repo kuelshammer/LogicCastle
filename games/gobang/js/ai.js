@@ -106,8 +106,8 @@ class GobangAI {
      * Get weighted random move from a specific set of moves
      */
   getWeightedRandomFromMoves(game, moves) {
-    if (!this.evaluator && typeof GobangEvaluation !== 'undefined') {
-      this.evaluator = new GobangEvaluation();
+    if (!this.evaluator && typeof window !== 'undefined' && window.GobangEvaluation) {
+      this.evaluator = new window.GobangEvaluation();
     }
 
     const evaluations = [];
@@ -150,9 +150,9 @@ class GobangAI {
      */
   getWeightedRandomMove(game) {
     // Use evaluation function for weighted selection if available
-    if (typeof GobangEvaluation !== 'undefined') {
+    if (typeof window !== 'undefined' && window.GobangEvaluation) {
       if (!this.evaluator) {
-        this.evaluator = new GobangEvaluation();
+        this.evaluator = new window.GobangEvaluation();
       }
 
       return this.evaluator.getWeightedRandomMove(game);
