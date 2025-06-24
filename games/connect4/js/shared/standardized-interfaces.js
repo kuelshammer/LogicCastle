@@ -592,7 +592,7 @@ export class InterfaceValidator {
      * @returns {string} Formatted report
      */
   generateReport(validationResult) {
-    const { isValid, errors, warnings, missing, extra, summary, compliance } = validationResult;
+    const { isValid: _isValid, errors, warnings, missing, extra, summary, compliance } = validationResult;
 
     let report = '\n📋 Interface Validation Report\n';
     report += `${'='.repeat(40)}\n`;

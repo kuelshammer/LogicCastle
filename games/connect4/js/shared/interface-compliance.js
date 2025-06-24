@@ -103,7 +103,7 @@ export class ModuleComplianceAnalyzer {
      */
   generateRecommendations(complianceResult, allMatches) {
     const recommendations = [];
-    const { missing, extra, errors, compliance } = complianceResult;
+    const { missing, extra, errors: _errors, compliance } = complianceResult;
 
     // High priority recommendations
     if (compliance.percentage < 50) {
@@ -191,7 +191,7 @@ export class ModuleComplianceAnalyzer {
      * @returns {Object} Migration complexity assessment
      */
   assessMigrationComplexity(complianceResult) {
-    const { missing, compliance, errors } = complianceResult;
+    const { missing, compliance, errors: _errors } = complianceResult;
 
     let complexity = 'low';
     let effort = 1; // 1-5 scale
