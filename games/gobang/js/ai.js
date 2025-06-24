@@ -224,6 +224,6 @@ class _GobangAI {
 
 
 // Make available globally for backward compatibility
-if (typeof window \!== "undefined") {
+if (typeof window !== "undefined") {
   window.GobangAI = _GobangAI;
 }

@@ -498,6 +498,6 @@ class _GobangGame {
 
 
 // Make available globally for backward compatibility
-if (typeof window \!== "undefined") {
+if (typeof window !== "undefined") {
   window.GobangGame = _GobangGame;
 }

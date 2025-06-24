@@ -787,6 +787,6 @@ class _GobangUI {
 
 
 // Make available globally for backward compatibility
-if (typeof window \!== "undefined") {
+if (typeof window !== "undefined") {
   window.GobangUI = _GobangUI;
 }

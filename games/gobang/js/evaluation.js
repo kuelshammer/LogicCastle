@@ -245,6 +245,6 @@ class _GobangEvaluation {
 
 
 // Make available globally for backward compatibility  
-if (typeof window \!== "undefined") {
+if (typeof window !== "undefined") {
   window.GobangEvaluation = _GobangEvaluation;
 }

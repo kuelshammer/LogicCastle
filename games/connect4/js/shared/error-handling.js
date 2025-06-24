@@ -187,7 +187,7 @@ export class AIFallbackHandler {
     });
 
     // Fallback for evaluation failures
-    this.fallbackStrategies.set('EVALUATION_FAILURE', (board, _player) => {
+    this.fallbackStrategies.set('EVALUATION_FAILURE', (_board, _player) => {
       errorLogger.log(new AIError('Board evaluation failed, using simple fallback'), 'WARN');
       return 0; // Neutral evaluation
     });

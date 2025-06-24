@@ -1184,6 +1184,6 @@ class _Connect4UI {
 
 
 // Make available globally for backward compatibility
-if (typeof window \!== "undefined") {
+if (typeof window !== "undefined") {
   window.Connect4UI = _Connect4UI;
 }

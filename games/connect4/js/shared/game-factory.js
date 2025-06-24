@@ -88,7 +88,7 @@ export class GameFactory {
         this.board[row][col] = this.currentPlayer;
         this.emit('moveMade', { row, col, player: this.currentPlayer });
 
-        if (this.checkWin(_row, _col)) {
+        if (this.checkWin(row, col)) {
           this.gameOver = true;
           this.winner = this.currentPlayer;
           this.emit('gameWon', { winner: this.winner });
