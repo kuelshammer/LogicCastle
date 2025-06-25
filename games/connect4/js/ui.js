@@ -874,14 +874,18 @@ class _Connect4UI {
      * Handle help button/modal
      */
     handleHelp() {
-        this.helpModal.classList.toggle('active');
+        if (this.helpModal) {
+            this.helpModal.classList.toggle('active');
+        }
     }
 
     /**
      * Handle hints button/modal
      */
     handleHints() {
-        this.hintsModal.classList.toggle('active');
+        if (this.hintsModal) {
+            this.hintsModal.classList.toggle('active');
+        }
     }
 
     /**
@@ -988,6 +992,11 @@ class _Connect4UI {
      */
     animateStone(move) {
         const cell = this.getCellElement(move.row, move.col);
+        if (!cell) {
+            this.isAnimating = false;
+            return; // Skip animation if no DOM element available (e.g., in tests)
+        }
+        
         const colorClass = this.game.getPlayerColorClass(move.player);
 
         this.isAnimating = true;
@@ -1004,11 +1013,16 @@ class _Connect4UI {
     highlightWinningCells(winningCells) {
         winningCells.forEach(({ row, col }) => {
             const cell = this.getCellElement(row, col);
-            cell.classList.add('winning');
+            if (cell) {
+                cell.classList.add('winning');
+            }
         });
     }
 
     clearWinHighlights() {
+        if (!this.boardElement) {
+            return; // Skip if no DOM element available (e.g., in tests)
+        }
         this.boardElement.querySelectorAll('.cell.winning').forEach(cell => {
             cell.classList.remove('winning');
         });
@@ -1031,6 +1045,10 @@ class _Connect4UI {
         for (let row = 0; row < this.game.ROWS; row++) {
             for (let col = 0; col < this.game.COLS; col++) {
                 const cell = this.getCellElement(row, col);
+                if (!cell) {
+                    continue; // Skip if no DOM element available (e.g., in tests)
+                }
+                
                 const player = this.game.board[row][col];
 
                 // Remove existing player classes
@@ -1195,10 +1213,16 @@ class _Connect4UI {
      * Helper methods
      */
     getCellElement(row, col) {
+        if (!this.boardElement) {
+            return null; // Return null if no DOM element available (e.g., in tests)
+        }
         return this.boardElement.querySelector(`[data-row="${row}"][data-col="${col}"]`);
     }
 
     clearBoard() {
+        if (!this.boardElement) {
+            return; // Skip if no DOM element available (e.g., in tests)
+        }
         this.boardElement.querySelectorAll('.cell').forEach(cell => {
             cell.classList.remove(
                 'red',
@@ -1213,7 +1237,9 @@ class _Connect4UI {
 
     removePieceFromBoard(row, col) {
         const cell = this.getCellElement(row, col);
-        cell.classList.remove('red', 'yellow');
+        if (cell) {
+            cell.classList.remove('red', 'yellow');
+        }
     }
 
     showMessage(message, type = 'info') {

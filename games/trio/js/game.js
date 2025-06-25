@@ -751,3 +751,8 @@ class _TrioGame {
         }
     }
 }
+
+// Make class available globally for tests
+if (typeof window !== 'undefined') {
+    window.TrioGame = _TrioGame;
+}
