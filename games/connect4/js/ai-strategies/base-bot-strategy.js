@@ -25,29 +25,32 @@ class BaseBotStrategy {
      * @param {Object} helpers - Helpers instance (optional)
      * @returns {number|null} Column index for best move
      */
-    getBestMove(game, helpers = null) {
-        const validMoves = game.getValidMoves();
-
-        if (validMoves.length === 0) {
-            return null;
-        }
-
-        // STAGE 1: Direct win possible
+    getBestMove(game, helpers) {
         const winningMove = this.findWinningMove(game);
         if (winningMove !== null) {
             return winningMove;
         }
 
-        // STAGE 2: ALWAYS block (includes forks and immediate threats)
         const blockingMove = this.findBlockingMove(game);
         if (blockingMove !== null) {
             return blockingMove;
         }
 
-        // STAGE 3: Identify trapped columns
-        const safeColumns = this.findSafeColumns(game, validMoves);
+        if (game.moveHistory.length === 0) {
+            return Math.floor(this.COLS / 2);
+        }
 
-        // STAGE 4: Bot-specific selection from safe columns
+        const validMoves = game.getValidMoves();
+        if (validMoves.length === 0) {
+            return null;
+        }
+
+        const safeColumns = this.findSafeColumns(game, validMoves);
+        if (safeColumns.length === 0) {
+            const centerBiased = this.getCenterBiasedMove(validMoves);
+            return centerBiased !== null ? centerBiased : validMoves[0];
+        }
+
         return this.selectFromSafeColumns(game, safeColumns, helpers);
     }
 
@@ -306,9 +309,4 @@ class BaseBotStrategy {
     }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = BaseBotStrategy;
-} else if (typeof window !== 'undefined') {
-    window.BaseBotStrategy = BaseBotStrategy;
-}
+export { BaseBotStrategy };

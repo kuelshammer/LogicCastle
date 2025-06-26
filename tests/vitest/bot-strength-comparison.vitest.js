@@ -655,15 +655,12 @@ describe('Bot Strength Comparison Tests', () => {
     }
 
     const bots = ['enhanced-smart', 'smart-random', 'easy'];
-    const helpers = new MockConnect4Helpers(game, null);
-
-    console.log('Complex Board State Test:');
 
     bots.forEach(difficulty => {
-      const bot = new MockConnect4AI(difficulty);
+      const bot = new Connect4AI(difficulty);
 
       const startTime = performance.now();
-      const move = bot.getBestMove(game, helpers);
+      const move = bot.getBestMove(game);
       const endTime = performance.now();
 
       console.log(`  ${difficulty}: Column ${move + 1} in ${Math.round(endTime - startTime)}ms`);

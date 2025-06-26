@@ -136,7 +136,7 @@ async function runSmartBotTests() {
       try {
         const game3 = new Connect4Game();
         const helpers3 = new Connect4Helpers(game3, null);
-        const ai3 = new Connect4AI('medium');
+        const ai3 = new Connect4AI('defensiv-gemischt');
         Connect4TestUtils.createTestPosition(game3, 'red,red,red,empty,empty,empty,empty', 2);
         const move = ai3.getBestMove(game3, helpers3);
         results.push({

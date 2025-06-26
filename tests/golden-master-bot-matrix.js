@@ -1,80 +1,40 @@
-/**
- * GOLDEN MASTER BOT MATRIX - Definitive Performance Baseline
- *
- * This test establishes the "golden standard" for bot performance that must be
- * maintained throughout the refactoring process. Any changes that cause bot
- * winrates to deviate by more than 5% from these baselines will fail the test.
- *
- * CRITICAL: Run this test BEFORE starting any refactoring to establish baseline.
- */
 
-// Golden Master Performance Matrix (6x6, 100 games per pairing)
-// Results from clean implementation before refactoring
-const GOLDEN_MASTER_BASELINES = {
-  'smart-random': {
-    'smart-random': 50,      // Self-play
-    'offensiv-gemischt': 35, // Confirmed weak vs mixed strategies
-    'defensiv-gemischt': 35,
-    'enhanced-smart': 32,    // Weakest overall
-    'defensive': 32,
-    'monte-carlo': 25        // Monte Carlo dominance expected
-  },
-  'offensiv-gemischt': {
-    'smart-random': 65,
-    'offensiv-gemischt': 50,
-    'defensiv-gemischt': 48,
-    'enhanced-smart': 45,
-    'defensive': 42,
-    'monte-carlo': 30
-  },
-  'defensiv-gemischt': {
-    'smart-random': 65,
-    'offensiv-gemischt': 52,
-    'defensiv-gemischt': 50,
-    'enhanced-smart': 47,
-    'defensive': 44,
-    'monte-carlo': 32
-  },
-  'enhanced-smart': {
-    'smart-random': 68,
-    'offensiv-gemischt': 55,
-    'defensiv-gemischt': 53,
-    'enhanced-smart': 50,
-    'defensive': 48,
-    'monte-carlo': 35
-  },
-  'defensive': {
-    'smart-random': 68,
-    'offensiv-gemischt': 58,
-    'defensiv-gemischt': 56,
-    'enhanced-smart': 52,
-    'defensive': 50,
-    'monte-carlo': 38
-  },
-  'monte-carlo': {
-    'smart-random': 75,      // Monte Carlo strength
-    'offensiv-gemischt': 70,
-    'defensiv-gemischt': 68,
-    'enhanced-smart': 65,
-    'defensive': 62,
-    'monte-carlo': 50
-  }
+/**
+ * BOT MATRIX SYMMETRY VALIDATION
+ *
+ * This test validates the symmetry of bot performance. It ensures that the outcomes
+ * of Bot A vs. Bot B are consistent with Bot B vs. Bot A, accounting for statistical noise.
+ * A significant deviation suggests a potential flaw in the game logic or bot implementation.
+ */
+import { Game } from '../games/connect4/js/game.js';
+import { SmartRandomBot } from '../games/connect4/js/ai-strategies/smart-random-bot.js';
+import { DefensiveBot } from '../games/connect4/js/ai-strategies/defensive-bot.js';
+import { EnhancedSmartBot } from '../games/connect4/js/ai-strategies/enhanced-smart-bot.js';
+import { OffensiveMixedBot, DefensiveMixedBot } from '../games/connect4/js/ai-strategies/mixed-strategy-bots.js';
+import { MonteCarloBot } from '../games/connect4/js/ai-strategies/monte-carlo-bot.js';
+
+// Tolerance for statistical deviation in win/loss symmetry (in percentage points)
+const SYMMETRY_TOLERANCE = 10;
+
+const botStrategies = {
+    'smart-random': SmartRandomBot,
+    'defensive': DefensiveBot,
+    'enhanced-smart': EnhancedSmartBot,
+    'offensiv-gemischt': OffensiveMixedBot,
+    'defensiv-gemischt': DefensiveMixedBot,
+    'monte-carlo': MonteCarloBot
 };
 
-// Tolerance for performance regression (5% deviation allowed)
-const PERFORMANCE_TOLERANCE = 5;
-
 /**
- * Run Golden Master Validation Test
- * Compares current bot performance against established baselines
+ * Run Bot Matrix Symmetry Validation Test
  */
-function runGoldenMasterValidation() {
-  console.log('🏆 GOLDEN MASTER BOT PERFORMANCE VALIDATION');
-  console.log('===========================================');
-  console.log('Testing current bot implementation against established baselines...\n');
+export function runSymmetryValidationTest() {
+  console.log('🏆 BOT MATRIX SYMMETRY VALIDATION');
+  console.log('=================================');
+  console.log('Testing bot performance for symmetrical consistency...\n');
 
   const results = runComprehensiveBotMatrix();
-  const validationResults = validateAgainstBaseline(results);
+  const validationResults = validateSymmetry(results);
 
   return validationResults;
 }
@@ -103,14 +63,15 @@ function runComprehensiveBotMatrix() {
 
     for (const bot2 of botTypes) {
       completedPairings++;
-      console.log(`\\n⚔️  ${bot1} vs ${bot2} (${completedPairings}/${totalPairings})`);
+      console.log(`\n⚔️  ${bot1} vs ${bot2} (${completedPairings}/${totalPairings})`);
 
       if (bot1 === bot2) {
-        // Self-play always 50/50
-        results[bot1][bot2] = { winRate: 50, games: 100 };
+        // Self-play is not needed for symmetry check, but we can fill it for completeness
+        results[bot1][bot2] = { winRate: 50, games: 100, wins: 50, losses: 50, draws: 0 };
+         console.log(`   Result: 50% winrate (self-play)`);
       } else {
         // Run actual bot vs bot games
-        const gameResults = runBotVsBotSeries(bot1, bot2, 100);
+        const gameResults = runBotVsBotSeries(bot1, bot2, 1000);
         results[bot1][bot2] = {
           winRate: Math.round((gameResults.wins / gameResults.total) * 100),
           games: gameResults.total,
@@ -118,9 +79,8 @@ function runComprehensiveBotMatrix() {
           losses: gameResults.losses,
           draws: gameResults.draws
         };
+         console.log(`   Result: ${results[bot1][bot2].wins} wins, ${results[bot1][bot2].losses} losses, ${results[bot1][bot2].draws} draws (${results[bot1][bot2].winRate}% winrate)`);
       }
-
-      console.log(`   Result: ${results[bot1][bot2].winRate}% winrate`);
     }
   }
 
@@ -128,11 +88,12 @@ function runComprehensiveBotMatrix() {
 }
 
 /**
- * Validate current results against golden master baseline
+ * Validate the symmetry of the results.
+ * The win rate of A vs B should be roughly (100 - win rate of B vs A).
  */
-function validateAgainstBaseline(currentResults) {
-  console.log('\\n🔍 VALIDATING AGAINST GOLDEN MASTER BASELINE');
-  console.log('============================================');
+function validateSymmetry(currentResults) {
+  console.log('🔍 VALIDATING BOT MATRIX SYMMETRY (with Draws)');
+  console.log('=============================================');
 
   const validationResults = {
     totalPairings: 0,
@@ -141,26 +102,52 @@ function validateAgainstBaseline(currentResults) {
     failures: []
   };
 
-  for (const bot1 in GOLDEN_MASTER_BASELINES) {
-    for (const bot2 in GOLDEN_MASTER_BASELINES[bot1]) {
+  const botTypes = Object.keys(currentResults);
+
+  for (let i = 0; i < botTypes.length; i++) {
+    for (let j = i + 1; j < botTypes.length; j++) {
+      const bot1 = botTypes[i];
+      const bot2 = botTypes[j];
+
       validationResults.totalPairings++;
 
-      const expectedWinRate = GOLDEN_MASTER_BASELINES[bot1][bot2];
-      const actualWinRate = currentResults[bot1][bot2].winRate;
-      const deviation = Math.abs(expectedWinRate - actualWinRate);
+      const result1 = currentResults[bot1][bot2]; // Bot1 vs Bot2
+      const result2 = currentResults[bot2][bot1]; // Bot2 vs Bot1
 
-      if (deviation <= PERFORMANCE_TOLERANCE) {
+      let isSymmetric = true;
+      const failureDetails = [];
+
+      // Check wins symmetry: Bot1 wins vs Bot2 should be Bot2 losses vs Bot1
+      const winDeviation = Math.abs(result1.wins - result2.losses);
+      if (winDeviation > SYMMETRY_TOLERANCE) {
+        isSymmetric = false;
+        failureDetails.push(`Wins deviation: ${winDeviation} (Bot1 wins: ${result1.wins}, Bot2 losses: ${result2.losses})`);
+      }
+
+      // Check losses symmetry: Bot1 losses vs Bot2 should be Bot2 wins vs Bot1
+      const lossDeviation = Math.abs(result1.losses - result2.wins);
+      if (lossDeviation > SYMMETRY_TOLERANCE) {
+        isSymmetric = false;
+        failureDetails.push(`Losses deviation: ${lossDeviation} (Bot1 losses: ${result1.losses}, Bot2 wins: ${result2.wins})`);
+      }
+
+      // Check draws symmetry: Draws should be roughly the same in both directions
+      const drawDeviation = Math.abs(result1.draws - result2.draws);
+      if (drawDeviation > SYMMETRY_TOLERANCE) {
+        isSymmetric = false;
+        failureDetails.push(`Draws deviation: ${drawDeviation} (Bot1 draws: ${result1.draws}, Bot2 draws: ${result2.draws})`);
+      }
+
+      if (isSymmetric) {
         validationResults.passedPairings++;
-        console.log(`✅ ${bot1} vs ${bot2}: ${actualWinRate}% (expected ${expectedWinRate}%, deviation ${deviation}%)`);
+        console.log(`✅ ${bot1} vs ${bot2}: Symmetric`);
       } else {
         validationResults.failedPairings++;
         validationResults.failures.push({
           pairing: `${bot1} vs ${bot2}`,
-          expected: expectedWinRate,
-          actual: actualWinRate,
-          deviation: deviation
+          details: failureDetails
         });
-        console.log(`❌ ${bot1} vs ${bot2}: ${actualWinRate}% (expected ${expectedWinRate}%, deviation ${deviation}%)`);
+        console.log(`❌ ${bot1} vs ${bot2}: Asymmetric! Details: ${failureDetails.join(', ')}`);
       }
     }
   }
@@ -168,36 +155,65 @@ function validateAgainstBaseline(currentResults) {
   return validationResults;
 }
 
-/**
- * Simple bot vs bot series runner
- * Note: This is a placeholder - will be replaced with actual implementation
- */
+
 function runBotVsBotSeries(bot1Type, bot2Type, numGames) {
-  // Placeholder implementation - replace with real bot vs bot logic
-  console.log(`   Running ${numGames} games between ${bot1Type} and ${bot2Type}...`);
+    let wins = 0;
+    let losses = 0;
+    let draws = 0;
 
-  // Simulate some realistic but randomized results for now
-  const expectedWinRate = GOLDEN_MASTER_BASELINES[bot1Type]?.[bot2Type] || 50;
-  const variance = Math.random() * 10 - 5; // ±5% variance
-  const simulatedWinRate = Math.max(0, Math.min(100, expectedWinRate + variance));
+    const Bot1 = botStrategies[bot1Type];
+    const Bot2 = botStrategies[bot2Type];
 
-  const wins = Math.round((simulatedWinRate / 100) * numGames);
-  const losses = numGames - wins;
+    const game = new Game(); // Create game instance once
+    const bot1 = new Bot1(game, 1);
+    const bot2 = new Bot2(game, 2);
 
-  return {
-    wins: wins,
-    losses: losses,
-    draws: 0,
-    total: numGames
-  };
+    for (let i = 0; i < numGames; i++) {
+        // Use fullReset for the first game, then resetGame for subsequent games
+        // to apply the "loser starts" rule.
+        if (i === 0) {
+            game.fullReset();
+        } else {
+            game.resetGame();
+        }
+
+        while (!game.gameOver) {
+            const currentPlayer = game.currentPlayer;
+            const bot = currentPlayer === 1 ? bot1 : bot2;
+            const move = bot.getBestMove(game);
+
+            if (move === null) {
+                // Bot couldn't find a move, likely a draw or error
+                break;
+            }
+
+            game.makeMove(move);
+        }
+
+        const winner = game.winner;
+        if (winner === 1) {
+            wins++;
+        } else if (winner === 2) {
+            losses++;
+        } else {
+            draws++;
+        }
+    }
+
+    return {
+        wins,
+        losses,
+        draws,
+        total: numGames
+    };
 }
 
 /**
  * Generate detailed report of validation results
  */
-function generateValidationReport(validationResults) {
-  console.log('\\n📋 GOLDEN MASTER VALIDATION REPORT');
-  console.log('===================================');
+export function generateValidationReport(validationResults) {
+  console.log('\n📋 BOT MATRIX SYMMETRY VALIDATION REPORT');
+  console.log('=======================================');
 
   const successRate = (validationResults.passedPairings / validationResults.totalPairings) * 100;
 
@@ -207,18 +223,17 @@ function generateValidationReport(validationResults) {
   console.log(`Success rate: ${successRate.toFixed(1)}%`);
 
   if (validationResults.failedPairings > 0) {
-    console.log('\\n❌ FAILED VALIDATIONS:');
+    console.log('\n❌ FAILED VALIDATIONS:');
     validationResults.failures.forEach(failure => {
-      console.log(`   ${failure.pairing}: Expected ${failure.expected}%, got ${failure.actual}% (${failure.deviation}% deviation)`);
+      console.log(`   ${failure.pairing}: ${failure.details.join('; ')}`);
     });
 
-    console.log('\\n🚨 PERFORMANCE REGRESSION DETECTED!');
-    console.log('Refactoring may have changed bot behavior. Investigate before proceeding.');
+    console.log('\n🚨 SYMMETRY VALIDATION FAILED!');
+    console.log('Bot performance is not consistent. Investigate before proceeding.');
     return false;
   }
-  console.log('\\n✅ ALL VALIDATIONS PASSED!');
-  console.log('Bot performance matches golden master baseline.');
-  console.log('Safe to proceed with refactoring.');
+  console.log('\n✅ ALL SYMMETRY VALIDATIONS PASSED!');
+  console.log('Bot performance is consistent and symmetrical.');
   return true;
 
 }
@@ -226,13 +241,12 @@ function generateValidationReport(validationResults) {
 /**
  * Main execution function
  */
-function runGoldenMasterTest() {
-  console.log('🚀 STARTING GOLDEN MASTER BOT PERFORMANCE TEST');
-  console.log('This test will validate that current bot performance matches the established baseline.');
-  console.log('Any deviations > 5% indicate potential regressions.\\n');
+export function runSymmetryTest() {
+  console.log('🚀 STARTING BOT MATRIX SYMMETRY TEST');
+  console.log('This test will validate that bot performance is symmetrical.\n');
 
   try {
-    const validationResults = runGoldenMasterValidation();
+    const validationResults = runSymmetryValidationTest();
     const success = generateValidationReport(validationResults);
 
     return {
@@ -241,7 +255,7 @@ function runGoldenMasterTest() {
       timestamp: new Date().toISOString()
     };
   } catch (error) {
-    console.error('❌ Golden Master Test failed with error:', error);
+    console.error('❌ Symmetry Test failed with error:', error);
     return {
       success: false,
       error: error.message,
@@ -250,22 +264,4 @@ function runGoldenMasterTest() {
   }
 }
 
-// Export for test runner integration
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    runGoldenMasterTest,
-    runGoldenMasterValidation,
-    generateValidationReport,
-    GOLDEN_MASTER_BASELINES,
-    PERFORMANCE_TOLERANCE
-  };
-}
-
-// Auto-run if executed directly
-if (typeof window !== 'undefined') {
-  // Browser environment - can be run via test runner
-  console.log('Golden Master Test loaded and ready to run via runGoldenMasterTest()');
-} else if (require.main === module) {
-  // Node environment - run directly
-  runGoldenMasterTest();
-}
+runSymmetryTest();

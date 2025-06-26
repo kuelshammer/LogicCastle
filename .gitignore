@@ -112,3 +112,20 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Connect4 specific ignores
+games/connect4/debug/
+games/connect4/js/ui/
+games/connect4/js/*.js.bak*
+games/connect4/js/ai-strategies/*.js.bak*
+games/connect4/js/helper-modules/*.js.bak*
+games/connect4/js/modules/*.js.bak*
+games/connect4/js/shared/*.js.bak*
+games/connect4/index_working.html
+games/connect4/debug-monte-carlo-stages.html
+games/connect4/debug_board.html
+games/connect4/test_ai_diagonal.html
+games/connect4/test_diagonal_threats.html
+games/connect4/test_evaluation.html
+games/connect4/test_simple_board.html
+games/connect4/tests/

@@ -1,9 +1,4 @@
-/**
- * SmartRandomBot - Helpers-assisted bot with heavy randomness
- *
- * Uses helper system for basic strategic awareness but introduces significant
- * randomness to keep gameplay unpredictable and beginner-friendly.
- */
+import { BaseBotStrategy } from './base-bot-strategy.js';
 class SmartRandomBot extends BaseBotStrategy {
     constructor(gameConstants) {
         super(gameConstants);
@@ -199,9 +194,4 @@ class SmartRandomBot extends BaseBotStrategy {
     }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = SmartRandomBot;
-} else if (typeof window !== 'undefined') {
-    window.SmartRandomBot = SmartRandomBot;
-}
+export { SmartRandomBot };

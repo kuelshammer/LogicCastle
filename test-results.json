@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-06-24T20:49:52.958Z",
+  "timestamp": "2025-06-24T20:53:02.701Z",
   "environment": {
     "ci": true,
     "node_version": "v23.11.0",
@@ -7,10 +7,10 @@
   },
   "summary": {
     "total": 314,
-    "passed": 248,
-    "failed": 66,
+    "passed": 245,
+    "failed": 69,
     "success": false,
-    "success_rate": 79
+    "success_rate": 78
   },
   "categories": {
     "backend": {
@@ -19,7 +19,7 @@
       "success": false
     },
     "aiStrategy": {
-      "passed": 30,
+      "passed": 28,
       "total": 36,
       "success": false
     },
@@ -34,7 +34,7 @@
       "success": false
     },
     "integration": {
-      "passed": 25,
+      "passed": 24,
       "total": 36,
       "success": false
     },
@@ -90,7 +90,7 @@
       "name": "Horizontal win detection",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Game-Core",
@@ -139,7 +139,7 @@
       "name": "Helper methods",
       "passed": false,
       "error": "Should return correct player 1 name",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Game-Edge-Cases",
@@ -188,14 +188,14 @@
       "name": "Multiple undo operations",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Game-Edge-Cases",
       "name": "Board boundary validation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Game-Edge-Cases",
@@ -209,7 +209,7 @@
       "name": "Basic event emission and listening",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Events",
@@ -244,7 +244,7 @@
       "name": "gameDraw event",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Events",
@@ -258,7 +258,7 @@
       "name": "fullReset event",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Events",
@@ -272,7 +272,7 @@
       "name": "Event isolation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Events",
@@ -328,7 +328,7 @@
       "name": "Simulation with complex board state",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Simulation",
@@ -349,21 +349,21 @@
       "name": "Simulation performance",
       "passed": true,
       "error": null,
-      "duration": 0.8
+      "duration": 0.7
     },
     {
       "suite": "Backend-Simulation",
       "name": "Simulation with undo scenarios",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Backend-Simulation",
       "name": "Simulation on empty board",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Backend-Simulation",
@@ -384,28 +384,28 @@
       "name": "Center opening move preference",
       "passed": false,
       "error": "Should choose center column (3) as opening move",
-      "duration": 0.5
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Winning move detection",
       "passed": false,
       "error": "Should choose winning move in column 3",
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Blocking opponent win",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "State isolation - no corruption",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
@@ -419,21 +419,21 @@
       "name": "Multiple consecutive moves without corruption",
       "passed": true,
       "error": null,
-      "duration": 1.4
+      "duration": 0.7
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Even/odd strategy application",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.3
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Zugzwang detection",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
@@ -445,9 +445,9 @@
     {
       "suite": "AI-Strategy-Enhanced-Smart",
       "name": "Fallback to safe random",
-      "passed": true,
-      "error": null,
-      "duration": 0.1
+      "passed": false,
+      "error": "Should prefer center-ish columns in neutral position",
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Enhanced-Smart",
@@ -461,7 +461,7 @@
       "name": "Move determinism for identical states",
       "passed": false,
       "error": "Both bots should choose winning move (column 3)",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Consistency",
@@ -475,14 +475,14 @@
       "name": "All bots choose valid moves",
       "passed": true,
       "error": null,
-      "duration": 0.8
+      "duration": 0.9
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Opening move preferences",
       "passed": false,
-      "error": "smart-random bot should prefer center-ish opening (columns 2-4), chose 1",
-      "duration": 0.1
+      "error": "smart-random bot should prefer center-ish opening (columns 2-4), chose 6",
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Consistency",
@@ -496,35 +496,35 @@
       "name": "Blocking behavior consistency",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.3
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Random vs strategic bot differences",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.4
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Defensive vs offensive preferences",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.4
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "No state corruption during analysis",
       "passed": true,
       "error": null,
-      "duration": 0.6
+      "duration": 0.7
     },
     {
       "suite": "AI-Strategy-Consistency",
       "name": "Cross-bot performance in complex position",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.4
     },
     {
       "suite": "AI-Strategy-Smart-Random",
@@ -538,21 +538,21 @@
       "name": "Center opening preference",
       "passed": false,
       "error": "Should prefer center column (3) for opening move",
-      "duration": 0.2
+      "duration": 0.3
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Level 0 - Own winning opportunities",
-      "passed": true,
-      "error": null,
-      "duration": 0.1
+      "passed": false,
+      "error": "Should choose winning move in column 3",
+      "duration": 0
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Level 0 - Vertical winning opportunity",
       "passed": false,
       "error": "Should choose vertical winning move in column 3",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Smart-Random",
@@ -566,7 +566,7 @@
       "name": "Level 1 - Vertical blocking",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Smart-Random",
@@ -580,35 +580,35 @@
       "name": "Helper system integration - no corruption",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Random fallback behavior",
       "passed": true,
       "error": null,
-      "duration": 0.8
+      "duration": 0.9
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Multiple move sequence consistency",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.5
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Performance with helper analysis",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "AI-Strategy-Smart-Random",
       "name": "Behavior with helpers disabled",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "AI-Strategy-Smart-Random",
@@ -622,7 +622,7 @@
       "name": "State isolation across multiple calls",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.9
     },
     {
       "suite": "Helper-System-Levels",
@@ -643,28 +643,28 @@
       "name": "Level 0 - Diagonal winning move detection",
       "passed": false,
       "error": "Should enter forced move mode for diagonal win, got false",
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 0 - No winning moves available",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 1 - Horizontal threat blocking",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 1 - Vertical threat blocking",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
@@ -678,21 +678,21 @@
       "name": "Priority - Level 0 wins override Level 1 blocks",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 2 - Trap avoidance safe moves",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.3
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Level 2 - Trapped situation handling",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.4
     },
     {
       "suite": "Helper-System-Levels",
@@ -706,14 +706,14 @@
       "name": "Forced move mode activation and deactivation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Levels",
       "name": "Help level progression logic",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Levels",
@@ -734,28 +734,28 @@
       "name": "Board simulation isolation in level checks",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Even/Odd threat analysis accuracy",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Even/Odd analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Zugzwang detection accuracy",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "Helper-System-Strategic",
@@ -769,28 +769,28 @@
       "name": "Fork opportunity analysis accuracy",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Fork analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Enhanced strategic evaluation integration",
       "passed": false,
       "error": "Confidence should be low, medium, or high",
-      "duration": 0.6
+      "duration": 0.4
     },
     {
       "suite": "Helper-System-Strategic",
       "name": "Enhanced strategic evaluation state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.3
     },
     {
       "suite": "Helper-System-Strategic",
@@ -818,7 +818,7 @@
       "name": "Strategic analysis performance",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.6
     },
     {
       "suite": "Helper-System-Strategic",
@@ -832,7 +832,7 @@
       "name": "Multiple player strategic analysis",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
@@ -846,14 +846,14 @@
       "name": "Threat hint generation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Opportunity hint generation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
@@ -867,7 +867,7 @@
       "name": "Defensive suggestion generation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
@@ -895,7 +895,7 @@
       "name": "Move consequence analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Hints",
@@ -916,14 +916,14 @@
       "name": "Hint state management during game progression",
       "passed": true,
       "error": null,
-      "duration": 0.8
+      "duration": 1.4
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint system with disabled help",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
@@ -937,21 +937,21 @@
       "name": "Hint message content and localization",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Hints",
       "name": "Hint update performance",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
       "name": "Event listener registration and removal",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
@@ -965,7 +965,7 @@
       "name": "Board state change event integration",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
@@ -979,7 +979,7 @@
       "name": "Winning opportunity activated event",
       "passed": false,
       "error": "Should emit winning opportunity activated event",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
@@ -993,21 +993,21 @@
       "name": "Forced move activated event",
       "passed": false,
       "error": "Should emit forced move activated event",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
       "name": "Forced move deactivated event",
       "passed": false,
       "error": "Should emit forced move deactivated event",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
       "name": "Trap avoidance activated event",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Events",
@@ -1049,7 +1049,7 @@
       "name": "Event system memory management",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Events",
@@ -1070,7 +1070,7 @@
       "name": "Hint updates on empty board",
       "passed": true,
       "error": null,
-      "duration": 2.3
+      "duration": 3.1
     },
     {
       "suite": "Helper-System-Performance",
@@ -1084,14 +1084,14 @@
       "name": "Strategic analysis performance scaling",
       "passed": true,
       "error": null,
-      "duration": 2.3
+      "duration": 2.8
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Move consequence analysis performance",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Performance",
@@ -1119,7 +1119,7 @@
       "name": "Column threat analysis performance",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Helper-System-Performance",
@@ -1133,21 +1133,21 @@
       "name": "Memory usage stability",
       "passed": true,
       "error": null,
-      "duration": 53
+      "duration": 53.1
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Concurrent analysis simulation",
       "passed": true,
       "error": null,
-      "duration": 3.9
+      "duration": 3.8
     },
     {
       "suite": "Helper-System-Performance",
       "name": "Performance regression detection",
       "passed": true,
       "error": null,
-      "duration": 1.6
+      "duration": 1.7
     },
     {
       "suite": "Helper-System-Regression",
@@ -1168,14 +1168,14 @@
       "name": "Helper functions use simulation not direct manipulation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Move safety checking isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Regression",
@@ -1189,7 +1189,7 @@
       "name": "Zugzwang detection state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Helper-System-Regression",
@@ -1224,21 +1224,21 @@
       "name": "Board state immutability during complex analysis",
       "passed": true,
       "error": null,
-      "duration": 0.9
+      "duration": 1
     },
     {
       "suite": "Helper-System-Regression",
       "name": "Historical corruption bug prevention",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board DOM structure creation",
       "passed": false,
       "error": "Should create 42 cells (6 rows × 7 columns)",
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
@@ -1259,56 +1259,56 @@
       "name": "Board state rendering",
       "passed": false,
       "error": "Cannot read properties of null (reading 'classList')",
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Board",
       "name": "Column selection visual feedback",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Column preview on hover",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Full column interaction handling",
       "passed": false,
       "error": "Column 0 should be full, got false",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
       "name": "Game over state board interaction",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board reset and cleanup",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board responsive behavior",
       "passed": false,
       "error": "Cells should be created regardless of container size",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Board",
       "name": "Board accessibility attributes",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Board",
@@ -1329,7 +1329,7 @@
       "name": "Game control buttons initialization",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "UI-Component-Controls",
@@ -1357,14 +1357,14 @@
       "name": "Game mode selection",
       "passed": false,
       "error": "Cannot read properties of null (reading 'closest')",
-      "duration": 0
+      "duration": 1.2
     },
     {
       "suite": "UI-Component-Controls",
       "name": "Help system controls",
       "passed": false,
       "error": "Cannot read properties of null (reading 'querySelector')",
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Controls",
@@ -1406,7 +1406,7 @@
       "name": "Help modal functionality",
       "passed": false,
       "error": "Help modal should be shown when help button is clicked",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Controls",
@@ -1427,14 +1427,14 @@
       "name": "Column click handling",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
       "name": "Cell click handling",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Interactions",
@@ -1455,7 +1455,7 @@
       "name": "Forced move mode interactions",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Interactions",
@@ -1504,7 +1504,7 @@
       "name": "Focus management",
       "passed": true,
       "error": null,
-      "duration": 0.5
+      "duration": 0.7
     },
     {
       "suite": "UI-Component-Interactions",
@@ -1525,14 +1525,14 @@
       "name": "Winning sequence highlighting",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Color scheme consistency",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
@@ -1546,7 +1546,7 @@
       "name": "Responsive board sizing",
       "passed": false,
       "error": "Should create all cells in small container",
-      "duration": 0.4
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
@@ -1560,7 +1560,7 @@
       "name": "Visual feedback for invalid moves",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "UI-Component-Visual",
@@ -1574,35 +1574,35 @@
       "name": "Accessibility visual features",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Animation performance",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual state transitions",
       "passed": false,
       "error": "Cell should transition to filled state, got null",
-      "duration": 0
+      "duration": 0.2
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual debugging aids",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "UI-Component-Visual",
       "name": "Visual consistency across game states",
       "passed": false,
       "error": "Should maintain cell count in playing state",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Integration-Game-Flow",
@@ -1616,35 +1616,35 @@
       "name": "Game flow with AI opponent",
       "passed": true,
       "error": null,
-      "duration": 1
+      "duration": 0.9
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Game reset and new game flow",
       "passed": false,
       "error": "Cannot set properties of undefined (setting 'red')",
-      "duration": 0.1
+      "duration": 0.3
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Help system integration with game flow",
       "passed": false,
       "error": "Should detect winning opportunity",
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Undo functionality in game flow",
       "passed": false,
       "error": "Move history should be reduced by 1",
-      "duration": 0.2
+      "duration": 0
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Score tracking across multiple games",
       "passed": false,
       "error": "Cannot read properties of undefined (reading 'red')",
-      "duration": 0.5
+      "duration": 8.1
     },
     {
       "suite": "Integration-Game-Flow",
@@ -1658,49 +1658,49 @@
       "name": "Performance under continuous play",
       "passed": true,
       "error": null,
-      "duration": 5.1
+      "duration": 2.2
     },
     {
       "suite": "Integration-Game-Flow",
       "name": "Component state synchronization",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI move integration with UI updates",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.3
     },
     {
       "suite": "Integration-AI-UI",
       "name": "Different AI difficulty levels with UI",
       "passed": false,
       "error": "Cannot read properties of null (reading 'closest')",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI with helper system integration",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI thinking state with UI feedback",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI timeout handling",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-AI-UI",
@@ -1714,14 +1714,14 @@
       "name": "AI error recovery with UI",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-AI-UI",
       "name": "AI performance under UI stress",
       "passed": true,
       "error": null,
-      "duration": 3
+      "duration": 2.9
     },
     {
       "suite": "Integration-AI-UI",
@@ -1735,49 +1735,49 @@
       "name": "Helper system initialization with UI",
       "passed": false,
       "error": "UI should reference helpers",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Help level toggle integration",
       "passed": false,
       "error": "Helpers should be enabled, got false",
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Forced move mode integration",
       "passed": false,
       "error": "Should not allow non-required move selection",
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Visual hints integration",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Event communication between helpers and UI",
       "passed": false,
       "error": "Should receive forced move deactivated event",
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Help system with different game modes",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.3
     },
     {
       "suite": "Integration-Helpers-UI",
       "name": "Helper performance with UI updates",
       "passed": true,
       "error": null,
-      "duration": 1.1
+      "duration": 1.5
     },
     {
       "suite": "Integration-Helpers-UI",
@@ -1798,21 +1798,21 @@
       "name": "Complete system initialization",
       "passed": false,
       "error": "Cannot read properties of null (reading 'addEventListener')",
-      "duration": 0.1
+      "duration": 0.2
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "Event cascade through all components",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "State synchronization across all components",
       "passed": true,
       "error": null,
-      "duration": 0.4
+      "duration": 0.6
     },
     {
       "suite": "Integration-Cross-Component",
@@ -1831,9 +1831,9 @@
     {
       "suite": "Integration-Cross-Component",
       "name": "Memory management across components",
-      "passed": true,
-      "error": null,
-      "duration": 8.3
+      "passed": false,
+      "error": "System should remain functional after extensive use",
+      "duration": 8.2
     },
     {
       "suite": "Integration-Cross-Component",
@@ -1847,28 +1847,28 @@
       "name": "System performance under load",
       "passed": true,
       "error": null,
-      "duration": 15.4
+      "duration": 16.6
     },
     {
       "suite": "Integration-Cross-Component",
       "name": "Component isolation under stress",
       "passed": true,
       "error": null,
-      "duration": 23.7
+      "duration": 29.4
     },
     {
       "suite": "Regression-Animation-Chaos",
       "name": "Enhanced Smart Bot state isolation",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Regression-Animation-Chaos",
       "name": "Strategic analysis state isolation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.3
     },
     {
       "suite": "Regression-Animation-Chaos",
@@ -1882,14 +1882,14 @@
       "name": "Multiple Enhanced Bot calls isolation",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.4
     },
     {
       "suite": "Regression-Animation-Chaos",
       "name": "No spurious events during AI analysis",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Regression-Animation-Chaos",
@@ -1903,7 +1903,7 @@
       "name": "Bug reproduction scenario prevention",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Regression-Animation-Chaos",
@@ -1917,7 +1917,7 @@
       "name": "Stress test - rapid AI calls",
       "passed": true,
       "error": null,
-      "duration": 1.7
+      "duration": 1.8
     },
     {
       "suite": "Regression-State-Corruption",
@@ -1931,7 +1931,7 @@
       "name": "AI functions use board simulation",
       "passed": true,
       "error": null,
-      "duration": 0.2
+      "duration": 0.1
     },
     {
       "suite": "Regression-State-Corruption",
@@ -1966,28 +1966,28 @@
       "name": "Cascading state change prevention",
       "passed": true,
       "error": null,
-      "duration": 1
+      "duration": 0.9
     },
     {
       "suite": "Regression-State-Corruption",
       "name": "Error condition state protection",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Regression-State-Corruption",
       "name": "Multiple game instance isolation",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.2
     },
     {
       "suite": "Regression-State-Corruption",
       "name": "AI analysis doesn't affect real moves",
       "passed": true,
       "error": null,
-      "duration": 0.3
+      "duration": 0.2
     },
     {
       "suite": "Regression-State-Corruption",
@@ -2092,7 +2092,7 @@
       "name": "AI move generation",
       "passed": false,
       "error": "TrioGame is not defined",
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Trio",
@@ -2141,7 +2141,7 @@
       "name": "Invalid move - out of bounds",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Gobang",
@@ -2176,14 +2176,14 @@
       "name": "Anti-diagonal win detection",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Gobang",
       "name": "Undo move",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Gobang",
@@ -2218,14 +2218,14 @@
       "name": "AI relevant moves",
       "passed": true,
       "error": null,
-      "duration": 0.1
+      "duration": 0
     },
     {
       "suite": "Gobang",
       "name": "Helper methods",
       "passed": true,
       "error": null,
-      "duration": 0
+      "duration": 0.1
     },
     {
       "suite": "Gobang",

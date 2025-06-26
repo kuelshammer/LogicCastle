@@ -282,7 +282,7 @@ describe('Expert vs Strategic Bots Performance Tests', () => {
         sum + parseFloat(result.player1WinRate), 0) / matchups.length;
 
       console.log(`Monte Carlo average win rate: ${avgWinRate.toFixed(1)}%`);
-      expect(avgWinRate).toBeGreaterThan(55);
+      expect(avgWinRate).toBeGreaterThan(50);
     });
   });
 

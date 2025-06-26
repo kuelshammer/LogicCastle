@@ -2,7 +2,7 @@
  * Connect4Game - Core game logic for Connect 4
  * Now using modular architecture with extracted components
  */
-class _Connect4Game {
+class Game {
     constructor() {
         // Game constants
         this.ROWS = 6;
@@ -455,26 +455,17 @@ class _Connect4Game {
             return { success: false, reason: 'Column is full' };
         }
 
-        // Find the row where the piece would land
-        let row = this.ROWS - 1;
-        while (row >= 0 && this.board[row][col] !== this.EMPTY) {
-            row--;
-        }
+        const newGame = new Game();
+        newGame.board = this.getBoard();
+        newGame.currentPlayer = this.currentPlayer;
+        newGame.moveHistory = [...this.moveHistory];
 
-        // Create a copy of the board with the simulated move
-        const simulatedBoard = this.getBoard();
-        simulatedBoard[row][col] = this.currentPlayer;
-
-        // Check if this move would win
-        const wouldWin = this.checkWinOnBoard(simulatedBoard, row, col, this.currentPlayer);
+        const result = newGame.makeMove(col);
 
         return {
-            success: true,
-            row,
-            col,
-            player: this.currentPlayer,
-            wouldWin,
-            board: simulatedBoard
+            success: result.success,
+            game: newGame,
+            wouldWin: result.gameWon || false
         };
     }
 
@@ -524,35 +515,8 @@ class _Connect4Game {
     }
 
     /**
-     * Undo the last move (for strategic analysis)
-     */
-    undoLastMove() {
-        if (this.moveHistory.length === 0) {
-            return false; // No moves to undo
-        }
-
-        const lastMove = this.moveHistory.pop();
-
-        // Remove the piece from the board
-        this.board[lastMove.row][lastMove.col] = this.EMPTY;
-
-        // Switch back to previous player
-        this.currentPlayer = lastMove.player;
-
-        // Reset game state if it was over
-        this.gameOver = false;
-        this.winner = null;
-        this.winningCells = [];
-
-        return true;
-    }
-
-    /**
      * Basic event system methods
      */
 }
 
-// Make available globally for backward compatibility
-if (typeof window !== 'undefined') {
-    window.Connect4Game = _Connect4Game;
-}
+export { Game };

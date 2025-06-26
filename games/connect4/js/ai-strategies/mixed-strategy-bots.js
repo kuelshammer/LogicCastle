@@ -1,9 +1,4 @@
-/**
- * Mixed Strategy Bots - Offensive and Defensive weighted combinations
- *
- * These bots combine multiple strategic approaches with different weightings
- * to create balanced but distinct playing styles.
- */
+import { BaseBotStrategy } from './base-bot-strategy.js';
 
 /**
  * OffensiveMixedBot - Aggressive play with 2x offensive weighting
@@ -321,6 +316,14 @@ class DefensiveMixedBot extends BaseBotStrategy {
      * @returns {number} Selected column index
      */
     selectFromSafeColumns(game, safeColumns, helpers) {
+        // If board is empty, play center column (best opening move)
+        if (game.moveHistory.length === 0) {
+            const centerCol = Math.floor(this.COLS / 2);
+            if (safeColumns.includes(centerCol)) {
+                return centerCol;
+            }
+        }
+
         // Phase 1: Look for critical defensive moves
         const defensiveMove = this.findCriticalDefensiveMove(game, safeColumns);
         if (defensiveMove !== null) {
@@ -662,10 +665,4 @@ class DefensiveMixedBot extends BaseBotStrategy {
     }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { OffensiveMixedBot, DefensiveMixedBot };
-} else if (typeof window !== 'undefined') {
-    window.OffensiveMixedBot = OffensiveMixedBot;
-    window.DefensiveMixedBot = DefensiveMixedBot;
-}
+export { OffensiveMixedBot, DefensiveMixedBot };

@@ -4,7 +4,7 @@
  * This is the refactored AI system that uses extracted bot strategy modules.
  * Maintains backward compatibility while providing better organization and extensibility.
  */
-class Connect4AI {
+export class Connect4AI {
     constructor(difficulty = 'medium') {
         this.difficulty = difficulty;
         this.gameConstants = {
@@ -96,19 +96,12 @@ class Connect4AI {
     mapDifficultyToStrategy(difficulty) {
         const mapping = {
             easy: 'smart-random',
-            'smart-random': 'smart-random',
-            medium: 'offensiv-gemischt',
-            'offensiv-gemischt': 'offensiv-gemischt',
-            'defensiv-gemischt': 'defensiv-gemischt',
-            hard: 'enhanced-smart',
-            'enhanced-smart': 'enhanced-smart',
+            medium: 'enhanced-smart',
             strong: 'defensive',
-            defensive: 'defensive',
-            expert: 'monte-carlo',
-            'monte-carlo': 'monte-carlo'
+            expert: 'monte-carlo'
         };
 
-        return mapping[difficulty] || 'offensiv-gemischt';
+        return mapping[difficulty] || 'smart-random';
     }
 
     /**
@@ -321,8 +314,4 @@ class Connect4AI {
 }
 
 // Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Connect4AI;
-} else if (typeof window !== 'undefined') {
-    window.Connect4AI = Connect4AI;
-}
+

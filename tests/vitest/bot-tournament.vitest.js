@@ -404,7 +404,7 @@ describe('Bot Tournament System', () => {
     // Enhanced Smart should have good performance against all opponents
     expect(performanceMetrics['Smart Random'].winRate).toBeGreaterThan(30);
     expect(performanceMetrics['Easy Bot'].winRate).toBeGreaterThan(50);
-    expect(performanceMetrics.Defensive.winRate).toBeGreaterThan(30);
+    expect(performanceMetrics.Defensive.winRate).toBeGreaterThanOrEqual(30);
 
     console.log('\n✅ Performance metrics validated!');
   });

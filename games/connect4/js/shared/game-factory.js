@@ -297,7 +297,7 @@ export class GameFactory {
 
         // Create UI controller if not in testing mode
         if (gameBoard && !options.testing) {
-            const UIModule = await import('../ui.js');
+            const UIModule = await import('../ui/ui.js');
             const ui = new UIModule.Connect4UI(gameSetup.game, gameSetup.helpers, gameBoard);
 
             return {

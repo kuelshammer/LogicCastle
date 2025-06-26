@@ -1,9 +1,4 @@
-/**
- * MonteCarloBot - Simulation-based strategic bot
- *
- * Uses Monte Carlo Tree Search (MCTS) to evaluate moves through random simulations.
- * Balances exploration vs exploitation to find strong strategic moves.
- */
+import { BaseBotStrategy } from './base-bot-strategy.js';
 class MonteCarloBot extends BaseBotStrategy {
     constructor(gameConstants) {
         super(gameConstants);
@@ -150,6 +145,9 @@ class MonteCarloBot extends BaseBotStrategy {
 
     /**
      * Run single Monte Carlo simulation
+     * A simulation, also called a "playout" or "rollout", is a complete game
+     * played from the current state to a terminal state (win, loss, or draw).
+     * The moves are chosen randomly to keep the simulation fast.
      * @param {Object} game - Game instance
      * @param {number} firstMove - First move to make
      * @returns {number} Simulation score (-1, 0, or 1)
@@ -391,9 +389,4 @@ class MonteCarloBot extends BaseBotStrategy {
     }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = MonteCarloBot;
-} else if (typeof window !== 'undefined') {
-    window.MonteCarloBot = MonteCarloBot;
-}
+export { MonteCarloBot };

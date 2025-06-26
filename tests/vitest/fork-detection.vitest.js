@@ -88,7 +88,8 @@ class MockConnect4ForkDetection {
     const patterns = [
       [this.EMPTY, player, this.EMPTY, player],
       [player, this.EMPTY, player, this.EMPTY],
-      [this.EMPTY, player, player, this.EMPTY]
+      [this.EMPTY, player, player, this.EMPTY],
+      [this.EMPTY, player, player, player, this.EMPTY]
     ];
 
     return patterns.some(pattern =>

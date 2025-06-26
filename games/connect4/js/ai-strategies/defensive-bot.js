@@ -1,19 +1,15 @@
-/**
- * DefensiveBot - Pattern disruption and defensive strategy bot
- *
- * Focuses on defensive play by disrupting opponent patterns,
- * controlling key positions, and forcing opponent into difficult situations.
- */
+import { BaseBotStrategy } from './base-bot-strategy.js';
 class DefensiveBot extends BaseBotStrategy {
     constructor(gameConstants) {
         super(gameConstants);
         this.name = 'defensive';
         this.description = 'Pattern disruption and defensive positioning';
         this.defensiveWeights = {
-            patternBreaking: 6,
+            patternBreaking: 20,
             keyPositionControl: 4,
             opponentRestriction: 5,
-            safetyMargin: 3
+            safetyMargin: 3,
+            safeBuilding: 8
         };
     }
 
@@ -25,26 +21,53 @@ class DefensiveBot extends BaseBotStrategy {
      * @returns {number} Selected column index
      */
     selectFromSafeColumns(game, safeColumns, _helpers) {
-        // Phase 1: Look for critical defensive moves
-        const criticalDefensive = this.findCriticalDefensiveMove(game, safeColumns);
-        if (criticalDefensive !== null) {
-            return criticalDefensive;
+        const moveScores = safeColumns.map(col => {
+            const score = this.evaluateDefensiveMove(game, col);
+            return { col, score };
+        });
+
+        // Sort by score (highest first)
+        moveScores.sort((a, b) => b.score - a.score);
+
+        return moveScores[0].col;
+    }
+
+    /**
+     * Evaluate a move based on all defensive criteria.
+     */
+    evaluateDefensiveMove(game, col) {
+        const opponent = game.currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+        let totalScore = 0;
+
+        // 1. Safety (Does this move lead to a loss?)
+        const result = game.simulateMove(col);
+        if (!result.success) return -Infinity; // Should not happen with safeColumns
+
+        const opponentWinningMovesAfter = this.getOpponentWinningMoves(result.game, opponent);
+        if (opponentWinningMovesAfter.length > 0) {
+            return -1000; // Heavily penalize moves that give the opponent a win
         }
 
-        // Phase 2: Pattern disruption analysis
-        const patternDisruption = this.findBestPatternDisruption(game, safeColumns);
-        if (patternDisruption !== null) {
-            return patternDisruption;
-        }
+        // 2. Threat Blocking
+        const threatsBlocked = this.countThreatsBlocked(game, col, opponent);
+        totalScore += threatsBlocked * 100; // High weight for blocking
 
-        // Phase 3: Key position control
-        const keyPosition = this.findKeyPositionMove(game, safeColumns);
-        if (keyPosition !== null) {
-            return keyPosition;
-        }
+        // 3. Pattern Disruption
+        totalScore += this.evaluatePatternDisruption(game, col, opponent);
 
-        // Phase 4: Safest move with opponent restriction
-        return this.findSafestRestrictiveMove(game, safeColumns);
+        // 4. Key Position Control
+        totalScore += this.evaluateKeyPositionControl(game, col);
+
+        // 5. Opponent Restriction
+        totalScore += this.evaluateOpponentRestriction(game, col);
+
+        // 6. Safe Building
+        totalScore += this.evaluateSafeBuilding(game, col);
+
+        // 7. Future Threat Anticipation (penalty)
+        totalScore -= this.evaluateFutureThreats(game, col);
+
+        return totalScore;
     }
 
     /**
@@ -358,6 +381,94 @@ class DefensiveBot extends BaseBotStrategy {
     }
 
     /**
+     * Evaluate safe building potential of a move
+     * @param {Object} game - Game instance
+     * @param {number} col - Column to evaluate
+     * @returns {number} Safe building score
+     */
+    evaluateSafeBuilding(game, col) {
+        const result = game.simulateMove(col);
+        let score = 0;
+
+        // Bonus for creating 2-in-a-row or 3-in-a-row that are not immediately winning
+        const currentPlayer = game.currentPlayer;
+        const twoInARow = this.countFormations(result.game.board, currentPlayer, 2);
+        const threeInARow = this.countFormations(result.game.board, currentPlayer, 3);
+
+        score += twoInARow * 1; // Small bonus for 2-in-a-row
+        score += threeInARow * 3; // Medium bonus for 3-in-a-row
+
+        // Bonus for controlling central columns (defensive perspective)
+        const center = Math.floor(this.COLS / 2);
+        const centerDistance = Math.abs(col - center);
+        score += Math.max(0, 2 - centerDistance) * 2; // Prefer closer to center
+
+        return score * this.defensiveWeights.safeBuilding;
+    }
+
+    /**
+     * Count formations of a specific length for a player
+     * @param {Array} board - Game board
+     * @param {number} player - Player number
+     * @param {number} length - Formation length to count
+     * @returns {number} Number of formations
+     */
+    countFormations(board, player, length) {
+        let count = 0;
+        const directions = [
+            [0, 1],
+            [1, 0],
+            [1, 1],
+            [1, -1]
+        ];
+
+        for (let row = 0; row < this.ROWS; row++) {
+            for (let col = 0; col < this.COLS; col++) {
+                for (const [dRow, dCol] of directions) {
+                    if (this.checkFormation(board, row, col, dRow, dCol, player, length)) {
+                        count++;
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Check for formation of specific length at position
+     * @param {Array} board - Game board
+     * @param {number} row - Starting row
+     * @param {number} col - Starting column
+     * @param {number} dRow - Row direction
+     * @param {number} dCol - Column direction
+     * @param {number} player - Player number
+     * @param {number} length - Formation length
+     * @returns {boolean} True if formation found
+     */
+    checkFormation(board, row, col, dRow, dCol, player, length) {
+        let consecutiveCount = 0;
+
+        for (let i = 0; i < 4; i++) {
+            const r = row + dRow * i;
+            const c = col + dCol * i;
+
+            if (r >= 0 && r < this.ROWS && c >= 0 && c < this.COLS) {
+                if (board[r][c] === player) {
+                    consecutiveCount++;
+                    if (consecutiveCount >= length) {
+                        return true;
+                    }
+                } else {
+                    consecutiveCount = 0;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Count strategic options for opponent
      * @param {Object} game - Game instance
      * @param {number} opponent - Opponent player
@@ -414,6 +525,54 @@ class DefensiveBot extends BaseBotStrategy {
     }
 
     /**
+     * Evaluate future threats created by a move
+     * @param {Object} game - Game instance
+     * @param {number} col - Column to evaluate
+     * @returns {number} Score penalty for creating future threats
+     */
+    evaluateFutureThreats(game, col) {
+        const result = game.simulateMove(col);
+        const opponent = game.currentPlayer === this.PLAYER1 ? this.PLAYER2 : this.PLAYER1;
+        let penalty = 0;
+
+        // Simulate opponent's best response after our move
+        const opponentValidMoves = result.game.getValidMoves();
+        let bestOpponentMove = null;
+        let maxOpponentThreats = 0;
+
+        for (const opCol of opponentValidMoves) {
+            const opResult = result.game.simulateMove(opCol);
+            const threats = this.getOpponentWinningMoves(opResult.game, opponent).length;
+
+            if (threats > maxOpponentThreats) {
+                maxOpponentThreats = threats;
+                bestOpponentMove = opCol;
+            }
+        }
+
+        // If opponent can win in 2 moves, heavily penalize
+        if (maxOpponentThreats > 0) {
+            penalty += maxOpponentThreats * 500; // Very high penalty
+        }
+
+        // Check for forks created for opponent
+        // This is a simplified check, a full fork detection would be more complex
+        if (bestOpponentMove !== null) {
+            const opResult = result.game.simulateMove(bestOpponentMove);
+            const ourThreatsAfterOpponent = this.getOpponentWinningMoves(
+                opResult.game,
+                game.currentPlayer
+            ).length;
+            if (ourThreatsAfterOpponent >= 2) {
+                // If opponent creates 2 threats (a fork)
+                penalty += 200; // High penalty for creating a fork
+            }
+        }
+
+        return penalty;
+    }
+
+    /**
      * Get strategy info
      * @returns {Object} Strategy information
      */
@@ -428,7 +587,9 @@ class DefensiveBot extends BaseBotStrategy {
                 'Key position control',
                 'Opponent option restriction',
                 'Multi-level threat assessment',
-                'Safety margin evaluation'
+                'Safety margin evaluation',
+                'Safe building',
+                'Future threat anticipation'
             ],
             defensiveWeights: this.defensiveWeights,
             expectedWinRate: 70 // Against intermediate opponents
@@ -436,9 +597,4 @@ class DefensiveBot extends BaseBotStrategy {
     }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DefensiveBot;
-} else if (typeof window !== 'undefined') {
-    window.DefensiveBot = DefensiveBot;
-}
+export { DefensiveBot };

@@ -1,13 +1,4 @@
-/**
- * EnhancedSmartBot - Advanced strategic bot with sophisticated analysis
- *
- * Features advanced strategic concepts including:
- * - Even/Odd column control strategy
- * - Fork opportunity creation and detection
- * - Zugzwang (tempo) awareness
- * - Multi-level threat analysis
- * - Adaptive center control
- */
+import { BaseBotStrategy } from './base-bot-strategy.js';
 class EnhancedSmartBot extends BaseBotStrategy {
     constructor(gameConstants) {
         super(gameConstants);
@@ -240,6 +231,8 @@ class EnhancedSmartBot extends BaseBotStrategy {
 
     /**
      * Evaluate zugzwang (tempo) implications
+     * Zugzwang is a situation where a player is forced to make a move that weakens
+     * their position. This bot tries to create such situations for the opponent.
      * @param {Object} game - Game instance
      * @param {number} col - Column to evaluate
      * @returns {number} Zugzwang score
@@ -357,9 +350,4 @@ class EnhancedSmartBot extends BaseBotStrategy {
     }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = EnhancedSmartBot;
-} else if (typeof window !== 'undefined') {
-    window.EnhancedSmartBot = EnhancedSmartBot;
-}
+export { EnhancedSmartBot };
