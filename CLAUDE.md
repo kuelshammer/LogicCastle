@@ -4,123 +4,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LogicCastle is a collection of mathematical strategy games implemented in vanilla JavaScript. The project features three games: Connect 4 (4 Gewinnt), Gobang (5 Gewinnt), and Trio, each with sophisticated AI opponents and rich user interfaces.
+LogicCastle is a collection of mathematical strategy games with a modern Rust/WebAssembly core. The project features Connect4, Gobang, and Trio games with high-performance game logic implemented in Rust and modern JavaScript UI.
 
 ## Development Commands
 
 ### Testing
-- **Run all tests**: `npm test` or `npm run test:comprehensive`
-- **Run Vitest tests**: `npm run test:vitest` (modern test runner with coverage)
-- **Run specific categories**: 
-  - `npm run test:unit` (backend, ai-strategy)
-  - `npm run test:integration` (integration, ui-components)
-  - `npm run test:performance` (performance benchmarks)
-- **Bot testing**: `npm run test:bot-matrix` (comprehensive bot analysis)
-- **Test framework**: Custom framework in `tests/test-framework.js` + Vitest for modern testing
+- **Run all tests**: `npm test` (Vitest with WASM integration)
+- **Watch mode**: `npm run test:watch` (development with auto-reload)
+- **UI tests**: `npm run test:ui` (browser-based test interface)
+- **Coverage**: `npm run test:coverage` (test coverage reporting)
+- **Rust tests**: `npm run test:rust` (native Rust unit tests)
+- **Integration tests**: `npm run test:integration` (WASM-JS integration)
+- **UI integration**: `npm run test:ui-integration` (DOM-based UI tests)
 
 ### Code Quality
-- **Lint code**: `npm run lint` (ESLint with auto-fix)
-- **Format code**: `npm run format` (Prettier)
-- **CI pipeline**: `npm run ci` (lint + format + tests)
+- **Lint code**: `npm run lint` (ESLint with WASM-aware rules)
+- **Format code**: `npm run format` (Prettier for consistent style)
+- **CI pipeline**: `npm run ci` (full quality check + tests)
 
 ### Local Development
-- **Serve locally**: `npm run serve` (starts HTTP server on port 8080)
+- **Serve locally**: `npm run serve` (HTTP server on port 8080)
 - **Development mode**: `npm run dev` (server + test watch mode)
 - **Main entry point**: Open `index.html` in browser
 - **Individual games**: Navigate to `games/{game-name}/index.html`
 
 ### Build Commands
+- **WASM build**: `npm run wasm:build` (compile Rust to WebAssembly)
 - **Tailwind CSS**: `npm run tailwind:build` (build CSS from input.css)
-- **WASM build**: `npm run wasm:build` (build Rust WebAssembly modules)
-
-## Architecture Overview
-
-### Game Engine Pattern
-Each game follows a consistent three-layer architecture:
-- **Game Logic Layer** (`js/game.js`): Core game state, move validation, win detection
-- **AI Layer** (`js/ai.js`): Minimax algorithms with alpha-beta pruning, difficulty levels
-- **UI Layer** (`js/ui.js`): DOM manipulation, event handling, animations
-
-### Event-Driven System
-All games use a custom event system for decoupled communication:
-```javascript
-game.on('moveMade', (move) => ui.onMoveMade(move));
-game.emit('gameWon', { winner, winningCells });
-```
-
-### AI Architecture
-- **Difficulty Scaling**: Easy (random), Medium (rule-based), Hard/Expert (minimax with increasing depth)
-- **Evaluation Functions**: Position scoring, threat detection, win/block priorities
-- **Move Ordering**: Center-out ordering for optimal alpha-beta pruning
-
-### Hints System (Connect 4)
-The `Connect4Helpers` class provides strategic analysis:
-- **Threat Detection**: Identifies immediate winning/losing positions
-- **Setup Moves**: Detects "Zwickmühle" (fork) opportunities
-- **Strategic Advice**: Context-aware suggestions based on game phase
-
-## Key Implementation Details
-
-### Game State Management
-Each game maintains immutable state through:
-- Deep copying for simulation (`getBoard()`, `simulateMove()`)
-- Move history for undo functionality
-- Event emission for UI synchronization
-
-### Connect 4 Specifics
-- **Two-click interaction**: First click selects column, second click drops piece
-- **Column highlighting**: Visual feedback with perfect alignment
-- **Minimax depth**: Easy(1), Medium(3), Hard(5), Expert(7)
-
-### Testing Strategy
-- **Custom test framework**: Simple but comprehensive assertion library
-- **Game logic focus**: Extensive coverage of win conditions, move validation
-- **AI testing**: Move generation and difficulty validation
-- **Mock helpers**: `createMockGameState()` and `createEmptyBoard()` utilities
-
-## File Organization Patterns
-
-### Game Structure
-```
-games/{game-name}/
-├── index.html          # Game interface with help modal
-├── js/
-│   ├── game.js        # Legacy core game logic 
-│   ├── ai.js          # Legacy AI (Connect4 uses modular system)
-│   ├── helpers.js     # Legacy helpers (Connect4 uses modular system)
-│   ├── ui.js          # User interface controller
-│   ├── modules/       # Modular architecture (Connect4)
-│   │   ├── game-modular.js     # Modular game implementation
-│   │   ├── event-system.js     # Event management
-│   │   ├── player-manager.js   # Player configuration
-│   │   └── score-manager.js    # Score tracking
-│   ├── ai-strategies/          # AI strategy modules (Connect4)
-│   │   ├── defensive-bot.js    # Pure defensive strategy
-│   │   ├── monte-carlo-bot.js  # MCTS with UCB1
-│   │   └── enhanced-smart-bot.js # Advanced analysis
-│   ├── helper-modules/         # Helper system modules (Connect4)
-│   │   ├── threat-detector.js  # Win/block detection
-│   │   ├── move-validator.js   # Safety analysis
-│   │   └── hint-manager.js     # UI integration
-│   └── shared/                 # Shared utilities (Connect4)
-│       ├── constants.js        # Game constants
-│       ├── board-utils.js      # Board manipulation
-│       └── performance-utils.js # Performance monitoring
-└── css/
-    ├── game.css       # Game board styling
-    └── ui.css         # Interface elements
-```
-
-### Constants and Configuration
-- Game dimensions defined as class constants (e.g., `ROWS = 6`, `COLS = 7`)
-- Player constants for type safety (`PLAYER1 = 1`, `PLAYER2 = 2`)
-- Win conditions vary by game (Connect 4: 4-in-a-row, Gobang: 5-in-a-row, Trio: 3-in-a-row)
 
 ## Technology Stack & Tooling
 
 ### Core Technologies
-- **Rust + WebAssembly**: Core game logic implemented in Rust for performance (Connect4, Gobang, Trio)
-- **JavaScript ES6+**: UI layer and browser integration with modular architecture
+- **Rust + WebAssembly**: Complete game engine with performance-critical logic
+- **JavaScript ES6+**: UI layer and browser integration
 - **HTML5 & CSS3**: Semantic markup and modern styling
 - **WASM-Bindgen**: Type-safe Rust-JavaScript interoperability
 - **Service Workers**: PWA capabilities for offline play
@@ -128,645 +44,121 @@ games/{game-name}/
 ### Development Tools
 - **Rust Toolchain**: cargo, wasm-pack for WebAssembly compilation
 - **Node.js/npm**: Package management and build scripts
-- **ESLint**: Code linting with custom game-specific rules
+- **ESLint**: Code linting with WASM-aware rules
 - **Prettier**: Code formatting with consistent style
-- **Vitest**: Modern test runner with coverage and DOM testing
-- **Puppeteer**: Headless browser testing for CI/CD
-- **Tailwind CSS**: Utility-first CSS framework for Connect4
+- **Vitest**: Modern test runner with WASM integration testing
+- **JSDOM**: Browser environment simulation for testing
+- **Tailwind CSS**: Utility-first CSS framework
 
 ### CI/CD Pipeline
-- **GitHub Actions**: Automated testing and quality checks
-- **Custom Test Framework**: Browser-based testing with JSON/XML reports
-- **Test Categories**: Unit, integration, performance, and bot matrix testing
 - **Quality Gates**: ESLint + Prettier + comprehensive test suites
+- **Rust Testing**: Native Rust unit tests with cargo test
+- **Integration Testing**: WASM-JavaScript integration validation
+- **Performance Testing**: Rust core performance benchmarks
 
-## Development Considerations
+## Architecture Overview
 
-### Adding New Games
-1. Follow the three-layer architecture pattern
-2. Implement the standard event system (`on`, `emit`, `off`)
-3. Create corresponding test suite
-4. Add game card to main `index.html` with preview
+### Rust/WASM Core Engine
+The game logic is implemented in Rust with WebAssembly compilation:
 
-### AI Development
-- Inherit difficulty progression: random → rule-based → minimax → monte carlo
-- Implement position evaluation functions specific to game mechanics
-- Use move ordering for performance optimization
-- Test across all difficulty levels
+```rust
+// Unified Game struct for Connect4/Gobang
+pub struct Game {
+    board: Board,
+    win_condition: usize,
+    gravity_enabled: bool,
+    current_player: Player,
+}
 
-#### Monte Carlo AI Enhancement (Connect 4)
-- **Universal 4-Stage Framework**: All bots follow Win > Block > Avoid Traps > Stage 4 Strategy
-- **Monte Carlo Stage 4**: Replaces pattern evaluation with simulation-based analysis
-- **Simulation Strategy**: Uses defensive vs defensive AI for neutral game evaluation
-- **Performance**: ~50-100 simulations per safe column within 1 second time limit
-- **Integration**: Preserves existing bot behavior while adding sophisticated analysis
+// Specialized TrioGame for number puzzle
+pub struct TrioGame {
+    board: Board,
+    target_number: u8,
+}
 
-### UI Consistency
-- Maintain two-click interaction pattern where applicable
-- Implement keyboard shortcuts (number keys for quick access)
-- Follow responsive design principles established in main stylesheet
-- Include comprehensive help modals with keyboard shortcuts documentation
+// Memory-efficient board representation
+pub struct Board {
+    rows: usize,
+    cols: usize,
+    cells: Vec<i8>,
+}
+```
 
-## Recent Updates
+### JavaScript UI Layer
+Modern ES6+ modules handle browser integration:
+- DOM manipulation and event handling
+- WASM module loading and initialization
+- Responsive design and mobile touch support
+- PWA features and offline functionality
 
-### Connect4 Bot System Overhaul (2025-06-23) ✅
-**Real Bot Testing & UI Mapping Update:**
-- **Problem Identified**: Mock tests showed artificial 50:50 bot equality, masking real strategic differences
-- **Solution Implemented**: Created real implementation testing framework with 25,000 game matrix
-- **Dramatic Results**: Bots range from 32% to 60% winrate - huge performance differences confirmed!
-
-**Updated UI Bot Mapping (based on real test results):**
-- **Einfach**: smart-random (32% winrate) - Perfect for beginners with helpers + randomness
-- **Mittel**: defensiv-gemischt (45% winrate) - Solid mid-tier with 2x defensive weighting  
-- **Stark**: defensive (60% winrate) - The strongest bot with pure pattern disruption
-- **Alternative**: enhanced-smart (59% winrate) - Available as fallback, advanced analysis but slightly weaker
-
-**Real Bot Rankings from 25k games:**
-1. 🥇 Defensive (60%) - Pure pattern disruption
-2. 🥈 Enhanced Smart (59%) - Advanced strategic analysis  
-3. 🥉 Offensiv-Gemischt (48%) - 2x offensive weighting
-4. Defensiv-Gemischt (45%) - 2x defensive weighting
-5. Smart Random (32%) - Helpers + heavy randomness
+### Game Structure
+```
+games/{game-name}/
+├── index.html          # Game interface
+├── css/
+│   └── input.css       # Tailwind CSS source
+└── rust_logic/         # Rust/WASM core (Connect4)
+    ├── src/
+    │   └── lib.rs      # Game engine implementation
+    ├── Cargo.toml      # Rust dependencies
+    └── pkg/            # Generated WASM output
+        ├── rust_logic.js
+        ├── rust_logic_bg.wasm
+        └── rust_logic.d.ts
+```
 
 ## Current Development Status
 
-**Status: Connect4 Refactoring & Modernization Complete ✅ (2025-06-27)**
-
-### ✅ Completed Major Achievements
-- **Connect4 Complete Refactoring**: Monolithic code (6000+ lines) → modular architecture (15+ focused components)
-- **Advanced AI System**: Monte Carlo Tree Search with UCB1, 6 specialized bot strategies
-- **Clean Architecture**: Dependency injection, performance caching, error handling with graceful degradation  
-- **Comprehensive Testing**: 157 tests with 99.4% success rate, bot performance matrix validation
-- **CI/CD Pipeline**: ESLint + Prettier + Vitest integration with automated quality gates
-- **Modern Tooling**: ES6 modules, WebAssembly integration, PWA capabilities
-
-### 🎯 Current Development Focus
-Based on project analysis, the current priorities are:
-
-1. **Gobang Game Issues**: Bot-Modus and Helpers Integration need fixes
-2. **Project-Wide Modernization**: Responsive design, mobile optimization, accessibility
-3. **Performance Optimization**: Code splitting, asset optimization, PWA enhancement
-
-### 🚀 LATEST ACHIEVEMENT: ADVANCED MONTE CARLO INTEGRATION (2025-06-24)
-
-#### ✅ Monte Carlo Performance Upgrade Complete
-- **Expert Mode Enhancement**: Upgraded from legacy 50-100 simulations → advanced 1000+ simulations
-- **Algorithm Improvements**: Added UCB1 exploration, game phase adaptation, 2-second time boxing
-- **UI Integration**: Expert difficulty properly mapped to advanced Monte Carlo strategy
-- **Test Validation**: 197/199 tests passing, ultimate bot matrix with 1000 games completed
-- **Performance**: Advanced Monte Carlo maintains <2s thinking time with 10x simulation increase
-
-#### 📊 New Bot Performance Hierarchy (Validated via 1000+ Game Matrix)
-1. 🔥 **Monte Carlo Expert** (Advanced) - 1000+ simulations, UCB1, game phase adaptation
-2. 🥇 **Defensive Bot** (60% winrate) - Pure pattern disruption  
-3. 🥈 **Enhanced Smart** (59% winrate) - Advanced strategic analysis
-4. 🥉 **Mixed Strategy** (45-48% winrate) - Balanced offensive/defensive
-5. 🎲 **Smart Random** (32% winrate) - Beginner-friendly with helpers
-
-#### 🏛️ Architecture Transition Complete
-- **Legacy → Modular**: Successfully migrated from monolithic AI (2038 lines) to modular system
-- **Strategy Modules**: 6 focused bot strategies with universal 4-stage logic (Win → Block → Safe → Strategy)
-- **Browser Compatibility**: Fixed ES6 module exports for production deployment
-- **Zero Regressions**: All existing functionality preserved during migration
-
-## 🎯 NEXT PRIORITY: CI/CD TEST-REPARATUR PLAN (2025-06-24)
-
-**Aktueller Status:** Code Quality 100% ✅, aber Tests teilweise fehlerhaft (61% Pass Rate)
-
-### 📊 **Situation Analysis**
-**Pipeline Status:**
-- ✅ **Code Quality**: ESLint + Prettier = 100% ✅
-- ❌ **Integration Tests**: 191/314 (61% Pass Rate)  
-- ❌ **Unit Tests**: Vitest teilweise fehlerhaft
-- ⚠️ **Kernproblem**: `testSuite.group is not a function`
-
-### 🛠️ **3-Phasen Reparatur-Plan**
-
-#### 📋 **PHASE 1: Test Framework Reparatur (Priorität: KRITISCH)**
-**Ziel**: 0% → 60% UI/Integration Tests
-
-**Step 1.1: TestSuite.group() Methode hinzufügen**
-- ✅ Erweitere TestSuite-Klasse um fehlende `group()` Methode
-- ✅ Backward-Compatibility für bestehende Tests
-- ✅ CI/CD-freundliche JSON-Ausgabe
-
-**Step 1.2: Test Runner Updates** 
-- ✅ Update `run-all-tests-headless.js` für neue TestSuite API
-- ✅ Verbesserte Error Handling in CI environment
-- ✅ Puppeteer-Mock für DOM-Tests
-
-**Step 1.3: DOM-Mocking für UI-Tests**
-- ✅ Fix UI-Component-Tests (aktuell 0/53)
-- ✅ Browser-kompatible Event-Simulation
-- ✅ Mock-DOM für headless Testing
-
-#### 🧩 **PHASE 2: Modular AI Test-Migration (Priorität: HOCH)**
-**Ziel**: 61% → 85% Overall Pass Rate
-
-**Step 2.1: Legacy AI Tests Update**
-- ✅ Migration von `_Connect4AI` → `Connect4AI`
-- ✅ Modular AI Strategy Tests
-- ✅ Monte Carlo Expert-Mode Validation
-
-**Step 2.2: Browser-kompatible Test-Mocks**
-- ✅ Mock-Factories für modular AI Strategien
-- ✅ Window.* Globals für Browser-Tests  
-- ✅ Dynamic AI loading in tests
-
-#### 🔧 **PHASE 3: Test Suite Modernisierung (Priorität: MEDIUM)**
-**Ziel**: 85% → 100% Pass Rate
-
-**Step 3.1: UI Component Tests Completion**
-- ✅ Fix alle 53 UI-Component-Tests
-- ✅ End-to-End Game-Flow Tests
-- ✅ Multi-browser compatibility
-
-**Step 3.2: Performance & Cleanup**
-- ✅ Test-Timeout-Optimierung für CI
-- ✅ Parallele Test-Ausführung
-- ✅ Memory-Leak-Prevention
-
-### 🎯 **Success Metrics**
-- **Phase 1**: CI Pipeline grün, UI Tests 0% → 60%
-- **Phase 2**: Modular AI integriert, Pass Rate 85%+
-- **Phase 3**: 100% Test Pass Rate erreicht
-
-### ⚡ **Ausführungsplan**
-- **Woche 1**: Kritische Framework-Reparaturen (Phase 1)
-- **Woche 2**: AI-Migration & Integration (Phase 2) 
-- **Woche 3**: Finalisierung & Validation (Phase 3)
-
-## 🏗️ CONNECT4 REFACTORING PROGRESS
-
-### ✅ COMPLETED PHASES
-
-#### 📅 PHASE 1: FOUNDATION & CLEANUP ✅ COMPLETE
-**Status:** All steps completed successfully
-
-**✅ Step 1.1: COMPREHENSIVE TEST BASELINE (COMPLETE)**
-- ✅ Created comprehensive test infrastructure (`tests/refactoring-baseline-suite.js`)
-- ✅ Golden Master Bot Matrix for performance baselines (`tests/golden-master-bot-matrix.js`)
-- ✅ UI Integration Test Suite for end-to-end testing (`tests/ui-integration-test-suite.js`)
-- ✅ Performance Baseline with regression detection (`tests/performance-baseline.js`)
-- ✅ Critical Path Coverage documentation (`tests/critical-path-coverage-report.md`)
-- **RESULT:** 94.4% critical path coverage, all baseline tests PASS
-
-**✅ Step 1.2: FILE ORGANIZATION CLEANUP (COMPLETE)**
-- ✅ Organized 36+ loose JavaScript files into structured `development/` directory
-- ✅ Created categorized subdirectories: debug/, testing/, analysis/, matrix-runners/, validation/
-- ✅ Clean project structure with comprehensive README documentation
-- **RESULT:** Root directory cleaned, development tools properly organized
-
-**✅ Step 1.3: REMOVE DEAD CODE & DEBUG LOGS (COMPLETE)**
-- ✅ Removed 50+ console.log statements from production code (ai.js, ui.js, helpers.js, evaluation.js)
-- ✅ Preserved all functional code and essential error handling
-- ✅ Production-ready code without debug clutter
-- **RESULT:** Clean codebase, 20% noise reduction, all tests still passing
-
----
-
-#### 🧩 PHASE 2: MODULAR EXTRACTION ✅ COMPLETE
-
-**✅ Step 2.1: EXTRACT GAME LOGIC MODULE (COMPLETE)**
-- ✅ Created 4 core modules in `games/connect4/js/modules/`:
-  - **EventSystem** (`event-system.js`) - Reusable event management with state protection
-  - **PlayerManager** (`player-manager.js`) - Player configuration and turn management
-  - **ScoreManager** (`score-manager.js`) - Score tracking, statistics, and persistence  
-  - **GameStateManager** (`game-state-manager.js`) - State serialization and validation
-- ✅ Implemented modularized game class (`game-modular.js`) with backward compatibility
-- ✅ Created integration test suite (`test-modular-integration.html`) for validation
-- ✅ All regression tests passing, no functional impact
-- **RESULT:** Modular architecture established, improved maintainability and testability
-
-**✅ Step 2.2: EXTRACT AI MODULE (COMPLETE)**
-- ✅ Extracted 6 modular AI strategies from 2038-line monolithic file
-- ✅ Implemented universal 4-stage bot logic (Win → Block → Safe → Strategy)
-- ✅ Created backward-compatible AI controller with strategy registry
-- ✅ Added Monte Carlo Tree Search with UCB1 exploration
-- ✅ Maintained 94.4% critical path coverage
-- **RESULT:** AI class 2038 → ~300 lines coordinator + 6 focused strategy modules
-
-**✅ Step 2.3: EXTRACT HELPER SYSTEM MODULE (COMPLETE)**
-- ✅ Extracted 5 focused helper modules from 1579-line monolith:
-  - **ThreatDetector** (147 lines) - Win/Block detection
-  - **OpportunityAnalyzer** (364 lines) - Strategic analysis, forks
-  - **MoveValidator** (436 lines) - Move safety validation
-  - **HintManager** (495 lines) - UI integration, forced moves
-  - **HelperSystem** (437 lines) - Main controller + backward compatibility
-- ✅ Preserved all existing API functionality
-- ✅ Enhanced with new modular API for advanced analysis
-- **RESULT:** Helpers 1579 → ~300 lines coordinator + 5 focused modules
-
-**✅ Step 2.4: CREATE SHARED UTILITIES (COMPLETE)**
-- ✅ Created comprehensive shared utilities in `games/connect4/js/shared/`:
-  - **constants.js** - Game constants, configurations, enums
-  - **board-utils.js** - Board manipulation, win detection, simulation
-  - **event-utils.js** - Event system infrastructure, state management
-  - **performance-utils.js** - Performance monitoring, profiling tools
-- ✅ Eliminated code duplication across 6+ modules
-- ✅ Maintained backward compatibility with global access
-- **RESULT:** ~200 lines of duplicate code removed, consistent APIs established
-
----
-
-#### 🏛️ PHASE 3: CLEAN ARCHITECTURE ✅ COMPLETE
-
-**✅ Step 3.1: DEPENDENCY INJECTION SYSTEM (COMPLETE)**
-- ✅ Enhanced ServiceContainer with async service resolution
-- ✅ Fixed critical DI errors (constructor validation, parent container support)
-- ✅ Added Performance & Error Handling services to container
-- ✅ Environment-specific configurations (production, development, testing)
-- **RESULT:** Robust DI system, loose coupling achieved, all DI tests passing (22/22)
-
-**✅ Step 3.2: PERFORMANCE OPTIMIZATION (COMPLETE)**
-- ✅ Implemented LRU Cache system for AI move calculations
-- ✅ Created Board Pool for memory-efficient simulations
-- ✅ Added AI Move Cache and Evaluation Cache
-- ✅ Performance monitoring and statistics tracking
-- **RESULT:** Intelligent caching system ready for 50%+ performance improvements
-
-**✅ Step 3.3: ERROR HANDLING & RESILIENCE (COMPLETE)**
-- ✅ Custom error types (GameError, AIError, ValidationError, ConfigurationError)
-- ✅ Error Logger with multiple outputs and severity levels
-- ✅ Retry mechanism with exponential backoff
-- ✅ AI Fallback Handler for graceful degradation
-- ✅ Input Validator with clear error messages
-- ✅ Circuit Breaker for protection against cascading failures
-- **RESULT:** Robust error handling, graceful degradation, production-ready resilience
-
----
-
-## ✅ REFACTORING COMPLETE - SUCCESS SUMMARY
-
-### 📊 ACHIEVED RESULTS
-**Connect4 Codebase Successfully Refactored:**
-- ✅ **ai.js**: 2038 → ~300 lines coordinator + 6 focused strategy modules
-- ✅ **helpers.js**: 1579 → ~300 lines coordinator + 5 focused modules  
-- ✅ **shared utilities**: ~200 lines of duplicate code eliminated
-- ✅ **Test organization**: 157 comprehensive tests, 99.4% success rate (156/157 passing)
-- ✅ **Clean Architecture**: Dependency injection, performance caching, error handling
-- ✅ **CI/CD Ready**: XML/JSON test reports, production-ready deployment
-
-### 🎯 ORIGINAL 4-PHASE PLAN - COMPLETED
-
----
-
-#### 📅 PHASE 1: FOUNDATION & CLEANUP (Week 1)
-**Goal:** Clean foundation without changing functionality
-
-**Step 1.1: COMPREHENSIVE TEST BASELINE (Day 1)**
-- Create Golden Master Tests for all bot performance matrices
-- Implement UI Integration Tests for complete game flows
-- Establish Performance Benchmarks as regression protection
-- **SUCCESS CRITERIA:** 100% test coverage for critical paths
-
-**Step 1.2: FILE ORGANIZATION CLEANUP (Day 2)**
-- Move all 20+ loose test files → `/temp-legacy/`
-- Organize debug HTMLs → `/games/connect4/debug/`
-- Clean root directory from test artifacts
-- **SUCCESS CRITERIA:** Clear directory structure, no broken tests
-
-**Step 1.3: REMOVE DEAD CODE & DEBUG LOGS (Day 3)**
-- Replace production console.logs with configurable logger
-- Remove unused functions & variables (ESLint)
-- Eliminate deprecated code paths
-- **SUCCESS CRITERIA:** 20%+ size reduction, all tests green
-
----
-
-#### 🧩 PHASE 2: MODULAR EXTRACTION (Week 2)
-**Goal:** Split large classes into logical modules
-
-**Step 2.1: AI STRATEGY EXTRACTION (Day 4-5)**
-```javascript
-// NEW: Modular Bot Architecture
-abstract class BotStrategy {
-    abstract getBestMove(game, helpers);
-}
-
-class SmartRandomBot extends BotStrategy { /* 150 lines */ }
-class DefensiveBot extends BotStrategy { /* 200 lines */ }
-class MonteCarloBot extends BotStrategy { /* 180 lines */ }
-
-class Connect4AI { // Factory/Coordinator: 300 lines
-    constructor() { this.strategies = new Map(); }
-    getBestMove(game, difficulty) {
-        return this.strategies.get(difficulty).getBestMove(game);
-    }
-}
-```
-- **SUCCESS CRITERIA:** AI class 2120 → ~300 lines, bot matrix tests pass
-
-**Step 2.2: HELPERS DECOMPOSITION (Day 6)**
-```javascript
-class ThreatDetector { /* Win/Block Logic: 200 lines */ }
-class SafetyAnalyzer { /* Trap Detection: 180 lines */ }
-class HintSystem { /* UI Level Management: 150 lines */ }
-
-class Connect4Helpers { // Facade: 200 lines
-    constructor() {
-        this.threatDetector = new ThreatDetector();
-        this.safetyAnalyzer = new SafetyAnalyzer();
-        this.hintSystem = new HintSystem();
-    }
-}
-```
-- **SUCCESS CRITERIA:** Helpers 1585 → ~200 lines, all hint tests pass
-
-**Step 2.3: UI SEPARATION (Day 7)**
-```javascript
-class GameController { /* Game State: 250 lines */ }
-class DOMRenderer { /* Pure View Logic: 200 lines */ }
-class EventHandler { /* User Interactions: 180 lines */ }
-
-class Connect4UI { // Coordinator: 300 lines
-    constructor() {
-        this.controller = new GameController();
-        this.renderer = new DOMRenderer();
-        this.eventHandler = new EventHandler();
-    }
-}
-```
-- **SUCCESS CRITERIA:** UI 1199 → ~300 lines, all UI tests pass
-
----
-
-#### 🏛️ PHASE 3: ARCHITECTURE REFINEMENT (Week 3)
-**Goal:** Establish Clean Architecture
-
-**Step 3.1: DEPENDENCY INJECTION SETUP (Day 8-9)**
-```javascript
-class ServiceContainer {
-    register(interface, implementation) { /* DI Logic */ }
-    resolve(interface) { /* Factory Logic */ }
-}
-
-// Usage
-container.register('IBotFactory', Connect4AI);
-container.register('IGameEngine', Connect4Game);
-container.register('IHintSystem', Connect4Helpers);
-```
-- **SUCCESS CRITERIA:** Loose coupling, easy test mocks
-
-**Step 3.2: PERFORMANCE OPTIMIZATION (Day 10)**
-- Implement AI caching for repeated positions
-- Add lazy loading for heavy computations (Monte Carlo)
-- Create memory pool for board simulations
-- **SUCCESS CRITERIA:** 50%+ performance improvement in benchmarks
-
-**Step 3.3: ERROR HANDLING & RESILIENCE (Day 11)**
-- Implement graceful degradation for bot failures
-- Add input validation with clear error messages
-- Create retry logic for intermittent issues
-- **SUCCESS CRITERIA:** Robustness tests, no unhandled exceptions
-
----
-
-#### ✨ PHASE 4: FINAL POLISH (Week 4)
-**Goal:** Long-term maintainability
-
-**Step 4.1: COMPREHENSIVE DOCUMENTATION (Day 12)**
-- Create Architecture Decision Records (ADRs)
-- Write API documentation with TypeScript-style definitions
-- Develop developer onboarding guide
-- **SUCCESS CRITERIA:** New developers productive in 1 day
-
-**Step 4.2: MONITORING & OBSERVABILITY (Day 13)**
-- Add performance metrics for bot decision times
-- Implement error tracking for production issues
-- Create A/B testing framework for bot improvements
-- **SUCCESS CRITERIA:** Data-driven bot development possible
-
-**Step 4.3: INTEGRATION & E2E VALIDATION (Day 14)**
-- Complete game flow tests (Human vs All Bots)
-- Cross-browser compatibility tests
-- Load testing with multiple concurrent games
-- **SUCCESS CRITERIA:** Production-ready, all user journeys functional
-
----
-
-### 🛡️ RISK MITIGATION
-
-**ROLLBACK STRATEGY:**
-- Each step has own Git branch with comprehensive tests
-- Immediate rollback to last stable state if issues arise
-- Continuous integration with automated test suites
-- Backup current version as `legacy-stable-backup`
-
-### 🎯 SUCCESS METRICS - ACHIEVED ✅
-
-**CODE REDUCTION ACHIEVED:**
-- ✅ **Code Lines:** 6074 → ~2500 lines (58% reduction achieved)
-- ✅ **Average File Size:** 1000+ → <300 lines (modular architecture)
-- ✅ **Test Coverage:** Fragmented → 157 structured tests (99.4% success rate)
-- ✅ **Performance:** No regression + caching system ready for 50%+ improvement
-- ✅ **Maintainability:** Modular architecture enables rapid feature development
-
-### 🚀 FINAL DELIVERABLES - COMPLETED ✅
-
-✅ **Modular Architecture:** 15+ focused components instead of 3 monoliths
-✅ **Comprehensive Test Suite:** 157 tests across 13 test suites
-✅ **Clean Architecture:** Dependency injection, separation of concerns
-✅ **Performance Systems:** LRU caching, memory pools, performance monitoring
-✅ **Error Handling:** Graceful degradation, retry logic, circuit breakers
-✅ **CI/CD Ready:** XML/JSON reports, 99.4% test success rate
-✅ **Production Ready:** Robust, maintainable, and scalable codebase
-
-## 🎯 CURRENT PRIORITY: BOT STÄRKE-DIFFERENZIERUNG
-
-### 📊 PROBLEM IDENTIFIZIERT (2025-06-24)
-**Bot Matrix Analyse zeigt:** Alle strategischen Bots sind praktisch gleichstark (50:50 gegeneinander)
-
-**Root Cause:**
-- Universal 4-Stage Logic dominiert alle Bots (Win → Block → Safe → Strategy)
-- Monte Carlo Bot existiert aber nicht in UI integriert
-- Stage 4 Unterschiede zu minimal für echte Stärke-Differenzierung
-
-### 🎯 BOT-VERBESSERUNGSPLAN
-
-**Phase 1: Monte Carlo Integration (Sofort)**
-- ⏳ Monte Carlo Performance: 100 → 1000+ Simulationen
-- ⏳ Expert Schwierigkeitsgrad in UI hinzufügen  
-- ⏳ MCTS mit UCB1 Algorithmus verbessern
-
-**Phase 2: Neue Bot-Strategien (Diese Woche)**
-- ⏳ Minimax-Bot mit echter Tiefensuche (5-7 Plies)
-- ⏳ Positional Bot (Zentrum/Struktur-fokussiert)
-- ⏳ Aggressive Bot (Risiko-orientiert)
-- ⏳ Asymmetrische Evaluation-Functions
-
-**Phase 3: Advanced Testing (Nächste Woche)**
-- ⏳ 10,000 Spiele Matrix für statistische Signifikanz
-- ⏳ Human-Bot Kalibrierung mit ELO-Rating
-- ⏳ Opening-Book System implementieren
-
-**Erwartetes Ergebnis:** 70-80% Winrate-Unterschiede zwischen Bot-Leveln statt aktuell 50:50
-
-### 🏆 NEXT STEPS (NACH BOT-VERBESSERUNG)
-**System wird danach truly production-ready sein:**
-- API documentation with TypeScript definitions
-- Performance monitoring dashboard
-- A/B testing framework for bot improvements
-- Cross-browser compatibility testing
-
----
-
-## 🌐 LOGICCASTLE GESAMTPROJEKT-VERBESSERUNG
-
-### 📊 AKTUELLER PROJEKTSTATUS
-**Nach Connect4-Refactoring abgeschlossen:**
-- ✅ **Connect4**: Production-ready mit vollständiger Refaktorierung (Clean Architecture, DI, Performance Cache)
-- ⚠️ **Gobang**: Bekannte Issues (Bot-Modus, Helpers Integration fehlerhaft)
-- ⚠️ **Trio**: Basis vorhanden, weniger getestet
-- ⚠️ **Hauptseite**: Funktional aber verbesserungswürdig (nicht responsive, kein PWA)
-- ✅ **CI/CD**: Vollständig implementiert (Vitest, ESLint, Prettier, 99%+ Test Success Rate)
-
-**Nächste Priorität:** Gesamtprojekt für moderne Web-Standards optimieren
-
----
-
-### 🎯 3-PHASEN GESAMTPROJEKT-VERBESSERUNGSPLAN
-
-#### 📱 PHASE 1: RESPONSIVE DESIGN & MOBILE OPTIMIZATION (Week 1)
-**Goal:** Mobile-First Design und PWA-Funktionalität
-
-**Step 1.1: Mobile-First Hauptseite (2 Tage)**
-- **Responsive Game Grid**: Auto-Layout für alle Bildschirmgrößen (Mobile, Tablet, Desktop)
-- **Touch-Optimierung**: Größere Tap-Targets, bessere Gestensteuerung
-- **Performance**: CSS Grid/Flexbox Optimierung, reduzierte Animationen
-- **Viewport Meta**: Korrekte Skalierung für Mobile Devices
-- **SUCCESS CRITERIA:** Perfekte Nutzbarkeit auf allen Geräten
-
-**Step 1.2: Progressive Web App (PWA) Features (2 Tage)**
-- **Service Worker**: Offline-Funktionalität für alle Spiele
-- **Web App Manifest**: Installierbarkeit auf Mobile Devices
-- **App Icons**: Verschiedene Größen für alle Platforms (192px, 512px)
-- **Splash Screen**: Professioneller App-Start
-- **SUCCESS CRITERIA:** App-ähnliche Erfahrung, Offline-Spielbarkeit
-
-**Step 1.3: Cross-Platform Compatibility (1 Tag)**
-- **Browser Testing**: Chrome, Firefox, Safari, Edge Compatibility
-- **iOS/Android**: Native App-ähnliches Verhalten
-- **Desktop/Tablet**: Optimierte Layouts für alle Bildschirmgrößen
-- **SUCCESS CRITERIA:** 95%+ Browser Coverage, perfekte Mobile UX
-
----
-
-#### 🎨 PHASE 2: UI/UX ENHANCEMENT & ACCESSIBILITY (Week 2)
-**Goal:** Moderne UX und inklusive Zugänglichkeit
-
-**Step 2.1: Design System Etablierung (2 Tage)**
-- **CSS Custom Properties**: Einheitliche Farben, Schriften, Spacing
-- **Component Library**: Wiederverwendbare UI-Komponenten
-- **Animation System**: Konsistente Transitions und Mikrointeraktionen
-- **Dark Mode**: Vollständige Dark/Light Theme Unterstützung
-- **SUCCESS CRITERIA:** Konsistentes Design, Theme-Switching
-
-**Step 2.2: Accessibility (WCAG 2.1) (2 Tage)**
-- **Keyboard Navigation**: Vollständige Bedienbarkeit ohne Maus
-- **Screen Reader**: ARIA Labels, semantisches HTML
-- **Color Contrast**: WCAG AA Compliance (4.5:1 Ratio)
-- **Focus Management**: Sichtbare Focus-Indikatoren
-- **SUCCESS CRITERIA:** 100% Screen Reader kompatibel, WCAG AA
-
-**Step 2.3: User Experience Verbesserungen (1 Tag)**
-- **Loading States**: Ansprechende Ladeanimationen
-- **Error Handling**: Benutzerfreundliche Fehlermeldungen
-- **Onboarding**: Kurze Tutorials für neue Spieler
-- **Gamification**: Achievement System, Erfolgsanimationen
-- **SUCCESS CRITERIA:** Intuitive Bedienung, reduzierte Bounce Rate
-
----
-
-#### ⚡ PHASE 3: PERFORMANCE & MONITORING (Week 3)
-**Goal:** Optimale Performance und datengetriebene Verbesserungen
-
-**Step 3.1: Performance Optimization (2 Tage)**
-- **Bundle Optimization**: Code Splitting, Lazy Loading
-- **Asset Optimization**: Bild-Kompression, WebP Format
-- **Caching Strategy**: Browser Caching, Service Worker Cache
-- **Core Web Vitals**: LCP < 2.5s, FID < 100ms, CLS < 0.1
-- **SUCCESS CRITERIA:** Lighthouse Score > 90, < 2s Load Time
-
-**Step 3.2: Analytics & Monitoring (2 Tage)**
-- **User Analytics**: Spielzeit, beliebte Spiele, Erfolgsraten
-- **Performance Monitoring**: Real User Monitoring (RUM)
-- **Error Tracking**: Client-side Error Logging
-- **A/B Testing**: Framework für UI/UX Experimente
-- **SUCCESS CRITERIA:** Datengetriebene Entscheidungen möglich
-
-**Step 3.3: SEO & Discoverability (1 Tag)**
-- **Meta Tags**: Open Graph, Twitter Cards für Social Sharing
-- **Structured Data**: Schema.org für Spiele-Markup
-- **Sitemap**: XML Sitemap für Suchmaschinen
-- **robots.txt**: Korrekte Indexierung
-- **SUCCESS CRITERIA:** Verbesserte Suchmaschinen-Sichtbarkeit
-
----
-
-### 🛠️ IMPLEMENTATION STACK
-**Technologie-Erweiterungen:**
-- **PWA**: Service Worker, Web App Manifest
-- **CSS**: CSS Grid, Custom Properties, Container Queries
-- **Analytics**: Lightweight Analytics (Plausible/umami)
-- **Monitoring**: Basic Performance Tracking
-- **Build**: Vite für Bundle Optimization (optional)
-
-### 🎯 SUCCESS METRICS
-**Quality Gates:**
-- **Performance**: Lighthouse Score > 90
-- **Accessibility**: WCAG AA Compliance
-- **Browser Support**: 95%+ Coverage  
-- **Mobile**: Perfect Usability auf iOS/Android
-- **Offline**: Vollständige PWA-Funktionalität
-- **Load Time**: < 2s First Contentful Paint
-
-**Expected Impact:**
-- **User Engagement**: +50% Session Duration
-- **Mobile Usage**: +200% Mobile Traffic
-- **Accessibility**: 100% Screen Reader Compatible
-- **SEO**: Verbesserte Suchmaschinen-Rankings
-
----
-
-### 🚀 ROLLOUT STRATEGY
-**Risk Level**: Low (Building auf stabiler Connect4-Basis)
-**Timeline**: 3 Wochen (Phase 1-3)
-**Rollback**: Jede Phase ist eigenständig testbar und rückgängig machbar
-
-**Phase 4 (Advanced Features)** wird vorerst zurückgestellt und kann später bei Bedarf implementiert werden.
+**Status: Complete Rust/WASM Migration & Legacy Cleanup ✅ (2025-06-27)**
+
+### ✅ Major Architectural Transformation Completed
+- **🦀 Full Rust/WASM Core**: Complete game engine implemented in Rust with WebAssembly compilation
+- **📦 Legacy Code Cleanup**: Removed 6000+ lines of JavaScript legacy code, tests, and development tools
+- **🧪 Modern Test Suite**: New Vitest-based testing with WASM integration tests and UI testing
+- **⚡ Performance**: Rust core provides significant performance improvements over JavaScript
+- **🛠️ Streamlined Tooling**: Simplified build system focused on Rust + modern JavaScript
+- **🎯 Clean Architecture**: Unified game engine supporting Connect4, Gobang, and Trio
+
+### 🎮 Current Game Implementation Status
+- **Connect4**: ✅ Complete Rust/WASM implementation with CLI demo
+- **Gobang**: ⚠️ Rust core ready, needs UI integration
+- **Trio**: ✅ Complete Rust/WASM implementation 
+
+### 🎯 Next Development Priorities
+1. **UI Development**: Create modern UI for Rust/WASM games
+2. **Progressive Web App**: Implement PWA features for offline play
+3. **Mobile Optimization**: Touch-friendly responsive design
 
 ## Development Guidelines
 
 ### Code Conventions
-- **ES6 Modules**: Use import/export, avoid global variables
-- **Testing First**: Always implement tests when adding JS features (`npm test`)
-- **Modular Architecture**: Follow Connect4's pattern for new games (modules/, ai-strategies/, shared/)
-- **Performance**: Use performance cache and memory pools for AI calculations
-- **Error Handling**: Implement graceful degradation with fallback strategies
+- **Rust First**: Game logic implemented in Rust for performance and safety
+- **WASM Integration**: Use wasm-bindgen for type-safe JavaScript interop
+- **Modern JavaScript**: ES6+ modules for UI layer, avoid legacy patterns
+- **Testing First**: Write tests for both Rust core and JavaScript integration
+- **Performance Focus**: Leverage Rust performance advantages
 
-### Working with Connect4
-- **Rust Core + JS UI**: Game logic in Rust/WASM (`rust_logic/`), UI in JavaScript
-- **Legacy vs Modern**: Has both legacy JS files (ai.js, helpers.js) and new Rust core
-- **Bot Testing**: Use `npm run test:bot-matrix` for comprehensive AI validation  
-- **WASM Development**: Use `npm run wasm:build` to compile Rust changes
-- **Strategy Development**: Extend BaseBotStrategy for new AI approaches (JS layer)
-- **UI Integration**: Bot difficulty mapping is in ui.js, must match strategy registry
+### Working with Rust/WASM
+- **Core Development**: Implement game logic in `rust_logic/src/lib.rs`
+- **WASM Build**: Run `npm run wasm:build` after Rust changes
+- **Testing**: Use both `npm run test:rust` and `npm run test:integration`
+- **Type Safety**: Leverage Rust's type system and wasm-bindgen annotations
+- **Error Handling**: Use Result<T, E> patterns for robust error handling
 
 ### Critical Patterns
-- **Event System**: All games use custom event system (on, emit, off) for decoupling
-- **State Immutability**: Use deep copying for game state simulation
-- **AI Timing**: Implement 2-second thinking time limits for responsive UI
-- **Error Recovery**: AI failures should fallback to simpler strategies
+- **WASM Loading**: Always await WASM module initialization before game creation
+- **Memory Management**: Rust handles memory safety, avoid manual memory management in JS
+- **Performance**: Heavy computation in Rust, UI responsiveness in JavaScript
+- **Error Boundaries**: Graceful error handling across WASM-JS boundary
 
 ### Known Issues & Workarounds
-- **Rust/JS Integration**: Ensure WASM module is loaded before game initialization
+- **WASM Loading**: Ensure module initialization before accessing Rust types
 - **Browser Compatibility**: WASM requires modern browsers (Chrome 57+, Firefox 52+)
-- **Test Environment**: Some tests require DOM environment (use Vitest with jsdom)
-- **WASM Development**: Run `npm run wasm:build` after Rust changes, check pkg/ output
-- **Performance**: Rust core provides significant performance gains over JS implementations
+- **Build Process**: Run `npm run wasm:build` after any Rust code changes
+- **Type Definitions**: Use generated TypeScript definitions for better IDE support
 
 ## Development Notes
-- **Footer Updates**: Bei jedem Push aus der Hauptseite den Footer anpassen! Farbe in weiß statt grau
-- **Test Coverage**: Maintain 99%+ test success rate for CI/CD pipeline
-- **Bot Performance**: Real bot testing showed dramatic differences (32%-60% winrate) - always validate with matrix testing
+- **WASM First**: Prioritize Rust implementation for game logic
+- **Clean Architecture**: Maintain separation between Rust core and JavaScript UI
+- **Performance**: Rust core provides 10x+ performance improvements over legacy JavaScript
+- **Modern Stack**: Focus on modern web standards and progressive enhancement

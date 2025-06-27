@@ -152,13 +152,20 @@
     <script src="js/ai.js"></script>
     <script src="js/ui.js"></script>
 
-    <script>
-      // Initialize the game when page loads
-      document.addEventListener('DOMContentLoaded', () => {
-        const game = new TrioGame();
-        const ui = new TrioUI(game);
-        ui.init();
-      });
+    <!-- Load WASM module -->
+    <script type="module">
+      import init, { TrioGame as WasmTrioGame } from '../connect4/rust_logic/pkg/rust_logic.js';
+
+      async function run() {
+        await init();
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+          const game = new TrioGame(WasmTrioGame);
+          const ui = new TrioUI(game);
+          ui.init();
+        });
+      }
+      run();
     </script>
   </body>
 </html>

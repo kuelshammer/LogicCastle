@@ -47,21 +47,18 @@ export default [
         vitest: 'readonly',
         jest: 'readonly',
 
-        // Game-specific globals
-        Connect4Game: 'readonly',
-        Connect4AI: 'readonly',
-        Connect4UI: 'readonly',
-        Connect4Helpers: 'readonly',
-        Connect4ForkDetection: 'readonly',
-        BaseBotStrategy: 'readonly',
+        // Game-specific globals (Rust/WASM)
+        Game: 'readonly',
+        Player: 'readonly', 
+        TrioGame: 'readonly',
+        Board: 'readonly',
+        
+        // Legacy game globals (Gobang, Trio JS)
         GobangGame: 'readonly',
         GobangAI: 'readonly',
         GobangUI: 'readonly',
-        TrioGame: 'readonly',
         TrioAI: 'readonly',
         TrioUI: 'readonly',
-        testSuite: 'readonly',
-        testFramework: 'readonly',
 
         // Browser performance API
         performance: 'readonly',
@@ -71,12 +68,8 @@ export default [
         KeyboardEvent: 'readonly',
         MouseEvent: 'readonly',
 
-        // Development and test utilities
-        Connect4TestUtils: 'readonly',
-        StrategicBotScenarios: 'readonly',
-        runBotVsBotWithLoserStarts: 'readonly',
-        RealConnect4Game: 'readonly',
-        RealConnect4AI: 'readonly',
+        // Modern test utilities
+        JSDOM: 'readonly',
 
         // Service Worker and Browser globals
         navigator: 'readonly',
@@ -86,17 +79,8 @@ export default [
         Response: 'readonly',
         Event: 'readonly',
 
-        // Test framework globals
-        assert: 'readonly',
-        PerformanceAssertions: 'readonly',
-        TestEnvironment: 'readonly',
-        runGoldenMasterTest: 'readonly',
-        runUIIntegrationTests: 'readonly',
-        runPerformanceBaseline: 'readonly',
-        runBackendGameCoreTests: 'readonly',
-        runBackendGameEdgeCasesTests: 'readonly',
-        runBackendSimulationTests: 'readonly',
-        runBackendEventsTests: 'readonly'
+        // WASM specific globals
+        WebAssembly: 'readonly'
       }
     },
     rules: {
