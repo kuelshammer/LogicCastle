@@ -91,20 +91,24 @@ Modern ES6+ modules handle browser integration:
 - Responsive design and mobile touch support
 - PWA features and offline functionality
 
-### Game Structure
+### Project Structure
 ```
-games/{game-name}/
-├── index.html          # Game interface
-├── css/
-│   └── input.css       # Tailwind CSS source
-└── rust_logic/         # Rust/WASM core (Connect4)
-    ├── src/
-    │   └── lib.rs      # Game engine implementation
-    ├── Cargo.toml      # Rust dependencies
-    └── pkg/            # Generated WASM output
-        ├── rust_logic.js
-        ├── rust_logic_bg.wasm
-        └── rust_logic.d.ts
+LogicCastle/
+├── game_engine/        # Universal Rust/WASM core
+│   ├── src/
+│   │   └── lib.rs     # Game engine for all three games
+│   ├── Cargo.toml     # Rust dependencies
+│   └── pkg/           # Generated WASM output
+│       ├── game_engine.js
+│       ├── game_engine_bg.wasm
+│       └── game_engine.d.ts
+└── games/
+    ├── connect4/      # Connect4 UI + config
+    │   ├── index.html
+    │   ├── css/
+    │   └── cli.js     # CLI demo using central engine
+    ├── gobang/        # Gobang UI + config  
+    └── trio/          # Trio UI + config
 ```
 
 ## Current Development Status
@@ -139,9 +143,10 @@ games/{game-name}/
 - **Performance Focus**: Leverage Rust performance advantages
 
 ### Working with Rust/WASM
-- **Core Development**: Implement game logic in `rust_logic/src/lib.rs`
-- **WASM Build**: Run `npm run wasm:build` after Rust changes
+- **Core Development**: Implement game logic in `game_engine/src/lib.rs`
+- **WASM Build**: Run `npm run wasm:build` to compile central engine
 - **Testing**: Use both `npm run test:rust` and `npm run test:integration`
+- **Multi-Game Support**: One engine supports Connect4, Gobang, and Trio
 - **Type Safety**: Leverage Rust's type system and wasm-bindgen annotations
 - **Error Handling**: Use Result<T, E> patterns for robust error handling
 

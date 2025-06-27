@@ -11,7 +11,7 @@ describe('Rust/WASM Game Engine Integration', () => {
 
   beforeAll(async () => {
     // Import the WASM module
-    const module = await import('../games/connect4/rust_logic/pkg/rust_logic.js');
+    const module = await import('../game_engine/pkg/game_engine.js');
     await module.default(); // Initialize WASM
     
     Game = module.Game;

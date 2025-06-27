@@ -1,0 +1,22 @@
+[package]
+name = "game_engine"
+version = "0.1.0"
+edition = "2024"
+description = "Universal game engine for Connect4, Gobang, and Trio"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+rand = { version = "0.8", features = ["small_rng"] }
+getrandom = { version = "0.2", features = ["js"] }
+
+[dev-dependencies]
+
+[target.'wasm32-unknown-unknown'.dependencies]
+wee_alloc = { version = "0.4.5", optional = true }
+
+[features]
+default = ["wee_alloc"]
+
