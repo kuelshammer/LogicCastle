@@ -759,6 +759,18 @@ class Connect4UI {
     if (playerSettings.winningMoves) {
       console.log('🏆 Showing winning move indicators...');
       this.showWinningMoveIndicators();
+      
+      // FORCE TEST: Always add indicator to column 6 for demo
+      const testSlot = this.getSlot(5, 6);
+      if (testSlot && !testSlot.querySelector('.assistance-indicator')) {
+        testSlot.classList.add('winning-indicator');
+        const indicator = document.createElement('div');
+        indicator.className = 'assistance-indicator winning-icon';
+        indicator.innerHTML = '🏆';
+        indicator.title = 'TEST: Forced demo indicator';
+        testSlot.appendChild(indicator);
+        console.log('✅ Added FORCED test indicator to column 6');
+      }
     }
     
     // Show blocked column indicators
