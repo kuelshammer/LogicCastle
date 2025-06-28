@@ -1,0 +1,16 @@
+{
+  "name": "game_engine",
+  "type": "module",
+  "description": "Universal game engine for Connect4, Gobang, and Trio",
+  "version": "0.1.0",
+  "files": [
+    "game_engine_bg.wasm",
+    "game_engine.js",
+    "game_engine.d.ts"
+  ],
+  "main": "game_engine.js",
+  "types": "game_engine.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

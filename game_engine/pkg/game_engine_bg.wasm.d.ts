@@ -1,0 +1,31 @@
+/* tslint:disable */
+/* eslint-disable */
+export const memory: WebAssembly.Memory;
+export const __wbg_board_free: (a: number, b: number) => void;
+export const board_new: (a: number, b: number) => number;
+export const board_get_rows: (a: number) => number;
+export const board_get_cols: (a: number) => number;
+export const board_get_cells: (a: number) => [number, number];
+export const board_get_cell: (a: number, b: number, c: number) => [number, number, number];
+export const board_set_cell: (a: number, b: number, c: number, d: number) => [number, number];
+export const board_is_within_bounds: (a: number, b: number, c: number) => number;
+export const board_is_full: (a: number) => number;
+export const __wbg_game_free: (a: number, b: number) => void;
+export const game_new: (a: number, b: number, c: number, d: number) => number;
+export const game_make_move_connect4_js: (a: number, b: number) => [number, number];
+export const game_make_move_gobang_js: (a: number, b: number, c: number) => [number, number];
+export const game_check_win: (a: number) => number;
+export const game_is_game_over: (a: number) => number;
+export const game_get_board: (a: number) => [number, number];
+export const game_get_current_player: (a: number) => number;
+export const __wbg_triogame_free: (a: number, b: number) => void;
+export const triogame_new: (a: number) => number;
+export const triogame_get_board: (a: number) => [number, number];
+export const triogame_get_target_number: (a: number) => number;
+export const triogame_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+export const __wbindgen_exn_store: (a: number) => void;
+export const __externref_table_alloc: () => number;
+export const __wbindgen_export_2: WebAssembly.Table;
+export const __wbindgen_free: (a: number, b: number, c: number) => void;
+export const __externref_table_dealloc: (a: number) => void;
+export const __wbindgen_start: () => void;
