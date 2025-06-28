@@ -9,6 +9,22 @@ class Connect4UI {
     this.aiPlayer = Player.Red; // AI plays as red by default
     this.scores = { yellow: 0, red: 0 };
     
+    // Player assistance settings
+    this.playerAssistance = {
+      player1: {
+        undo: false,
+        threats: false,
+        winningMoves: false,
+        blockedColumns: false
+      },
+      player2: {
+        undo: false,
+        threats: false,
+        winningMoves: false,
+        blockedColumns: false
+      }
+    };
+    
     // DOM elements
     this.elements = {};
     
@@ -57,12 +73,19 @@ class Connect4UI {
       newGameBtn: document.getElementById('newGameBtn'),
       resetScoreBtn: document.getElementById('resetScoreBtn'),
       undoBtn: document.getElementById('undoBtn'),
+      assistanceBtn: document.getElementById('assistanceBtn'),
       helpBtn: document.getElementById('helpBtn'),
       gameModeSelect: document.getElementById('gameMode'),
       
       // Modals
       helpModal: document.getElementById('helpModal'),
-      closeHelpBtn: document.getElementById('closeHelpBtn')
+      closeHelpBtn: document.getElementById('closeHelpBtn'),
+      assistanceModal: document.getElementById('assistanceModal'),
+      closeAssistanceBtn: document.getElementById('closeAssistanceBtn'),
+      
+      // Assistance checkboxes
+      player1UndoCheckbox: document.getElementById('player1-undo'),
+      player2UndoCheckbox: document.getElementById('player2-undo')
     };
   }
 
@@ -72,8 +95,10 @@ class Connect4UI {
     this.elements.newGameBtn.addEventListener('click', () => this.newGame());
     this.elements.resetScoreBtn.addEventListener('click', () => this.resetScore());
     this.elements.undoBtn.addEventListener('click', () => this.undoMove());
+    this.elements.assistanceBtn.addEventListener('click', () => this.toggleAssistance());
     this.elements.helpBtn.addEventListener('click', () => this.toggleHelp());
     this.elements.closeHelpBtn.addEventListener('click', () => this.hideHelp());
+    this.elements.closeAssistanceBtn.addEventListener('click', () => this.hideAssistance());
     
     // Game mode selector
     this.elements.gameModeSelect.addEventListener('change', (e) => {
@@ -89,6 +114,25 @@ class Connect4UI {
       if (e.target === this.elements.helpModal) {
         this.hideHelp();
       }
+    });
+    
+    this.elements.assistanceModal.addEventListener('click', (e) => {
+      if (e.target === this.elements.assistanceModal) {
+        this.hideAssistance();
+      }
+    });
+    
+    // Assistance checkbox listeners
+    this.elements.player1UndoCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player1.undo = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 1 undo assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player2UndoCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player2.undo = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 2 undo assistance: ${e.target.checked}`);
     });
   }
 
@@ -234,15 +278,38 @@ class Connect4UI {
     }
   }
 
-  // Undo move
+  // Undo move with player assistance check
   undoMove() {
     try {
-      // In AI mode, undo two moves (player + AI)
-      if (this.isAiMode() && this.game.getMoveCount() >= 2) {
-        this.game.undoMove(); // Undo AI move
-        this.game.undoMove(); // Undo player move
-      } else if (!this.isAiMode()) {
+      // Check if current player has undo assistance enabled
+      const currentPlayer = this.game.getCurrentPlayer();
+      const isPlayer1 = currentPlayer === Player.Yellow;
+      const isPlayer2 = currentPlayer === Player.Red;
+      
+      // In AI mode, always allow undo for human player
+      if (this.isAiMode()) {
+        if (this.game.getMoveCount() >= 2) {
+          this.game.undoMove(); // Undo AI move
+          this.game.undoMove(); // Undo player move
+          this.showToast('Zug rückgängig gemacht', 'info');
+        }
+        return;
+      }
+      
+      // In two-player mode, check assistance settings
+      const hasUndoAssistance = (isPlayer1 && this.playerAssistance.player1.undo) || 
+                               (isPlayer2 && this.playerAssistance.player2.undo);
+      
+      if (!hasUndoAssistance) {
+        const playerName = isPlayer1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+        this.showToast(`${playerName} hat keine Rückgängig-Berechtigung. Aktiviere Spielerhilfen (F2).`, 'error');
+        return;
+      }
+      
+      if (this.game.canUndo()) {
         this.game.undoMove();
+        const playerName = isPlayer1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+        this.showToast(`${playerName}: Zug rückgängig gemacht`, 'success');
       }
     } catch (error) {
       this.showToast(error.message, 'error');
@@ -271,6 +338,13 @@ class Connect4UI {
       return;
     }
     
+    if (this.elements.assistanceModal.classList.contains('show')) {
+      if (e.key === 'Escape' || e.key === 'F2') {
+        this.hideAssistance();
+      }
+      return;
+    }
+    
     // Column moves (1-7)
     if (e.key >= '1' && e.key <= '7') {
       const col = parseInt(e.key) - 1;
@@ -294,6 +368,10 @@ class Connect4UI {
       case 'F1':
         e.preventDefault();
         this.toggleHelp();
+        break;
+      case 'F2':
+        e.preventDefault();
+        this.toggleAssistance();
         break;
       case 'F3':
         e.preventDefault();
@@ -400,6 +478,7 @@ class Connect4UI {
     this.updateScoreDisplay();
     this.updateControls();
     this.updateBoardDisplay();
+    this.updateAssistanceUI();
   }
 
   // Update player indicator
@@ -547,6 +626,55 @@ class Connect4UI {
   hideHelp() {
     this.elements.helpModal.classList.remove('show');
     document.body.style.overflow = '';
+  }
+
+  // Assistance modal functions
+  toggleAssistance() {
+    if (this.elements.assistanceModal.classList.contains('show')) {
+      this.hideAssistance();
+    } else {
+      this.showAssistance();
+    }
+  }
+
+  showAssistance() {
+    this.elements.assistanceModal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    this.syncAssistanceCheckboxes();
+  }
+
+  hideAssistance() {
+    this.elements.assistanceModal.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  // Sync checkbox states with current settings
+  syncAssistanceCheckboxes() {
+    this.elements.player1UndoCheckbox.checked = this.playerAssistance.player1.undo;
+    this.elements.player2UndoCheckbox.checked = this.playerAssistance.player2.undo;
+  }
+
+  // Update UI based on assistance settings
+  updateAssistanceUI() {
+    // Update undo button state based on current player and assistance
+    this.updateControls();
+    
+    // Show visual indicator when assistance is active
+    const currentPlayer = this.game.getCurrentPlayer();
+    const isPlayer1 = currentPlayer === Player.Yellow;
+    const isPlayer2 = currentPlayer === Player.Red;
+    
+    const hasUndoAssistance = (isPlayer1 && this.playerAssistance.player1.undo) || 
+                             (isPlayer2 && this.playerAssistance.player2.undo);
+    
+    // Add visual indicator to undo button when assistance is available
+    if (hasUndoAssistance && this.game.canUndo()) {
+      this.elements.undoBtn.style.background = 'linear-gradient(145deg, #00b894, #00a085)';
+      this.elements.undoBtn.title = 'Rückgängig-Hilfe ist aktiviert';
+    } else {
+      this.elements.undoBtn.style.background = '';
+      this.elements.undoBtn.title = '';
+    }
   }
 
   // Toast notifications

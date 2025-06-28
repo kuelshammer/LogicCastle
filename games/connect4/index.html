@@ -69,9 +69,91 @@
           <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
           <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
           <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
+          <button class="btn btn-success" id="assistanceBtn">Spielerhilfen (F2)</button>
           <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
         </div>
       </main>
+    </div>
+
+    <!-- Player Assistance Modal -->
+    <div class="modal-overlay" id="assistanceModal">
+      <div class="modal assistance-modal">
+        <h2>🎛️ Spielerhilfen</h2>
+
+        <div class="help-content">
+          <div class="help-section">
+            <h3>👤 Spieler 1 (Gelb)</h3>
+            <div class="assistance-options">
+              <label class="assistance-option">
+                <input type="checkbox" id="player1-undo" class="assistance-checkbox">
+                <span class="assistance-label">🔄 Zug rückgängig machen erlaubt</span>
+                <span class="assistance-description">Spieler kann eigene Züge rückgängig machen</span>
+              </label>
+              
+              <label class="assistance-option">
+                <input type="checkbox" id="player1-threats" class="assistance-checkbox" disabled>
+                <span class="assistance-label">⚠️ Bedrohungen anzeigen (Coming Soon)</span>
+                <span class="assistance-description">Zeigt gegnerische Gewinnbedrohungen an</span>
+              </label>
+              
+              <label class="assistance-option">
+                <input type="checkbox" id="player1-winning-moves" class="assistance-checkbox" disabled>
+                <span class="assistance-label">🏆 Gewinnzüge hervorheben (Coming Soon)</span>
+                <span class="assistance-description">Markiert direkte Gewinnmöglichkeiten</span>
+              </label>
+              
+              <label class="assistance-option">
+                <input type="checkbox" id="player1-blocked-columns" class="assistance-checkbox" disabled>
+                <span class="assistance-label">🚫 Gesperrte Spalten anzeigen (Coming Soon)</span>
+                <span class="assistance-description">Zeigt strategisch ungünstige Spalten an</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h3>👤 Spieler 2 (Rot)</h3>
+            <div class="assistance-options">
+              <label class="assistance-option">
+                <input type="checkbox" id="player2-undo" class="assistance-checkbox">
+                <span class="assistance-label">🔄 Zug rückgängig machen erlaubt</span>
+                <span class="assistance-description">Spieler kann eigene Züge rückgängig machen</span>
+              </label>
+              
+              <label class="assistance-option">
+                <input type="checkbox" id="player2-threats" class="assistance-checkbox" disabled>
+                <span class="assistance-label">⚠️ Bedrohungen anzeigen (Coming Soon)</span>
+                <span class="assistance-description">Zeigt gegnerische Gewinnbedrohungen an</span>
+              </label>
+              
+              <label class="assistance-option">
+                <input type="checkbox" id="player2-winning-moves" class="assistance-checkbox" disabled>
+                <span class="assistance-label">🏆 Gewinnzüge hervorheben (Coming Soon)</span>
+                <span class="assistance-description">Markiert direkte Gewinnmöglichkeiten</span>
+              </label>
+              
+              <label class="assistance-option">
+                <input type="checkbox" id="player2-blocked-columns" class="assistance-checkbox" disabled>
+                <span class="assistance-label">🚫 Gesperrte Spalten anzeigen (Coming Soon)</span>
+                <span class="assistance-description">Zeigt strategisch ungünstige Spalten an</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h3>ℹ️ Hinweise</h3>
+            <ul>
+              <li>Spielerhilfen können jederzeit aktiviert/deaktiviert werden</li>
+              <li>Jeder Spieler kann individuelle Hilfen verwenden</li>
+              <li>Hilfen beeinflussen nur die Anzeige, nicht die Spiellogik</li>
+              <li>In KI-Modi gelten Hilfen nur für menschliche Spieler</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn btn-primary" id="closeAssistanceBtn">Einstellungen speichern</button>
+        </div>
+      </div>
     </div>
 
     <!-- Help Modal -->
