@@ -3,6 +3,71 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand::thread_rng;
 
+/// Game phase enumeration for strategic evaluation
+#[wasm_bindgen]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum GamePhase {
+    Opening,
+    Middle,
+    Endgame,
+}
+
+/// Position analysis structure for AI decision making
+#[wasm_bindgen]
+pub struct PositionAnalysis {
+    pub current_player_threats: usize,
+    pub opponent_threats: usize,
+    pub total_pieces: usize,
+    pub connectivity_score: i32,
+    pub game_phase: GamePhase,
+    pub evaluation_score: i32,
+}
+
+#[wasm_bindgen]
+impl PositionAnalysis {
+    #[wasm_bindgen(getter)]
+    pub fn current_player_threats(&self) -> usize { self.current_player_threats }
+    
+    #[wasm_bindgen(getter)]
+    pub fn opponent_threats(&self) -> usize { self.opponent_threats }
+    
+    #[wasm_bindgen(getter)]
+    pub fn total_pieces(&self) -> usize { self.total_pieces }
+    
+    #[wasm_bindgen(getter)]
+    pub fn connectivity_score(&self) -> i32 { self.connectivity_score }
+    
+    #[wasm_bindgen(getter)]
+    pub fn game_phase(&self) -> GamePhase { self.game_phase }
+    
+    #[wasm_bindgen(getter)]
+    pub fn evaluation_score(&self) -> i32 { self.evaluation_score }
+    
+    /// Get threat advantage (positive = current player has more threats)
+    pub fn threat_advantage(&self) -> i32 {
+        self.current_player_threats as i32 - self.opponent_threats as i32
+    }
+    
+    /// Check if position is tactically critical
+    pub fn is_critical(&self) -> bool {
+        self.current_player_threats > 0 || self.opponent_threats > 0
+    }
+    
+    /// Get position summary as string for debugging
+    pub fn summary(&self) -> String {
+        format!(
+            "Phase: {:?}, Threats: {}/{}, Pieces: {}, Score: {}, Critical: {}",
+            self.game_phase,
+            self.current_player_threats,
+            self.opponent_threats,
+            self.total_pieces,
+            self.evaluation_score,
+            self.is_critical()
+        )
+    }
+}
+use std::collections::HashMap;
+
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)] // Added Debug trait
 pub enum Player {
@@ -360,9 +425,14 @@ impl Game {
         self.check_win().is_some() || self.board.is_full()
     }
     
-    /// Evaluate position for AI (simple heuristic)
-    /// Returns: +1000 for current player win, -1000 for opponent win, 0 otherwise
+    /// Advanced position evaluation with strategic scoring
+    /// Returns: +10000 for current player win, -10000 for opponent win, strategic score otherwise
     pub fn evaluate_position(&self) -> i32 {
+        self.evaluate_position_advanced()
+    }
+    
+    /// Simple evaluation for backward compatibility
+    pub fn evaluate_position_simple(&self) -> i32 {
         match self.check_win() {
             Some(winner) => {
                 if winner == self.current_player {
@@ -375,7 +445,7 @@ impl Game {
                 if self.board.is_full() {
                     0  // Draw
                 } else {
-                    // Simple material evaluation (could be enhanced)
+                    // Simple material evaluation
                     let mut score = 0;
                     for &cell in &self.board.cells {
                         match cell {
@@ -390,6 +460,41 @@ impl Game {
                 }
             }
         }
+    }
+    
+    /// Advanced evaluation combining multiple strategic factors
+    pub fn evaluate_position_advanced(&self) -> i32 {
+        // Terminal position evaluation
+        match self.check_win() {
+            Some(winner) => {
+                return if winner == self.current_player {
+                    10000  // Current player wins
+                } else {
+                    -10000 // Opponent wins
+                }
+            }
+            None => {
+                if self.board.is_full() {
+                    return 0;  // Draw
+                }
+            }
+        }
+        
+        let mut total_score = 0;
+        
+        // 1. Threat Analysis (immediate winning/blocking opportunities)
+        total_score += self.evaluate_threats();
+        
+        // 2. Strategic Pattern Analysis
+        total_score += self.evaluate_patterns();
+        
+        // 3. Positional Control (center control, board structure)
+        total_score += self.evaluate_positional();
+        
+        // 4. Game Phase Considerations
+        total_score += self.evaluate_game_phase();
+        
+        total_score
     }
     
     /// Count immediate threats for a player (winning moves available)
@@ -533,6 +638,381 @@ impl Game {
     /// Get the winner if the game is over, None if it's a draw or ongoing
     pub fn get_winner(&self) -> Option<Player> {
         self.check_win()
+    }
+    
+    // PHASE 2: ADVANCED EVALUATION FUNCTIONS
+    
+    /// Evaluate immediate threats and defensive needs
+    fn evaluate_threats(&self) -> i32 {
+        let mut score = 0;
+        let current_val = self.current_player as i8;
+        let opponent_val = self.current_player.opponent() as i8;
+        
+        // Weight immediate threats heavily
+        let winning_moves = self.count_winning_moves(current_val);
+        let blocking_needed = self.count_winning_moves(opponent_val);
+        
+        // Multiple winning moves = very strong position
+        score += winning_moves as i32 * 500;
+        
+        // Need to block opponent threats
+        score -= blocking_needed as i32 * 400;
+        
+        // Penalize positions where opponent has more threats
+        if blocking_needed > winning_moves {
+            score -= 200;
+        }
+        
+        score
+    }
+    
+    /// Count winning moves available for a player
+    fn count_winning_moves(&self, player_val: i8) -> usize {
+        let mut winning_moves = 0;
+        
+        if self.gravity_enabled {
+            // Connect4-style: check each column
+            for col in 0..self.board.cols {
+                if let Some(row) = self.board.get_drop_row(col) {
+                    if self.would_win_at(row, col, player_val) {
+                        winning_moves += 1;
+                    }
+                }
+            }
+        } else {
+            // Gobang-style: check all empty positions
+            for row in 0..self.board.rows {
+                for col in 0..self.board.cols {
+                    if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                        if self.would_win_at(row, col, player_val) {
+                            winning_moves += 1;
+                        }
+                    }
+                }
+            }
+        }
+        
+        winning_moves
+    }
+    
+    /// Evaluate strategic patterns (sequences close to winning)
+    fn evaluate_patterns(&self) -> i32 {
+        let mut score = 0;
+        let current_val = self.current_player as i8;
+        let opponent_val = self.current_player.opponent() as i8;
+        
+        // Evaluate all directions for pattern strength
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                for &(dr, dc) in &directions {
+                    // Evaluate pattern strength for current player
+                    score += self.evaluate_line_pattern(row, col, dr, dc, current_val);
+                    // Subtract opponent's pattern strength
+                    score -= self.evaluate_line_pattern(row, col, dr, dc, opponent_val);
+                }
+            }
+        }
+        
+        score
+    }
+    
+    /// Evaluate a single line pattern for strategic value
+    fn evaluate_line_pattern(&self, start_row: usize, start_col: usize, dr: isize, dc: isize, player_val: i8) -> i32 {
+        let mut player_count = 0;
+        let mut empty_count = 0;
+        let mut blocked = false;
+        
+        // Check a line segment of win_condition length
+        for i in 0..self.win_condition {
+            let r = start_row as isize + dr * i as isize;
+            let c = start_col as isize + dc * i as isize;
+            
+            if !self.board.is_within_bounds(r, c) {
+                blocked = true;
+                break;
+            }
+            
+            let cell_val = self.board.get_cell(r as usize, c as usize).unwrap_or(0);
+            
+            if cell_val == player_val {
+                player_count += 1;
+            } else if cell_val == 0 {
+                empty_count += 1;
+            } else {
+                blocked = true;
+                break;
+            }
+        }
+        
+        // Score based on pattern strength
+        if blocked || empty_count == 0 {
+            return 0;
+        }
+        
+        match player_count {
+            0 => 0,  // No pieces in line
+            1 => if empty_count == self.win_condition - 1 { 10 } else { 0 },  // Single piece with room
+            2 => if empty_count >= self.win_condition - 2 { 50 } else { 0 },   // Two pieces
+            3 => if empty_count >= self.win_condition - 3 { 200 } else { 0 },  // Three pieces - strong
+            _ => 0,  // Should not happen in valid patterns
+        }
+    }
+    
+    /// Evaluate positional factors (center control, structure)
+    fn evaluate_positional(&self) -> i32 {
+        let mut score = 0;
+        let current_val = self.current_player as i8;
+        let opponent_val = self.current_player.opponent() as i8;
+        
+        let center_col = self.board.cols / 2;
+        let center_row = self.board.rows / 2;
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                let cell_val = self.board.get_cell(row, col).unwrap_or(0);
+                
+                if cell_val != 0 {
+                    let position_value = self.calculate_position_value(row, col, center_row, center_col);
+                    
+                    if cell_val == current_val {
+                        score += position_value;
+                    } else if cell_val == opponent_val {
+                        score -= position_value;
+                    }
+                }
+            }
+        }
+        
+        score
+    }
+    
+    /// Calculate positional value of a square
+    fn calculate_position_value(&self, row: usize, col: usize, center_row: usize, center_col: usize) -> i32 {
+        // Distance from center (closer = better)
+        let row_dist = (row as isize - center_row as isize).abs() as usize;
+        let col_dist = (col as isize - center_col as isize).abs() as usize;
+        let total_dist = row_dist + col_dist;
+        
+        // Base positional value (center is worth more)
+        let base_value = match total_dist {
+            0 => 20,      // Center
+            1 => 15,      // Near center
+            2 => 10,      // Moderate distance
+            3 => 5,       // Further out
+            _ => 2,       // Edge positions
+        };
+        
+        // Connect4 specific: bottom rows more valuable due to gravity
+        let gravity_bonus = if self.gravity_enabled {
+            let from_bottom = self.board.rows - 1 - row;
+            match from_bottom {
+                0 => 5,   // Bottom row
+                1 => 3,   // Second from bottom
+                2 => 1,   // Third from bottom
+                _ => 0,   // Upper rows
+            }
+        } else {
+            0
+        };
+        
+        base_value + gravity_bonus
+    }
+    
+    /// Evaluate game phase considerations
+    fn evaluate_game_phase(&self) -> i32 {
+        let total_pieces = self.count_total_pieces();
+        let board_size = self.board.rows * self.board.cols;
+        let fill_ratio = total_pieces as f32 / board_size as f32;
+        
+        match fill_ratio {
+            r if r < 0.25 => self.evaluate_opening_phase(),
+            r if r < 0.75 => self.evaluate_middle_phase(),
+            _ => self.evaluate_endgame_phase()
+        }
+    }
+    
+    /// Count total pieces on board
+    fn count_total_pieces(&self) -> usize {
+        self.board.cells.iter().filter(|&&cell| cell != 0).count()
+    }
+    
+    /// Opening phase evaluation (focus on center control)
+    fn evaluate_opening_phase(&self) -> i32 {
+        let mut score = 0;
+        let current_val = self.current_player as i8;
+        let center_col = self.board.cols / 2;
+        
+        // Bonus for center column control in opening
+        if self.gravity_enabled {
+            let mut center_pieces = 0;
+            for row in 0..self.board.rows {
+                if self.board.get_cell(row, center_col).unwrap_or(0) == current_val {
+                    center_pieces += 1;
+                }
+            }
+            score += center_pieces as i32 * 15;
+        }
+        
+        // Penalty for edge play too early
+        let edge_pieces = self.count_edge_pieces(current_val);
+        score -= edge_pieces as i32 * 5;
+        
+        score
+    }
+    
+    /// Middle phase evaluation (focus on pattern building)
+    fn evaluate_middle_phase(&self) -> i32 {
+        let mut score = 0;
+        
+        // Focus on building connected structures
+        score += self.evaluate_connectivity() * 2;
+        
+        // Penalize isolated pieces
+        score -= self.count_isolated_pieces(self.current_player as i8) as i32 * 10;
+        
+        score
+    }
+    
+    /// Endgame evaluation (focus on forcing moves)
+    fn evaluate_endgame_phase(&self) -> i32 {
+        let mut score = 0;
+        
+        // In endgame, threats become more critical
+        let current_threats = self.count_winning_moves(self.current_player as i8);
+        let opponent_threats = self.count_winning_moves(self.current_player.opponent() as i8);
+        
+        // Heavy weighting for threat advantage in endgame
+        score += (current_threats as i32 - opponent_threats as i32) * 300;
+        
+        // Bonus for maintaining tempo
+        if current_threats > 0 && opponent_threats == 0 {
+            score += 150;  // Winning initiative
+        }
+        
+        score
+    }
+    
+    /// Count pieces on board edges
+    fn count_edge_pieces(&self, player_val: i8) -> usize {
+        let mut count = 0;
+        
+        // Top and bottom edges
+        for col in 0..self.board.cols {
+            if self.board.get_cell(0, col).unwrap_or(0) == player_val {
+                count += 1;
+            }
+            if self.board.get_cell(self.board.rows - 1, col).unwrap_or(0) == player_val {
+                count += 1;
+            }
+        }
+        
+        // Left and right edges (excluding corners already counted)
+        for row in 1..self.board.rows - 1 {
+            if self.board.get_cell(row, 0).unwrap_or(0) == player_val {
+                count += 1;
+            }
+            if self.board.get_cell(row, self.board.cols - 1).unwrap_or(0) == player_val {
+                count += 1;
+            }
+        }
+        
+        count
+    }
+    
+    /// Evaluate piece connectivity (adjacent friendly pieces)
+    fn evaluate_connectivity(&self) -> i32 {
+        let mut score = 0;
+        let current_val = self.current_player as i8;
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1), (-1, 0), (0, -1), (-1, -1), (-1, 1)];
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(0) == current_val {
+                    let mut adjacent_count = 0;
+                    
+                    for &(dr, dc) in &directions {
+                        let new_row = row as isize + dr;
+                        let new_col = col as isize + dc;
+                        
+                        if self.board.is_within_bounds(new_row, new_col) {
+                            if self.board.get_cell(new_row as usize, new_col as usize).unwrap_or(0) == current_val {
+                                adjacent_count += 1;
+                            }
+                        }
+                    }
+                    
+                    // More adjacent pieces = better connectivity
+                    score += adjacent_count * 5;
+                }
+            }
+        }
+        
+        score
+    }
+    
+    /// Count isolated pieces (no adjacent friendly pieces)
+    fn count_isolated_pieces(&self, player_val: i8) -> usize {
+        let mut isolated_count = 0;
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1), (-1, 0), (0, -1), (-1, -1), (-1, 1)];
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(0) == player_val {
+                    let mut has_adjacent = false;
+                    
+                    for &(dr, dc) in &directions {
+                        let new_row = row as isize + dr;
+                        let new_col = col as isize + dc;
+                        
+                        if self.board.is_within_bounds(new_row, new_col) {
+                            if self.board.get_cell(new_row as usize, new_col as usize).unwrap_or(0) == player_val {
+                                has_adjacent = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if !has_adjacent {
+                        isolated_count += 1;
+                    }
+                }
+            }
+        }
+        
+        isolated_count
+    }
+    
+    /// Get game phase as enum for external use
+    pub fn get_game_phase(&self) -> GamePhase {
+        let total_pieces = self.count_total_pieces();
+        let board_size = self.board.rows * self.board.cols;
+        let fill_ratio = total_pieces as f32 / board_size as f32;
+        
+        match fill_ratio {
+            r if r < 0.25 => GamePhase::Opening,
+            r if r < 0.75 => GamePhase::Middle,
+            _ => GamePhase::Endgame
+        }
+    }
+    
+    /// Analyze position for threats and opportunities
+    pub fn analyze_position(&self) -> PositionAnalysis {
+        let current_threats = self.count_winning_moves(self.current_player as i8);
+        let opponent_threats = self.count_winning_moves(self.current_player.opponent() as i8);
+        let total_pieces = self.count_total_pieces();
+        let connectivity = self.evaluate_connectivity();
+        let phase = self.get_game_phase();
+        
+        PositionAnalysis {
+            current_player_threats: current_threats,
+            opponent_threats,
+            total_pieces,
+            connectivity_score: connectivity,
+            game_phase: phase,
+            evaluation_score: self.evaluate_position_advanced(),
+        }
     }
 }
 
@@ -1159,5 +1639,171 @@ mod tests {
         
         // 4. Verify original unchanged
         assert!(game.get_board().iter().all(|&cell| cell == 0));
+    }
+    
+    // PHASE 2: ADVANCED EVALUATION TESTS
+    
+    #[test]
+    fn test_advanced_position_evaluation() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Test initial position
+        let initial_score = game.evaluate_position_advanced();
+        assert!(initial_score.abs() <= 100); // Should be relatively neutral
+        
+        // Create a position with threats
+        let mut board_state = vec![0; 6 * 7];
+        // Yellow has 3 in a row, needs 1 more
+        board_state[5 * 7 + 0] = Player::Yellow as i8;
+        board_state[5 * 7 + 1] = Player::Yellow as i8;
+        board_state[5 * 7 + 2] = Player::Yellow as i8;
+        // Red has 2 in a row
+        board_state[5 * 7 + 4] = Player::Red as i8;
+        board_state[5 * 7 + 5] = Player::Red as i8;
+        set_board_state(&mut game, &board_state);
+        
+        let threat_score = game.evaluate_position_advanced();
+        assert!(threat_score > initial_score); // Should favor Yellow
+    }
+    
+    #[test]
+    fn test_threat_detection() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Set up a position where Yellow can win in column 3
+        let mut board_state = vec![0; 6 * 7];
+        board_state[5 * 7 + 0] = Player::Yellow as i8;
+        board_state[5 * 7 + 1] = Player::Yellow as i8;
+        board_state[5 * 7 + 2] = Player::Yellow as i8;
+        set_board_state(&mut game, &board_state);
+        
+        let threats = game.count_winning_moves(Player::Yellow as i8);
+        assert_eq!(threats, 1); // Should detect the winning move in column 3
+    }
+    
+    #[test]
+    fn test_game_phase_detection() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Opening phase (empty board)
+        assert_eq!(game.get_game_phase(), GamePhase::Opening);
+        
+        // Add some pieces to reach middle phase
+        let mut board_state = vec![0; 6 * 7];
+        for i in 0..15 {
+            board_state[i] = if i % 2 == 0 { Player::Yellow as i8 } else { Player::Red as i8 };
+        }
+        set_board_state(&mut game, &board_state);
+        assert_eq!(game.get_game_phase(), GamePhase::Middle);
+        
+        // Fill most of the board for endgame
+        for i in 0..35 {
+            board_state[i] = if i % 2 == 0 { Player::Yellow as i8 } else { Player::Red as i8 };
+        }
+        set_board_state(&mut game, &board_state);
+        assert_eq!(game.get_game_phase(), GamePhase::Endgame);
+    }
+    
+    #[test]
+    fn test_position_analysis() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Test analysis on opening position
+        let analysis = game.analyze_position();
+        assert_eq!(analysis.current_player_threats(), 0);
+        assert_eq!(analysis.opponent_threats(), 0);
+        assert_eq!(analysis.total_pieces(), 0);
+        assert_eq!(analysis.game_phase(), GamePhase::Opening);
+        assert!(!analysis.is_critical());
+        
+        // Create a tactical position
+        let mut board_state = vec![0; 6 * 7];
+        board_state[5 * 7 + 0] = Player::Yellow as i8;
+        board_state[5 * 7 + 1] = Player::Yellow as i8;
+        board_state[5 * 7 + 2] = Player::Yellow as i8;
+        set_board_state(&mut game, &board_state);
+        
+        let tactical_analysis = game.analyze_position();
+        assert!(tactical_analysis.current_player_threats() > 0);
+        assert!(tactical_analysis.is_critical());
+        assert!(tactical_analysis.threat_advantage() > 0);
+    }
+    
+    #[test]
+    fn test_pattern_evaluation() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Test pattern scoring
+        let mut board_state = vec![0; 6 * 7];
+        // Create a 2-piece pattern with room to grow
+        board_state[5 * 7 + 1] = Player::Yellow as i8;
+        board_state[5 * 7 + 2] = Player::Yellow as i8;
+        set_board_state(&mut game, &board_state);
+        
+        let pattern_score = game.evaluate_patterns();
+        assert!(pattern_score > 0); // Should recognize Yellow's potential
+        
+        // Switch perspective
+        game.current_player = Player::Red;
+        let opponent_pattern_score = game.evaluate_patterns();
+        assert!(opponent_pattern_score < 0); // Should see Yellow's threat from Red's perspective
+    }
+    
+    #[test]
+    fn test_positional_evaluation() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Test center vs edge positioning
+        let mut center_board = vec![0; 6 * 7];
+        center_board[5 * 7 + 3] = Player::Yellow as i8; // Center column
+        set_board_state(&mut game, &center_board);
+        let center_score = game.evaluate_positional();
+        
+        let mut edge_board = vec![0; 6 * 7];
+        edge_board[5 * 7 + 0] = Player::Yellow as i8; // Edge column
+        set_board_state(&mut game, &edge_board);
+        let edge_score = game.evaluate_positional();
+        
+        assert!(center_score > edge_score); // Center should be more valuable
+    }
+    
+    #[test]
+    fn test_connectivity_evaluation() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Test connected vs isolated pieces
+        let mut connected_board = vec![0; 6 * 7];
+        connected_board[5 * 7 + 1] = Player::Yellow as i8;
+        connected_board[5 * 7 + 2] = Player::Yellow as i8; // Adjacent pieces
+        set_board_state(&mut game, &connected_board);
+        let connected_score = game.evaluate_connectivity();
+        
+        let mut isolated_board = vec![0; 6 * 7];
+        isolated_board[5 * 7 + 0] = Player::Yellow as i8;
+        isolated_board[5 * 7 + 6] = Player::Yellow as i8; // Isolated pieces
+        set_board_state(&mut game, &isolated_board);
+        let isolated_score = game.evaluate_connectivity();
+        
+        assert!(connected_score > isolated_score); // Connected pieces should score higher
+    }
+    
+    #[test]
+    fn test_gobang_advanced_evaluation() {
+        let mut game = Game::new(15, 15, 5, false); // Standard Gobang board
+        
+        // Test Gobang-specific patterns
+        let mut board_state = vec![0; 15 * 15];
+        // Create a 4-in-a-row pattern (one away from winning)
+        board_state[7 * 15 + 5] = Player::Yellow as i8;
+        board_state[7 * 15 + 6] = Player::Yellow as i8;
+        board_state[7 * 15 + 7] = Player::Yellow as i8;
+        board_state[7 * 15 + 8] = Player::Yellow as i8;
+        set_board_state(&mut game, &board_state);
+        
+        let threats = game.count_winning_moves(Player::Yellow as i8);
+        assert!(threats >= 1); // Should detect winning opportunities
+        
+        let evaluation = game.evaluate_position_advanced();
+        assert!(evaluation > 1000); // Should highly favor Yellow
     }
 }

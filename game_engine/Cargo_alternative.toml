@@ -1,0 +1,38 @@
+[package]
+name = "game_engine_alternative"
+version = "0.1.0"
+edition = "2021"
+description = "Memory-optimized game engine with alternative design patterns"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+# Remove rand dependency for smaller binary size
+# rand = { version = "0.8", features = ["small_rng"] }
+# getrandom = { version = "0.2", features = ["js"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wee_alloc = { version = "0.4.5", optional = true }
+
+[features]
+default = ["wee_alloc"]
+# Feature for enabling SIMD optimizations in the future
+simd = []
+# Feature for enabling training data collection
+training = []
+
+[profile.release]
+# Optimize for size to reduce WASM binary
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.release.package."*"]
+opt-level = "s"

@@ -18,101 +18,112 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <header>
-        <h1>🏰 LogicCastle</h1>
-        <p>Eine Sammlung mathematischer Spiele</p>
+<body class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 font-sans text-gray-800">
+    <header class="text-center text-white p-4 md:p-8">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-shadow-lg">🏰 LogicCastle</h1>
+        <p class="text-lg md:text-xl opacity-90">Eine Sammlung mathematischer Spiele</p>
     </header>
 
-    <main class="game-grid">
-        <div class="game-card" data-game="connect4" data-key="1" tabindex="0">
-            <div class="game-number">1</div>
-            <h2>4 Gewinnt</h2>
-            <div class="game-preview">
-                <div class="connect4-board">
-                    <div class="connect4-grid">
-                        <div class="cell empty"></div>
-                        <div class="cell empty"></div>
-                        <div class="cell empty"></div>
-                        <div class="cell empty"></div>
-                        <div class="cell red"></div>
-                        <div class="cell yellow"></div>
-                        <div class="cell red"></div>
-                        <div class="cell yellow"></div>
-                        <div class="cell red"></div>
-                        <div class="cell yellow"></div>
-                        <div class="cell red"></div>
-                        <div class="cell empty"></div>
+    <main class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8 p-4 md:p-8 max-w-6xl mx-auto">
+        <div class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px]" data-game="connect4" data-key="1" tabindex="0">
+            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">1</div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">4 Gewinnt</h2>
+            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+                <div class="bg-blue-500 rounded-lg p-2">
+                    <div class="grid grid-cols-4 grid-rows-3 gap-1">
+                        <div class="w-6 h-6 bg-white rounded-full border-2 border-blue-700"></div>
+                        <div class="w-6 h-6 bg-white rounded-full border-2 border-blue-700"></div>
+                        <div class="w-6 h-6 bg-white rounded-full border-2 border-blue-700"></div>
+                        <div class="w-6 h-6 bg-white rounded-full border-2 border-blue-700"></div>
+                        <div class="w-6 h-6 bg-red-500 rounded-full"></div>
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full"></div>
+                        <div class="w-6 h-6 bg-red-500 rounded-full"></div>
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full"></div>
+                        <div class="w-6 h-6 bg-red-500 rounded-full"></div>
+                        <div class="w-6 h-6 bg-yellow-400 rounded-full"></div>
+                        <div class="w-6 h-6 bg-red-500 rounded-full"></div>
+                        <div class="w-6 h-6 bg-white rounded-full border-2 border-blue-700"></div>
                     </div>
                 </div>
             </div>
-            <p>Klassisches Strategiespiel - Verbinde vier Steine in einer Reihe!</p>
+            <p class="text-gray-600 leading-relaxed">Klassisches Strategiespiel - Verbinde vier Steine in einer Reihe!</p>
         </div>
 
-        <div class="game-card" data-game="gobang" data-key="2" tabindex="0">
-            <div class="game-number">2</div>
-            <h2>5 Gewinnt (Gobang)</h2>
-            <div class="game-preview">
-                <div class="gobang-board">
-                    <div class="gobang-grid">
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection black"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection white"></div>
-                        <div class="intersection black"></div>
-                        <div class="intersection white"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection white"></div>
-                        <div class="intersection black"></div>
-                        <div class="intersection white"></div>
-                        <div class="intersection black"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection white"></div>
-                        <div class="intersection black"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
-                        <div class="intersection"></div>
+        <div class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px]" data-game="gobang" data-key="2" tabindex="0">
+            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">2</div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">5 Gewinnt (Gobang)</h2>
+            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+                <div class="bg-amber-700 rounded-lg p-2">
+                    <div class="grid grid-cols-5 grid-rows-5 gap-0.5">
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-black rounded-full"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-white rounded-full border border-gray-400"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-black rounded-full"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-white rounded-full border border-gray-400"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-white rounded-full border border-gray-400"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-black rounded-full"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-white rounded-full border border-gray-400"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-black rounded-full"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-white rounded-full border border-gray-400"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"><div class="absolute inset-0.5 bg-black rounded-full"></div></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
+                        <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
                     </div>
                 </div>
             </div>
-            <p>Setze fünf Steine in eine Reihe auf dem Go-Brett!</p>
+            <p class="text-gray-600 leading-relaxed">Setze fünf Steine in eine Reihe auf dem Go-Brett!</p>
         </div>
 
-        <div class="game-card" data-game="trio" data-key="3" tabindex="0">
-            <div class="game-number">3</div>
-            <h2>Trio</h2>
-            <div class="game-preview">
-                <div class="trio-board">
-                    <div class="trio-grid">
-                        <div class="trio-tile red">3</div>
-                        <div class="trio-tile blue">7</div>
-                        <div class="trio-tile green">2</div>
-                        <div class="trio-tile yellow">9</div>
-                        <div class="trio-tile red">5</div>
-                        <div class="trio-tile blue">1</div>
-                        <div class="trio-tile green">8</div>
-                        <div class="trio-tile yellow">4</div>
-                        <div class="trio-tile red">6</div>
+        <div class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px]" data-game="trio" data-key="3" tabindex="0">
+            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">3</div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Trio</h2>
+            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+                <div class="bg-white rounded-lg border-2 border-gray-300">
+                    <div class="grid grid-cols-3 grid-rows-3 gap-0.5">
+                        <div class="w-8 h-8 bg-red-500 text-white flex items-center justify-center font-bold text-sm rounded">3</div>
+                        <div class="w-8 h-8 bg-blue-500 text-white flex items-center justify-center font-bold text-sm rounded">7</div>
+                        <div class="w-8 h-8 bg-green-500 text-white flex items-center justify-center font-bold text-sm rounded">2</div>
+                        <div class="w-8 h-8 bg-yellow-400 text-gray-800 flex items-center justify-center font-bold text-sm rounded">9</div>
+                        <div class="w-8 h-8 bg-red-500 text-white flex items-center justify-center font-bold text-sm rounded">5</div>
+                        <div class="w-8 h-8 bg-blue-500 text-white flex items-center justify-center font-bold text-sm rounded">1</div>
+                        <div class="w-8 h-8 bg-green-500 text-white flex items-center justify-center font-bold text-sm rounded">8</div>
+                        <div class="w-8 h-8 bg-yellow-400 text-gray-800 flex items-center justify-center font-bold text-sm rounded">4</div>
+                        <div class="w-8 h-8 bg-red-500 text-white flex items-center justify-center font-bold text-sm rounded">6</div>
                     </div>
                 </div>
             </div>
-            <p>Mathematisches Strategiespiel mit Zahlen und Farben!</p>
+            <p class="text-gray-600 leading-relaxed">Mathematisches Strategiespiel mit Zahlen und Farben!</p>
         </div>
     </main>
 
-    <footer>
-        <p>Verwende die Tasten 1-3 oder klicke auf ein Spiel zum Starten</p>
-        <div id="buildInfo" style="font-size: 0.7em; color: white; margin-top: 10px; text-align: center;">
+    <footer class="text-center p-8 text-white opacity-80">
+        <p class="text-lg mb-4">Verwende die Tasten 1-3 oder klicke auf ein Spiel zum Starten</p>
+        <div class="text-sm opacity-60">
             Build: <span id="commitHash">1c95dde</span> • 
             <span id="buildTime">2025-06-21 10:15</span>
         </div>

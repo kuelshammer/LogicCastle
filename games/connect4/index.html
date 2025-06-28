@@ -1,12 +1,177 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect4 - Tailwind Test</title>
-    <link href="./css/output.css" rel="stylesheet">
-</head>
-<body class="bg-blue-100 flex items-center justify-center h-screen">
-    <h1 class="text-4xl font-bold text-blue-800">Hello Tailwind!</h1>
-</body>
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4 Gewinnt - LogicCastle</title>
+    <link rel="stylesheet" href="css/game.css" />
+    <link rel="stylesheet" href="css/ui.css" />
+  </head>
+  <body>
+    <div class="game-container">
+      <header class="game-header">
+        <a href="../../index.html" class="back-button">← Zurück</a>
+        <h1>🔴 4 Gewinnt</h1>
+        <div class="game-mode-selector">
+          <label for="gameMode">Spielmodus:</label>
+          <select id="gameMode">
+            <option value="two-player">2 Spieler</option>
+            <option value="vs-bot-easy">vs Einfache KI</option>
+            <option value="vs-bot-medium">vs Mittlere KI</option>
+            <option value="vs-bot-hard">vs Schwere KI</option>
+          </select>
+        </div>
+      </header>
+
+      <main class="game-main">
+        <div class="game-info">
+          <div class="current-player">
+            <span class="player-indicator" id="currentPlayerIndicator">
+              <span class="player-disc yellow"></span>
+              <span class="player-name">Spieler 1</span>
+            </span>
+          </div>
+          <div class="game-status" id="gameStatus">Spiel läuft...</div>
+          <div class="score-board">
+            <div class="score yellow">
+              <span class="score-label">Gelb:</span>
+              <span class="score-value" id="yellowScore">0</span>
+            </div>
+            <div class="score red">
+              <span class="score-label">Rot:</span>
+              <span class="score-value" id="redScore">0</span>
+            </div>
+          </div>
+          <div class="move-info">
+            <div class="move-counter">
+              <span class="move-label">Züge:</span>
+              <span class="move-value" id="moveCounter">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-board-container">
+          <div class="board-coords top" id="topCoords">
+            <!-- Column numbers 1-7 will be generated -->
+          </div>
+          <div class="board-wrapper">
+            <div class="game-board" id="gameBoard">
+              <!-- 6x7 grid = 42 slots -->
+              <!-- Generated dynamically by JavaScript -->
+            </div>
+          </div>
+          <div class="board-coords bottom" id="bottomCoords">
+            <!-- Column numbers 1-7 will be generated -->
+          </div>
+        </div>
+
+        <div class="game-controls">
+          <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
+          <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
+          <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
+          <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal help-modal">
+        <h2>🔴 4 Gewinnt - Spielanleitung</h2>
+
+        <div class="help-content">
+          <div class="help-section">
+            <h3>🎯 Spielziel</h3>
+            <p>
+              Verbinde vier deiner Spielsteine in einer geraden Linie (horizontal, vertikal oder diagonal) 
+              auf dem 7x6 Spielfeld!
+            </p>
+          </div>
+
+          <div class="help-section">
+            <h3>🎮 Spielablauf</h3>
+            <ul>
+              <li>Gelb beginnt und wirft den ersten Spielstein ein</li>
+              <li>Spieler werfen abwechselnd ihre Steine in eine der 7 Spalten</li>
+              <li>Steine fallen durch die Schwerkraft nach unten</li>
+              <li>Der erste Spieler mit 4 Steinen in einer Reihe gewinnt</li>
+              <li>Bei vollem Brett ohne Gewinner gibt es ein Unentschieden</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>🎮 Steuerung</h3>
+            <div class="control-group">
+              <h4>🖱️ Maus/Touch:</h4>
+              <ul>
+                <li><strong>Klick:</strong> Stein in Spalte einwerfen</li>
+                <li><strong>Hover:</strong> Vorschau des Zuges anzeigen</li>
+              </ul>
+            </div>
+
+            <div class="control-group">
+              <h4>⌨️ Tastatur:</h4>
+              <ul>
+                <li><strong>1-7:</strong> Stein in Spalte 1-7 einwerfen</li>
+                <li><strong>N:</strong> Neues Spiel</li>
+                <li><strong>U:</strong> Zug rückgängig</li>
+                <li><strong>F1:</strong> Spielanleitung öffnen/schließen</li>
+                <li><strong>F3:</strong> Score zurücksetzen</li>
+                <li><strong>Strg+R:</strong> Neues Spiel (Alternative)</li>
+                <li><strong>Strg+Z:</strong> Zug rückgängig (Alternative)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="help-section">
+            <h3>🤖 Spielmodi</h3>
+            <ul>
+              <li><strong>2 Spieler:</strong> Spiele gegen einen Freund</li>
+              <li><strong>vs Einfache KI:</strong> Perfekt für Anfänger</li>
+              <li><strong>vs Mittlere KI:</strong> Ausbalancierte Herausforderung</li>
+              <li><strong>vs Schwere KI:</strong> Maximale Herausforderung mit Minimax-Algorithmus</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>📋 Regeln</h3>
+            <ul>
+              <li>Steine können nur von oben eingeworfen werden</li>
+              <li>Jede Spalte kann maximal 6 Steine aufnehmen</li>
+              <li>Nur gerade Linien zählen (keine Kurven oder Ecken)</li>
+              <li>4 oder mehr Steine in einer Reihe bedeuten Sieg</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>💡 Strategietipps</h3>
+            <ul>
+              <li>Beginne in der Mitte für die meisten Möglichkeiten</li>
+              <li>Versuche gleichzeitig anzugreifen und zu verteidigen</li>
+              <li>Erstelle "Gabeln" - mehrere Gewinnchancen gleichzeitig</li>
+              <li>Blockiere gegnerische Bedrohungen frühzeitig</li>
+              <li>Plane deine Züge mehrere Runden im Voraus</li>
+              <li>Kontrolliere die unteren Reihen für stabilere Positionen</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn btn-primary" id="closeHelpBtn">Verstanden!</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+      // Initialize game when DOM is loaded
+      document.addEventListener('DOMContentLoaded', function () {
+        const game = new Connect4Game();
+        const ui = new Connect4UI(game);
+        ui.init();
+      });
+    </script>
+  </body>
 </html>

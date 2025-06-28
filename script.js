@@ -26,22 +26,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  const gameCards = document.querySelectorAll('.game-card');
-
-  // Handle click events
-  gameCards.forEach(card => {
-    card.addEventListener('click', function() {
-      const gameName = this.dataset.game;
+  // Handle click events with event delegation
+  document.addEventListener('click', function(e) {
+    const card = e.target.closest('.game-card');
+    if (card) {
+      const gameName = card.dataset.game;
       navigateToGame(gameName);
-    });
+    }
+  });
 
-    // Handle Enter key on focused cards
-    card.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        const gameName = this.dataset.game;
+  // Handle Enter key on focused cards
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const card = e.target.closest('.game-card');
+      if (card) {
+        const gameName = card.dataset.game;
         navigateToGame(gameName);
       }
-    });
+    }
   });
 
   // Handle keyboard navigation (1-3 keys)
@@ -50,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (key >= '1' && key <= '3') {
       const cardIndex = parseInt(key) - 1;
+      const gameCards = document.querySelectorAll('.game-card');
       const targetCard = gameCards[cardIndex];
 
       if (targetCard) {
