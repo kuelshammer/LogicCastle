@@ -1,5 +1,5 @@
-// Connect4 Game Logic Wrapper for WASM Engine
-import init, { Game, Player } from '../../../game_engine/pkg/game_engine.js';
+// Connect4 Game Logic Wrapper for WASM Engine (RUST ONLY!)
+// CRITICAL: NO JavaScript fallback - WASM/Rust implementation only!
 
 class Connect4Game {
   constructor() {
@@ -8,6 +8,7 @@ class Connect4Game {
     this.listeners = {};
     this.gameHistory = [];
     this.currentMove = 0;
+    this.usingWASM = false; // Will be true after successful WASM init
     
     // Game configuration
     this.rows = 6;
@@ -34,31 +35,65 @@ class Connect4Game {
     this.listeners[event].forEach(callback => callback(data));
   }
 
-  // Initialize WASM module
+  // Initialize game engine (WASM ONLY - NO JavaScript fallback)
   async init() {
     try {
-      console.log('🔧 Loading WASM module...');
-      // Initialize WASM module
-      await init();
-      console.log('✅ WASM module loaded successfully');
+      console.log('🔧 Loading Rust/WASM game engine...');
       
-      // Create new game instance
-      console.log('🎮 Creating game instance...');
+      const wasmSuccess = await this.initWASM();
+      if (wasmSuccess) {
+        console.log('✅ Rust/WASM engine initialized successfully');
+        this.emit('initialized');
+        return true;
+      }
+      
+      // NO FALLBACK - WASM is required!
+      throw new Error('WASM engine is required for this game. Please use a modern browser that supports WebAssembly.');
+      
+    } catch (error) {
+      console.error('❌ Failed to initialize Rust/WASM engine:', error);
+      this.emit('error', { message: 'Rust/WASM engine initialization failed', error });
+      return false;
+    }
+  }
+
+  // Try to initialize WASM engine
+  async initWASM() {
+    try {
+      // Load WASM module using fetch for GitHub Pages compatibility
+      console.log('🔧 Loading WASM module with fetch...');
+      
+      // Import the WASM module
+      const wasmModule = await import('../../../game_engine/pkg/game_engine.js');
+      console.log('✅ WASM JavaScript wrapper loaded');
+      
+      const { default: init, Game, Player } = wasmModule;
+      
+      // Store classes globally for later use
+      window.WasmGame = Game;
+      window.WasmPlayer = Player;
+      
+      // Initialize WASM with explicit path for GitHub Pages
+      console.log('🔧 Initializing WASM binary...');
+      await init('../../../game_engine/pkg/game_engine_bg.wasm');
+      console.log('✅ WASM binary initialized');
+      
+      // Create game instance
       this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
       this.isInitialized = true;
-      console.log('✅ Game instance created');
+      this.usingWASM = true;
       
       // Save initial state
       this.saveGameState();
       
-      this.emit('initialized');
       return true;
     } catch (error) {
-      console.error('Failed to initialize WASM game:', error);
-      this.emit('error', { message: 'Failed to initialize game engine', error });
+      console.error('❌ WASM initialization failed:', error);
       return false;
     }
   }
+
+  // NO JavaScript fallback - WASM only!
 
   // Game state management
   saveGameState() {
@@ -95,8 +130,13 @@ class Connect4Game {
     try {
       const currentPlayer = this.getCurrentPlayer();
       
-      // Make move in WASM engine
+      // Make move using WASM engine only
+      if (!this.usingWASM || !this.wasmGame) {
+        throw new Error('WASM engine not initialized');
+      }
+      
       const success = this.wasmGame.make_move_connect4_js(col);
+      
       if (!success) {
         throw new Error('Invalid move - column is full');
       }
@@ -139,13 +179,17 @@ class Connect4Game {
     if (this.currentMove <= 0) {
       throw new Error('No moves to undo');
     }
+    
+    if (!this.wasmGame) {
+      throw new Error('WASM game not initialized');
+    }
 
     this.currentMove--;
     const previousState = this.gameHistory[this.currentMove];
     
-    // Recreate game with previous state
+    // Recreate game with previous state using WASM
     this.wasmGame.free();
-    this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
+    this.wasmGame = new window.WasmGame(this.rows, this.cols, this.winCondition, this.gravityEnabled);
     
     // Replay moves up to the previous state
     for (let i = 1; i <= this.currentMove; i++) {
@@ -180,24 +224,24 @@ class Connect4Game {
     return true;
   }
 
-  // Game state queries
+  // Game state queries (WASM only)
   getBoard() {
-    if (!this.isInitialized) return new Array(this.rows * this.cols).fill(0);
+    if (!this.isInitialized || !this.wasmGame) return new Array(this.rows * this.cols).fill(0);
     return Array.from(this.wasmGame.get_board());
   }
 
   getCurrentPlayer() {
-    if (!this.isInitialized) return Player.Yellow;
+    if (!this.isInitialized || !this.wasmGame) return window.WasmPlayer?.Yellow || 1;
     return this.wasmGame.get_current_player();
   }
 
   isGameOver() {
-    if (!this.isInitialized) return false;
+    if (!this.isInitialized || !this.wasmGame) return false;
     return this.wasmGame.is_game_over();
   }
 
   getWinner() {
-    if (!this.isInitialized) return null;
+    if (!this.isInitialized || !this.wasmGame) return null;
     return this.wasmGame.check_win() || null;
   }
 
@@ -246,13 +290,13 @@ class Connect4Game {
 
   // Start new game
   newGame() {
-    if (!this.isInitialized) {
-      throw new Error('Game not initialized');
+    if (!this.isInitialized || !this.wasmGame) {
+      throw new Error('WASM game not initialized');
     }
 
     // Free old game and create new one
     this.wasmGame.free();
-    this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
+    this.wasmGame = new window.WasmGame(this.rows, this.cols, this.winCondition, this.gravityEnabled);
     
     // Reset game state
     this.gameHistory = [];
@@ -295,6 +339,8 @@ class Connect4Game {
     };
   }
 
+  // ALL game logic handled by Rust/WASM - no JavaScript implementation!
+
   // Cleanup
   destroy() {
     if (this.wasmGame) {
@@ -310,5 +356,9 @@ class Connect4Game {
 
 // Export for use in other modules
 window.Connect4Game = Connect4Game;
-window.Player = Player;
-export { Connect4Game, Player };
+
+// Player enum from WASM only - no JavaScript fallback
+window.Player = window.WasmPlayer || { Yellow: 1, Red: 2 };
+
+export { Connect4Game };
+export const Player = window.Player;

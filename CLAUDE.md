@@ -167,3 +167,19 @@ LogicCastle/
 - **Clean Architecture**: Maintain separation between Rust core and JavaScript UI
 - **Performance**: Rust core provides 10x+ performance improvements over legacy JavaScript
 - **Modern Stack**: Focus on modern web standards and progressive enhancement
+
+## CRITICAL RULE: RUST/WASM ONLY FOR GAME LOGIC
+⚠️ **NEVER implement game logic in JavaScript as fallback!**
+- ALL game logic MUST be implemented in Rust and compiled to WASM
+- JavaScript is ONLY for UI layer and WASM module loading
+- If WASM fails to load, show error message - do NOT create JavaScript game engine
+- This project is specifically designed to showcase Rust/WASM performance
+- Any JavaScript game logic implementation violates the core architecture principle
+
+## CRITICAL RULE: ALWAYS USE UV FOR PYTHON
+⚠️ **NEVER use python3 or python directly - ALWAYS use uv!**
+- For running Python: `uv run python script.py`
+- For HTTP server: `uv run python -m http.server 8080`
+- For pip installs: `uv add package-name`
+- UV provides faster, more reliable Python environment management
+- This ensures consistent Python tooling across the project
