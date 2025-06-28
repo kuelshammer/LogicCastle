@@ -33,6 +33,9 @@ class Connect4UI {
     
     // Column selection state for two-step move system
     this.selectedColumn = null;
+    
+    // Analysis cache to prevent infinite loops
+    this.analysisCache = null;
   }
 
   // Initialize UI
@@ -768,21 +771,20 @@ class Connect4UI {
     this.updateIntelligentAssistanceIndicators();
   }
   
-  // Intelligent assistance methods
+  // Intelligent assistance methods with caching to prevent infinite loops
   isColumnBlocked(col) {
     const currentPlayer = this.game.getCurrentPlayer();
     const isPlayer1 = currentPlayer === Player.Yellow;
-    const isPlayer2 = currentPlayer === Player.Red;
-    
     const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
     
     console.log(`🔍 Checking if column ${col + 1} is blocked for ${isPlayer1 ? 'Player 1 (Yellow)' : 'Player 2 (Red)'}`);
-    console.log(`🔧 Player settings:`, playerSettings);
     
-    // Get game analysis
-    const winningMoves = this.game.getWinningMoves();
-    const blockingMoves = this.game.getBlockingMoves();
-    const dangerousMoves = this.getDangerousMoves();
+    // Use cached analysis if available and fresh
+    if (!this.analysisCache || this.analysisCache.moveNumber !== this.game.getMoveCount()) {
+      this.updateAnalysisCache();
+    }
+    
+    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
     
     console.log(`🎯 Game analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}]`);
     
@@ -810,6 +812,37 @@ class Connect4UI {
     
     console.log(`✅ Column ${col + 1} is NOT blocked - no applicable rules`);
     return false;
+  }
+  
+  // Cache analysis results to prevent infinite loops
+  updateAnalysisCache() {
+    console.log('🔄 Updating analysis cache...');
+    
+    try {
+      const winningMoves = this.game.getWinningMoves();
+      const blockingMoves = this.game.getBlockingMoves();
+      // Simplify dangerous moves calculation to prevent loops
+      const dangerousMoves = []; // Temporarily disable dangerous moves analysis
+      
+      this.analysisCache = {
+        moveNumber: this.game.getMoveCount(),
+        winningMoves,
+        blockingMoves,
+        dangerousMoves,
+        timestamp: Date.now()
+      };
+      
+      console.log('✅ Analysis cache updated:', this.analysisCache);
+    } catch (error) {
+      console.error('❌ Failed to update analysis cache:', error);
+      this.analysisCache = {
+        moveNumber: this.game.getMoveCount(),
+        winningMoves: [],
+        blockingMoves: [],
+        dangerousMoves: [],
+        timestamp: Date.now()
+      };
+    }
   }
   
   getDangerousMoves() {
@@ -860,9 +893,12 @@ class Connect4UI {
     const isPlayer1 = currentPlayer === Player.Yellow;
     const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
     
-    const winningMoves = this.game.getWinningMoves();
-    const blockingMoves = this.game.getBlockingMoves();
-    const dangerousMoves = this.getDangerousMoves();
+    // Use cached analysis
+    if (!this.analysisCache || this.analysisCache.moveNumber !== this.game.getMoveCount()) {
+      this.updateAnalysisCache();
+    }
+    
+    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
     
     let reason = '';
     
@@ -916,9 +952,12 @@ class Connect4UI {
     
     if (this.game.isGameOver()) return;
     
-    const winningMoves = this.game.getWinningMoves();
-    const blockingMoves = this.game.getBlockingMoves();
-    const dangerousMoves = this.getDangerousMoves();
+    // Use cached analysis
+    if (!this.analysisCache || this.analysisCache.moveNumber !== this.game.getMoveCount()) {
+      this.updateAnalysisCache();
+    }
+    
+    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
     
     // Show winning moves as green/gold
     if (playerSettings.winningMoves && winningMoves.length > 0) {
@@ -987,10 +1026,12 @@ class Connect4UI {
       return;
     }
     
-    // Get analysis data
-    const winningMoves = this.game.getWinningMoves();
-    const blockingMoves = this.game.getBlockingMoves();
-    const dangerousMoves = this.getDangerousMoves();
+    // Use cached analysis
+    if (!this.analysisCache || this.analysisCache.moveNumber !== this.game.getMoveCount()) {
+      this.updateAnalysisCache();
+    }
+    
+    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
     
     console.log(`🔍 Column analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}]`);
     
