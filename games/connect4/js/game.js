@@ -61,9 +61,18 @@ class Connect4Game {
   async initWASM() {
     try {
       // Load WASM module using fetch for GitHub Pages compatibility
-      console.log('🔧 Loading WASM module with fetch...');
+      console.log('🔧 Loading WASM module...');
+      console.log('📍 Current location:', window.location.href);
+      
+      // Try different WASM paths for different environments
+      const wasmPaths = [
+        '../../../game_engine/pkg/game_engine_bg.wasm', // Relative path
+        '/LogicCastle/game_engine/pkg/game_engine_bg.wasm', // Absolute GitHub Pages path
+        './game_engine/pkg/game_engine_bg.wasm' // Alternative relative path
+      ];
       
       // Import the WASM module
+      console.log('📦 Importing WASM JavaScript wrapper...');
       const wasmModule = await import('../../../game_engine/pkg/game_engine.js');
       console.log('✅ WASM JavaScript wrapper loaded');
       
@@ -73,22 +82,41 @@ class Connect4Game {
       window.WasmGame = Game;
       window.WasmPlayer = Player;
       
-      // Initialize WASM with explicit path for GitHub Pages
-      console.log('🔧 Initializing WASM binary...');
-      await init('../../../game_engine/pkg/game_engine_bg.wasm');
-      console.log('✅ WASM binary initialized');
+      // Try to initialize WASM with different paths
+      let wasmInitialized = false;
+      for (const wasmPath of wasmPaths) {
+        try {
+          console.log(`🔧 Trying WASM path: ${wasmPath}`);
+          await init(wasmPath);
+          console.log(`✅ WASM binary initialized with path: ${wasmPath}`);
+          wasmInitialized = true;
+          break;
+        } catch (pathError) {
+          console.warn(`⚠️ Failed to load WASM from ${wasmPath}:`, pathError.message);
+        }
+      }
+      
+      if (!wasmInitialized) {
+        // Try without explicit path (let wasm-bindgen handle it)
+        console.log('🔧 Trying default WASM initialization...');
+        await init();
+        console.log('✅ WASM binary initialized with default path');
+      }
       
       // Create game instance
+      console.log('🎮 Creating WASM game instance...');
       this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
       this.isInitialized = true;
       this.usingWASM = true;
       
       // Save initial state
       this.saveGameState();
+      console.log('✅ WASM game engine fully initialized');
       
       return true;
     } catch (error) {
       console.error('❌ WASM initialization failed:', error);
+      console.error('Stack trace:', error.stack);
       return false;
     }
   }
