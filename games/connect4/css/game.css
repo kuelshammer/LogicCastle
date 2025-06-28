@@ -187,11 +187,11 @@
 .board-coords.top,
 .board-coords.bottom {
   width: 100%;
-  max-width: 490px; /* 7 columns * 70px */
+  max-width: 490px; /* 7 columns * 65px + gaps */
 }
 
 .coord {
-  width: 70px;
+  width: 65px;
   text-align: center;
   font-weight: bold;
   color: #666;
@@ -206,19 +206,19 @@
 /* Connect4 Game Board */
 .game-board {
   display: grid;
-  grid-template-columns: repeat(7, 70px);
-  grid-template-rows: repeat(6, 70px);
-  gap: 0;
+  grid-template-columns: repeat(7, 65px);
+  grid-template-rows: repeat(6, 65px);
+  gap: 5px;
   background: #2196F3;
   border-radius: 12px;
-  padding: 10px;
+  padding: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   border: 4px solid #1976D2;
 }
 
 .game-slot {
-  width: 70px;
-  height: 70px;
+  width: 65px;
+  height: 65px;
   background: white;
   border-radius: 50%;
   display: flex;
@@ -247,8 +247,8 @@
 
 /* Player pieces */
 .game-piece {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   border: 3px solid;

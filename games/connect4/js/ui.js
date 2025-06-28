@@ -21,33 +21,21 @@ class Connect4UI {
     console.log('🎮 Starting Connect4 UI initialization...');
     
     this.bindElements();
-    console.log('✅ DOM elements bound');
-    
     this.setupEventListeners();
-    console.log('✅ Event listeners setup');
-    
     this.setupGameEventListeners();
-    console.log('✅ Game event listeners setup');
     
     // Initialize game engine
-    console.log('🔧 Initializing game engine...');
     const initialized = await this.game.init();
     if (!initialized) {
       console.error('❌ Game engine initialization failed');
       this.showToast('Fehler beim Laden des Spiels', 'error');
       return;
     }
-    console.log('✅ Game engine initialized');
     
-    console.log('🎯 Creating game board...');
     this.initializeBoard();
-    console.log('✅ Game board created');
-    
     this.updateUI();
-    console.log('✅ UI updated');
-    
     this.showToast('4 Gewinnt geladen!', 'success');
-    console.log('🎉 Connect4 UI initialization complete!');
+    console.log('✅ Connect4 game ready!');
   }
 
   // Bind DOM elements
@@ -135,17 +123,12 @@ class Connect4UI {
 
   // Create game board
   createGameBoard() {
-    console.log('🎯 Creating game board DOM elements...');
-    
     if (!this.elements.gameBoard) {
       console.error('❌ gameBoard element not found!');
       return;
     }
     
     this.elements.gameBoard.innerHTML = '';
-    console.log('🧹 Cleared existing board content');
-    
-    let slotsCreated = 0;
     
     // Create 6x7 grid (42 slots)
     for (let row = 0; row < 6; row++) {
@@ -155,11 +138,6 @@ class Connect4UI {
         slot.dataset.row = row;
         slot.dataset.col = col;
         
-        // Add debug styling
-        slot.style.border = '2px solid red'; // Temporary debug border
-        slot.style.minWidth = '70px';
-        slot.style.minHeight = '70px';
-        
         // Add click event
         slot.addEventListener('click', () => this.onSlotClick(col));
         
@@ -168,12 +146,8 @@ class Connect4UI {
         slot.addEventListener('mouseleave', () => this.onColumnLeave());
         
         this.elements.gameBoard.appendChild(slot);
-        slotsCreated++;
       }
     }
-    
-    console.log(`✅ Created ${slotsCreated} game slots`);
-    console.log('🎯 Game board DOM structure:', this.elements.gameBoard.outerHTML.substring(0, 200) + '...');
   }
 
   // Handle slot click
