@@ -379,3 +379,4 @@ class Connect4AI {
 
 // Export for use in UI
 window.Connect4AI = Connect4AI;
+export { Connect4AI };

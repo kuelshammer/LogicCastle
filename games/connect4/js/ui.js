@@ -1,4 +1,6 @@
 // Connect4 UI Controller
+import { Player } from './game.js';
+
 class Connect4UI {
   constructor(game) {
     this.game = game;
@@ -566,3 +568,4 @@ class Connect4UI {
 
 // Export for use in HTML
 window.Connect4UI = Connect4UI;
+export { Connect4UI };

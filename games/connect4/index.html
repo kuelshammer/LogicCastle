@@ -162,15 +162,29 @@
       </div>
     </div>
 
-    <script src="js/game.js"></script>
-    <script src="js/ai.js"></script>
-    <script src="js/ui.js"></script>
-    <script>
+    <script type="module">
+      // Import modules
+      import { Connect4Game } from './js/game.js';
+      import { Connect4AI } from './js/ai.js';
+      import { Connect4UI } from './js/ui.js';
+      
       // Initialize game when DOM is loaded
-      document.addEventListener('DOMContentLoaded', function () {
-        const game = new Connect4Game();
-        const ui = new Connect4UI(game);
-        ui.init();
+      document.addEventListener('DOMContentLoaded', async function () {
+        try {
+          console.log('🎮 Initializing Connect4 game...');
+          const game = new Connect4Game();
+          const ui = new Connect4UI(game);
+          await ui.init();
+          console.log('✅ Connect4 game initialized successfully!');
+        } catch (error) {
+          console.error('❌ Failed to initialize Connect4 game:', error);
+          // Show error to user
+          document.body.innerHTML += `
+            <div style="position: fixed; top: 20px; left: 20px; background: red; color: white; padding: 10px; border-radius: 5px; z-index: 1000;">
+              Fehler beim Laden des Spiels: ${error.message}
+            </div>
+          `;
+        }
       });
     </script>
   </body>

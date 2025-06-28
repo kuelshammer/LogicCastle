@@ -37,12 +37,16 @@ class Connect4Game {
   // Initialize WASM module
   async init() {
     try {
+      console.log('🔧 Loading WASM module...');
       // Initialize WASM module
       await init();
+      console.log('✅ WASM module loaded successfully');
       
       // Create new game instance
+      console.log('🎮 Creating game instance...');
       this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
       this.isInitialized = true;
+      console.log('✅ Game instance created');
       
       // Save initial state
       this.saveGameState();
@@ -60,16 +64,18 @@ class Connect4Game {
   saveGameState() {
     if (!this.isInitialized) return;
     
-    const gameState = {
-      board: Array.from(this.wasmGame.get_board()),
-      currentPlayer: this.wasmGame.get_current_player(),
-      moveNumber: this.currentMove
+    const state = {
+      board: this.getBoard(),
+      currentPlayer: this.getCurrentPlayer(),
+      moveCount: this.getMoveCount(),
+      isGameOver: this.isGameOver(),
+      winner: this.getWinner()
     };
     
-    // Remove any future moves if we're not at the end
-    this.gameHistory = this.gameHistory.slice(0, this.currentMove + 1);
-    this.gameHistory.push(gameState);
-    this.currentMove = this.gameHistory.length - 1;
+    // Trim history if we undid moves
+    this.gameHistory = this.gameHistory.slice(0, this.currentMove);
+    this.gameHistory.push(state);
+    this.currentMove = this.gameHistory.length;
   }
 
   // Make a move
@@ -87,17 +93,20 @@ class Connect4Game {
     }
 
     try {
-      const currentPlayer = this.wasmGame.get_current_player();
+      const currentPlayer = this.getCurrentPlayer();
       
       // Make move in WASM engine
-      this.wasmGame.make_move_connect4_js(col);
+      const success = this.wasmGame.make_move_connect4_js(col);
+      if (!success) {
+        throw new Error('Invalid move - column is full');
+      }
       
       // Save state after move
       this.saveGameState();
       
       // Check for win condition
-      const winner = this.wasmGame.check_win();
-      const isGameOver = this.wasmGame.is_game_over();
+      const winner = this.getWinner();
+      const isGameOver = this.isGameOver();
       
       const moveData = {
         col,
@@ -301,4 +310,5 @@ class Connect4Game {
 
 // Export for use in other modules
 window.Connect4Game = Connect4Game;
+window.Player = Player;
 export { Connect4Game, Player };
