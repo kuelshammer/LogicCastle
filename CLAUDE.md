@@ -28,6 +28,13 @@ LogicCastle is a collection of mathematical strategy games with a modern Rust/We
 - **Main entry point**: Open `index.html` in browser
 - **Individual games**: Navigate to `games/{game-name}/index.html`
 
+### GitHub Pages Deployment
+- **Live site**: https://www.maxkuelshammer.de/LogicCastle/
+- **Connect4**: https://www.maxkuelshammer.de/LogicCastle/games/connect4/
+- **Gobang**: https://www.maxkuelshammer.de/LogicCastle/games/gobang/
+- **Trio**: https://www.maxkuelshammer.de/LogicCastle/games/trio/
+- Changes pushed to main branch are automatically deployed
+
 ### Build Commands
 - **WASM build**: `npm run wasm:build` (compile Rust to WebAssembly)
 - **Tailwind CSS**: `npm run tailwind:build` (build CSS from input.css)
