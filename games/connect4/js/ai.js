@@ -91,9 +91,9 @@ class Connect4AI {
     if (isMaximizing) {
       let maxEval = -Infinity;
       for (const move of validMoves) {
-        const eval = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, false);
-        maxEval = Math.max(maxEval, eval);
-        alpha = Math.max(alpha, eval);
+        const evaluation = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, false);
+        maxEval = Math.max(maxEval, evaluation);
+        alpha = Math.max(alpha, evaluation);
         if (beta <= alpha) {
           break; // Alpha-beta pruning
         }
@@ -102,9 +102,9 @@ class Connect4AI {
     } else {
       let minEval = Infinity;
       for (const move of validMoves) {
-        const eval = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, true);
-        minEval = Math.min(minEval, eval);
-        beta = Math.min(beta, eval);
+        const evaluation = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, true);
+        minEval = Math.min(minEval, evaluation);
+        beta = Math.min(beta, evaluation);
         if (beta <= alpha) {
           break; // Alpha-beta pruning
         }
@@ -142,18 +142,18 @@ class Connect4AI {
     if (isMaximizing) {
       let maxEval = -Infinity;
       for (const move of validMoves) {
-        const eval = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, false);
-        maxEval = Math.max(maxEval, eval);
-        alpha = Math.max(alpha, eval);
+        const evaluation = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, false);
+        maxEval = Math.max(maxEval, evaluation);
+        alpha = Math.max(alpha, evaluation);
         if (beta <= alpha) break;
       }
       return maxEval;
     } else {
       let minEval = Infinity;
       for (const move of validMoves) {
-        const eval = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, true);
-        minEval = Math.min(minEval, eval);
-        beta = Math.min(beta, eval);
+        const evaluation = this.simulateMoveForBoard(tempBoard, move, nextPlayer, depth - 1, alpha, beta, true);
+        minEval = Math.min(minEval, evaluation);
+        beta = Math.min(beta, evaluation);
         if (beta <= alpha) break;
       }
       return minEval;
