@@ -35,6 +35,13 @@ LogicCastle is a collection of mathematical strategy games with a modern Rust/We
 - **Trio**: https://www.maxkuelshammer.de/LogicCastle/games/trio/
 - Changes pushed to main branch are automatically deployed
 
+### Pre-Push Requirements
+⚠️ **ALWAYS update landing page timestamp before pushing!**
+- Before every `git push`, update the "Letzte Aktualisierung" timestamp on `index.html`
+- Use current date/time in German format: "DD.MM.YYYY - HH:MM Uhr"
+- This helps verify that GitHub Pages deployment was successful
+- Example: "Letzte Aktualisierung: 28.06.2025 - 15:30 Uhr"
+
 ### Build Commands
 - **WASM build**: `npm run wasm:build` (compile Rust to WebAssembly)
 - **Tailwind CSS**: `npm run tailwind:build` (build CSS from input.css)
