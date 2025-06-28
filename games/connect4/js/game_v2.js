@@ -404,30 +404,48 @@ class Connect4Game {
   
   // Get columns with winning moves for current player
   getWinningMoves() {
-    if (!this.isInitialized || !this.wasmGame) return [];
+    if (!this.isInitialized || !this.wasmGame) {
+      console.warn('🚫 getWinningMoves: Game not initialized or WASM not available');
+      return [];
+    }
     
     try {
       const winningCols = [];
       const currentPlayerVal = this.getCurrentPlayer();
+      const currentBoard = this.getBoard();
+      
+      console.log(`🔍 WASM getWinningMoves: Analyzing for player ${currentPlayerVal}`);
+      console.log(`🔍 Current board state:`, currentBoard);
       
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
           // Simulate the move to check if it wins
           try {
+            console.log(`🎯 Testing column ${col + 1} for winning move...`);
             const simulated = this.wasmGame.simulate_move_connect4(col);
-            if (simulated && simulated.check_win() === currentPlayerVal) {
-              winningCols.push(col);
+            if (simulated) {
+              const winner = simulated.check_win();
+              console.log(`🎯 Column ${col + 1} simulation result - Winner: ${winner}, Current player: ${currentPlayerVal}`);
+              if (winner === currentPlayerVal) {
+                winningCols.push(col);
+                console.log(`✅ Column ${col + 1} is a WINNING MOVE!`);
+              }
+            } else {
+              console.warn(`❌ Column ${col + 1} simulation returned null`);
             }
           } catch (moveError) {
-            // Move might be invalid, skip this column
+            console.warn(`❌ Column ${col + 1} simulation failed:`, moveError);
             continue;
           }
+        } else {
+          console.log(`🔒 Column ${col + 1} is full, skipping`);
         }
       }
       
+      console.log(`🏆 getWinningMoves result: [${winningCols.map(c => c + 1).join(', ')}]`);
       return winningCols;
     } catch (error) {
-      console.warn('Failed to get winning moves:', error);
+      console.error('❌ Failed to get winning moves:', error);
       return [];
     }
   }

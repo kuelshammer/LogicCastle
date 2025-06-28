@@ -195,6 +195,51 @@
   text-align: center;
   font-weight: bold;
   color: #666;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Blocked column coordinate styling */
+.coord.blocked-column {
+  color: #e74c3c;
+  text-decoration: line-through;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.coord.blocked-column .blocked-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 12px;
+  animation: blocked-pulse 1.5s ease-in-out infinite;
+}
+
+/* Blocked column feedback animation */
+.coord.blocked-feedback {
+  background: rgba(231, 76, 60, 0.2);
+  border-radius: 4px;
+  animation: blocked-flash 0.5s ease-in-out 2;
+}
+
+@keyframes blocked-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes blocked-flash {
+  0%, 100% {
+    background: rgba(231, 76, 60, 0.1);
+  }
+  50% {
+    background: rgba(231, 76, 60, 0.4);
+  }
 }
 
 .board-wrapper {
