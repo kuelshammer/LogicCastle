@@ -286,14 +286,171 @@
   }
 }
 
-/* Column hover effects */
-.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece):first-of-type,
-.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece):first-of-type,
-.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece):first-of-type,
-.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece):first-of-type,
-.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece):first-of-type,
-.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece):first-of-type,
-.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece):first-of-type {
+/* Column selection effects - 80s Neon white glow */
+.game-slot.selected {
+  background: rgba(255, 255, 255, 0.95) !important; /* Bright white background */
+  border: 3px solid #FFFFFF !important; /* Pure white border */
+  transform: scale(1.15) !important; /* Larger for more drama */
+  box-shadow: 
+    0 0 15px rgba(255, 255, 255, 1.0),     /* Inner bright white glow */
+    0 0 30px rgba(255, 255, 255, 0.8),     /* Middle electric glow */
+    0 0 45px rgba(255, 255, 255, 0.6),     /* Outer neon spread */
+    0 0 60px rgba(255, 255, 255, 0.4) !important; /* Far neon aura */
+  transition: all 0.3s ease !important;
+  animation: neon-pulse 1.5s ease-in-out infinite alternate !important; /* Faster 80s style pulse */
+}
+
+/* 80s Neon pulse animation */
+@keyframes neon-pulse {
+  0% {
+    box-shadow: 
+      0 0 15px rgba(255, 255, 255, 1.0),
+      0 0 30px rgba(255, 255, 255, 0.8),
+      0 0 45px rgba(255, 255, 255, 0.6),
+      0 0 60px rgba(255, 255, 255, 0.4);
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    box-shadow: 
+      0 0 20px rgba(255, 255, 255, 1.0),
+      0 0 40px rgba(255, 255, 255, 0.9),
+      0 0 60px rgba(255, 255, 255, 0.7),
+      0 0 80px rgba(255, 255, 255, 0.5);
+    transform: scale(1.18);
+    opacity: 1.0;
+  }
+}
+
+/* Column selection by data attribute (alternative method) */
+.game-board[data-selected-col="0"] .game-slot:nth-child(7n+1),
+.game-board[data-selected-col="1"] .game-slot:nth-child(7n+2),
+.game-board[data-selected-col="2"] .game-slot:nth-child(7n+3),
+.game-board[data-selected-col="3"] .game-slot:nth-child(7n+4),
+.game-board[data-selected-col="4"] .game-slot:nth-child(7n+5),
+.game-board[data-selected-col="5"] .game-slot:nth-child(7n+6),
+.game-board[data-selected-col="6"] .game-slot:nth-child(7n+7) {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid #FFFFFF !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Intelligent assistance visual indicators */
+
+/* Winning moves - Bright green with gold glow */
+.game-slot.winning-move {
+  background: rgba(76, 175, 80, 0.9) !important;
+  border: 3px solid #4CAF50 !important;
+  box-shadow: 
+    0 0 15px rgba(76, 175, 80, 1.0),
+    0 0 30px rgba(76, 175, 80, 0.8),
+    0 0 45px rgba(255, 215, 0, 0.6) !important;
+  animation: winning-pulse 1.2s ease-in-out infinite alternate !important;
+}
+
+@keyframes winning-pulse {
+  0% {
+    transform: scale(1.1);
+    box-shadow: 
+      0 0 15px rgba(76, 175, 80, 1.0),
+      0 0 30px rgba(76, 175, 80, 0.8),
+      0 0 45px rgba(255, 215, 0, 0.6);
+  }
+  100% {
+    transform: scale(1.15);
+    box-shadow: 
+      0 0 20px rgba(76, 175, 80, 1.0),
+      0 0 40px rgba(76, 175, 80, 0.9),
+      0 0 60px rgba(255, 215, 0, 0.8);
+  }
+}
+
+/* Forced moves (blocking) - Urgent orange with pulsing */
+.game-slot.forced-move {
+  background: rgba(255, 152, 0, 0.9) !important;
+  border: 3px solid #FF9800 !important;
+  box-shadow: 
+    0 0 15px rgba(255, 152, 0, 1.0),
+    0 0 30px rgba(255, 152, 0, 0.8),
+    0 0 45px rgba(255, 87, 34, 0.6) !important;
+  animation: urgent-pulse 0.8s ease-in-out infinite alternate !important;
+}
+
+@keyframes urgent-pulse {
+  0% {
+    transform: scale(1.12);
+    box-shadow: 
+      0 0 15px rgba(255, 152, 0, 1.0),
+      0 0 30px rgba(255, 152, 0, 0.8),
+      0 0 45px rgba(255, 87, 34, 0.6);
+  }
+  100% {
+    transform: scale(1.18);
+    box-shadow: 
+      0 0 25px rgba(255, 152, 0, 1.0),
+      0 0 50px rgba(255, 152, 0, 0.9),
+      0 0 75px rgba(255, 87, 34, 0.8);
+  }
+}
+
+/* Dangerous moves - Red with X pattern and warning glow */
+.game-slot.dangerous-move {
+  background: rgba(244, 67, 54, 0.9) !important;
+  border: 3px solid #F44336 !important;
+  box-shadow: 
+    0 0 15px rgba(244, 67, 54, 1.0),
+    0 0 30px rgba(244, 67, 54, 0.8),
+    0 0 45px rgba(244, 67, 54, 0.6) !important;
+  position: relative !important;
+}
+
+.game-slot.dangerous-move::before {
+  content: '✕';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+  animation: danger-flash 1s ease-in-out infinite alternate;
+}
+
+@keyframes danger-flash {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+/* Temporarily blocked move feedback */
+.game-slot.blocked-move {
+  background: rgba(156, 39, 176, 0.8) !important;
+  border: 3px solid #9C27B0 !important;
+  box-shadow: 0 0 20px rgba(156, 39, 176, 0.7) !important;
+  animation: blocked-shake 0.5s ease-in-out 3 !important;
+}
+
+@keyframes blocked-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* Column hover effects - Lower priority than assistance indicators */
+.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
+.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
+.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
+.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
+.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
+.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
+.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type {
   background: rgba(255, 235, 59, 0.3);
 }
 

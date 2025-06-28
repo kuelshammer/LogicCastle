@@ -30,6 +30,9 @@ class Connect4UI {
     
     // Animation settings
     this.animationDuration = 400;
+    
+    // Column selection state for two-step move system
+    this.selectedColumn = null;
   }
 
   // Initialize UI
@@ -243,7 +246,7 @@ class Connect4UI {
     console.log('✅ Game board created without debug styling - VERSION 2025-06-28 14:11');
   }
 
-  // Handle slot click
+  // Handle slot click - Two-step system: select then confirm
   onSlotClick(col) {
     if (this.isAiThinking || this.game.isGameOver()) {
       return;
@@ -254,7 +257,14 @@ class Connect4UI {
       return;
     }
     
-    this.makeMove(col);
+    // Two-step mouse interaction
+    if (this.isColumnSelected(col)) {
+      // Second click in same column: confirm move
+      this.makeMove(col);
+    } else {
+      // First click or different column: select column
+      this.selectColumn(col);
+    }
   }
 
   // Handle column hover
@@ -281,6 +291,9 @@ class Connect4UI {
       const moveData = this.game.makeMove(col);
       console.log(`✅ Move successful:`, moveData);
       
+      // Clear column selection after successful move
+      this.clearColumnSelection();
+      
       // If AI mode and game not over, make AI move
       if (!this.game.isGameOver() && this.isAiMode() && this.isAiTurn()) {
         await this.makeAiMove();
@@ -299,6 +312,7 @@ class Connect4UI {
     }
     
     this.isAiThinking = true;
+    this.clearColumnSelection(); // Clear selection when AI starts thinking
     this.updateUI();
     
     // Add small delay for better UX
@@ -331,6 +345,7 @@ class Connect4UI {
       // In AI mode, always allow undo for human player
       if (this.isAiMode()) {
         if (this.game.getMoveCount() >= 2) {
+          this.clearColumnSelection();
           this.game.undoMove(); // Undo AI move
           this.game.undoMove(); // Undo player move
           this.showToast('Zug rückgängig gemacht', 'info');
@@ -349,6 +364,7 @@ class Connect4UI {
       }
       
       if (this.game.canUndo()) {
+        this.clearColumnSelection();
         this.game.undoMove();
         const playerName = isPlayer1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
         this.showToast(`${playerName}: Zug rückgängig gemacht`, 'success');
@@ -360,6 +376,7 @@ class Connect4UI {
 
   // Start new game
   newGame() {
+    this.clearColumnSelection();
     this.game.newGame();
   }
 
@@ -387,16 +404,32 @@ class Connect4UI {
       return;
     }
     
-    // Column moves (1-7)
+    // Column selection (1-7) - First step: select column
     if (e.key >= '1' && e.key <= '7') {
       const col = parseInt(e.key) - 1;
       if (!this.game.isColumnFull(col)) {
-        this.makeMove(col);
+        this.selectColumn(col);
       }
+      return;
     }
     
     // Shortcuts
     switch (e.key) {
+      case ' ': // Spacebar - Second step: confirm move in selected column
+        e.preventDefault();
+        if (this.selectedColumn !== null && !this.game.isColumnFull(this.selectedColumn)) {
+          this.makeMove(this.selectedColumn);
+        }
+        break;
+      case 'Escape':
+        // Clear column selection first, then handle modals
+        if (this.selectedColumn !== null) {
+          this.clearColumnSelection();
+        } else {
+          this.hideHelp();
+          this.hideAssistance();
+        }
+        break;
       case 'n':
       case 'N':
         this.newGame();
@@ -418,9 +451,6 @@ class Connect4UI {
       case 'F3':
         e.preventDefault();
         this.resetScore();
-        break;
-      case 'Escape':
-        this.hideHelp();
         break;
     }
     
@@ -452,6 +482,9 @@ class Connect4UI {
   }
 
   onGameOver(data) {
+    // Clear column selection when game ends
+    this.clearColumnSelection();
+    
     if (data.winner) {
       // Update score
       const winnerColor = data.winner === Player.Yellow ? 'yellow' : 'red';
@@ -467,6 +500,7 @@ class Connect4UI {
   }
 
   onNewGame(data) {
+    this.clearColumnSelection();
     this.clearBoard();
     this.updateUI();
   }
@@ -624,6 +658,232 @@ class Connect4UI {
     return this.elements.gameBoard.querySelector(`[data-row="${row}"][data-col="${col}"]`);
   }
 
+  // Column selection methods for two-step move system with intelligent assistance
+  selectColumn(col) {
+    if (col < 0 || col >= 7 || this.game.isColumnFull(col)) {
+      return;
+    }
+    
+    if (this.game.isGameOver() || this.isAiThinking) {
+      return;
+    }
+    
+    // Check if column is blocked by intelligent assistance
+    if (this.isColumnBlocked(col)) {
+      this.showBlockedColumnFeedback(col);
+      return;
+    }
+    
+    // Clear previous selection
+    this.clearColumnSelection();
+    
+    // Set new selection
+    this.selectedColumn = col;
+    this.updateColumnVisualState();
+    
+    console.log(`🎯 Column ${col + 1} selected`);
+  }
+  
+  clearColumnSelection() {
+    if (this.selectedColumn !== null) {
+      console.log(`🚫 Column selection cleared`);
+      this.selectedColumn = null;
+      this.updateColumnVisualState();
+    }
+  }
+  
+  isColumnSelected(col) {
+    return this.selectedColumn === col;
+  }
+  
+  updateColumnVisualState() {
+    // Clear all selection states
+    delete this.elements.gameBoard.dataset.selectedCol;
+    const slots = this.elements.gameBoard.querySelectorAll('.game-slot');
+    slots.forEach(slot => slot.classList.remove('selected'));
+    
+    // Apply new selection if any
+    if (this.selectedColumn !== null) {
+      this.elements.gameBoard.dataset.selectedCol = this.selectedColumn;
+      
+      // Highlight the column by adding 'selected' class to all slots in that column
+      for (let row = 0; row < 6; row++) {
+        const slot = this.getSlot(row, this.selectedColumn);
+        if (slot) {
+          slot.classList.add('selected');
+        }
+      }
+    }
+    
+    // Update intelligent assistance visual indicators
+    this.updateIntelligentAssistanceIndicators();
+  }
+  
+  // Intelligent assistance methods
+  isColumnBlocked(col) {
+    const currentPlayer = this.game.getCurrentPlayer();
+    const isPlayer1 = currentPlayer === Player.Yellow;
+    const isPlayer2 = currentPlayer === Player.Red;
+    
+    const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
+    
+    // Get game analysis
+    const winningMoves = this.game.getWinningMoves();
+    const blockingMoves = this.game.getBlockingMoves();
+    const dangerousMoves = this.getDangerousMoves();
+    
+    // Rule 1: If winning moves available and winning assistance enabled, block non-winning moves
+    if (playerSettings.winningMoves && winningMoves.length > 0) {
+      return !winningMoves.includes(col);
+    }
+    
+    // Rule 2: If blocking required and threat assistance enabled, block non-blocking moves
+    if (playerSettings.threats && blockingMoves.length > 0) {
+      return !blockingMoves.includes(col);
+    }
+    
+    // Rule 3: If dangerous moves exist and blocked columns assistance enabled, block dangerous moves
+    if (playerSettings.blockedColumns && dangerousMoves.includes(col)) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  getDangerousMoves() {
+    // Get moves that would create winning opportunities for opponent
+    const dangerousCols = [];
+    const currentPlayer = this.game.getCurrentPlayer();
+    const opponentVal = currentPlayer === Player.Yellow ? Player.Red : Player.Yellow;
+    
+    try {
+      for (let col = 0; col < 7; col++) {
+        if (!this.game.isColumnFull(col)) {
+          // Simulate our move
+          const simulated = this.game.wasmGame.simulate_move_connect4(col);
+          if (simulated) {
+            // Check if opponent would have winning moves after our move
+            simulated.current_player = opponentVal;
+            const opponentWinning = [];
+            
+            for (let checkCol = 0; checkCol < 7; checkCol++) {
+              if (simulated.get_board()[checkCol] === 0) { // Column not full
+                try {
+                  const opponentSim = simulated.simulate_move_connect4(checkCol);
+                  if (opponentSim && opponentSim.check_win() === opponentVal) {
+                    opponentWinning.push(checkCol);
+                  }
+                } catch (e) {
+                  // Move invalid, skip
+                }
+              }
+            }
+            
+            // If our move gives opponent multiple winning options, it's dangerous
+            if (opponentWinning.length > 1) {
+              dangerousCols.push(col);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to analyze dangerous moves:', error);
+    }
+    
+    return dangerousCols;
+  }
+  
+  showBlockedColumnFeedback(col) {
+    const currentPlayer = this.game.getCurrentPlayer();
+    const isPlayer1 = currentPlayer === Player.Yellow;
+    const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
+    
+    const winningMoves = this.game.getWinningMoves();
+    const blockingMoves = this.game.getBlockingMoves();
+    const dangerousMoves = this.getDangerousMoves();
+    
+    let reason = '';
+    
+    if (playerSettings.winningMoves && winningMoves.length > 0) {
+      reason = `Du kannst gewinnen! Spiele in Spalte ${winningMoves.map(c => c + 1).join(' oder ')}.`;
+    } else if (playerSettings.threats && blockingMoves.length > 0) {
+      reason = `Achtung! Blockiere den Gegner in Spalte ${blockingMoves.map(c => c + 1).join(' oder ')}.`;
+    } else if (playerSettings.blockedColumns && dangerousMoves.includes(col)) {
+      reason = `Gefährlicher Zug! Spalte ${col + 1} gibt dem Gegner zu viele Gewinnchancen.`;
+    }
+    
+    this.showToast(reason, 'error');
+    
+    // Visual feedback: briefly highlight the blocked column in red
+    const dropRow = this.game.getDropRow(col);
+    if (dropRow !== -1) {
+      const slot = this.getSlot(dropRow, col);
+      if (slot) {
+        slot.classList.add('blocked-move');
+        setTimeout(() => {
+          slot.classList.remove('blocked-move');
+        }, 1500);
+      }
+    }
+  }
+  
+  updateIntelligentAssistanceIndicators() {
+    // Clear existing indicators
+    const slots = this.elements.gameBoard.querySelectorAll('.game-slot');
+    slots.forEach(slot => {
+      slot.classList.remove('forced-move', 'blocked-move', 'dangerous-move', 'winning-move');
+    });
+    
+    const currentPlayer = this.game.getCurrentPlayer();
+    const isPlayer1 = currentPlayer === Player.Yellow;
+    const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
+    
+    if (this.game.isGameOver()) return;
+    
+    const winningMoves = this.game.getWinningMoves();
+    const blockingMoves = this.game.getBlockingMoves();
+    const dangerousMoves = this.getDangerousMoves();
+    
+    // Show winning moves as green/gold
+    if (playerSettings.winningMoves && winningMoves.length > 0) {
+      winningMoves.forEach(col => {
+        const dropRow = this.game.getDropRow(col);
+        if (dropRow !== -1) {
+          const slot = this.getSlot(dropRow, col);
+          if (slot) {
+            slot.classList.add('winning-move');
+          }
+        }
+      });
+    }
+    
+    // Show blocking moves as urgent orange
+    if (playerSettings.threats && blockingMoves.length > 0) {
+      blockingMoves.forEach(col => {
+        const dropRow = this.game.getDropRow(col);
+        if (dropRow !== -1) {
+          const slot = this.getSlot(dropRow, col);
+          if (slot) {
+            slot.classList.add('forced-move');
+          }
+        }
+      });
+    }
+    
+    // Show dangerous moves as red X
+    if (playerSettings.blockedColumns) {
+      dangerousMoves.forEach(col => {
+        const dropRow = this.game.getDropRow(col);
+        if (dropRow !== -1) {
+          const slot = this.getSlot(dropRow, col);
+          if (slot) {
+            slot.classList.add('dangerous-move');
+          }
+        }
+      });
+    }
+  }
+
   // Utility functions
   getPlayerName(player) {
     if (this.isAiMode()) {
@@ -728,6 +988,9 @@ class Connect4UI {
     
     // Update visual assistance indicators on the board
     this.updateBoardAssistanceIndicators();
+    
+    // Update intelligent assistance indicators
+    this.updateIntelligentAssistanceIndicators();
   }
   
   // Update visual assistance indicators on the game board

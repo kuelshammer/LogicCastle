@@ -81,63 +81,88 @@
         <h2>🎛️ Spielerhilfen</h2>
 
         <div class="help-content">
-          <div class="help-section">
-            <h3>👤 Spieler 1 (Gelb)</h3>
-            <div class="assistance-options">
-              <label class="assistance-option">
-                <input type="checkbox" id="player1-undo" class="assistance-checkbox">
-                <span class="assistance-label">🔄 Zug rückgängig machen erlaubt</span>
-                <span class="assistance-description">Spieler kann eigene Züge rückgängig machen</span>
-              </label>
+          <table class="assistance-table">
+            <thead>
+              <tr>
+                <th class="assistance-feature-col">Spielerhilfe</th>
+                <th class="assistance-player-col player1-col">🟡 Spieler 1 (Gelb)</th>
+                <th class="assistance-player-col player2-col">🔴 Spieler 2 (Rot)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">🔄</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Zug rückgängig machen</span>
+                      <span class="feature-description">Spieler kann eigene Züge rückgängig machen</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-undo" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-undo" class="assistance-checkbox">
+                </td>
+              </tr>
               
-              <label class="assistance-option">
-                <input type="checkbox" id="player1-threats" class="assistance-checkbox">
-                <span class="assistance-label">⚠️ Bedrohungen anzeigen</span>
-                <span class="assistance-description">Zeigt gegnerische Gewinnbedrohungen an</span>
-              </label>
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">⚠️</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Bedrohungen anzeigen</span>
+                      <span class="feature-description">Zeigt gegnerische Gewinnbedrohungen an</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-threats" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-threats" class="assistance-checkbox">
+                </td>
+              </tr>
               
-              <label class="assistance-option">
-                <input type="checkbox" id="player1-winning-moves" class="assistance-checkbox">
-                <span class="assistance-label">🏆 Gewinnzüge hervorheben</span>
-                <span class="assistance-description">Markiert direkte Gewinnmöglichkeiten</span>
-              </label>
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">🏆</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Gewinnzüge hervorheben</span>
+                      <span class="feature-description">Markiert direkte Gewinnmöglichkeiten</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-winning-moves" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-winning-moves" class="assistance-checkbox">
+                </td>
+              </tr>
               
-              <label class="assistance-option">
-                <input type="checkbox" id="player1-blocked-columns" class="assistance-checkbox">
-                <span class="assistance-label">🚫 Gesperrte Spalten anzeigen</span>
-                <span class="assistance-description">Zeigt strategisch ungünstige Spalten an</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="help-section">
-            <h3>👤 Spieler 2 (Rot)</h3>
-            <div class="assistance-options">
-              <label class="assistance-option">
-                <input type="checkbox" id="player2-undo" class="assistance-checkbox">
-                <span class="assistance-label">🔄 Zug rückgängig machen erlaubt</span>
-                <span class="assistance-description">Spieler kann eigene Züge rückgängig machen</span>
-              </label>
-              
-              <label class="assistance-option">
-                <input type="checkbox" id="player2-threats" class="assistance-checkbox">
-                <span class="assistance-label">⚠️ Bedrohungen anzeigen</span>
-                <span class="assistance-description">Zeigt gegnerische Gewinnbedrohungen an</span>
-              </label>
-              
-              <label class="assistance-option">
-                <input type="checkbox" id="player2-winning-moves" class="assistance-checkbox">
-                <span class="assistance-label">🏆 Gewinnzüge hervorheben</span>
-                <span class="assistance-description">Markiert direkte Gewinnmöglichkeiten</span>
-              </label>
-              
-              <label class="assistance-option">
-                <input type="checkbox" id="player2-blocked-columns" class="assistance-checkbox">
-                <span class="assistance-label">🚫 Gesperrte Spalten anzeigen</span>
-                <span class="assistance-description">Zeigt strategisch ungünstige Spalten an</span>
-              </label>
-            </div>
-          </div>
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">🚫</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Gesperrte Spalten anzeigen</span>
+                      <span class="feature-description">Zeigt strategisch ungünstige Spalten an</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-blocked-columns" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-blocked-columns" class="assistance-checkbox">
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <div class="help-section">
             <h3>ℹ️ Hinweise</h3>
