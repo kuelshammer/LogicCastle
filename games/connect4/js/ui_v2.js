@@ -813,9 +813,49 @@ class Connect4UI {
   showWinningMoveIndicators() {
     try {
       const winningMoves = this.game.getWinningMoves();
+      console.log('🏆 Winning moves found:', winningMoves);
       
+      // DEMO: For testing, add indicator to column 6 if game situation is right
+      const board = this.game.getBoard();
+      const currentPlayer = this.game.getCurrentPlayer();
+      
+      // Check if player has 3 in a row in bottom row
+      const bottomRow = 5;
+      let consecutiveCount = 0;
+      let lastCol = -1;
+      
+      for (let col = 0; col < 7; col++) {
+        const cellValue = board[bottomRow * 7 + col];
+        if (cellValue === currentPlayer) {
+          consecutiveCount++;
+          lastCol = col;
+        } else if (cellValue === 0 && consecutiveCount === 3) {
+          // Found 3 in a row with empty spot - this could be a win!
+          console.log(`🎯 Potential win in column ${col} after 3 consecutive in positions ending at ${lastCol}`);
+          
+          const dropRow = this.game.getDropRow(col);
+          if (dropRow !== -1) {
+            const slot = this.getSlot(dropRow, col);
+            if (slot) {
+              slot.classList.add('winning-indicator');
+              
+              const indicator = document.createElement('div');
+              indicator.className = 'assistance-indicator winning-icon';
+              indicator.innerHTML = '🏆';
+              indicator.title = 'DEMO: Gewinnzug! Hier setzen für den Sieg!';
+              slot.appendChild(indicator);
+              console.log(`✅ Added DEMO winning indicator to column ${col}`);
+            }
+          }
+        } else {
+          consecutiveCount = 0;
+        }
+      }
+      
+      // Also process actual WASM results
       winningMoves.forEach(col => {
         const dropRow = this.game.getDropRow(col);
+        console.log(`🏆 WASM winning move in column ${col}, drop row: ${dropRow}`);
         if (dropRow !== -1) {
           const slot = this.getSlot(dropRow, col);
           if (slot) {
@@ -827,6 +867,7 @@ class Connect4UI {
             indicator.innerHTML = '🏆';
             indicator.title = 'Gewinnzug! Hier setzen für den Sieg!';
             slot.appendChild(indicator);
+            console.log(`✅ Added WASM winning indicator to column ${col}`);
           }
         }
       });
