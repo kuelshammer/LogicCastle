@@ -163,10 +163,13 @@ class Connect4Game {
         throw new Error('WASM engine not initialized');
       }
       
-      const success = this.wasmGame.make_move_connect4_js(col);
-      
-      if (!success) {
-        throw new Error('Invalid move - column is full');
+      // Rust function returns Result<(), JsValue> - on success returns undefined, on error throws
+      try {
+        this.wasmGame.make_move_connect4_js(col);
+        console.log(`✅ WASM move successful in column ${col}`);
+      } catch (wasmError) {
+        console.error(`❌ WASM move failed in column ${col}:`, wasmError);
+        throw new Error(`Invalid move: ${wasmError}`);
       }
       
       // Save state after move

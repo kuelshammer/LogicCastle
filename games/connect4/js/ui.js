@@ -138,6 +138,11 @@ class Connect4UI {
         slot.dataset.row = row;
         slot.dataset.col = col;
         
+        // Remove any inline debug styles
+        slot.style.border = '';
+        slot.style.minWidth = '';
+        slot.style.minHeight = '';
+        
         // Add click event
         slot.addEventListener('click', () => this.onSlotClick(col));
         
@@ -148,6 +153,8 @@ class Connect4UI {
         this.elements.gameBoard.appendChild(slot);
       }
     }
+    
+    console.log('✅ Game board created without debug styling');
   }
 
   // Handle slot click
@@ -181,13 +188,19 @@ class Connect4UI {
   // Make a move
   async makeMove(col) {
     try {
+      console.log(`🎯 Attempting move in column ${col}`);
+      console.log(`📋 Board state:`, this.game.getBoard());
+      console.log(`🎮 Current player:`, this.game.getCurrentPlayer());
+      
       const moveData = this.game.makeMove(col);
+      console.log(`✅ Move successful:`, moveData);
       
       // If AI mode and game not over, make AI move
       if (!this.game.isGameOver() && this.isAiMode() && this.isAiTurn()) {
         await this.makeAiMove();
       }
     } catch (error) {
+      console.error(`❌ Move failed in column ${col}:`, error);
       this.showToast(error.message, 'error');
     }
   }
