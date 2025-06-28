@@ -138,10 +138,9 @@ class Connect4UI {
         slot.dataset.row = row;
         slot.dataset.col = col;
         
-        // Remove any inline debug styles
-        slot.style.border = '';
-        slot.style.minWidth = '';
-        slot.style.minHeight = '';
+        // Forcibly remove any inline debug styles
+        slot.removeAttribute('style');
+        slot.style.cssText = '';
         
         // Add click event
         slot.addEventListener('click', () => this.onSlotClick(col));

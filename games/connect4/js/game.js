@@ -163,12 +163,22 @@ class Connect4Game {
         throw new Error('WASM engine not initialized');
       }
       
+      // Debug: Check if column is valid and board state
+      console.log(`🔍 Board dimensions: ${this.rows}x${this.cols}`);
+      console.log(`🔍 Column index: ${col} (valid: ${col >= 0 && col < this.cols})`);
+      console.log(`🔍 Gravity enabled: ${this.gravityEnabled}`);
+      
+      const currentBoard = this.getBoard();
+      console.log(`🔍 Current board:`, currentBoard);
+      console.log(`🔍 Top row of column ${col}:`, currentBoard[col]);
+      
       // Rust function returns Result<(), JsValue> - on success returns undefined, on error throws
       try {
         this.wasmGame.make_move_connect4_js(col);
         console.log(`✅ WASM move successful in column ${col}`);
       } catch (wasmError) {
         console.error(`❌ WASM move failed in column ${col}:`, wasmError);
+        console.error(`❌ WASM error details:`, wasmError.toString());
         throw new Error(`Invalid move: ${wasmError}`);
       }
       
