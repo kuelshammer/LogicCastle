@@ -447,6 +447,8 @@ class Connect4UI {
   onMove(data) {
     this.animatePieceDrop(data.col, data.player);
     this.updateUI();
+    // Force assistance update after move
+    setTimeout(() => this.updateAssistanceUI(), 100);
   }
 
   onGameOver(data) {
@@ -730,7 +732,10 @@ class Connect4UI {
   
   // Update visual assistance indicators on the game board
   updateBoardAssistanceIndicators() {
-    if (this.game.isGameOver()) return;
+    if (this.game.isGameOver()) {
+      console.log('🎮 Game is over, skipping assistance indicators');
+      return;
+    }
     
     // Clear existing indicators
     this.clearAssistanceIndicators();
@@ -741,18 +746,24 @@ class Connect4UI {
     
     const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
     
+    console.log(`🎯 Updating assistance for ${isPlayer1 ? 'Player 1 (Yellow)' : 'Player 2 (Red)'}`);
+    console.log('🔧 Player settings:', playerSettings);
+    
     // Show threat indicators
     if (playerSettings.threats) {
+      console.log('⚠️ Showing threat indicators...');
       this.showThreatIndicators();
     }
     
     // Show winning move indicators
     if (playerSettings.winningMoves) {
+      console.log('🏆 Showing winning move indicators...');
       this.showWinningMoveIndicators();
     }
     
     // Show blocked column indicators
     if (playerSettings.blockedColumns) {
+      console.log('🚫 Showing blocked column indicators...');
       this.showBlockedColumnIndicators();
     }
   }
@@ -771,9 +782,11 @@ class Connect4UI {
   showThreatIndicators() {
     try {
       const blockingMoves = this.game.getBlockingMoves();
+      console.log('🔍 Blocking moves found:', blockingMoves);
       
       blockingMoves.forEach(col => {
         const dropRow = this.game.getDropRow(col);
+        console.log(`📍 Threat in column ${col}, drop row: ${dropRow}`);
         if (dropRow !== -1) {
           const slot = this.getSlot(dropRow, col);
           if (slot) {
@@ -785,6 +798,9 @@ class Connect4UI {
             indicator.innerHTML = '⚠️';
             indicator.title = 'Gegner-Bedrohung! Hier blockieren!';
             slot.appendChild(indicator);
+            console.log(`✅ Added threat indicator to column ${col}`);
+          } else {
+            console.warn(`❌ Could not find slot for row ${dropRow}, col ${col}`);
           }
         }
       });

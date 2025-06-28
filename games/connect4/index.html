@@ -269,6 +269,10 @@
           const ui = new Connect4UI(game);
           console.log('✅ Connect4UI instance created');
           
+          // Make instances globally available for debugging
+          window.game = game;
+          window.ui = ui;
+          
           await ui.init();
           console.log('✅ Connect4 game initialized successfully!');
           

@@ -413,9 +413,14 @@ class Connect4Game {
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
           // Simulate the move to check if it wins
-          const simulated = this.wasmGame.simulate_move_connect4(col);
-          if (simulated && simulated.check_win() === currentPlayerVal) {
-            winningCols.push(col);
+          try {
+            const simulated = this.wasmGame.simulate_move_connect4(col);
+            if (simulated && simulated.check_win() === currentPlayerVal) {
+              winningCols.push(col);
+            }
+          } catch (moveError) {
+            // Move might be invalid, skip this column
+            continue;
           }
         }
       }
@@ -433,18 +438,23 @@ class Connect4Game {
     
     try {
       const blockingCols = [];
-      const opponentVal = this.getCurrentPlayer() === window.WasmPlayer?.Yellow ? window.WasmPlayer?.Red : window.WasmPlayer?.Yellow;
+      const currentPlayer = this.getCurrentPlayer();
+      const opponentVal = currentPlayer === window.WasmPlayer?.Yellow ? window.WasmPlayer?.Red : window.WasmPlayer?.Yellow;
       
-      // Create a copy and switch to opponent's turn to check their winning moves
-      const tempGame = this.wasmGame.fast_clone();
-      tempGame.current_player = opponentVal;
-      
+      // Check each column for opponent winning moves
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
-          // Check if opponent would win with this move
-          const simulated = tempGame.simulate_move_connect4(col);
-          if (simulated && simulated.check_win() === opponentVal) {
-            blockingCols.push(col);
+          try {
+            // Create a temporary copy and simulate opponent's move
+            const tempGame = this.wasmGame.fast_clone();
+            tempGame.current_player = opponentVal;
+            const simulated = tempGame.simulate_move_connect4(col);
+            if (simulated && simulated.check_win() === opponentVal) {
+              blockingCols.push(col);
+            }
+          } catch (moveError) {
+            // Move might be invalid, skip this column
+            continue;
           }
         }
       }
@@ -462,21 +472,26 @@ class Connect4Game {
     
     try {
       const blockedCols = [];
-      const currentPlayerVal = this.getCurrentPlayer();
+      const currentPlayer = this.getCurrentPlayer();
       
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
-          // Simulate the move and check if it creates a bad position
-          const simulated = this.wasmGame.simulate_move_connect4(col);
-          if (simulated) {
-            // Switch back to current player's perspective for evaluation
-            simulated.current_player = currentPlayerVal;
-            const evaluation = simulated.evaluate_position();
-            
-            // If move leads to significant disadvantage, mark as blocked
-            if (evaluation < -200) {
-              blockedCols.push(col);
+          try {
+            // Simulate the move and check if it creates a bad position
+            const simulated = this.wasmGame.simulate_move_connect4(col);
+            if (simulated) {
+              // Evaluate position from current player's perspective
+              simulated.current_player = currentPlayer;
+              const evaluation = simulated.evaluate_position();
+              
+              // If move leads to significant disadvantage, mark as blocked
+              if (evaluation < -200) {
+                blockedCols.push(col);
+              }
             }
+          } catch (moveError) {
+            // Move might be invalid, skip this column
+            continue;
           }
         }
       }
