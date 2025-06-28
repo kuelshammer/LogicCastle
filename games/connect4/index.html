@@ -163,10 +163,10 @@
     </div>
 
     <script type="module">
-      // Import modules
-      import { Connect4Game } from './js/game.js';
-      import { Connect4AI } from './js/ai.js';
-      import { Connect4UI } from './js/ui.js';
+      // Import modules with cache busting
+      import { Connect4Game } from './js/game.js?v=20250628-1411';
+      import { Connect4AI } from './js/ai.js?v=20250628-1411';
+      import { Connect4UI } from './js/ui.js?v=20250628-1411';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {

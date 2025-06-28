@@ -111,7 +111,7 @@ class Connect4Game {
       
       // Save initial state
       this.saveGameState();
-      console.log('✅ WASM game engine fully initialized');
+      console.log('✅ WASM game engine fully initialized - VERSION 2025-06-28 14:11');
       
       return true;
     } catch (error) {

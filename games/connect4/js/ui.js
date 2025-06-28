@@ -138,9 +138,10 @@ class Connect4UI {
         slot.dataset.row = row;
         slot.dataset.col = col;
         
-        // Forcibly remove any inline debug styles
+        // COMPLETELY remove any debug styles - UPDATED VERSION
         slot.removeAttribute('style');
         slot.style.cssText = '';
+        slot.style.border = '2px solid #1976D2'; // Set correct border explicitly
         
         // Add click event
         slot.addEventListener('click', () => this.onSlotClick(col));
@@ -153,7 +154,7 @@ class Connect4UI {
       }
     }
     
-    console.log('✅ Game board created without debug styling');
+    console.log('✅ Game board created without debug styling - VERSION 2025-06-28 14:11');
   }
 
   // Handle slot click
