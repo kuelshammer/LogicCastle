@@ -85,7 +85,13 @@ class Connect4UI {
       
       // Assistance checkboxes
       player1UndoCheckbox: document.getElementById('player1-undo'),
-      player2UndoCheckbox: document.getElementById('player2-undo')
+      player2UndoCheckbox: document.getElementById('player2-undo'),
+      player1ThreatsCheckbox: document.getElementById('player1-threats'),
+      player2ThreatsCheckbox: document.getElementById('player2-threats'),
+      player1WinningMovesCheckbox: document.getElementById('player1-winning-moves'),
+      player2WinningMovesCheckbox: document.getElementById('player2-winning-moves'),
+      player1BlockedColumnsCheckbox: document.getElementById('player1-blocked-columns'),
+      player2BlockedColumnsCheckbox: document.getElementById('player2-blocked-columns')
     };
   }
 
@@ -133,6 +139,42 @@ class Connect4UI {
       this.playerAssistance.player2.undo = e.target.checked;
       this.updateAssistanceUI();
       console.log(`Player 2 undo assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player1ThreatsCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player1.threats = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 1 threats assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player2ThreatsCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player2.threats = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 2 threats assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player1WinningMovesCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player1.winningMoves = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 1 winning moves assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player2WinningMovesCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player2.winningMoves = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 2 winning moves assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player1BlockedColumnsCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player1.blockedColumns = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 1 blocked columns assistance: ${e.target.checked}`);
+    });
+    
+    this.elements.player2BlockedColumnsCheckbox.addEventListener('change', (e) => {
+      this.playerAssistance.player2.blockedColumns = e.target.checked;
+      this.updateAssistanceUI();
+      console.log(`Player 2 blocked columns assistance: ${e.target.checked}`);
     });
   }
 
@@ -652,6 +694,12 @@ class Connect4UI {
   syncAssistanceCheckboxes() {
     this.elements.player1UndoCheckbox.checked = this.playerAssistance.player1.undo;
     this.elements.player2UndoCheckbox.checked = this.playerAssistance.player2.undo;
+    this.elements.player1ThreatsCheckbox.checked = this.playerAssistance.player1.threats;
+    this.elements.player2ThreatsCheckbox.checked = this.playerAssistance.player2.threats;
+    this.elements.player1WinningMovesCheckbox.checked = this.playerAssistance.player1.winningMoves;
+    this.elements.player2WinningMovesCheckbox.checked = this.playerAssistance.player2.winningMoves;
+    this.elements.player1BlockedColumnsCheckbox.checked = this.playerAssistance.player1.blockedColumns;
+    this.elements.player2BlockedColumnsCheckbox.checked = this.playerAssistance.player2.blockedColumns;
   }
 
   // Update UI based on assistance settings
@@ -674,6 +722,126 @@ class Connect4UI {
     } else {
       this.elements.undoBtn.style.background = '';
       this.elements.undoBtn.title = '';
+    }
+    
+    // Update visual assistance indicators on the board
+    this.updateBoardAssistanceIndicators();
+  }
+  
+  // Update visual assistance indicators on the game board
+  updateBoardAssistanceIndicators() {
+    if (this.game.isGameOver()) return;
+    
+    // Clear existing indicators
+    this.clearAssistanceIndicators();
+    
+    const currentPlayer = this.game.getCurrentPlayer();
+    const isPlayer1 = currentPlayer === Player.Yellow;
+    const isPlayer2 = currentPlayer === Player.Red;
+    
+    const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
+    
+    // Show threat indicators
+    if (playerSettings.threats) {
+      this.showThreatIndicators();
+    }
+    
+    // Show winning move indicators
+    if (playerSettings.winningMoves) {
+      this.showWinningMoveIndicators();
+    }
+    
+    // Show blocked column indicators
+    if (playerSettings.blockedColumns) {
+      this.showBlockedColumnIndicators();
+    }
+  }
+  
+  // Clear all assistance indicators from the board
+  clearAssistanceIndicators() {
+    const slots = this.elements.gameBoard.querySelectorAll('.game-slot');
+    slots.forEach(slot => {
+      slot.classList.remove('threat-indicator', 'winning-indicator', 'blocked-indicator');
+      const indicators = slot.querySelectorAll('.assistance-indicator');
+      indicators.forEach(indicator => indicator.remove());
+    });
+  }
+  
+  // Show threat indicators (opponent winning moves that need blocking)
+  showThreatIndicators() {
+    try {
+      const blockingMoves = this.game.getBlockingMoves();
+      
+      blockingMoves.forEach(col => {
+        const dropRow = this.game.getDropRow(col);
+        if (dropRow !== -1) {
+          const slot = this.getSlot(dropRow, col);
+          if (slot) {
+            slot.classList.add('threat-indicator');
+            
+            // Add visual threat indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'assistance-indicator threat-icon';
+            indicator.innerHTML = '⚠️';
+            indicator.title = 'Gegner-Bedrohung! Hier blockieren!';
+            slot.appendChild(indicator);
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to show threat indicators:', error);
+    }
+  }
+  
+  // Show winning move indicators (direct winning moves for current player)
+  showWinningMoveIndicators() {
+    try {
+      const winningMoves = this.game.getWinningMoves();
+      
+      winningMoves.forEach(col => {
+        const dropRow = this.game.getDropRow(col);
+        if (dropRow !== -1) {
+          const slot = this.getSlot(dropRow, col);
+          if (slot) {
+            slot.classList.add('winning-indicator');
+            
+            // Add visual winning indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'assistance-indicator winning-icon';
+            indicator.innerHTML = '🏆';
+            indicator.title = 'Gewinnzug! Hier setzen für den Sieg!';
+            slot.appendChild(indicator);
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to show winning move indicators:', error);
+    }
+  }
+  
+  // Show blocked column indicators (strategically bad moves)
+  showBlockedColumnIndicators() {
+    try {
+      const blockedColumns = this.game.getBlockedColumns();
+      
+      blockedColumns.forEach(col => {
+        const dropRow = this.game.getDropRow(col);
+        if (dropRow !== -1) {
+          const slot = this.getSlot(dropRow, col);
+          if (slot) {
+            slot.classList.add('blocked-indicator');
+            
+            // Add visual blocked indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'assistance-indicator blocked-icon';
+            indicator.innerHTML = '🚫';
+            indicator.title = 'Strategisch ungünstig! Besser andere Spalte wählen.';
+            slot.appendChild(indicator);
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Failed to show blocked column indicators:', error);
     }
   }
 
