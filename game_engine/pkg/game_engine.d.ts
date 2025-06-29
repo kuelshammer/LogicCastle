@@ -114,6 +114,19 @@ export class Game {
    * Analyze position for threats and opportunities
    */
   analyze_position(): PositionAnalysis;
+  /**
+   * Detect simple fork threats in bottom row: pattern _ x _ x _ 
+   * Returns columns that must be played to prevent opponent fork
+   */
+  detect_bottom_row_forks(opponent: Player): Uint32Array;
+  /**
+   * Get fork-blocking moves for current player (prevent opponent forks)
+   */
+  get_fork_blocking_moves(): Uint32Array;
+  /**
+   * Check if opponent has dangerous fork patterns that require immediate attention
+   */
+  has_critical_fork_threats(): boolean;
 }
 /**
  * Position analysis structure for AI decision making
@@ -214,6 +227,9 @@ export interface InitOutput {
   readonly game_get_winner: (a: number) => number;
   readonly game_get_game_phase: (a: number) => number;
   readonly game_analyze_position: (a: number) => number;
+  readonly game_detect_bottom_row_forks: (a: number, b: number) => [number, number];
+  readonly game_get_fork_blocking_moves: (a: number) => [number, number];
+  readonly game_has_critical_fork_threats: (a: number) => number;
   readonly __wbg_triogame_free: (a: number, b: number) => void;
   readonly triogame_new: (a: number) => number;
   readonly triogame_get_board: (a: number) => [number, number];

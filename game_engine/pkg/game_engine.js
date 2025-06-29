@@ -453,6 +453,36 @@ export class Game {
         const ret = wasm.game_analyze_position(this.__wbg_ptr);
         return PositionAnalysis.__wrap(ret);
     }
+    /**
+     * Detect simple fork threats in bottom row: pattern _ x _ x _
+     * Returns columns that must be played to prevent opponent fork
+     * @param {Player} opponent
+     * @returns {Uint32Array}
+     */
+    detect_bottom_row_forks(opponent) {
+        const ret = wasm.game_detect_bottom_row_forks(this.__wbg_ptr, opponent);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Get fork-blocking moves for current player (prevent opponent forks)
+     * @returns {Uint32Array}
+     */
+    get_fork_blocking_moves() {
+        const ret = wasm.game_get_fork_blocking_moves(this.__wbg_ptr);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Check if opponent has dangerous fork patterns that require immediate attention
+     * @returns {boolean}
+     */
+    has_critical_fork_threats() {
+        const ret = wasm.game_has_critical_fork_threats(this.__wbg_ptr);
+        return ret !== 0;
+    }
 }
 
 const PositionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')

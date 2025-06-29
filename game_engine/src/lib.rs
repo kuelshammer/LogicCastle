@@ -1023,6 +1023,56 @@ impl Game {
             evaluation_score: self.evaluate_position_advanced(),
         }
     }
+    
+    /// Detect simple fork threats in bottom row: pattern _ x _ x _ 
+    /// Returns columns that must be played to prevent opponent fork
+    pub fn detect_bottom_row_forks(&self, opponent: Player) -> Vec<usize> {
+        let mut fork_columns = Vec::new();
+        let opponent_val = opponent as i8;
+        let bottom_row = self.board.rows - 1;
+        
+        // Check for pattern _ x _ x _ (5 consecutive positions needed)
+        for start_col in 0..=(self.board.cols.saturating_sub(5)) {
+            let pattern = (0..5)
+                .map(|i| self.board.get_cell(bottom_row, start_col + i).unwrap_or(0))
+                .collect::<Vec<_>>();
+            
+            // Check if pattern matches _ x _ x _ where x = opponent
+            if pattern.len() == 5 
+                && pattern[0] == 0 
+                && pattern[1] == opponent_val 
+                && pattern[2] == 0 
+                && pattern[3] == opponent_val 
+                && pattern[4] == 0 
+            {
+                // All three empty positions are critical to block the fork
+                let critical_cols = vec![start_col, start_col + 2, start_col + 4];
+                for &col in &critical_cols {
+                    if !self.board.is_column_full(col) && !fork_columns.contains(&col) {
+                        fork_columns.push(col);
+                    }
+                }
+            }
+        }
+        
+        fork_columns
+    }
+    
+    /// Get fork-blocking moves for current player (prevent opponent forks)
+    pub fn get_fork_blocking_moves(&self) -> Vec<usize> {
+        let opponent = match self.current_player {
+            Player::Yellow => Player::Red,
+            Player::Red => Player::Yellow,
+        };
+        
+        self.detect_bottom_row_forks(opponent)
+    }
+    
+    /// Check if opponent has dangerous fork patterns that require immediate attention
+    pub fn has_critical_fork_threats(&self) -> bool {
+        let fork_blocks = self.get_fork_blocking_moves();
+        !fork_blocks.is_empty()
+    }
 }
 
 #[wasm_bindgen]
@@ -1190,59 +1240,6 @@ mod tests {
                 game.board.set_cell(r, c, board_state[r * game.board.get_cols() + c]).unwrap();
             }
         }
-    }
-    
-    /// Detect simple fork threats in bottom row: pattern _ x _ x _ 
-    /// Returns columns that must be played to prevent opponent fork
-    #[wasm_bindgen]
-    pub fn detect_bottom_row_forks(&self, opponent: Player) -> Vec<usize> {
-        let mut fork_columns = Vec::new();
-        let opponent_val = opponent as i8;
-        let bottom_row = self.board.rows - 1;
-        
-        // Check for pattern _ x _ x _ (5 consecutive positions needed)
-        for start_col in 0..=(self.board.cols.saturating_sub(5)) {
-            let pattern = (0..5)
-                .map(|i| self.board.get_cell(bottom_row, start_col + i).unwrap_or(0))
-                .collect::<Vec<_>>();
-            
-            // Check if pattern matches _ x _ x _ where x = opponent
-            if pattern.len() == 5 
-                && pattern[0] == 0 
-                && pattern[1] == opponent_val 
-                && pattern[2] == 0 
-                && pattern[3] == opponent_val 
-                && pattern[4] == 0 
-            {
-                // All three empty positions are critical to block the fork
-                let critical_cols = vec![start_col, start_col + 2, start_col + 4];
-                for &col in &critical_cols {
-                    if !self.board.is_column_full(col) && !fork_columns.contains(&col) {
-                        fork_columns.push(col);
-                    }
-                }
-            }
-        }
-        
-        fork_columns
-    }
-    
-    /// Get fork-blocking moves for current player (prevent opponent forks)
-    #[wasm_bindgen]
-    pub fn get_fork_blocking_moves(&self) -> Vec<usize> {
-        let opponent = match self.current_player {
-            Player::Yellow => Player::Red,
-            Player::Red => Player::Yellow,
-        };
-        
-        self.detect_bottom_row_forks(opponent)
-    }
-    
-    /// Check if opponent has dangerous fork patterns that require immediate attention
-    #[wasm_bindgen]
-    pub fn has_critical_fork_threats(&self) -> bool {
-        let fork_blocks = self.get_fork_blocking_moves();
-        !fork_blocks.is_empty()
     }
 
     #[test]
