@@ -270,11 +270,10 @@
     </div>
 
     <script type="module">
-      // Import modules with cache-busting timestamp
-      const timestamp = '20250629-1';
-      import { Connect4Game } from `./js/game_v2.js?v=${timestamp}`;
-      import { Connect4AI } from `./js/ai_v2.js?v=${timestamp}`;
-      import { Connect4UI } from `./js/ui_v2.js?v=${timestamp}`;
+      // Import modules with cache-busting timestamp (fixed URLs)
+      import { Connect4Game } from './js/game_v2.js?v=20250629-2';
+      import { Connect4AI } from './js/ai_v2.js?v=20250629-2';
+      import { Connect4UI } from './js/ui_v2.js?v=20250629-2';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
