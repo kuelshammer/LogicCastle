@@ -464,32 +464,22 @@ class Connect4Game {
       
       console.log(`🔍 getBlockingMoves: Current player ${currentPlayer}, Opponent ${opponentVal}`);
       
-      // Strategy: Check each column to see if opponent would win by playing there next turn
+      // Strategy: Check each column to see if opponent can win by playing there next turn
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
           try {
-            // 1. Simulate MY move in this column
-            const myMove = this.wasmGame.simulate_move_connect4_js(col);
-            if (!myMove) continue;
-            
-            // 2. Now check if from that position, opponent has winning moves
-            // If opponent can win immediately after my move, this might not be the best blocking move
-            // But if opponent can win in the CURRENT position by playing in this column, I need to block it
-            
-            // SIMPLE APPROACH: Check if opponent can win by playing in this column RIGHT NOW
-            // We temporarily "undo" our turn and check what opponent's winning moves are
+            // Simulate placing OPPONENT's piece in this column
             const currentBoard = this.getBoard();
             const dropRow = this.getDropRow(col);
             
             if (dropRow >= 0) {
-              // Simulate placing opponent's piece in this column
               const simulatedBoard = [...currentBoard];
               simulatedBoard[dropRow * this.cols + col] = opponentVal;
               
               // Check if this creates a win for opponent
               if (this.checkWinInBoard(simulatedBoard, dropRow, col, opponentVal)) {
                 blockingCols.push(col);
-                console.log(`🛡️ Found blocking move: Column ${col + 1} (opponent threat)`);
+                console.log(`🛡️ Found blocking move: Column ${col + 1} (stops opponent win)`);
               }
             }
           } catch (moveError) {
