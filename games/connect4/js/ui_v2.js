@@ -945,63 +945,20 @@ class Connect4UI {
   }
   
   updateIntelligentAssistanceIndicators() {
-    // Clear existing indicators
+    // REMOVED: No more confusing indicators on the game board!
+    // All visual assistance is now handled by column coordinates only.
+    // This eliminates user confusion about symbols on the playing field.
+    
+    console.log('🎯 Intelligent assistance indicators: Using column coordinates only (no board symbols)');
+    
+    // Clear any existing game board indicators (cleanup)
     const slots = this.elements.gameBoard.querySelectorAll('.game-slot');
     slots.forEach(slot => {
       slot.classList.remove('forced-move', 'blocked-move', 'dangerous-move', 'winning-move');
     });
     
-    const currentPlayer = this.game.getCurrentPlayer();
-    const isPlayer1 = currentPlayer === Player.Yellow;
-    const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
-    
-    if (this.game.isGameOver()) return;
-    
-    // Use cached analysis
-    if (!this.analysisCache || this.analysisCache.moveNumber !== this.game.getMoveCount()) {
-      this.updateAnalysisCache();
-    }
-    
-    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
-    
-    // Show winning moves as green/gold
-    if (playerSettings.winningMoves && winningMoves.length > 0) {
-      winningMoves.forEach(col => {
-        const dropRow = this.game.getDropRow(col);
-        if (dropRow !== -1) {
-          const slot = this.getSlot(dropRow, col);
-          if (slot) {
-            slot.classList.add('winning-move');
-          }
-        }
-      });
-    }
-    
-    // Show blocking moves as urgent orange
-    if (playerSettings.threats && blockingMoves.length > 0) {
-      blockingMoves.forEach(col => {
-        const dropRow = this.game.getDropRow(col);
-        if (dropRow !== -1) {
-          const slot = this.getSlot(dropRow, col);
-          if (slot) {
-            slot.classList.add('forced-move');
-          }
-        }
-      });
-    }
-    
-    // Show dangerous moves as red X
-    if (playerSettings.blockedColumns) {
-      dangerousMoves.forEach(col => {
-        const dropRow = this.game.getDropRow(col);
-        if (dropRow !== -1) {
-          const slot = this.getSlot(dropRow, col);
-          if (slot) {
-            slot.classList.add('dangerous-move');
-          }
-        }
-      });
-    }
+    // All visual feedback is now handled by updateBlockedColumnIndicators()
+    // which provides clear, intuitive column number styling
   }
   
   // Column blocking indicator management for coordinates
@@ -1026,7 +983,7 @@ class Connect4UI {
     [this.elements.topCoords, this.elements.bottomCoords].forEach(coordsEl => {
       const coords = coordsEl.querySelectorAll('.coord');
       coords.forEach(coord => {
-        coord.classList.remove('blocked-column', 'winning-column');
+        coord.classList.remove('blocked-column', 'winning-column', 'blocking-column');
         // Remove old indicator elements
         const indicator = coord.querySelector('.blocked-indicator');
         if (indicator) {
@@ -1068,10 +1025,10 @@ class Connect4UI {
       }
       console.log(`🏆 WINNING STRATEGY: Priority columns [${priorityColumns.map(c=>c+1)}], Blocked [${blockedColumns.map(c=>c+1)}]`);
     }
-    // Rule 2: BLOCKING MOVES get priority when no winning moves
+    // Rule 2: BLOCKING MOVES get priority when no winning moves - ORANGE
     else if (playerSettings.threats && blockingMoves.length > 0) {
       priorityColumns = blockingMoves.filter(col => !this.game.isColumnFull(col));
-      // Block non-blocking columns
+      // Block ALL non-blocking columns (absolute blocking like winning moves)
       for (let col = 0; col < 7; col++) {
         if (!this.game.isColumnFull(col) && !blockingMoves.includes(col)) {
           blockedColumns.push(col);
@@ -1085,8 +1042,14 @@ class Connect4UI {
       const coords = coordsEl.querySelectorAll('.coord');
       coords.forEach((coord, index) => {
         if (priorityColumns.includes(index)) {
-          coord.classList.add('winning-column');
-          coord.title = 'Optimaler Zug - führt direkt zum Sieg!';
+          // Determine if this is winning (green) or blocking (orange)
+          if (playerSettings.winningMoves && winningMoves.includes(index)) {
+            coord.classList.add('winning-column');
+            coord.title = 'Gewinnzug - führt direkt zum Sieg!';
+          } else if (playerSettings.threats && blockingMoves.includes(index)) {
+            coord.classList.add('blocking-column');
+            coord.title = 'Blockierender Zug - verhindert Niederlage!';
+          }
         } else if (blockedColumns.includes(index)) {
           coord.classList.add('blocked-column');
           coord.title = 'Spalte gesperrt - nicht optimal bei aktivierter Hilfe';
