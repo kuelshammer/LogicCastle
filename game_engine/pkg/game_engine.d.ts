@@ -127,6 +127,44 @@ export class Game {
    * Check if opponent has dangerous fork patterns that require immediate attention
    */
   has_critical_fork_threats(): boolean;
+  /**
+   * Detect open three patterns: _ X X X _ (both sides open)
+   * Returns flattened positions where placing a piece would create an open three
+   * Each pair of consecutive elements represents (row, col)
+   */
+  detect_open_three(player: Player): Uint32Array;
+  /**
+   * Detect closed four patterns: O X X X X _ or _ X X X X O (one side blocked)
+   * Returns flattened positions where placing a piece would create a closed four
+   * Each pair of consecutive elements represents (row, col)
+   */
+  detect_closed_four(player: Player): Uint32Array;
+  /**
+   * Detect double three fork patterns (two open threes intersecting)
+   * Returns flattened positions that would create a double three fork
+   * Each pair of consecutive elements represents (row, col)
+   */
+  detect_double_three_forks(player: Player): Uint32Array;
+  /**
+   * Get threat level (0-5) for a potential move
+   * 5 = Immediate win, 4 = Must block, 3 = Strong threat, 2 = Medium, 1 = Weak, 0 = None
+   */
+  get_threat_level(row: number, col: number, player: Player): number;
+  /**
+   * Get dangerous moves for Gobang (moves that give opponent opportunities)
+   * Returns flattened positions - each pair represents (row, col)
+   */
+  get_dangerous_moves_gobang(): Uint32Array;
+  /**
+   * Get winning moves for Gobang (immediate 5-in-a-row)
+   * Returns flattened positions - each pair represents (row, col)
+   */
+  get_winning_moves_gobang(): Uint32Array;
+  /**
+   * Get blocking moves for Gobang (block opponent wins)
+   * Returns flattened positions - each pair represents (row, col)
+   */
+  get_blocking_moves_gobang(): Uint32Array;
 }
 /**
  * Position analysis structure for AI decision making
@@ -230,6 +268,13 @@ export interface InitOutput {
   readonly game_detect_bottom_row_forks: (a: number, b: number) => [number, number];
   readonly game_get_fork_blocking_moves: (a: number) => [number, number];
   readonly game_has_critical_fork_threats: (a: number) => number;
+  readonly game_detect_open_three: (a: number, b: number) => [number, number];
+  readonly game_detect_closed_four: (a: number, b: number) => [number, number];
+  readonly game_detect_double_three_forks: (a: number, b: number) => [number, number];
+  readonly game_get_threat_level: (a: number, b: number, c: number, d: number) => number;
+  readonly game_get_dangerous_moves_gobang: (a: number) => [number, number];
+  readonly game_get_winning_moves_gobang: (a: number) => [number, number];
+  readonly game_get_blocking_moves_gobang: (a: number) => [number, number];
   readonly __wbg_triogame_free: (a: number, b: number) => void;
   readonly triogame_new: (a: number) => number;
   readonly triogame_get_board: (a: number) => [number, number];

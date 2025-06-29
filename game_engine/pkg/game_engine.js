@@ -483,6 +483,90 @@ export class Game {
         const ret = wasm.game_has_critical_fork_threats(this.__wbg_ptr);
         return ret !== 0;
     }
+    /**
+     * Detect open three patterns: _ X X X _ (both sides open)
+     * Returns flattened positions where placing a piece would create an open three
+     * Each pair of consecutive elements represents (row, col)
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    detect_open_three(player) {
+        const ret = wasm.game_detect_open_three(this.__wbg_ptr, player);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Detect closed four patterns: O X X X X _ or _ X X X X O (one side blocked)
+     * Returns flattened positions where placing a piece would create a closed four
+     * Each pair of consecutive elements represents (row, col)
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    detect_closed_four(player) {
+        const ret = wasm.game_detect_closed_four(this.__wbg_ptr, player);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Detect double three fork patterns (two open threes intersecting)
+     * Returns flattened positions that would create a double three fork
+     * Each pair of consecutive elements represents (row, col)
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    detect_double_three_forks(player) {
+        const ret = wasm.game_detect_double_three_forks(this.__wbg_ptr, player);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Get threat level (0-5) for a potential move
+     * 5 = Immediate win, 4 = Must block, 3 = Strong threat, 2 = Medium, 1 = Weak, 0 = None
+     * @param {number} row
+     * @param {number} col
+     * @param {Player} player
+     * @returns {number}
+     */
+    get_threat_level(row, col, player) {
+        const ret = wasm.game_get_threat_level(this.__wbg_ptr, row, col, player);
+        return ret;
+    }
+    /**
+     * Get dangerous moves for Gobang (moves that give opponent opportunities)
+     * Returns flattened positions - each pair represents (row, col)
+     * @returns {Uint32Array}
+     */
+    get_dangerous_moves_gobang() {
+        const ret = wasm.game_get_dangerous_moves_gobang(this.__wbg_ptr);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Get winning moves for Gobang (immediate 5-in-a-row)
+     * Returns flattened positions - each pair represents (row, col)
+     * @returns {Uint32Array}
+     */
+    get_winning_moves_gobang() {
+        const ret = wasm.game_get_winning_moves_gobang(this.__wbg_ptr);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Get blocking moves for Gobang (block opponent wins)
+     * Returns flattened positions - each pair represents (row, col)
+     * @returns {Uint32Array}
+     */
+    get_blocking_moves_gobang() {
+        const ret = wasm.game_get_blocking_moves_gobang(this.__wbg_ptr);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
 }
 
 const PositionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')

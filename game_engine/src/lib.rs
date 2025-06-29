@@ -1073,6 +1073,357 @@ impl Game {
         let fork_blocks = self.get_fork_blocking_moves();
         !fork_blocks.is_empty()
     }
+    
+    // GOBANG-SPECIFIC HELPER FUNCTIONS
+    
+    /// Detect open three patterns: _ X X X _ (both sides open)
+    /// Returns flattened positions where placing a piece would create an open three
+    /// Each pair of consecutive elements represents (row, col)
+    pub fn detect_open_three(&self, player: Player) -> Vec<usize> {
+        let mut open_threes = Vec::new();
+        let player_val = player as i8;
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1)]; // H, V, D/, D\
+        
+        // Check all empty positions
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                    // Check if placing here creates an open three
+                    for &(dr, dc) in &directions {
+                        if self.would_create_open_three(row, col, dr, dc, player_val) {
+                            open_threes.push(row);
+                            open_threes.push(col);
+                            break; // No need to check other directions for this position
+                        }
+                    }
+                }
+            }
+        }
+        
+        open_threes
+    }
+    
+    /// Helper: Check if placing a piece would create an open three in a direction
+    fn would_create_open_three(&self, row: usize, col: usize, dr: isize, dc: isize, player_val: i8) -> bool {
+        // Pattern: _ X X X _ (place at any of the 5 positions)
+        for start_offset in -2..=2i8 {
+            let start_row = row as isize + dr * start_offset as isize;
+            let start_col = col as isize + dc * start_offset as isize;
+            
+            if !self.board.is_within_bounds(start_row, start_col) {
+                continue;
+            }
+            
+            // Check if we have pattern _ X X X _ starting here
+            let mut pattern_valid = true;
+            let mut our_piece_count = 0;
+            
+            for i in 0..5 {
+                let check_row = start_row + dr * i;
+                let check_col = start_col + dc * i;
+                
+                if !self.board.is_within_bounds(check_row, check_col) {
+                    pattern_valid = false;
+                    break;
+                }
+                
+                let cell_val = if check_row == row as isize && check_col == col as isize {
+                    player_val // Simulate placing our piece
+                } else {
+                    self.board.get_cell(check_row as usize, check_col as usize).unwrap_or(1)
+                };
+                
+                match i {
+                    0 | 4 => { // First and last must be empty
+                        if cell_val != 0 {
+                            pattern_valid = false;
+                            break;
+                        }
+                    }
+                    1 | 2 | 3 => { // Middle three must be our pieces
+                        if cell_val == player_val {
+                            our_piece_count += 1;
+                        } else if cell_val != 0 {
+                            pattern_valid = false;
+                            break;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            
+            if pattern_valid && our_piece_count == 3 {
+                return true;
+            }
+        }
+        
+        false
+    }
+    
+    /// Detect closed four patterns: O X X X X _ or _ X X X X O (one side blocked)
+    /// Returns flattened positions where placing a piece would create a closed four
+    /// Each pair of consecutive elements represents (row, col)
+    pub fn detect_closed_four(&self, player: Player) -> Vec<usize> {
+        let mut closed_fours = Vec::new();
+        let player_val = player as i8;
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                    for &(dr, dc) in &directions {
+                        if self.would_create_closed_four(row, col, dr, dc, player_val) {
+                            closed_fours.push(row);
+                            closed_fours.push(col);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        closed_fours
+    }
+    
+    /// Helper: Check if placing a piece would create a closed four
+    fn would_create_closed_four(&self, row: usize, col: usize, dr: isize, dc: isize, player_val: i8) -> bool {
+        // Check both patterns: O X X X X _ and _ X X X X O
+        for pattern_start in -1..=1isize {
+            let start_row = row as isize + dr * pattern_start;
+            let start_col = col as isize + dc * pattern_start;
+            
+            // Pattern 1: O X X X X _ (blocked at start)
+            if self.check_closed_four_pattern(row, col, start_row, start_col, dr, dc, player_val, true) {
+                return true;
+            }
+            
+            // Pattern 2: _ X X X X O (blocked at end)  
+            if self.check_closed_four_pattern(row, col, start_row, start_col, dr, dc, player_val, false) {
+                return true;
+            }
+        }
+        
+        false
+    }
+    
+    /// Helper: Check specific closed four pattern
+    fn check_closed_four_pattern(&self, piece_row: usize, piece_col: usize, start_row: isize, start_col: isize, dr: isize, dc: isize, player_val: i8, blocked_at_start: bool) -> bool {
+        // Check bounds
+        for i in 0..6 {
+            let check_row = start_row + dr * i;
+            let check_col = start_col + dc * i;
+            if !self.board.is_within_bounds(check_row, check_col) {
+                return false;
+            }
+        }
+        
+        let mut our_pieces = 0;
+        let mut empty_count = 0;
+        
+        for i in 0..6 {
+            let check_row = start_row + dr * i;
+            let check_col = start_col + dc * i;
+            
+            let cell_val = if check_row == piece_row as isize && check_col == piece_col as isize {
+                player_val
+            } else {
+                self.board.get_cell(check_row as usize, check_col as usize).unwrap_or(1)
+            };
+            
+            match i {
+                0 => { // First position
+                    if blocked_at_start && cell_val == 0 { return false; }
+                    if !blocked_at_start && cell_val != 0 { return false; }
+                }
+                1..=4 => { // Four consecutive pieces
+                    if cell_val == player_val {
+                        our_pieces += 1;
+                    } else if cell_val == 0 {
+                        empty_count += 1;
+                    } else {
+                        return false; // Opponent piece
+                    }
+                }
+                5 => { // Last position
+                    if !blocked_at_start && cell_val == 0 { return false; }
+                    if blocked_at_start && cell_val != 0 { return false; }
+                }
+                _ => {}
+            }
+        }
+        
+        our_pieces == 4 && empty_count == 0
+    }
+    
+    /// Detect double three fork patterns (two open threes intersecting)
+    /// Returns flattened positions that would create a double three fork
+    /// Each pair of consecutive elements represents (row, col)
+    pub fn detect_double_three_forks(&self, player: Player) -> Vec<usize> {
+        let mut fork_positions = Vec::new();
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                    // Simulate placing piece here
+                    if self.would_create_double_three_fork(row, col, player) {
+                        fork_positions.push(row);
+                        fork_positions.push(col);
+                    }
+                }
+            }
+        }
+        
+        fork_positions
+    }
+    
+    /// Helper: Check if placing a piece creates a double three fork
+    fn would_create_double_three_fork(&self, row: usize, col: usize, player: Player) -> bool {
+        let player_val = player as i8;
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
+        let mut open_three_count = 0;
+        
+        // Count how many open threes this move would create
+        for &(dr, dc) in &directions {
+            if self.would_create_open_three(row, col, dr, dc, player_val) {
+                open_three_count += 1;
+            }
+        }
+        
+        // Double three fork = at least 2 open threes
+        open_three_count >= 2
+    }
+    
+    /// Get threat level (0-5) for a potential move
+    /// 5 = Immediate win, 4 = Must block, 3 = Strong threat, 2 = Medium, 1 = Weak, 0 = None
+    pub fn get_threat_level(&self, row: usize, col: usize, player: Player) -> u8 {
+        if row >= self.board.rows || col >= self.board.cols {
+            return 0;
+        }
+        
+        if self.board.get_cell(row, col).unwrap_or(1) != 0 {
+            return 0; // Position occupied
+        }
+        
+        // Check if this move wins immediately
+        let mut temp_board = self.board.fast_clone();
+        temp_board.set_cell(row, col, player as i8).unwrap();
+        if self.would_win_at(row, col, player as i8) {
+            return 5; // Immediate win
+        }
+        
+        // Check threat patterns
+        let player_val = player as i8;
+        
+        // Check for closed four (level 4)
+        if self.would_create_closed_four(row, col, 0, 1, player_val) ||
+           self.would_create_closed_four(row, col, 1, 0, player_val) ||
+           self.would_create_closed_four(row, col, 1, 1, player_val) ||
+           self.would_create_closed_four(row, col, 1, -1, player_val) {
+            return 4;
+        }
+        
+        // Check for double three fork (level 4)
+        if self.would_create_double_three_fork(row, col, player) {
+            return 4;
+        }
+        
+        // Check for open three (level 3)
+        if self.would_create_open_three(row, col, 0, 1, player_val) ||
+           self.would_create_open_three(row, col, 1, 0, player_val) ||
+           self.would_create_open_three(row, col, 1, 1, player_val) ||
+           self.would_create_open_three(row, col, 1, -1, player_val) {
+            return 3;
+        }
+        
+        // Basic connectivity check (levels 1-2)
+        let connectivity = self.count_adjacent_pieces(row, col, player_val);
+        match connectivity {
+            3..=usize::MAX => 2, // Strong connectivity
+            1..=2 => 1,          // Weak connectivity
+            _ => 0,              // No connectivity
+        }
+    }
+    
+    /// Count adjacent pieces of the same player
+    fn count_adjacent_pieces(&self, row: usize, col: usize, player_val: i8) -> usize {
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1), (0, -1), (-1, 0), (-1, -1), (-1, 1)];
+        let mut count = 0;
+        
+        for &(dr, dc) in &directions {
+            let check_row = row as isize + dr;
+            let check_col = col as isize + dc;
+            
+            if self.board.is_within_bounds(check_row, check_col) {
+                if self.board.get_cell(check_row as usize, check_col as usize).unwrap_or(0) == player_val {
+                    count += 1;
+                }
+            }
+        }
+        
+        count
+    }
+    
+    /// Get dangerous moves for Gobang (moves that give opponent opportunities)
+    /// Returns flattened positions - each pair represents (row, col)
+    pub fn get_dangerous_moves_gobang(&self) -> Vec<usize> {
+        let mut dangerous_moves = Vec::new();
+        let opponent = self.current_player.opponent();
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                    // Check if this move gives opponent high threat opportunities
+                    let threat_level = self.get_threat_level(row, col, opponent);
+                    if threat_level >= 3 { // Strong threats or above
+                        dangerous_moves.push(row);
+                        dangerous_moves.push(col);
+                    }
+                }
+            }
+        }
+        
+        dangerous_moves
+    }
+    
+    /// Get winning moves for Gobang (immediate 5-in-a-row)
+    /// Returns flattened positions - each pair represents (row, col)
+    pub fn get_winning_moves_gobang(&self) -> Vec<usize> {
+        let mut winning_moves = Vec::new();
+        let player_val = self.current_player as i8;
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                    if self.would_win_at(row, col, player_val) {
+                        winning_moves.push(row);
+                        winning_moves.push(col);
+                    }
+                }
+            }
+        }
+        
+        winning_moves
+    }
+    
+    /// Get blocking moves for Gobang (block opponent wins)
+    /// Returns flattened positions - each pair represents (row, col)
+    pub fn get_blocking_moves_gobang(&self) -> Vec<usize> {
+        let mut blocking_moves = Vec::new();
+        let opponent_val = self.current_player.opponent() as i8;
+        
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
+                    if self.would_win_at(row, col, opponent_val) {
+                        blocking_moves.push(row);
+                        blocking_moves.push(col);
+                    }
+                }
+            }
+        }
+        
+        blocking_moves
+    }
 }
 
 #[wasm_bindgen]

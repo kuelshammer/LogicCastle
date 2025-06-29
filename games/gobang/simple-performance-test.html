@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gobang Performance Test - Einfach</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .result {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .winner {
+            background: #d4edda !important;
+            border: 2px solid #c3e6cb !important;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏁 Gobang Performance Test</h1>
+        <p>Einfacher Performance-Vergleich zwischen JavaScript und Rust/WASM.</p>
+        
+        <button onclick="runAllTests()" id="runBtn">🚀 Alle Tests ausführen</button>
+        <button onclick="runQuickTest()" id="quickBtn">⚡ Schnelltest</button>
+        <button onclick="clearLog()">🗑️ Log löschen</button>
+        
+        <div id="results"></div>
+        <div class="log" id="testLog"></div>
+    </div>
+
+    <!-- Load JavaScript implementation -->
+    <script src="js/game.js"></script>
+    
+    <!-- Load WASM implementation -->
+    <script src="js/game_v2.js"></script>
+
+    <script>
+        let testLog = '';
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logLine = `[${timestamp}] ${message}`;
+            testLog += logLine + '\n';
+            document.getElementById('testLog').textContent = testLog;
+            document.getElementById('testLog').scrollTop = document.getElementById('testLog').scrollHeight;
+            console.log(logLine);
+        }
+
+        function clearLog() {
+            testLog = '';
+            document.getElementById('testLog').textContent = '';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function formatTime(ms) {
+            if (ms < 1) return `${(ms * 1000).toFixed(2)} μs`;
+            if (ms < 1000) return `${ms.toFixed(2)} ms`;
+            return `${(ms / 1000).toFixed(2)} s`;
+        }
+
+        async function runQuickTest() {
+            log('⚡ Starte Schnelltest...');
+            document.getElementById('quickBtn').disabled = true;
+            
+            const iterations = 1000;
+            await performanceTest(iterations, 'Schnelltest');
+            
+            document.getElementById('quickBtn').disabled = false;
+        }
+
+        async function runAllTests() {
+            log('🚀 Starte vollständigen Performance-Test...');
+            document.getElementById('runBtn').disabled = true;
+            
+            const iterations = 5000;
+            await performanceTest(iterations, 'Volltest');
+            
+            document.getElementById('runBtn').disabled = false;
+        }
+
+        async function performanceTest(iterations, testName) {
+            const testMoves = [
+                [7, 7], [7, 8], [6, 7], [8, 7], [7, 9],
+                [5, 7], [9, 7], [7, 6], [7, 10], [4, 7]
+            ];
+
+            let results = { js: null, wasm: null };
+
+            // Test 1: JavaScript Implementation
+            log(`📝 Teste JavaScript (${iterations} Iterationen)...`);
+            
+            const jsStartTime = performance.now();
+            let jsSuccess = 0;
+            
+            try {
+                for (let i = 0; i < iterations; i++) {
+                    const game = new window.GobangGame();
+                    
+                    // Make test moves
+                    testMoves.forEach(([row, col]) => {
+                        if (!game.isPositionOccupied(row, col)) {
+                            game.makeMove(row, col);
+                        }
+                    });
+                    
+                    // Test basic operations
+                    game.getValidMoves();
+                    game.getGameState();
+                    jsSuccess++;
+                }
+                
+                const jsTime = performance.now() - jsStartTime;
+                results.js = jsTime;
+                log(`✅ JavaScript: ${formatTime(jsTime)} (${formatTime(jsTime/iterations)} per iteration, ${jsSuccess}/${iterations} erfolgreich)`);
+                
+            } catch (error) {
+                log(`❌ JavaScript Test fehlgeschlagen: ${error.message}`);
+                results.js = 'Error';
+            }
+
+            // Test 2: WASM Implementation
+            log(`🦀 Teste Rust/WASM (${iterations} Iterationen)...`);
+            
+            try {
+                // Check if WASM game is available
+                if (typeof window.GobangGame === 'undefined') {
+                    throw new Error('WASM GobangGame nicht verfügbar');
+                }
+                
+                const wasmGame = new window.GobangGame();
+                log('🔧 Initialisiere WASM engine...');
+                await wasmGame.init();
+                log('✅ WASM engine initialisiert');
+                
+                const wasmStartTime = performance.now();
+                let wasmSuccess = 0;
+                
+                for (let i = 0; i < iterations; i++) {
+                    wasmGame.newGame();
+                    
+                    // Make test moves
+                    testMoves.forEach(([row, col]) => {
+                        if (wasmGame.isEmpty(row, col)) {
+                            try {
+                                wasmGame.makeMove(row, col);
+                            } catch (e) {
+                                // Skip invalid moves
+                            }
+                        }
+                    });
+                    
+                    // Test basic operations
+                    wasmGame.getValidMoves();
+                    wasmGame.getGameStats();
+                    wasmSuccess++;
+                }
+                
+                const wasmTime = performance.now() - wasmStartTime;
+                results.wasm = wasmTime;
+                log(`✅ Rust/WASM: ${formatTime(wasmTime)} (${formatTime(wasmTime/iterations)} per iteration, ${wasmSuccess}/${iterations} erfolgreich)`);
+                
+                // Test WASM-exclusive features
+                log(`🔍 Teste WASM-exclusive Hilfsfunktionen...`);
+                const helpersStartTime = performance.now();
+                
+                for (let i = 0; i < 100; i++) {
+                    wasmGame.newGame();
+                    wasmGame.makeMove(7, 7);
+                    wasmGame.makeMove(7, 8);
+                    
+                    // Test all helper functions
+                    wasmGame.getWinningMoves();
+                    wasmGame.getBlockingMoves();
+                    wasmGame.getDangerousMoves();
+                    wasmGame.getOpenThreeMoves();
+                    wasmGame.getClosedFourMoves();
+                    wasmGame.getDoubleThreeForks();
+                    wasmGame.getMoveAnalysis();
+                    
+                    // Test threat levels
+                    wasmGame.getThreatLevel(6, 7);
+                    wasmGame.getThreatLevel(8, 7);
+                }
+                
+                const helpersTime = performance.now() - helpersStartTime;
+                log(`🎯 WASM Hilfsfunktionen: ${formatTime(helpersTime)} (100 Analysen)`);
+                
+            } catch (error) {
+                log(`❌ WASM Test fehlgeschlagen: ${error.message}`);
+                log(`🔍 Error details: ${error.stack || 'No stack trace'}`);
+                results.wasm = 'Error';
+            }
+
+            // Display Results
+            displayResults(results, testName);
+        }
+
+        function displayResults(results, testName) {
+            log('\n📊 ERGEBNISSE:');
+            log('=' .repeat(40));
+            
+            const resultsDiv = document.getElementById('results');
+            let html = `<h2>📊 ${testName} Ergebnisse</h2>`;
+            
+            if (results.js && results.wasm && typeof results.js === 'number' && typeof results.wasm === 'number') {
+                const speedup = results.js / results.wasm;
+                
+                html += `
+                    <div class="result ${speedup > 1 ? 'winner' : ''}">
+                        <h3>🦀 Rust/WASM</h3>
+                        <p>Zeit: ${formatTime(results.wasm)}</p>
+                        ${speedup > 1 ? `<p><strong>🏆 ${speedup.toFixed(2)}x schneller als JavaScript!</strong></p>` : ''}
+                    </div>
+                    <div class="result ${speedup <= 1 ? 'winner' : ''}">
+                        <h3>📝 JavaScript</h3>
+                        <p>Zeit: ${formatTime(results.js)}</p>
+                        ${speedup <= 1 ? `<p><strong>🏆 ${(1/speedup).toFixed(2)}x schneller als WASM!</strong></p>` : ''}
+                    </div>
+                `;
+                
+                html += `
+                    <div class="result">
+                        <h3>💡 Zusätzliche WASM Features</h3>
+                        <p>✅ Open Three Detection</p>
+                        <p>✅ Closed Four Detection</p>
+                        <p>✅ Double Three Fork Analysis</p>
+                        <p>✅ Threat Level Assessment (0-5)</p>
+                        <p>✅ Winning/Blocking/Dangerous Move Detection</p>
+                        <p><em>Diese Features sind nur in WASM verfügbar!</em></p>
+                    </div>
+                `;
+                
+                log(`JavaScript: ${formatTime(results.js)}`);
+                log(`Rust/WASM: ${formatTime(results.wasm)}`);
+                
+                if (speedup > 1) {
+                    log(`🏆 WASM ist ${speedup.toFixed(2)}x schneller!`);
+                } else {
+                    log(`🏆 JavaScript ist ${(1/speedup).toFixed(2)}x schneller!`);
+                }
+                
+            } else {
+                html += `
+                    <div class="result">
+                        <h3>⚠️ Test Ergebnis</h3>
+                        <p>JavaScript: ${results.js || 'Nicht getestet'}</p>
+                        <p>Rust/WASM: ${results.wasm || 'Nicht getestet'}</p>
+                    </div>
+                `;
+                
+                log(`JavaScript: ${results.js || 'Fehler'}`);
+                log(`Rust/WASM: ${results.wasm || 'Fehler'}`);
+            }
+            
+            resultsDiv.innerHTML = html;
+            log('📊 Test abgeschlossen!');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            log('🚀 Performance Test bereit!');
+            log('💡 Tipp: Verwende "Schnelltest" für eine schnelle Übersicht oder "Alle Tests" für detaillierte Ergebnisse.');
+            
+            // Check if WASM is available
+            setTimeout(() => {
+                if (typeof window.GobangGame !== 'undefined') {
+                    log('✅ WASM GobangGame verfügbar');
+                } else {
+                    log('❌ WASM GobangGame nicht verfügbar - prüfe WASM-Loading');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
