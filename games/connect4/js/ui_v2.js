@@ -198,6 +198,9 @@ class Connect4UI {
 
   // Initialize board
   initializeBoard() {
+    // Clear any existing coordinate indicators from previous games
+    this.clearBlockedColumnIndicators();
+    
     this.createBoardCoordinates();
     this.createGameBoard();
   }
@@ -383,6 +386,8 @@ class Connect4UI {
   // Start new game
   newGame() {
     this.clearColumnSelection();
+    // Clear any assistance indicators from previous game
+    this.clearBlockedColumnIndicators();
     this.game.newGame();
   }
 
@@ -917,17 +922,8 @@ class Connect4UI {
     
     this.showToast(reason, 'error');
     
-    // Visual feedback: briefly highlight the blocked column in red
-    const dropRow = this.game.getDropRow(col);
-    if (dropRow !== -1) {
-      const slot = this.getSlot(dropRow, col);
-      if (slot) {
-        slot.classList.add('blocked-move');
-        setTimeout(() => {
-          slot.classList.remove('blocked-move');
-        }, 1500);
-      }
-    }
+    // Visual feedback: Only use coordinate indicators now (no game board styling)
+    // Game board symbols have been completely removed for clean UX
   }
   
   showBlockedColumnVisualFeedback(col) {
@@ -1190,35 +1186,8 @@ class Connect4UI {
     console.log(`🎯 Updating assistance for ${isPlayer1 ? 'Player 1 (Yellow)' : 'Player 2 (Red)'}`);
     console.log('🔧 Player settings:', playerSettings);
     
-    // Show threat indicators
-    if (playerSettings.threats) {
-      console.log('⚠️ Showing threat indicators...');
-      this.showThreatIndicators();
-    }
-    
-    // Show winning move indicators
-    if (playerSettings.winningMoves) {
-      console.log('🏆 Showing winning move indicators...');
-      this.showWinningMoveIndicators();
-      
-      // FORCE TEST: Always add indicator to column 6 for demo
-      const testSlot = this.getSlot(5, 6);
-      if (testSlot && !testSlot.querySelector('.assistance-indicator')) {
-        testSlot.classList.add('winning-indicator');
-        const indicator = document.createElement('div');
-        indicator.className = 'assistance-indicator winning-icon';
-        indicator.innerHTML = '🏆';
-        indicator.title = 'TEST: Forced demo indicator';
-        testSlot.appendChild(indicator);
-        console.log('✅ Added FORCED test indicator to column 6');
-      }
-    }
-    
-    // Show blocked column indicators
-    if (playerSettings.blockedColumns) {
-      console.log('🚫 Showing blocked column indicators...');
-      this.showBlockedColumnIndicators();
-    }
+    // All assistance indicators are now handled by column coordinates only
+    // Removed all game board indicators to eliminate confusion
   }
   
   // Clear all assistance indicators from the board

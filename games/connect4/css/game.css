@@ -203,14 +203,13 @@
 .coord.winning-column {
   color: #4CAF50 !important;
   font-weight: bold !important;
-  font-size: 1.3em !important;
-  background: rgba(76, 175, 80, 0.15) !important;
-  border-radius: 6px !important;
-  padding: 4px 8px !important;
-  border: 2px solid #4CAF50 !important;
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5) !important;
+  font-size: 1.1em !important;
+  background: rgba(76, 175, 80, 0.12) !important;
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  border: 1px solid #4CAF50 !important;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.4) !important;
   cursor: pointer !important;
-  transform: scale(1.1) !important;
   animation: winning-glow 1.5s ease-in-out infinite alternate !important;
 }
 
@@ -218,14 +217,13 @@
 .coord.blocking-column {
   color: #FF9800 !important;
   font-weight: bold !important;
-  font-size: 1.3em !important;
-  background: rgba(255, 152, 0, 0.15) !important;
-  border-radius: 6px !important;
-  padding: 4px 8px !important;
-  border: 2px solid #FF9800 !important;
-  box-shadow: 0 0 8px rgba(255, 152, 0, 0.5) !important;
+  font-size: 1.1em !important;
+  background: rgba(255, 152, 0, 0.12) !important;
+  border-radius: 4px !important;
+  padding: 2px 4px !important;
+  border: 1px solid #FF9800 !important;
+  box-shadow: 0 0 6px rgba(255, 152, 0, 0.4) !important;
   cursor: pointer !important;
-  transform: scale(1.1) !important;
   animation: blocking-glow 1.2s ease-in-out infinite alternate !important;
 }
 
@@ -414,122 +412,20 @@
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Intelligent assistance visual indicators */
+/* Intelligent assistance visual indicators - REMOVED 
+   All visual assistance is now handled by column coordinates only */
 
-/* Winning moves - Bright green with gold glow */
-.game-slot.winning-move {
-  background: rgba(76, 175, 80, 0.9) !important;
-  border: 3px solid #4CAF50 !important;
-  box-shadow: 
-    0 0 15px rgba(76, 175, 80, 1.0),
-    0 0 30px rgba(76, 175, 80, 0.8),
-    0 0 45px rgba(255, 215, 0, 0.6) !important;
-  animation: winning-pulse 1.2s ease-in-out infinite alternate !important;
-}
+/* Blocked move feedback - REMOVED
+   Visual feedback is now only handled by column coordinates */
 
-@keyframes winning-pulse {
-  0% {
-    transform: scale(1.1);
-    box-shadow: 
-      0 0 15px rgba(76, 175, 80, 1.0),
-      0 0 30px rgba(76, 175, 80, 0.8),
-      0 0 45px rgba(255, 215, 0, 0.6);
-  }
-  100% {
-    transform: scale(1.15);
-    box-shadow: 
-      0 0 20px rgba(76, 175, 80, 1.0),
-      0 0 40px rgba(76, 175, 80, 0.9),
-      0 0 60px rgba(255, 215, 0, 0.8);
-  }
-}
-
-/* Forced moves (blocking) - Urgent orange with pulsing */
-.game-slot.forced-move {
-  background: rgba(255, 152, 0, 0.9) !important;
-  border: 3px solid #FF9800 !important;
-  box-shadow: 
-    0 0 15px rgba(255, 152, 0, 1.0),
-    0 0 30px rgba(255, 152, 0, 0.8),
-    0 0 45px rgba(255, 87, 34, 0.6) !important;
-  animation: urgent-pulse 0.8s ease-in-out infinite alternate !important;
-}
-
-@keyframes urgent-pulse {
-  0% {
-    transform: scale(1.12);
-    box-shadow: 
-      0 0 15px rgba(255, 152, 0, 1.0),
-      0 0 30px rgba(255, 152, 0, 0.8),
-      0 0 45px rgba(255, 87, 34, 0.6);
-  }
-  100% {
-    transform: scale(1.18);
-    box-shadow: 
-      0 0 25px rgba(255, 152, 0, 1.0),
-      0 0 50px rgba(255, 152, 0, 0.9),
-      0 0 75px rgba(255, 87, 34, 0.8);
-  }
-}
-
-/* Dangerous moves - Red with X pattern and warning glow */
-.game-slot.dangerous-move {
-  background: rgba(244, 67, 54, 0.9) !important;
-  border: 3px solid #F44336 !important;
-  box-shadow: 
-    0 0 15px rgba(244, 67, 54, 1.0),
-    0 0 30px rgba(244, 67, 54, 0.8),
-    0 0 45px rgba(244, 67, 54, 0.6) !important;
-  position: relative !important;
-}
-
-.game-slot.dangerous-move::before {
-  content: '✕';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-size: 24px;
-  font-weight: bold;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
-  z-index: 10;
-  animation: danger-flash 1s ease-in-out infinite alternate;
-}
-
-@keyframes danger-flash {
-  0% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
-  }
-}
-
-/* Temporarily blocked move feedback */
-.game-slot.blocked-move {
-  background: rgba(156, 39, 176, 0.8) !important;
-  border: 3px solid #9C27B0 !important;
-  box-shadow: 0 0 20px rgba(156, 39, 176, 0.7) !important;
-  animation: blocked-shake 0.5s ease-in-out 3 !important;
-}
-
-@keyframes blocked-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px); }
-  75% { transform: translateX(3px); }
-}
-
-/* Column hover effects - Lower priority than assistance indicators */
-.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
-.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
-.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
-.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
-.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
-.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type,
-.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece):not(.selected):not(.winning-move):not(.forced-move):not(.dangerous-move):first-of-type {
+/* Column hover effects - Simplified for clean UI */
+.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece):not(.selected):first-of-type,
+.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece):not(.selected):first-of-type,
+.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece):not(.selected):first-of-type,
+.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece):not(.selected):first-of-type,
+.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece):not(.selected):first-of-type,
+.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece):not(.selected):first-of-type,
+.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece):not(.selected):first-of-type {
   background: rgba(255, 235, 59, 0.3);
 }
 
