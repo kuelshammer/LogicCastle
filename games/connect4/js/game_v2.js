@@ -453,7 +453,7 @@ class Connect4Game {
     }
   }
   
-  // Get columns with blocking moves (opponent winning threats)
+  // Get columns with blocking moves (where I need to play to block opponent threats)
   getBlockingMoves() {
     if (!this.isInitialized || !this.wasmGame) return [];
     
@@ -462,22 +462,43 @@ class Connect4Game {
       const currentPlayer = this.getCurrentPlayer();
       const opponentVal = currentPlayer === window.WasmPlayer?.Yellow ? window.WasmPlayer?.Red : window.WasmPlayer?.Yellow;
       
-      // Check each column for opponent winning moves
+      console.log(`🔍 getBlockingMoves: Current player ${currentPlayer}, Opponent ${opponentVal}`);
+      
+      // Strategy: Check each column to see if opponent would win by playing there next turn
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
           try {
-            // Simulate opponent's move using the new WASM function
-            const simulated = this.wasmGame.simulate_move_connect4_js(col);
-            if (simulated && simulated.check_win() === opponentVal) {
-              blockingCols.push(col);
+            // 1. Simulate MY move in this column
+            const myMove = this.wasmGame.simulate_move_connect4_js(col);
+            if (!myMove) continue;
+            
+            // 2. Now check if from that position, opponent has winning moves
+            // If opponent can win immediately after my move, this might not be the best blocking move
+            // But if opponent can win in the CURRENT position by playing in this column, I need to block it
+            
+            // SIMPLE APPROACH: Check if opponent can win by playing in this column RIGHT NOW
+            // We temporarily "undo" our turn and check what opponent's winning moves are
+            const currentBoard = this.getBoard();
+            const dropRow = this.getDropRow(col);
+            
+            if (dropRow >= 0) {
+              // Simulate placing opponent's piece in this column
+              const simulatedBoard = [...currentBoard];
+              simulatedBoard[dropRow * this.cols + col] = opponentVal;
+              
+              // Check if this creates a win for opponent
+              if (this.checkWinInBoard(simulatedBoard, dropRow, col, opponentVal)) {
+                blockingCols.push(col);
+                console.log(`🛡️ Found blocking move: Column ${col + 1} (opponent threat)`);
+              }
             }
           } catch (moveError) {
-            // Move might be invalid, skip this column
-            continue;
+            console.warn(`⚠️ Could not check blocking for column ${col}:`, moveError);
           }
         }
       }
       
+      console.log(`🛡️ getBlockingMoves result: [${blockingCols.map(c => c + 1).join(', ')}]`);
       return blockingCols;
     } catch (error) {
       console.warn('Failed to get blocking moves:', error);
@@ -485,41 +506,150 @@ class Connect4Game {
     }
   }
   
-  // Get columns that are strategically blocked (lead to bad positions)
+  // Helper function to check if a move creates a win in a given board state
+  checkWinInBoard(board, row, col, player) {
+    const directions = [
+      [0, 1],   // horizontal
+      [1, 0],   // vertical  
+      [1, 1],   // diagonal \
+      [1, -1]   // diagonal /
+    ];
+    
+    for (const [deltaRow, deltaCol] of directions) {
+      let count = 1; // Count the piece we just placed
+      
+      // Check positive direction
+      let checkRow = row + deltaRow;
+      let checkCol = col + deltaCol;
+      while (checkRow >= 0 && checkRow < this.rows && 
+             checkCol >= 0 && checkCol < this.cols && 
+             board[checkRow * this.cols + checkCol] === player) {
+        count++;
+        checkRow += deltaRow;
+        checkCol += deltaCol;
+      }
+      
+      // Check negative direction
+      checkRow = row - deltaRow;
+      checkCol = col - deltaCol;
+      while (checkRow >= 0 && checkRow < this.rows && 
+             checkCol >= 0 && checkCol < this.cols && 
+             board[checkRow * this.cols + checkCol] === player) {
+        count++;
+        checkRow -= deltaRow;
+        checkCol -= deltaCol;
+      }
+      
+      if (count >= 4) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  // Get columns that are strategically blocked (lead to bad positions - "Fallen")
   getBlockedColumns() {
     if (!this.isInitialized || !this.wasmGame) return [];
     
     try {
       const blockedCols = [];
       const currentPlayer = this.getCurrentPlayer();
+      const opponentVal = currentPlayer === window.WasmPlayer?.Yellow ? window.WasmPlayer?.Red : window.WasmPlayer?.Yellow;
+      
+      console.log(`🔍 getBlockedColumns: Checking for traps/dangerous moves for player ${currentPlayer}`);
       
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
           try {
-            // Simulate the move and check if it creates a bad position
-            const simulated = this.wasmGame.simulate_move_connect4_js(col);
-            if (simulated) {
-              // Evaluate position from current player's perspective
-              simulated.current_player = currentPlayer;
-              const evaluation = simulated.evaluate_position();
+            // Check if playing in this column creates a "trap" - opponent gets immediate winning opportunity
+            const myMove = this.wasmGame.simulate_move_connect4_js(col);
+            if (myMove) {
+              // After my move, check if opponent gets immediate winning moves
+              const myMoveBoard = Array.from(myMove.get_board());
+              const opponentWinningMoves = [];
               
-              // If move leads to significant disadvantage, mark as blocked
-              if (evaluation < -200) {
+              // Check each column to see if opponent can win immediately after my move
+              for (let opponentCol = 0; opponentCol < this.cols; opponentCol++) {
+                if (!this.isColumnFullInBoard(myMoveBoard, opponentCol)) {
+                  const opponentDropRow = this.getDropRowInBoard(myMoveBoard, opponentCol);
+                  if (opponentDropRow >= 0) {
+                    // Simulate opponent's move
+                    const opponentBoard = [...myMoveBoard];
+                    opponentBoard[opponentDropRow * this.cols + opponentCol] = opponentVal;
+                    
+                    if (this.checkWinInBoard(opponentBoard, opponentDropRow, opponentCol, opponentVal)) {
+                      opponentWinningMoves.push(opponentCol);
+                    }
+                  }
+                }
+              }
+              
+              // If my move gives opponent 2 or more winning options (fork), it's a trap
+              if (opponentWinningMoves.length >= 2) {
                 blockedCols.push(col);
+                console.log(`🚫 Found trap: Column ${col + 1} gives opponent ${opponentWinningMoves.length} winning moves: [${opponentWinningMoves.map(c => c + 1).join(', ')}]`);
+              }
+              
+              // If my move gives opponent ANY winning move and I don't have counter-threats, it might be dangerous
+              else if (opponentWinningMoves.length === 1) {
+                // Check if I have counter-threats after opponent's potential winning move
+                const hasCounterThreats = this.hasCounterThreats(myMoveBoard, currentPlayer);
+                if (!hasCounterThreats) {
+                  // This move gives opponent a winning move and I have no counter - dangerous
+                  blockedCols.push(col);
+                  console.log(`⚠️ Found dangerous move: Column ${col + 1} gives opponent winning move ${opponentWinningMoves[0] + 1} with no counter-threats`);
+                }
               }
             }
           } catch (moveError) {
-            // Move might be invalid, skip this column
-            continue;
+            console.warn(`⚠️ Could not analyze column ${col} for traps:`, moveError);
           }
         }
       }
       
+      console.log(`🚫 getBlockedColumns result: [${blockedCols.map(c => c + 1).join(', ')}]`);
       return blockedCols;
     } catch (error) {
       console.warn('Failed to get blocked columns:', error);
       return [];
     }
+  }
+  
+  // Helper function to check if board column is full
+  isColumnFullInBoard(board, col) {
+    return board[col] !== 0; // Top row is not empty
+  }
+  
+  // Helper function to get drop row in a board
+  getDropRowInBoard(board, col) {
+    if (this.isColumnFullInBoard(board, col)) return -1;
+    
+    for (let row = this.rows - 1; row >= 0; row--) {
+      if (board[row * this.cols + col] === 0) {
+        return row;
+      }
+    }
+    return -1;
+  }
+  
+  // Helper function to check if player has counter-threats
+  hasCounterThreats(board, player) {
+    // Simple implementation: check if player has any 3-in-a-row that can be completed
+    // This is a simplified version - in practice, this should be more sophisticated
+    for (let col = 0; col < this.cols; col++) {
+      if (!this.isColumnFullInBoard(board, col)) {
+        const dropRow = this.getDropRowInBoard(board, col);
+        if (dropRow >= 0) {
+          const testBoard = [...board];
+          testBoard[dropRow * this.cols + col] = player;
+          if (this.checkWinInBoard(testBoard, dropRow, col, player)) {
+            return true; // Player has an immediate winning move
+          }
+        }
+      }
+    }
+    return false;
   }
 
   // ALL game logic handled by Rust/WASM - no JavaScript implementation!

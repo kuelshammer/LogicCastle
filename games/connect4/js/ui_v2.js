@@ -826,8 +826,8 @@ class Connect4UI {
     try {
       const winningMoves = this.game.getWinningMoves();
       const blockingMoves = this.game.getBlockingMoves();
-      // Simplify dangerous moves calculation to prevent loops
-      const dangerousMoves = []; // Temporarily disable dangerous moves analysis
+      // Get dangerous/trap moves (when "Gesperrte Spalten" assistance is enabled)
+      const dangerousMoves = this.game.getBlockedColumns();
       
       this.analysisCache = {
         moveNumber: this.game.getMoveCount(),
