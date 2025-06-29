@@ -423,7 +423,8 @@ class Connect4UI {
       
       // Check if column is blocked by assistance (for immediate feedback)
       if (this.isColumnBlocked(col)) {
-        console.warn(`🚫 Keyboard: Column ${col + 1} is blocked by assistance`);
+        console.warn(`🚫 Keyboard: Column ${col + 1} is ABSOLUTELY BLOCKED by assistance`);
+        this.showToast(`Tastatur: Spalte ${col + 1} gesperrt! Nur grün markierte Züge erlaubt.`, 'error');
         this.showBlockedColumnFeedback(col);
         this.showBlockedColumnVisualFeedback(col);
         return;
@@ -717,7 +718,8 @@ class Connect4UI {
     
     // CRITICAL: Check if column is blocked by intelligent assistance
     if (this.isColumnBlocked(col)) {
-      console.warn(`🚫 Column ${col + 1} is blocked by assistance system`);
+      console.warn(`🚫 Column ${col + 1} is ABSOLUTELY BLOCKED by assistance system`);
+      this.showToast(`Spalte ${col + 1} ist gesperrt! Nur optimale Züge sind erlaubt.`, 'error');
       this.showBlockedColumnFeedback(col);
       this.showBlockedColumnVisualFeedback(col);
       return;
@@ -1020,11 +1022,24 @@ class Connect4UI {
   updateBlockedColumnIndicators() {
     if (this.game.isGameOver()) return;
     
+    // Clear all column styling first
+    [this.elements.topCoords, this.elements.bottomCoords].forEach(coordsEl => {
+      const coords = coordsEl.querySelectorAll('.coord');
+      coords.forEach(coord => {
+        coord.classList.remove('blocked-column', 'winning-column');
+        // Remove old indicator elements
+        const indicator = coord.querySelector('.blocked-indicator');
+        if (indicator) {
+          indicator.remove();
+        }
+      });
+    });
+    
     const currentPlayer = this.game.getCurrentPlayer();
     const isPlayer1 = currentPlayer === Player.Yellow;
     const playerSettings = isPlayer1 ? this.playerAssistance.player1 : this.playerAssistance.player2;
     
-    // Only show blocking if assistance is enabled
+    // Only show assistance if enabled
     if (!playerSettings.winningMoves && !playerSettings.threats && !playerSettings.blockedColumns) {
       return;
     }
@@ -1038,58 +1053,49 @@ class Connect4UI {
     
     console.log(`🔍 Column analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}]`);
     
-    // Determine which columns should be blocked
-    const blockedColumns = [];
+    // NEW LOGIC: Prioritize winning moves with clear visual distinction
+    let priorityColumns = [];
+    let blockedColumns = [];
     
-    // Rule 1: If winning moves available and winning assistance enabled, block non-winning moves
+    // Rule 1: WINNING MOVES get priority - show as GREEN
     if (playerSettings.winningMoves && winningMoves.length > 0) {
+      priorityColumns = winningMoves.filter(col => !this.game.isColumnFull(col));
+      // Block ALL other columns
       for (let col = 0; col < 7; col++) {
         if (!this.game.isColumnFull(col) && !winningMoves.includes(col)) {
           blockedColumns.push(col);
         }
       }
-      console.log(`🏆 Winning moves available: [${winningMoves}] - Blocking: [${blockedColumns}]`);
+      console.log(`🏆 WINNING STRATEGY: Priority columns [${priorityColumns.map(c=>c+1)}], Blocked [${blockedColumns.map(c=>c+1)}]`);
     }
-    // Rule 2: If blocking required and threat assistance enabled, block non-blocking moves
+    // Rule 2: BLOCKING MOVES get priority when no winning moves
     else if (playerSettings.threats && blockingMoves.length > 0) {
+      priorityColumns = blockingMoves.filter(col => !this.game.isColumnFull(col));
+      // Block non-blocking columns
       for (let col = 0; col < 7; col++) {
         if (!this.game.isColumnFull(col) && !blockingMoves.includes(col)) {
           blockedColumns.push(col);
         }
       }
-      console.log(`⚠️ Blocking required: [${blockingMoves}] - Blocking: [${blockedColumns}]`);
-    }
-    // Rule 3: If dangerous moves exist and blocked columns assistance enabled, block dangerous moves
-    else if (playerSettings.blockedColumns) {
-      dangerousMoves.forEach(col => {
-        if (!this.game.isColumnFull(col)) {
-          blockedColumns.push(col);
-        }
-      });
-      console.log(`🚫 Dangerous moves: [${dangerousMoves}] - Blocking: [${blockedColumns}]`);
+      console.log(`⚠️ DEFENSIVE STRATEGY: Priority columns [${priorityColumns.map(c=>c+1)}], Blocked [${blockedColumns.map(c=>c+1)}]`);
     }
     
-    // Apply visual blocking to coordinates
+    // Apply visual styling to coordinates
     [this.elements.topCoords, this.elements.bottomCoords].forEach(coordsEl => {
       const coords = coordsEl.querySelectorAll('.coord');
       coords.forEach((coord, index) => {
-        if (blockedColumns.includes(index)) {
+        if (priorityColumns.includes(index)) {
+          coord.classList.add('winning-column');
+          coord.title = 'Optimaler Zug - führt direkt zum Sieg!';
+        } else if (blockedColumns.includes(index)) {
           coord.classList.add('blocked-column');
-          
-          // Add red strikethrough indicator
-          if (!coord.querySelector('.blocked-indicator')) {
-            const indicator = document.createElement('span');
-            indicator.className = 'blocked-indicator';
-            indicator.innerHTML = '🚫';
-            indicator.title = 'Spalte gesperrt durch Spielerhilfe';
-            coord.appendChild(indicator);
-          }
+          coord.title = 'Spalte gesperrt - nicht optimal bei aktivierter Hilfe';
         }
       });
     });
     
-    if (blockedColumns.length > 0) {
-      console.log(`✅ Applied blocking indicators to columns: [${blockedColumns.map(c => c + 1)}]`);
+    if (priorityColumns.length > 0 || blockedColumns.length > 0) {
+      console.log(`✅ Applied column indicators - Priority: [${priorityColumns.map(c => c + 1)}], Blocked: [${blockedColumns.map(c => c + 1)}]`);
     }
   }
 
