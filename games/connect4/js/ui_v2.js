@@ -46,18 +46,21 @@ class Connect4UI {
     this.setupEventListeners();
     this.setupGameEventListeners();
     
-    // Initialize game engine
+    // Initialize board first (always show game board)
+    this.initializeBoard();
+    
+    // Initialize game engine (WASM)
     const initialized = await this.game.init();
     if (!initialized) {
       console.error('❌ Game engine initialization failed');
-      this.showToast('Fehler beim Laden des Spiels', 'error');
-      return;
+      this.showToast('Spiel geladen (ohne WASM-Optimierungen)', 'warning');
+      // Continue with fallback mode - UI is still functional
+    } else {
+      this.showToast('4 Gewinnt geladen!', 'success');
+      console.log('✅ Connect4 game ready!');
     }
     
-    this.initializeBoard();
     this.updateUI();
-    this.showToast('4 Gewinnt geladen!', 'success');
-    console.log('✅ Connect4 game ready!');
   }
 
   // Bind DOM elements
@@ -855,7 +858,7 @@ class Connect4UI {
       for (let col = 0; col < 7; col++) {
         if (!this.game.isColumnFull(col)) {
           // Simulate our move
-          const simulated = this.game.wasmGame.simulate_move_connect4(col);
+          const simulated = this.game.wasmGame.simulate_move_connect4_js(col);
           if (simulated) {
             // Check if opponent would have winning moves after our move
             simulated.current_player = opponentVal;
@@ -864,7 +867,7 @@ class Connect4UI {
             for (let checkCol = 0; checkCol < 7; checkCol++) {
               if (simulated.get_board()[checkCol] === 0) { // Column not full
                 try {
-                  const opponentSim = simulated.simulate_move_connect4(checkCol);
+                  const opponentSim = simulated.simulate_move_connect4_js(checkCol);
                   if (opponentSim && opponentSim.check_win() === opponentVal) {
                     opponentWinning.push(checkCol);
                   }

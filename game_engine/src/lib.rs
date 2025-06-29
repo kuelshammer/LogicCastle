@@ -26,22 +26,22 @@ pub struct PositionAnalysis {
 #[wasm_bindgen]
 impl PositionAnalysis {
     #[wasm_bindgen(getter)]
-    pub fn current_player_threats(&self) -> usize { self.current_player_threats }
+    pub fn get_current_player_threats(&self) -> usize { self.current_player_threats }
     
     #[wasm_bindgen(getter)]
-    pub fn opponent_threats(&self) -> usize { self.opponent_threats }
+    pub fn get_opponent_threats(&self) -> usize { self.opponent_threats }
     
     #[wasm_bindgen(getter)]
-    pub fn total_pieces(&self) -> usize { self.total_pieces }
+    pub fn get_total_pieces(&self) -> usize { self.total_pieces }
     
     #[wasm_bindgen(getter)]
-    pub fn connectivity_score(&self) -> i32 { self.connectivity_score }
+    pub fn get_connectivity_score(&self) -> i32 { self.connectivity_score }
     
     #[wasm_bindgen(getter)]
-    pub fn game_phase(&self) -> GamePhase { self.game_phase }
+    pub fn get_game_phase(&self) -> GamePhase { self.game_phase }
     
     #[wasm_bindgen(getter)]
-    pub fn evaluation_score(&self) -> i32 { self.evaluation_score }
+    pub fn get_evaluation_score(&self) -> i32 { self.evaluation_score }
     
     /// Get threat advantage (positive = current player has more threats)
     pub fn threat_advantage(&self) -> i32 {
@@ -418,6 +418,15 @@ impl Game {
         let mut cloned = self.fast_clone();
         cloned._make_move_connect4(col)?;
         Ok(cloned)
+    }
+    
+    /// Simulate a move efficiently (WASM-compatible version)
+    #[wasm_bindgen]
+    pub fn simulate_move_connect4_js(&self, col: usize) -> Option<Game> {
+        match self.simulate_move_connect4(col) {
+            Ok(simulated_game) => Some(simulated_game),
+            Err(_) => None
+        }
     }
     
     /// Check if game is in terminal state (win/draw)

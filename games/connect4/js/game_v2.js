@@ -111,7 +111,16 @@ class Connect4Game {
       
       // Save initial state
       this.saveGameState();
-      console.log('✅ WASM game engine fully initialized - VERSION 2025-06-28 14:11');
+      console.log('✅ WASM game engine fully initialized - VERSION 2025-06-29 16:30');
+      
+      // Verify critical functions are available
+      const criticalFunctions = ['simulate_move_connect4_js', 'analyze_position', 'check_win'];
+      const missingFunctions = criticalFunctions.filter(func => typeof this.wasmGame[func] !== 'function');
+      if (missingFunctions.length > 0) {
+        console.warn('⚠️ Missing WASM functions:', missingFunctions);
+      } else {
+        console.log('✅ All critical WASM functions available');
+      }
       
       return true;
     } catch (error) {
@@ -389,10 +398,10 @@ class Connect4Game {
     try {
       const analysis = this.wasmGame.analyze_position();
       return {
-        currentPlayerThreats: analysis.current_player_threats(),
-        opponentThreats: analysis.opponent_threats(),
-        totalPieces: analysis.total_pieces(),
-        gamePhase: analysis.game_phase(),
+        currentPlayerThreats: analysis.get_current_player_threats(),
+        opponentThreats: analysis.get_opponent_threats(),
+        totalPieces: analysis.get_total_pieces(),
+        gamePhase: analysis.get_game_phase(),
         isCritical: analysis.is_critical(),
         threatAdvantage: analysis.threat_advantage()
       };
@@ -402,7 +411,7 @@ class Connect4Game {
     }
   }
   
-  // Get columns with winning moves for current player
+  // Get columns with winning moves for current player (JavaScript implementation)
   getWinningMoves() {
     if (!this.isInitialized || !this.wasmGame) {
       console.warn('🚫 getWinningMoves: Game not initialized or WASM not available');
@@ -414,31 +423,25 @@ class Connect4Game {
       const currentPlayerVal = this.getCurrentPlayer();
       const currentBoard = this.getBoard();
       
-      console.log(`🔍 WASM getWinningMoves: Analyzing for player ${currentPlayerVal}`);
+      console.log(`🔍 JS getWinningMoves: Analyzing for player ${currentPlayerVal}`);
       console.log(`🔍 Current board state:`, currentBoard);
       
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
-          // Simulate the move to check if it wins
-          try {
-            console.log(`🎯 Testing column ${col + 1} for winning move...`);
-            const simulated = this.wasmGame.simulate_move_connect4(col);
-            if (simulated) {
-              const winner = simulated.check_win();
-              console.log(`🎯 Column ${col + 1} simulation result - Winner: ${winner}, Current player: ${currentPlayerVal}`);
-              if (winner === currentPlayerVal) {
+          // Find where the piece would land
+          const dropRow = this.getDropRow(col);
+          if (dropRow !== -1) {
+            // Use WASM simulation to check if this move would win
+            try {
+              const simulated = this.wasmGame.simulate_move_connect4_js(col);
+              if (simulated && simulated.check_win() === currentPlayerVal) {
                 winningCols.push(col);
                 console.log(`✅ Column ${col + 1} is a WINNING MOVE!`);
               }
-            } else {
-              console.warn(`❌ Column ${col + 1} simulation returned null`);
+            } catch (simulationError) {
+              console.warn(`⚠️ Could not simulate move in column ${col}:`, simulationError);
             }
-          } catch (moveError) {
-            console.warn(`❌ Column ${col + 1} simulation failed:`, moveError);
-            continue;
           }
-        } else {
-          console.log(`🔒 Column ${col + 1} is full, skipping`);
         }
       }
       
@@ -463,10 +466,8 @@ class Connect4Game {
       for (let col = 0; col < this.cols; col++) {
         if (!this.isColumnFull(col)) {
           try {
-            // Create a temporary copy and simulate opponent's move
-            const tempGame = this.wasmGame.fast_clone();
-            tempGame.current_player = opponentVal;
-            const simulated = tempGame.simulate_move_connect4(col);
+            // Simulate opponent's move using the new WASM function
+            const simulated = this.wasmGame.simulate_move_connect4_js(col);
             if (simulated && simulated.check_win() === opponentVal) {
               blockingCols.push(col);
             }
@@ -496,7 +497,7 @@ class Connect4Game {
         if (!this.isColumnFull(col)) {
           try {
             // Simulate the move and check if it creates a bad position
-            const simulated = this.wasmGame.simulate_move_connect4(col);
+            const simulated = this.wasmGame.simulate_move_connect4_js(col);
             if (simulated) {
               // Evaluate position from current player's perspective
               simulated.current_player = currentPlayer;

@@ -56,6 +56,29 @@ function takeFromExternrefTable0(idx) {
     wasm.__externref_table_dealloc(idx);
     return value;
 }
+
+let cachedUint32ArrayMemory0 = null;
+
+function getUint32ArrayMemory0() {
+    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
+        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachedUint32ArrayMemory0;
+}
+
+function getArrayU32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+/**
+ * Game phase enumeration for strategic evaluation
+ * @enum {0 | 1 | 2}
+ */
+export const GamePhase = Object.freeze({
+    Opening: 0, "0": "Opening",
+    Middle: 1, "1": "Middle",
+    Endgame: 2, "2": "Endgame",
+});
 /**
  * @enum {1 | 2}
  */
@@ -69,6 +92,14 @@ const BoardFinalization = (typeof FinalizationRegistry === 'undefined')
     : new FinalizationRegistry(ptr => wasm.__wbg_board_free(ptr >>> 0, 1));
 
 export class Board {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Board.prototype);
+        obj.__wbg_ptr = ptr;
+        BoardFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
 
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -153,6 +184,50 @@ export class Board {
         const ret = wasm.board_is_full(this.__wbg_ptr);
         return ret !== 0;
     }
+    /**
+     * Check if a column is full (Connect4) - memory efficient check
+     * @param {number} col
+     * @returns {boolean}
+     */
+    is_column_full(col) {
+        const ret = wasm.board_is_column_full(this.__wbg_ptr, col);
+        return ret !== 0;
+    }
+    /**
+     * Get column height (Connect4) - essential for AI move generation
+     * @param {number} col
+     * @returns {number}
+     */
+    column_height(col) {
+        const ret = wasm.board_column_height(this.__wbg_ptr, col);
+        return ret >>> 0;
+    }
+    /**
+     * Fast clone for AI simulations - reuses memory layout
+     * @returns {Board}
+     */
+    fast_clone() {
+        const ret = wasm.board_fast_clone(this.__wbg_ptr);
+        return Board.__wrap(ret);
+    }
+    /**
+     * Check if a specific column has available space (for Connect4)
+     * @param {number} col
+     * @returns {boolean}
+     */
+    is_column_available(col) {
+        const ret = wasm.board_is_column_available(this.__wbg_ptr, col);
+        return ret !== 0;
+    }
+    /**
+     * Get the row where a piece would land in a column (for Connect4)
+     * @param {number} col
+     * @returns {number | undefined}
+     */
+    get_drop_row(col) {
+        const ret = wasm.board_get_drop_row(this.__wbg_ptr, col);
+        return ret === 0x100000001 ? undefined : ret;
+    }
 }
 
 const GameFinalization = (typeof FinalizationRegistry === 'undefined')
@@ -160,6 +235,14 @@ const GameFinalization = (typeof FinalizationRegistry === 'undefined')
     : new FinalizationRegistry(ptr => wasm.__wbg_game_free(ptr >>> 0, 1));
 
 export class Game {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Game.prototype);
+        obj.__wbg_ptr = ptr;
+        GameFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
 
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -232,6 +315,324 @@ export class Game {
     get_current_player() {
         const ret = wasm.game_get_current_player(this.__wbg_ptr);
         return ret;
+    }
+    /**
+     * Fast clone for AI simulations - essential for minimax/MCTS
+     * @returns {Game}
+     */
+    fast_clone() {
+        const ret = wasm.game_fast_clone(this.__wbg_ptr);
+        return Game.__wrap(ret);
+    }
+    /**
+     * Get legal moves for Connect4 (WASM-friendly, memory efficient)
+     * @returns {Uint32Array}
+     */
+    get_legal_moves_connect4() {
+        const ret = wasm.game_get_legal_moves_connect4(this.__wbg_ptr);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Count legal moves efficiently (for quick AI evaluation)
+     * @returns {number}
+     */
+    legal_move_count_connect4() {
+        const ret = wasm.game_legal_move_count_connect4(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Simulate a move efficiently (for AI tree search)
+     * @param {number} col
+     * @returns {Game}
+     */
+    simulate_move_connect4(col) {
+        const ret = wasm.game_simulate_move_connect4(this.__wbg_ptr, col);
+        if (ret[2]) {
+            throw takeFromExternrefTable0(ret[1]);
+        }
+        return Game.__wrap(ret[0]);
+    }
+    /**
+     * Simulate a move efficiently (WASM-compatible version)
+     * @param {number} col
+     * @returns {Game | undefined}
+     */
+    simulate_move_connect4_js(col) {
+        const ret = wasm.game_simulate_move_connect4_js(this.__wbg_ptr, col);
+        return ret === 0 ? undefined : Game.__wrap(ret);
+    }
+    /**
+     * Check if game is in terminal state (win/draw)
+     * @returns {boolean}
+     */
+    is_terminal() {
+        const ret = wasm.game_is_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Advanced position evaluation with strategic scoring
+     * Returns: +10000 for current player win, -10000 for opponent win, strategic score otherwise
+     * @returns {number}
+     */
+    evaluate_position() {
+        const ret = wasm.game_evaluate_position(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Simple evaluation for backward compatibility
+     * @returns {number}
+     */
+    evaluate_position_simple() {
+        const ret = wasm.game_evaluate_position_simple(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Advanced evaluation combining multiple strategic factors
+     * @returns {number}
+     */
+    evaluate_position_advanced() {
+        const ret = wasm.game_evaluate_position_advanced(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Count immediate threats for a player (winning moves available)
+     * @param {Player} player
+     * @returns {number}
+     */
+    count_threats(player) {
+        const ret = wasm.game_count_threats(this.__wbg_ptr, player);
+        return ret >>> 0;
+    }
+    /**
+     * Get legal moves for Gobang (returns available positions as (row, col) tuples)
+     * Returns a flattened vector where each pair of consecutive elements represents (row, col)
+     * @returns {Uint32Array}
+     */
+    get_legal_moves_gobang() {
+        const ret = wasm.game_get_legal_moves_gobang(this.__wbg_ptr);
+        var v1 = getArrayU32FromWasm0(ret[0], ret[1]).slice();
+        wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
+        return v1;
+    }
+    /**
+     * Simulate a Gobang move without mutating the current game state
+     * @param {number} row
+     * @param {number} col
+     * @returns {Game}
+     */
+    simulate_move_gobang(row, col) {
+        const ret = wasm.game_simulate_move_gobang(this.__wbg_ptr, row, col);
+        if (ret[2]) {
+            throw takeFromExternrefTable0(ret[1]);
+        }
+        return Game.__wrap(ret[0]);
+    }
+    /**
+     * Get the winner if the game is over, None if it's a draw or ongoing
+     * @returns {Player | undefined}
+     */
+    get_winner() {
+        const ret = wasm.game_get_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Get game phase as enum for external use
+     * @returns {GamePhase}
+     */
+    get_game_phase() {
+        const ret = wasm.game_get_game_phase(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Analyze position for threats and opportunities
+     * @returns {PositionAnalysis}
+     */
+    analyze_position() {
+        const ret = wasm.game_analyze_position(this.__wbg_ptr);
+        return PositionAnalysis.__wrap(ret);
+    }
+}
+
+const PositionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_positionanalysis_free(ptr >>> 0, 1));
+/**
+ * Position analysis structure for AI decision making
+ */
+export class PositionAnalysis {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(PositionAnalysis.prototype);
+        obj.__wbg_ptr = ptr;
+        PositionAnalysisFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        PositionAnalysisFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_positionanalysis_free(ptr, 0);
+    }
+    /**
+     * @returns {number}
+     */
+    get current_player_threats() {
+        const ret = wasm.__wbg_get_positionanalysis_current_player_threats(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set current_player_threats(arg0) {
+        wasm.__wbg_set_positionanalysis_current_player_threats(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get opponent_threats() {
+        const ret = wasm.__wbg_get_positionanalysis_opponent_threats(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set opponent_threats(arg0) {
+        wasm.__wbg_set_positionanalysis_opponent_threats(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get total_pieces() {
+        const ret = wasm.__wbg_get_positionanalysis_total_pieces(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set total_pieces(arg0) {
+        wasm.__wbg_set_positionanalysis_total_pieces(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get connectivity_score() {
+        const ret = wasm.__wbg_get_positionanalysis_connectivity_score(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set connectivity_score(arg0) {
+        wasm.__wbg_set_positionanalysis_connectivity_score(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {GamePhase}
+     */
+    get game_phase() {
+        const ret = wasm.__wbg_get_positionanalysis_game_phase(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {GamePhase} arg0
+     */
+    set game_phase(arg0) {
+        wasm.__wbg_set_positionanalysis_game_phase(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get evaluation_score() {
+        const ret = wasm.__wbg_get_positionanalysis_evaluation_score(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set evaluation_score(arg0) {
+        wasm.__wbg_set_positionanalysis_evaluation_score(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get get_current_player_threats() {
+        const ret = wasm.positionanalysis_get_current_player_threats(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @returns {number}
+     */
+    get get_opponent_threats() {
+        const ret = wasm.positionanalysis_get_opponent_threats(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @returns {number}
+     */
+    get get_total_pieces() {
+        const ret = wasm.positionanalysis_get_total_pieces(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @returns {number}
+     */
+    get get_connectivity_score() {
+        const ret = wasm.board_get_rows(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @returns {GamePhase}
+     */
+    get get_game_phase() {
+        const ret = wasm.positionanalysis_get_game_phase(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @returns {number}
+     */
+    get get_evaluation_score() {
+        const ret = wasm.board_get_cols(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get threat advantage (positive = current player has more threats)
+     * @returns {number}
+     */
+    threat_advantage() {
+        const ret = wasm.positionanalysis_threat_advantage(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Check if position is tactically critical
+     * @returns {boolean}
+     */
+    is_critical() {
+        const ret = wasm.positionanalysis_is_critical(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get position summary as string for debugging
+     * @returns {string}
+     */
+    summary() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const ret = wasm.positionanalysis_summary(this.__wbg_ptr);
+            deferred1_0 = ret[0];
+            deferred1_1 = ret[1];
+            return getStringFromWasm0(ret[0], ret[1]);
+        } finally {
+            wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+        }
     }
 }
 
@@ -457,6 +858,7 @@ function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
     cachedInt8ArrayMemory0 = null;
+    cachedUint32ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;
 
 
