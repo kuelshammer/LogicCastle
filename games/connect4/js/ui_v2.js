@@ -266,6 +266,15 @@ class Connect4UI {
       return;
     }
     
+    // CRITICAL: Always check if column is blocked by intelligent assistance
+    if (this.isColumnBlocked(col)) {
+      console.warn(`🚫 Click BLOCKED: Column ${col + 1} is absolutely blocked by assistance system`);
+      this.showToast(`Spalte ${col + 1} ist gesperrt! Nur optimale Züge sind erlaubt.`, 'error');
+      this.showBlockedColumnFeedback(col);
+      this.showBlockedColumnVisualFeedback(col);
+      return;
+    }
+    
     // Two-step mouse interaction
     if (this.isColumnSelected(col)) {
       // Second click in same column: confirm move
