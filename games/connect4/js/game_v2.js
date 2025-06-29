@@ -538,6 +538,59 @@ class Connect4Game {
     return false;
   }
 
+  // Get columns that give opponent immediate winning opportunities (dangerous moves) 
+  getDangerousMoves() {
+    if (!this.isInitialized || !this.wasmGame) return [];
+    
+    try {
+      const dangerousCols = [];
+      const currentPlayer = this.getCurrentPlayer();
+      const opponentVal = currentPlayer === window.WasmPlayer?.Yellow ? window.WasmPlayer?.Red : window.WasmPlayer?.Yellow;
+      
+      console.log(`⚠️ getDangerousMoves: Checking which columns give opponent winning chances`);
+      
+      for (let col = 0; col < this.cols; col++) {
+        if (!this.isColumnFull(col)) {
+          try {
+            // Simulate ME playing in this column
+            const myMove = this.wasmGame.simulate_move_connect4_js(col);
+            if (myMove) {
+              // After my move, check if opponent would have immediate winning moves
+              const boardAfterMyMove = Array.from(myMove.get_board());
+              
+              // Check each column to see if opponent can win immediately
+              for (let opponentCol = 0; opponentCol < this.cols; opponentCol++) {
+                if (!this.isColumnFullInBoard(boardAfterMyMove, opponentCol)) {
+                  const opponentDropRow = this.getDropRowInBoard(boardAfterMyMove, opponentCol);
+                  if (opponentDropRow >= 0) {
+                    // Simulate opponent's move
+                    const testBoard = [...boardAfterMyMove];
+                    testBoard[opponentDropRow * this.cols + opponentCol] = opponentVal;
+                    
+                    // Check if opponent would win
+                    if (this.checkWinInBoard(testBoard, opponentDropRow, opponentCol, opponentVal)) {
+                      dangerousCols.push(col);
+                      console.log(`⚠️ DANGEROUS: Column ${col + 1} gives opponent winning move in column ${opponentCol + 1}`);
+                      break; // No need to check more opponent moves for this column
+                    }
+                  }
+                }
+              }
+            }
+          } catch (moveError) {
+            console.warn(`⚠️ Could not check dangerous move for column ${col}:`, moveError);
+          }
+        }
+      }
+      
+      console.log(`⚠️ getDangerousMoves result: [${dangerousCols.map(c => c + 1).join(', ')}]`);
+      return dangerousCols;
+    } catch (error) {
+      console.warn('Failed to get dangerous moves:', error);
+      return [];
+    }
+  }
+
   // Get columns that are strategically blocked (lead to bad positions - "Fallen")
   getBlockedColumns() {
     if (!this.isInitialized || !this.wasmGame) return [];

@@ -803,9 +803,9 @@ class Connect4UI {
       this.updateAnalysisCache();
     }
     
-    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
+    const { winningMoves, blockingMoves, dangerousMoves, trapMoves } = this.analysisCache;
     
-    console.log(`🎯 Game analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}]`);
+    console.log(`🎯 Game analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}], Traps: [${trapMoves}]`);
     
     // Rule 1: If winning moves available and winning assistance enabled, block non-winning moves
     if (playerSettings.winningMoves && winningMoves.length > 0) {
@@ -815,17 +815,28 @@ class Connect4UI {
       return isBlocked;
     }
     
-    // Rule 2: If blocking required and threat assistance enabled, block non-blocking moves
-    if (playerSettings.threats && blockingMoves.length > 0) {
-      const isBlocked = !blockingMoves.includes(col);
-      console.log(`⚠️ Rule 2 - Threat assistance enabled, ${blockingMoves.length} blocking moves required`);
-      console.log(`⚠️ Column ${col + 1} ${isBlocked ? 'BLOCKED' : 'ALLOWED'} (is blocking: ${blockingMoves.includes(col)})`);
-      return isBlocked;
+    // Rule 2: If threat assistance enabled, enforce defensive strategy
+    if (playerSettings.threats) {
+      // Priority 1: If blocking moves required, only allow blocking moves
+      if (blockingMoves.length > 0) {
+        const isBlocked = !blockingMoves.includes(col);
+        console.log(`🛡️ Rule 2a - DEFENSIVE STRATEGY: ${blockingMoves.length} blocking moves required`);
+        console.log(`🛡️ Column ${col + 1} ${isBlocked ? 'BLOCKED' : 'ALLOWED'} (is blocking: ${blockingMoves.includes(col)})`);
+        return isBlocked;
+      }
+      
+      // Priority 2: If no immediate blocking needed, prevent dangerous moves
+      if (dangerousMoves.includes(col)) {
+        console.log(`⚠️ Rule 2b - DEFENSIVE STRATEGY: Column ${col + 1} is dangerous (gives opponent winning chance)`);
+        return true;
+      }
+      
+      console.log(`✅ Rule 2c - DEFENSIVE STRATEGY: Column ${col + 1} is safe to play`);
     }
     
-    // Rule 3: If dangerous moves exist and blocked columns assistance enabled, block dangerous moves
-    if (playerSettings.blockedColumns && dangerousMoves.includes(col)) {
-      console.log(`🚫 Rule 3 - Blocked columns assistance enabled, column ${col + 1} is dangerous`);
+    // Rule 3: If dangerous moves exist and blocked columns assistance enabled, block trap moves
+    if (playerSettings.blockedColumns && trapMoves.includes(col)) {
+      console.log(`🚫 Rule 3 - Blocked columns assistance enabled, column ${col + 1} is a trap`);
       return true;
     }
     
@@ -840,14 +851,17 @@ class Connect4UI {
     try {
       const winningMoves = this.game.getWinningMoves();
       const blockingMoves = this.game.getBlockingMoves();
-      // Get dangerous/trap moves (when "Gesperrte Spalten" assistance is enabled)
-      const dangerousMoves = this.game.getBlockedColumns();
+      // Get dangerous moves that give opponent winning opportunities
+      const dangerousMoves = this.game.getDangerousMoves();
+      // Get strategic traps (when "Gesperrte Spalten" assistance is enabled)
+      const trapMoves = this.game.getBlockedColumns();
       
       this.analysisCache = {
         moveNumber: this.game.getMoveCount(),
         winningMoves,
         blockingMoves,
         dangerousMoves,
+        trapMoves,
         timestamp: Date.now()
       };
       
@@ -859,6 +873,7 @@ class Connect4UI {
         winningMoves: [],
         blockingMoves: [],
         dangerousMoves: [],
+        trapMoves: [],
         timestamp: Date.now()
       };
     }
@@ -1011,9 +1026,9 @@ class Connect4UI {
       this.updateAnalysisCache();
     }
     
-    const { winningMoves, blockingMoves, dangerousMoves } = this.analysisCache;
+    const { winningMoves, blockingMoves, dangerousMoves, trapMoves } = this.analysisCache;
     
-    console.log(`🔍 Column analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}]`);
+    console.log(`🔍 Column analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}], Traps: [${trapMoves}]`);
     
     // NEW LOGIC: Prioritize winning moves with clear visual distinction
     let priorityColumns = [];
@@ -1040,6 +1055,16 @@ class Connect4UI {
         }
       }
       console.log(`⚠️ DEFENSIVE STRATEGY: Priority columns [${priorityColumns.map(c=>c+1)}], Blocked [${blockedColumns.map(c=>c+1)}]`);
+    }
+    // Rule 3: Show dangerous moves as blocked when threats assistance is active
+    else if (playerSettings.threats && dangerousMoves.length > 0) {
+      // No blocking moves required, but prevent dangerous moves
+      for (let col = 0; col < 7; col++) {
+        if (!this.game.isColumnFull(col) && dangerousMoves.includes(col)) {
+          blockedColumns.push(col);
+        }
+      }
+      console.log(`⚠️ DANGER PREVENTION: Dangerous columns blocked [${blockedColumns.map(c=>c+1)}]`);
     }
     
     // Apply visual styling to coordinates
