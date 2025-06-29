@@ -563,8 +563,21 @@ class Connect4Game {
       
       console.log(`⚠️ getDangerousMoves: Checking which columns give opponent winning chances`);
       
+      // FIRST: Check for immediate fork threats (Zwickmühle pattern _ x _ x _)
+      const forkThreats = this.getForkBlockingMoves();
+      if (forkThreats.length > 0) {
+        console.log(`🔱 Critical fork threats detected! Must play in: [${forkThreats.map(c => c + 1).join(', ')}]`);
+        // All other moves are dangerous when fork threats exist
+        for (let col = 0; col < this.cols; col++) {
+          if (!this.isColumnFull(col) && !forkThreats.includes(col)) {
+            dangerousCols.push(col);
+          }
+        }
+      }
+      
+      // SECOND: Check regular dangerous moves (moves that give opponent winning opportunities)
       for (let col = 0; col < this.cols; col++) {
-        if (!this.isColumnFull(col)) {
+        if (!this.isColumnFull(col) && !dangerousCols.includes(col)) {
           try {
             // Simulate ME playing in this column
             const myMove = this.wasmGame.simulate_move_connect4_js(col);

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fork Detection - Connect4</title>
+</head>
+<body>
+    <h1>Test Fork Detection (Zwickmühle _ x _ x _)</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        async function testForkDetection() {
+            const output = document.getElementById('output');
+            
+            try {
+                output.innerHTML += '<p>🔧 Loading WASM...</p>';
+                
+                // Load WASM module
+                const wasmModule = await import('/LogicCastle/game_engine/pkg/game_engine.js');
+                const { default: init, Game, Player } = wasmModule;
+                
+                await init();
+                output.innerHTML += '<p>✅ WASM loaded successfully</p>';
+                
+                // Create game
+                const game = new Game(6, 7, 4, true);
+                output.innerHTML += '<p>✅ Game created</p>';
+                
+                // Set up fork pattern: _ x _ x _ in bottom row
+                // Place Red pieces at positions 1 and 3 in bottom row
+                game.make_move_connect4_js(1); // Yellow in column 1
+                game.make_move_connect4_js(0); // Red in column 0  
+                game.make_move_connect4_js(3); // Yellow in column 3
+                game.make_move_connect4_js(2); // Red in column 2
+                game.make_move_connect4_js(1); // Yellow in column 1 (row 4)
+                game.make_move_connect4_js(4); // Red in column 4
+                
+                // Now we should have: R Y R Y _ R _ pattern in bottom row
+                // This doesn't match our _ x _ x _ pattern. Let's create it properly.
+                
+                // Start fresh with a specific pattern
+                const game2 = new Game(6, 7, 4, true);
+                
+                // We need to create: _ R _ R _ pattern in bottom row (columns 1 and 3 have Red)
+                // First fill up the board to get pieces to bottom row in right positions
+                
+                // Fill columns to set up the pattern
+                for(let i = 0; i < 5; i++) {
+                    game2.make_move_connect4_js(0); // Column 0 full
+                    game2.make_move_connect4_js(6); // Column 6 full  
+                }
+                
+                // Now place Red in columns 1 and 3 at bottom
+                game2.make_move_connect4_js(1); // Yellow
+                game2.make_move_connect4_js(1); // Red in column 1
+                game2.make_move_connect4_js(3); // Yellow  
+                game2.make_move_connect4_js(3); // Red in column 3
+                
+                output.innerHTML += '<p>🎯 Board set up with potential fork pattern</p>';
+                
+                // Test fork detection
+                const currentBoard = Array.from(game2.get_board());
+                output.innerHTML += '<p>📋 Board state: ' + currentBoard.join(',') + '</p>';
+                
+                // Test the fork detection functions
+                try {
+                    const forkBlocks = Array.from(game2.get_fork_blocking_moves());
+                    output.innerHTML += '<p>🔱 Fork blocking moves: [' + forkBlocks.map(c => c + 1).join(', ') + ']</p>';
+                    
+                    const hasForkThreats = game2.has_critical_fork_threats();
+                    output.innerHTML += '<p>⚠️ Has critical fork threats: ' + hasForkThreats + '</p>';
+                    
+                    if (forkBlocks.length > 0) {
+                        output.innerHTML += '<p>✅ Fork detection is working!</p>';
+                    } else {
+                        output.innerHTML += '<p>🤔 No forks detected. Pattern might not match exactly.</p>';
+                    }
+                } catch (e) {
+                    output.innerHTML += '<p>❌ Error testing fork detection: ' + e.message + '</p>';
+                }
+                
+            } catch (error) {
+                output.innerHTML += '<p>❌ Error: ' + error.message + '</p>';
+                console.error('Test failed:', error);
+            }
+        }
+        
+        testForkDetection();
+    </script>
+</body>
+</html>
