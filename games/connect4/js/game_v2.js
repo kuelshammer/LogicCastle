@@ -65,7 +65,7 @@ class Connect4Game {
       console.log('📍 Current location:', window.location.href);
       
       // Try different WASM paths for GitHub Pages with cache busting
-      const cacheBuster = '?v=' + Date.now();
+      const cacheBuster = '?v=ade48fa_fork_detection'; // Force new WASM version
       const wasmPaths = [
         '/LogicCastle/game_engine/pkg/game_engine_bg.wasm' + cacheBuster, // GitHub Pages absolute path
         '../../../game_engine/pkg/game_engine_bg.wasm' + cacheBuster, // Local relative path
