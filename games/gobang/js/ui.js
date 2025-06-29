@@ -287,8 +287,32 @@ class _GobangUI {
 
         // Initialize AI if needed
         if (this.gameMode.includes('bot')) {
-            const difficulty = this.gameMode.split('-').pop();
-            this.ai = new GobangAI(difficulty);
+            if (this.gameMode.includes('wasm')) {
+                // Use Enhanced AI for WASM modes
+                const difficulty = this.gameMode.includes('expert') ? 'wasm-expert' : 'wasm-smart';
+                
+                if (typeof window.EnhancedGobangAI !== 'undefined') {
+                    this.ai = new window.EnhancedGobangAI(difficulty, this.wasmIntegration);
+                    console.log(`🦀 Enhanced AI initialized: ${difficulty}`);
+                    
+                    // Configure AI based on difficulty
+                    if (difficulty === 'wasm-expert') {
+                        this.ai.setConfig({
+                            strategicDepth: 5,
+                            randomnessFactor: 0.05,
+                            threatAwareness: true,
+                            patternRecognition: true
+                        });
+                    }
+                } else {
+                    console.warn('⚠️ Enhanced AI not available, falling back to standard AI');
+                    this.ai = new GobangAI('smart');
+                }
+            } else {
+                // Use standard AI for JavaScript mode
+                const difficulty = this.gameMode.split('-').pop();
+                this.ai = new GobangAI(difficulty);
+            }
         } else {
             this.ai = null;
         }
@@ -395,20 +419,38 @@ class _GobangUI {
 
         this.isProcessingMove = true;
 
-        // Show thinking state
-        this.updateGameStatus('KI überlegt...');
+        // Show thinking state with AI type indicator
+        const aiType = this.gameMode.includes('wasm') ? 'WASM-KI' : 'KI';
+        this.updateGameStatus(`${aiType} überlegt...`);
         this.showThinkingIndicator();
 
-        // Add thinking delay for better UX
-        await new Promise(resolve => setTimeout(resolve, this.aiThinkingDelay));
+        // Add thinking delay for better UX (shorter for WASM due to faster computation)
+        const thinkingDelay = this.gameMode.includes('wasm') ? 600 : this.aiThinkingDelay;
+        await new Promise(resolve => setTimeout(resolve, thinkingDelay));
 
-        const move = this.ai.getBestMove(this.game, this.helpers);
+        try {
+            // Get move from AI (Enhanced AI returns more detailed move info)
+            const move = await this.ai.getBestMove(this.game, this.helpers);
 
-        this.hideThinkingIndicator();
+            this.hideThinkingIndicator();
 
-        if (move) {
-            this.makeMove(move.row, move.col);
-        } else {
+            if (move && move.row !== undefined && move.col !== undefined) {
+                // Log AI reasoning for Enhanced AI
+                if (move.reasoning && this.gameMode.includes('wasm')) {
+                    console.log(`🎯 ${aiType} Reasoning: ${move.reasoning}`);
+                    if (move.strength !== undefined) {
+                        console.log(`💪 Move Strength: ${move.strength}`);
+                    }
+                }
+                
+                this.makeMove(move.row, move.col);
+            } else {
+                console.error('❌ AI returned invalid move:', move);
+                this.isProcessingMove = false;
+            }
+        } catch (error) {
+            console.error('❌ AI move processing failed:', error);
+            this.hideThinkingIndicator();
             this.isProcessingMove = false;
         }
     }
@@ -420,10 +462,14 @@ class _GobangUI {
         const indicator = this.elements.currentPlayerIndicator;
         const existingIndicator = indicator.querySelector('.thinking-indicator');
         if (!existingIndicator) {
+            const aiType = this.gameMode.includes('wasm') ? 'WASM' : 'JS';
+            const thinkingText = this.gameMode.includes('expert') ? 'Analysiert' : 'Denkt';
+            
             const thinkingDiv = document.createElement('div');
-            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.className = `thinking-indicator ${this.gameMode.includes('wasm') ? 'wasm-thinking' : 'js-thinking'}`;
             thinkingDiv.innerHTML = `
-                <span>Denkt</span>
+                <span>${thinkingText}</span>
+                <small class="ai-type">(${aiType})</small>
                 <div class="thinking-dots">
                     <div class="thinking-dot"></div>
                     <div class="thinking-dot"></div>

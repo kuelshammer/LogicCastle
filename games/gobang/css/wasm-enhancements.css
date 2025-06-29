@@ -580,3 +580,202 @@
     background: rgba(26, 32, 44, 0.9);
   }
 }
+
+/* AI Thinking Indicators */
+.thinking-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.thinking-indicator.wasm-thinking {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.thinking-indicator.js-thinking {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.2) 0%, rgba(253, 126, 20, 0.2) 100%);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.thinking-indicator span {
+  font-weight: bold;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.ai-type {
+  font-size: 0.7rem;
+  color: #6c757d;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wasm-thinking .ai-type {
+  color: #667eea;
+}
+
+.js-thinking .ai-type {
+  color: #f39c12;
+}
+
+.thinking-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.thinking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6c757d;
+  animation: thinking-pulse 1.4s ease-in-out infinite both;
+}
+
+.wasm-thinking .thinking-dot {
+  background: #667eea;
+}
+
+.js-thinking .thinking-dot {
+  background: #f39c12;
+}
+
+.thinking-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.thinking-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes thinking-pulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Game Mode Selector Enhancement */
+#gameMode {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+#gameMode:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  outline: none;
+}
+
+#gameMode option[value*="wasm"] {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  font-weight: bold;
+}
+
+/* AI Status Indicator in Header */
+.game-mode-selector {
+  position: relative;
+}
+
+.ai-status-indicator {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #28a745;
+  color: white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: none;
+  animation: pulse-status 2s infinite;
+}
+
+.ai-status-indicator.wasm-active {
+  display: block;
+  background: #667eea;
+}
+
+.ai-status-indicator.js-active {
+  display: block;
+  background: #f39c12;
+}
+
+@keyframes pulse-status {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Enhanced Performance Indicator */
+.performance-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.performance-indicator::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-indicator 2s infinite;
+}
+
+@keyframes pulse-indicator {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Mobile AI Indicator Adjustments */
+@media (max-width: 768px) {
+  .thinking-indicator {
+    padding: 6px;
+    gap: 3px;
+  }
+  
+  .thinking-indicator span {
+    font-size: 0.8rem;
+  }
+  
+  .ai-type {
+    font-size: 0.6rem;
+  }
+  
+  .thinking-dots {
+    gap: 3px;
+  }
+  
+  .thinking-dot {
+    width: 5px;
+    height: 5px;
+  }
+}

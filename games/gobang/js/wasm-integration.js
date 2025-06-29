@@ -101,6 +101,11 @@ class WasmGobangIntegration {
                 window.open('./simple-performance-test.html', '_blank');
             });
         }
+
+        // System status debugging
+        console.log('🔧 WASM Integration Status:');
+        console.log('- Features:', this.features);
+        console.log('- Performance Metrics:', this.performanceMetrics);
     }
 
     /**

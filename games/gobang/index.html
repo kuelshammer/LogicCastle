@@ -17,7 +17,9 @@
           <label for="gameMode">Spielmodus:</label>
           <select id="gameMode">
             <option value="two-player">2 Spieler</option>
-            <option value="vs-bot-smart">vs Smart Bot</option>
+            <option value="vs-bot-smart">vs Smart Bot (JavaScript)</option>
+            <option value="vs-bot-wasm">vs WASM Bot (Enhanced)</option>
+            <option value="vs-bot-wasm-expert">vs WASM Expert (Pro)</option>
           </select>
         </div>
       </header>
@@ -192,8 +194,15 @@
             <ul>
               <li><strong>2 Spieler:</strong> Spiele gegen einen Freund</li>
               <li>
-                <strong>vs Smart Bot:</strong> Spiele gegen eine intelligente KI, die strategische Entscheidungen trifft
-                und Bedrohungen erkennt
+                <strong>vs Smart Bot (JavaScript):</strong> Klassische intelligente KI mit Basis-Strategien
+              </li>
+              <li>
+                <strong>vs WASM Bot (Enhanced):</strong> Erweiterte KI mit Rust/WASM-Engine - nutzt Threat-Detection, 
+                Pattern-Erkennung und strategische Tiefenanalyse für überlegene Spielstärke
+              </li>
+              <li>
+                <strong>vs WASM Expert (Pro):</strong> Profi-Level KI mit maximaler strategischer Tiefe, 
+                Fork-Analyse und Multi-Pattern-Erkennung - eine echte Herausforderung!
               </li>
             </ul>
           </div>
@@ -367,6 +376,7 @@
     <script src="js/game.js"></script>
     <script src="js/game_v2.js"></script>
     <script src="js/ai.js"></script>
+    <script src="js/ai-enhanced.js"></script>
     <script src="js/helpers.js"></script>
     <script src="js/evaluation.js"></script>
     <script src="js/ui.js"></script>
