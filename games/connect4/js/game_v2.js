@@ -64,11 +64,12 @@ class Connect4Game {
       console.log('🔧 Loading WASM module...');
       console.log('📍 Current location:', window.location.href);
       
-      // Try different WASM paths for GitHub Pages
+      // Try different WASM paths for GitHub Pages with cache busting
+      const cacheBuster = '?v=' + Date.now();
       const wasmPaths = [
-        '/LogicCastle/game_engine/pkg/game_engine_bg.wasm', // GitHub Pages absolute path
-        '../../../game_engine/pkg/game_engine_bg.wasm', // Local relative path
-        'https://www.maxkuelshammer.de/LogicCastle/game_engine/pkg/game_engine_bg.wasm' // Full URL
+        '/LogicCastle/game_engine/pkg/game_engine_bg.wasm' + cacheBuster, // GitHub Pages absolute path
+        '../../../game_engine/pkg/game_engine_bg.wasm' + cacheBuster, // Local relative path
+        'https://www.maxkuelshammer.de/LogicCastle/game_engine/pkg/game_engine_bg.wasm' + cacheBuster // Full URL
       ];
       
       // Import the WASM module with GitHub Pages path
