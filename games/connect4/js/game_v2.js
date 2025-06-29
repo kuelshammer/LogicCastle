@@ -538,6 +538,20 @@ class Connect4Game {
     return false;
   }
 
+  // Get fork-blocking moves using WASM (bottom row pattern _ x _ x _)
+  getForkBlockingMoves() {
+    if (!this.isInitialized || !this.wasmGame) return [];
+    
+    try {
+      const forkBlocks = Array.from(this.wasmGame.get_fork_blocking_moves());
+      console.log(`🔱 WASM Fork-blocking moves: [${forkBlocks.map(c => c + 1).join(', ')}]`);
+      return forkBlocks;
+    } catch (error) {
+      console.warn('Failed to get WASM fork-blocking moves:', error);
+      return [];
+    }
+  }
+
   // Get columns that give opponent immediate winning opportunities (dangerous moves) 
   getDangerousMoves() {
     if (!this.isInitialized || !this.wasmGame) return [];

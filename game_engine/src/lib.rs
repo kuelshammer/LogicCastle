@@ -1191,6 +1191,59 @@ mod tests {
             }
         }
     }
+    
+    /// Detect simple fork threats in bottom row: pattern _ x _ x _ 
+    /// Returns columns that must be played to prevent opponent fork
+    #[wasm_bindgen]
+    pub fn detect_bottom_row_forks(&self, opponent: Player) -> Vec<usize> {
+        let mut fork_columns = Vec::new();
+        let opponent_val = opponent as i8;
+        let bottom_row = self.board.rows - 1;
+        
+        // Check for pattern _ x _ x _ (5 consecutive positions needed)
+        for start_col in 0..=(self.board.cols.saturating_sub(5)) {
+            let pattern = (0..5)
+                .map(|i| self.board.get_cell(bottom_row, start_col + i).unwrap_or(0))
+                .collect::<Vec<_>>();
+            
+            // Check if pattern matches _ x _ x _ where x = opponent
+            if pattern.len() == 5 
+                && pattern[0] == 0 
+                && pattern[1] == opponent_val 
+                && pattern[2] == 0 
+                && pattern[3] == opponent_val 
+                && pattern[4] == 0 
+            {
+                // All three empty positions are critical to block the fork
+                let critical_cols = vec![start_col, start_col + 2, start_col + 4];
+                for &col in &critical_cols {
+                    if !self.board.is_column_full(col) && !fork_columns.contains(&col) {
+                        fork_columns.push(col);
+                    }
+                }
+            }
+        }
+        
+        fork_columns
+    }
+    
+    /// Get fork-blocking moves for current player (prevent opponent forks)
+    #[wasm_bindgen]
+    pub fn get_fork_blocking_moves(&self) -> Vec<usize> {
+        let opponent = match self.current_player {
+            Player::Yellow => Player::Red,
+            Player::Red => Player::Yellow,
+        };
+        
+        self.detect_bottom_row_forks(opponent)
+    }
+    
+    /// Check if opponent has dangerous fork patterns that require immediate attention
+    #[wasm_bindgen]
+    pub fn has_critical_fork_threats(&self) -> bool {
+        let fork_blocks = self.get_fork_blocking_moves();
+        !fork_blocks.is_empty()
+    }
 
     #[test]
     fn test_new_board() {
@@ -1814,5 +1867,43 @@ mod tests {
         
         let evaluation = game.evaluate_position_advanced();
         assert!(evaluation > 1000); // Should highly favor Yellow
+    }
+    
+    #[test]
+    fn test_bottom_row_fork_detection() {
+        let mut game = Game::new(6, 7, 4, true);
+        
+        // Create bottom row fork pattern: _ x _ x _ (empty, red, empty, red, empty)
+        let mut board_state = vec![0; 6 * 7];
+        let bottom_row = 5;
+        board_state[bottom_row * 7 + 1] = Player::Red as i8;   // x
+        board_state[bottom_row * 7 + 3] = Player::Red as i8;   // x
+        // Positions 0, 2, 4 are empty (_)
+        set_board_state(&mut game, &board_state);
+        
+        // Test detection from Yellow's perspective (should detect Red's fork threat)
+        let fork_blocks = game.detect_bottom_row_forks(Player::Red);
+        assert_eq!(fork_blocks.len(), 3); // Should detect all 3 critical positions
+        assert!(fork_blocks.contains(&0)); // First empty position
+        assert!(fork_blocks.contains(&2)); // Middle empty position  
+        assert!(fork_blocks.contains(&4)); // Last empty position
+        
+        // Test with get_fork_blocking_moves (Yellow's turn, should block Red)
+        game.current_player = Player::Yellow;
+        let blocking_moves = game.get_fork_blocking_moves();
+        assert!(!blocking_moves.is_empty());
+        
+        // Test has_critical_fork_threats
+        assert!(game.has_critical_fork_threats());
+        
+        // Test no fork when pattern is broken
+        let mut no_fork_board = vec![0; 6 * 7];
+        no_fork_board[bottom_row * 7 + 1] = Player::Red as i8;   // x
+        no_fork_board[bottom_row * 7 + 3] = Player::Yellow as i8; // Different player - breaks pattern
+        set_board_state(&mut game, &no_fork_board);
+        
+        let no_fork_blocks = game.detect_bottom_row_forks(Player::Red);
+        assert!(no_fork_blocks.is_empty()); // Should not detect fork
+        assert!(!game.has_critical_fork_threats());
     }
 }

@@ -803,9 +803,17 @@ class Connect4UI {
       this.updateAnalysisCache();
     }
     
-    const { winningMoves, blockingMoves, dangerousMoves, trapMoves } = this.analysisCache;
+    const { winningMoves, blockingMoves, dangerousMoves, trapMoves, forkBlocks } = this.analysisCache;
     
-    console.log(`🎯 Game analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}], Traps: [${trapMoves}]`);
+    console.log(`🎯 Game analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}], Traps: [${trapMoves}], Forks: [${forkBlocks}]`);
+    
+    // Rule 0: CRITICAL FORK THREAT - Highest Priority (Zwickmühle in bottom row)
+    if (playerSettings.threats && forkBlocks.length > 0) {
+      const isBlocked = !forkBlocks.includes(col);
+      console.log(`🔱 Rule 0 - CRITICAL FORK THREAT: ${forkBlocks.length} fork-blocking moves required!`);
+      console.log(`🔱 Column ${col + 1} ${isBlocked ? 'BLOCKED' : 'ALLOWED'} (blocks fork: ${forkBlocks.includes(col)})`);
+      return isBlocked;
+    }
     
     // Rule 1: If winning moves available and winning assistance enabled, block non-winning moves
     if (playerSettings.winningMoves && winningMoves.length > 0) {
@@ -855,6 +863,8 @@ class Connect4UI {
       const dangerousMoves = this.game.getDangerousMoves();
       // Get strategic traps (when "Gesperrte Spalten" assistance is enabled)
       const trapMoves = this.game.getBlockedColumns();
+      // Get fork-blocking moves using WASM (bottom row Zwickmühle detection)
+      const forkBlocks = this.game.getForkBlockingMoves();
       
       this.analysisCache = {
         moveNumber: this.game.getMoveCount(),
@@ -862,6 +872,7 @@ class Connect4UI {
         blockingMoves,
         dangerousMoves,
         trapMoves,
+        forkBlocks,
         timestamp: Date.now()
       };
       
@@ -874,6 +885,7 @@ class Connect4UI {
         blockingMoves: [],
         dangerousMoves: [],
         trapMoves: [],
+        forkBlocks: [],
         timestamp: Date.now()
       };
     }
@@ -1026,16 +1038,27 @@ class Connect4UI {
       this.updateAnalysisCache();
     }
     
-    const { winningMoves, blockingMoves, dangerousMoves, trapMoves } = this.analysisCache;
+    const { winningMoves, blockingMoves, dangerousMoves, trapMoves, forkBlocks } = this.analysisCache;
     
-    console.log(`🔍 Column analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}], Traps: [${trapMoves}]`);
+    console.log(`🔍 Column analysis - Winning: [${winningMoves}], Blocking: [${blockingMoves}], Dangerous: [${dangerousMoves}], Traps: [${trapMoves}], Forks: [${forkBlocks}]`);
     
-    // NEW LOGIC: Prioritize winning moves with clear visual distinction
+    // NEW LOGIC: Prioritize moves with clear visual distinction
     let priorityColumns = [];
     let blockedColumns = [];
     
-    // Rule 1: WINNING MOVES get priority - show as GREEN
-    if (playerSettings.winningMoves && winningMoves.length > 0) {
+    // Rule 0: FORK BLOCKING gets highest priority - show as ORANGE with special marking
+    if (playerSettings.threats && forkBlocks.length > 0) {
+      priorityColumns = forkBlocks.filter(col => !this.game.isColumnFull(col));
+      // Block ALL non-fork-blocking columns
+      for (let col = 0; col < 7; col++) {
+        if (!this.game.isColumnFull(col) && !forkBlocks.includes(col)) {
+          blockedColumns.push(col);
+        }
+      }
+      console.log(`🔱 CRITICAL FORK BLOCKING: Priority columns [${priorityColumns.map(c=>c+1)}], Blocked [${blockedColumns.map(c=>c+1)}]`);
+    }
+    // Rule 1: WINNING MOVES get priority - show as GREEN  
+    else if (playerSettings.winningMoves && winningMoves.length > 0) {
       priorityColumns = winningMoves.filter(col => !this.game.isColumnFull(col));
       // Block ALL other columns
       for (let col = 0; col < 7; col++) {
@@ -1072,8 +1095,11 @@ class Connect4UI {
       const coords = coordsEl.querySelectorAll('.coord');
       coords.forEach((coord, index) => {
         if (priorityColumns.includes(index)) {
-          // Determine if this is winning (green) or blocking (orange)
-          if (playerSettings.winningMoves && winningMoves.includes(index)) {
+          // Determine priority type and styling
+          if (playerSettings.threats && forkBlocks.includes(index)) {
+            coord.classList.add('blocking-column');
+            coord.title = '🔱 KRITISCH: Zwickmühle blockieren!';
+          } else if (playerSettings.winningMoves && winningMoves.includes(index)) {
             coord.classList.add('winning-column');
             coord.title = 'Gewinnzug - führt direkt zum Sieg!';
           } else if (playerSettings.threats && blockingMoves.includes(index)) {
