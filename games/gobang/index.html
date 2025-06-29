@@ -6,6 +6,7 @@
     <title>5 Gewinnt (Gobang) - LogicCastle</title>
     <link rel="stylesheet" href="css/game.css" />
     <link rel="stylesheet" href="css/ui.css" />
+    <link rel="stylesheet" href="css/wasm-enhancements.css" />
   </head>
   <body>
     <div class="game-container">
@@ -69,12 +70,71 @@
           </div>
         </div>
 
+        <!-- WASM-Enhanced Move Analysis Dashboard -->
+        <div class="move-analysis-dashboard" id="moveAnalysisDashboard">
+          <div class="dashboard-header">
+            <h3>🔍 Zug-Analyse <span class="engine-indicator">(WASM)</span></h3>
+            <button class="dashboard-toggle" id="toggleDashboard">▼</button>
+          </div>
+          <div class="dashboard-content" id="dashboardContent">
+            <div class="analysis-grid">
+              <div class="analysis-section winning-moves">
+                <h4>🏆 Gewinnzüge</h4>
+                <div class="move-list" id="winningMovesList">Keine verfügbar</div>
+                <div class="move-count" id="winningMovesCount">0</div>
+              </div>
+              <div class="analysis-section blocking-moves">
+                <h4>🛡️ Blockier-Züge</h4>
+                <div class="move-list" id="blockingMovesList">Keine verfügbar</div>
+                <div class="move-count" id="blockingMovesCount">0</div>
+              </div>
+              <div class="analysis-section dangerous-moves">
+                <h4>⚠️ Gefährliche Züge</h4>
+                <div class="move-list" id="dangerousMovesList">Keine verfügbar</div>
+                <div class="move-count" id="dangerousMovesCount">0</div>
+              </div>
+              <div class="analysis-section threat-patterns">
+                <h4>🎯 Threat Patterns</h4>
+                <div class="threat-breakdown">
+                  <div class="threat-item">
+                    <span class="threat-label">Open Three:</span>
+                    <span class="threat-value" id="openThreeCount">0</span>
+                  </div>
+                  <div class="threat-item">
+                    <span class="threat-label">Closed Four:</span>
+                    <span class="threat-value" id="closedFourCount">0</span>
+                  </div>
+                  <div class="threat-item">
+                    <span class="threat-label">Double Forks:</span>
+                    <span class="threat-value" id="doubleForksCount">0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="analysis-controls">
+              <label class="analysis-toggle">
+                <input type="checkbox" id="enableMoveAnalysis" checked>
+                <span>Echzeit-Analyse aktivieren</span>
+              </label>
+              <label class="analysis-toggle">
+                <input type="checkbox" id="showThreatLevels">
+                <span>Threat-Level anzeigen (0-5)</span>
+              </label>
+              <label class="analysis-toggle">
+                <input type="checkbox" id="highlightPatterns">
+                <span>Pattern-Highlights</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <div class="game-controls">
           <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
           <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
           <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
           <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
           <button class="btn btn-success" id="gameHelpBtn">Spielhilfen (F2)</button>
+          <button class="btn btn-wasm" id="wasmTestBtn">⚡ Performance Test</button>
         </div>
       </main>
     </div>
@@ -260,6 +320,40 @@
                 <strong>Level 1:</strong> Blockiert gegnerische Bedrohungen (4er blockieren)
               </div>
               <div class="legend-item"><strong>Level 2:</strong> Vermeidet Fallen (Look-ahead für sichere Züge)</div>
+              
+              <div class="wasm-features-section">
+                <h4>🦀 WASM-Enhanced Features</h4>
+                <div class="feature-group">
+                  <label class="feature-toggle">
+                    <input type="checkbox" id="enableWasmEngine">
+                    <span>WASM-Engine aktivieren</span>
+                    <small>(1.6x schneller + erweiterte Features)</small>
+                  </label>
+                </div>
+                <div class="feature-group advanced-features" id="advancedFeatures" style="display: none;">
+                  <h5>🎯 Erweiterte Analyse:</h5>
+                  <label class="feature-toggle">
+                    <input type="checkbox" id="enableOpenThreeDetection">
+                    <span>Open Three Detection</span>
+                    <small>Erkenne offene Drei-Pattern (_ X X X _)</small>
+                  </label>
+                  <label class="feature-toggle">
+                    <input type="checkbox" id="enableClosedFourDetection">
+                    <span>Closed Four Detection</span>
+                    <small>Erkenne geschlossene Vier-Pattern (O X X X X _)</small>
+                  </label>
+                  <label class="feature-toggle">
+                    <input type="checkbox" id="enableDoubleThreeForks">
+                    <span>Double Three Fork Analysis</span>
+                    <small>Erkenne Gabel-Situationen (zwei offene Dreier)</small>
+                  </label>
+                  <label class="feature-toggle">
+                    <input type="checkbox" id="enableThreatLevelAnalysis">
+                    <span>5-Level Threat Assessment</span>
+                    <small>Bewerte Bedrohungsgrad (0=sicher → 5=kritisch)</small>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -271,10 +365,12 @@
     </div>
 
     <script src="js/game.js"></script>
+    <script src="js/game_v2.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/helpers.js"></script>
     <script src="js/evaluation.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/wasm-integration.js"></script>
     <script>
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', function () {

@@ -22,6 +22,9 @@ class _GobangUI {
             player1: { level0: false, level1: false, level2: false },
             player2: { level0: false, level1: false, level2: false }
         };
+
+        // WASM Integration
+        this.wasmIntegration = null;
     }
 
     /**
@@ -34,6 +37,7 @@ class _GobangUI {
         this.createBoard();
         this.createCoordinates();
         this.initializeHelpers();
+        this.initializeWasmIntegration();
         this.updateDisplay();
         this.updateGameMode();
     }
@@ -801,6 +805,67 @@ class _GobangUI {
     showMessage(message, type = 'info') {
         // You could implement a toast notification system here
         console.log(`${type.toUpperCase()}: ${message}`);
+    }
+
+    /**
+     * Initialize WASM Integration
+     */
+    initializeWasmIntegration() {
+        if (typeof window.WasmGobangIntegration !== 'undefined') {
+            this.wasmIntegration = new window.WasmGobangIntegration(this);
+            console.log('✅ WASM Integration initialized');
+        } else {
+            console.log('⚠️ WASM Integration not available');
+        }
+    }
+
+    /**
+     * Enhanced onMoveMade handler with WASM integration
+     */
+    onMoveMadeEnhanced(move) {
+        // Call original handler
+        this.onMoveMade(move);
+        
+        // Notify WASM integration
+        if (this.wasmIntegration) {
+            this.wasmIntegration.onGameEvent('moveMade', move);
+        }
+    }
+
+    /**
+     * Enhanced onMoveUndone handler with WASM integration
+     */
+    onMoveUndoneEnhanced(move) {
+        // Call original handler
+        this.onMoveUndone(move);
+        
+        // Notify WASM integration
+        if (this.wasmIntegration) {
+            this.wasmIntegration.onGameEvent('moveUndone', move);
+        }
+    }
+
+    /**
+     * Enhanced onGameReset handler with WASM integration
+     */
+    onGameResetEnhanced() {
+        // Call original handler
+        this.onGameReset();
+        
+        // Notify WASM integration
+        if (this.wasmIntegration) {
+            this.wasmIntegration.onGameEvent('gameReset', {});
+        }
+    }
+
+    /**
+     * Get WASM integration status
+     */
+    getWasmStatus() {
+        if (this.wasmIntegration) {
+            return this.wasmIntegration.getEngineStatus();
+        }
+        return { isWasmEnabled: false, isInitialized: false };
     }
 }
 
