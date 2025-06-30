@@ -283,14 +283,13 @@
   height: 20px;
   border-radius: 50%;
   position: absolute;
-  /* Stone is centered within the intersection */
-  top: 0;
-  left: 0;
+  /* Stone is perfectly centered on the intersection point */
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease;
   z-index: 2;
-  margin: 2px; /* Offset to center in the intersection area */
 }
 
 .stone.black {
