@@ -358,6 +358,57 @@
   gap: 1rem;
 }
 
+/* ==================== CURSOR SYSTEM (Phase 2) ==================== */
+
+.intersection.cursor-active {
+  background: rgba(255, 255, 0, 0.4);
+  border: 3px solid #ffeb3b;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.6);
+  animation: cursorPulse 1.5s infinite ease-in-out;
+  z-index: 10;
+}
+
+.intersection.cursor-active::before {
+  display: none; /* Hide star point when cursor is active */
+}
+
+@keyframes cursorPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* Cursor with stone preview */
+.intersection.cursor-active.stone-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: 0.6;
+  z-index: 11;
+}
+
+.intersection.cursor-active.stone-preview.black-preview::after {
+  background: radial-gradient(circle at 30% 30%, #555, #000);
+  border-color: #222;
+}
+
+.intersection.cursor-active.stone-preview.white-preview::after {
+  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+  border-color: #ccc;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .game-main {

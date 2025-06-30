@@ -25,6 +25,14 @@ class _GobangUI {
 
         // WASM Integration
         this.wasmIntegration = null;
+
+        // Cursor System (Phase 2)
+        this.cursor = {
+            row: 7,          // Start in center
+            col: 7,
+            active: false,   // Initially hidden
+            mode: 'navigate' // 'navigate' | 'confirm'
+        };
     }
 
     /**
@@ -177,6 +185,41 @@ class _GobangUI {
                     if (e.ctrlKey || e.metaKey) {
                         e.preventDefault();
                         this.undoMove();
+                    }
+                    break;
+                
+                // Cursor Navigation (Phase 2)
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.moveCursor('up');
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.moveCursor('down');
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.moveCursor('left');
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.moveCursor('right');
+                    break;
+                case ' ':
+                case 'Enter':
+                    if (this.cursor.active) {
+                        e.preventDefault();
+                        this.placeCursorStone();
+                    }
+                    break;
+                case 'Tab':
+                    e.preventDefault();
+                    this.toggleCursor();
+                    break;
+                case 'Escape':
+                    if (this.cursor.active) {
+                        e.preventDefault();
+                        this.hideCursor();
                     }
                     break;
             }
@@ -893,6 +936,107 @@ class _GobangUI {
             return this.wasmIntegration.getEngineStatus();
         }
         return { isWasmEnabled: false, isInitialized: false };
+    }
+
+    // ==================== CURSOR SYSTEM (Phase 2) ====================
+
+    /**
+     * Move cursor in specified direction
+     */
+    moveCursor(direction) {
+        // Activate cursor if not active
+        if (!this.cursor.active) {
+            this.showCursor();
+            return;
+        }
+
+        const oldRow = this.cursor.row;
+        const oldCol = this.cursor.col;
+
+        switch (direction) {
+            case 'up':
+                this.cursor.row = Math.max(0, this.cursor.row - 1);
+                break;
+            case 'down':
+                this.cursor.row = Math.min(this.game.BOARD_SIZE - 1, this.cursor.row + 1);
+                break;
+            case 'left':
+                this.cursor.col = Math.max(0, this.cursor.col - 1);
+                break;
+            case 'right':
+                this.cursor.col = Math.min(this.game.BOARD_SIZE - 1, this.cursor.col + 1);
+                break;
+        }
+
+        // Update visual cursor if position changed
+        if (oldRow !== this.cursor.row || oldCol !== this.cursor.col) {
+            this.updateCursorDisplay();
+        }
+    }
+
+    /**
+     * Show cursor at current position
+     */
+    showCursor() {
+        this.cursor.active = true;
+        this.updateCursorDisplay();
+    }
+
+    /**
+     * Hide cursor
+     */
+    hideCursor() {
+        this.cursor.active = false;
+        this.removeCursorDisplay();
+    }
+
+    /**
+     * Toggle cursor visibility
+     */
+    toggleCursor() {
+        if (this.cursor.active) {
+            this.hideCursor();
+        } else {
+            this.showCursor();
+        }
+    }
+
+    /**
+     * Place stone at cursor position
+     */
+    placeCursorStone() {
+        if (!this.cursor.active) return;
+        
+        // Check if position is valid
+        if (this.game.isEmpty(this.cursor.row, this.cursor.col)) {
+            this.onIntersectionClick(this.cursor.row, this.cursor.col);
+        }
+    }
+
+    /**
+     * Update visual cursor display
+     */
+    updateCursorDisplay() {
+        if (!this.cursor.active) return;
+
+        // Remove existing cursor
+        this.removeCursorDisplay();
+
+        // Get intersection at cursor position
+        const intersection = this.getIntersection(this.cursor.row, this.cursor.col);
+        if (intersection) {
+            intersection.classList.add('cursor-active');
+        }
+    }
+
+    /**
+     * Remove cursor visual display
+     */
+    removeCursorDisplay() {
+        const existingCursor = document.querySelector('.intersection.cursor-active');
+        if (existingCursor) {
+            existingCursor.classList.remove('cursor-active');
+        }
     }
 }
 
