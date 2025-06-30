@@ -225,15 +225,15 @@
     repeating-linear-gradient(
       to right,
       #8b4513 0px,
-      #8b4513 2px,
-      transparent 2px,
+      #8b4513 1px,
+      transparent 1px,
       transparent 25px
     ),
     repeating-linear-gradient(
       to bottom,
       #8b4513 0px,
-      #8b4513 2px,
-      transparent 2px,
+      #8b4513 1px,
+      transparent 1px,
       transparent 25px
     );
   pointer-events: none;
@@ -241,16 +241,18 @@
 
 .intersection {
   position: absolute;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  /* Center the clickable area on the intersection point */
+  /* Center the clickable area perfectly on the intersection point */
   transform: translate(-50%, -50%);
   z-index: 1;
+  /* Debug: uncomment next line to see intersection areas */
+  /* background: rgba(255, 0, 0, 0.1); */
 }
 
 .intersection::before {
@@ -279,8 +281,8 @@
 }
 
 .stone {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   position: absolute;
   /* Stone is perfectly centered on the intersection point */

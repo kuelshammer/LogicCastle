@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>5 Gewinnt (Gobang) - LogicCastle</title>
+    <title>5 Gewinnt (Gomoku) - LogicCastle</title>
     <link rel="stylesheet" href="css/game.css" />
     <link rel="stylesheet" href="css/ui.css" />
     <link rel="stylesheet" href="css/wasm-enhancements.css" />
@@ -12,7 +12,7 @@
     <div class="game-container">
       <header class="game-header">
         <a href="../../index.html" class="back-button">← Zurück</a>
-        <h1>⚫ 5 Gewinnt (Gobang)</h1>
+        <h1>⚫ 5 Gewinnt (Gomoku)</h1>
         <div class="game-mode-selector">
           <label for="gameMode">Spielmodus:</label>
           <select id="gameMode">
@@ -143,7 +143,7 @@
     <!-- Help Modal -->
     <div class="modal-overlay" id="helpModal">
       <div class="modal help-modal">
-        <h2>⚫ 5 Gewinnt (Gobang) - Spielanleitung</h2>
+        <h2>⚫ 5 Gewinnt (Gomoku) - Spielanleitung</h2>
 
         <div class="help-content">
           <div class="help-section">
@@ -376,9 +376,9 @@
     <script>
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
-        const game = new GobangGame();
+        const game = new GomokuGame();
         await game.init(); // Initialize WASM
-        const ui = new GobangUI(game);
+        const ui = new GomokuUI(game);
         ui.init();
         
         // Make objects globally available for debugging and integration
@@ -387,10 +387,10 @@
         
         // Initialize WASM integration for move analysis dashboard
         // TODO: Fix WASM integration - temporarily disabled due to method conflicts
-        // const wasmIntegration = new WasmGobangIntegration(ui);
+        // const wasmIntegration = new WasmGomokuIntegration(ui);
         // ui.wasmIntegration = wasmIntegration;
         
-        console.log('🎮 Gobang initialized with WASM integration');
+        console.log('🎮 Gomoku initialized with WASM integration');
       });
     </script>
   </body>

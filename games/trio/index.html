@@ -154,13 +154,16 @@
 
     <!-- Load WASM module -->
     <script type="module">
-      import init, { TrioGame as WasmTrioGame } from '../connect4/rust_logic/pkg/rust_logic.js';
+      import init, { Game } from '../../game_engine/pkg/game_engine.js';
 
       async function run() {
         await init();
+        // Make WASM Game available globally
+        window.WasmGame = Game;
+        
         // Initialize the game when page loads
         document.addEventListener('DOMContentLoaded', () => {
-          const game = new TrioGame(WasmTrioGame);
+          const game = new TrioGame();
           const ui = new TrioUI(game);
           ui.init();
         });

@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function navigateToGame(gameName) {
     const gameUrls = {
       'connect4': 'games/connect4/index.html',
-      'gobang': 'games/gobang/index.html',
+      'gomoku': 'games/gomoku/index.html',
       'trio': 'games/trio/index.html'
     };
 

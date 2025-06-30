@@ -1,8 +1,8 @@
 /**
- * GobangUI - User Interface for Gobang game
+ * GomokuUI - User Interface for Gomoku game
  */
-/* global GobangHelpers */
-class _GobangUI {
+/* global GomokuHelpers */
+class _GomokuUI {
     constructor(game) {
         this.game = game;
         this.ai = null;
@@ -251,7 +251,7 @@ class _GobangUI {
 
         // Board inner dimensions - mathematically exact
         const boardSize = 350; // 390px - 2*20px padding
-        const stepSize = 25; // Exact: 350px / 14 intervals = 25px per step
+        const stepSize = boardSize / 14; // Exact: 350px / 14 intervals = 25px per step
 
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             for (let col = 0; col < this.game.BOARD_SIZE; col++) {
@@ -1197,5 +1197,5 @@ class _GobangUI {
 
 // Make available globally for backward compatibility
 if (typeof window !== 'undefined') {
-    window.GobangUI = _GobangUI;
+    window.GomokuUI = _GomokuUI;
 }

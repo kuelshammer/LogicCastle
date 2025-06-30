@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LogicCastle is a collection of mathematical strategy games with a modern Rust/WebAssembly core. The project features Connect4, Gobang, and Trio games with high-performance game logic implemented in Rust and modern JavaScript UI.
+LogicCastle is a collection of mathematical strategy games with a modern Rust/WebAssembly core. The project features Connect4, Gomoku, and Trio games with high-performance game logic implemented in Rust and modern JavaScript UI.
 
 ## Development Commands
 
@@ -31,7 +31,7 @@ LogicCastle is a collection of mathematical strategy games with a modern Rust/We
 ### GitHub Pages Deployment
 - **Live site**: https://www.maxkuelshammer.de/LogicCastle/
 - **Connect4**: https://www.maxkuelshammer.de/LogicCastle/games/connect4/
-- **Gobang**: https://www.maxkuelshammer.de/LogicCastle/games/gobang/
+- **Gomoku**: https://www.maxkuelshammer.de/LogicCastle/games/gomoku/
 - **Trio**: https://www.maxkuelshammer.de/LogicCastle/games/trio/
 - Changes pushed to main branch are automatically deployed
 

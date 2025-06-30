@@ -1,9 +1,9 @@
 /**
- * WASM Integration for Enhanced Gobang UI
+ * WASM Integration for Enhanced Gomoku UI
  * Provides advanced analysis features using Rust/WASM engine
  */
 
-class WasmGobangIntegration {
+class WasmGomokuIntegration {
     constructor(gameUI) {
         this.gameUI = gameUI;
         this.wasmGame = null;
@@ -568,4 +568,4 @@ class WasmGobangIntegration {
 }
 
 // Export for use in other modules
-window.WasmGobangIntegration = WasmGobangIntegration;
+window.WasmGomokuIntegration = WasmGomokuIntegration;

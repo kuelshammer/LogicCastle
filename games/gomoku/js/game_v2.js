@@ -1,7 +1,7 @@
-// Gobang Game Logic Wrapper for WASM Engine (RUST ONLY!)
+// Gomoku Game Logic Wrapper for WASM Engine (RUST ONLY!)
 // CRITICAL: NO JavaScript fallback - WASM/Rust implementation only!
 
-class GobangGame {
+class GomokuGame {
   constructor() {
     this.wasmGame = null;
     this.isInitialized = false;
@@ -10,11 +10,11 @@ class GobangGame {
     this.currentMove = 0;
     this.usingWASM = false; // Will be true after successful WASM init
     
-    // Game configuration for Gobang
+    // Game configuration for Gomoku
     this.rows = 15;
     this.cols = 15;
     this.winCondition = 5;
-    this.gravityEnabled = false; // Gobang uses free placement
+    this.gravityEnabled = false; // Gomoku uses free placement
     
     // UI compatibility properties
     this.BOARD_SIZE = 15;
@@ -707,7 +707,7 @@ class GobangGame {
 }
 
 // Export for use in other modules
-window.GobangGame = GobangGame;
+window.GomokuGame = GomokuGame;
 
 // Player enum from WASM only - no JavaScript fallback
 window.Player = window.WasmPlayer || { Yellow: 1, Red: 2 };
