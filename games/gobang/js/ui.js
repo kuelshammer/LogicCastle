@@ -33,6 +33,13 @@ class _GobangUI {
             active: false,   // Initially hidden
             mode: 'navigate' // 'navigate' | 'confirm'
         };
+
+        // Two-Stage Mouse System (Phase 3)
+        this.mouseState = {
+            lastClickPosition: null, // { row, col } of last click
+            clickCount: 0,           // Number of clicks on same position
+            requireConfirmation: true // Enable two-stage clicking
+        };
     }
 
     /**
@@ -374,7 +381,7 @@ class _GobangUI {
     }
 
     /**
-     * Handle intersection click
+     * Handle intersection click (Phase 3: Two-stage system)
      */
     onIntersectionClick(row, col) {
         if (this.isProcessingMove || this.game.gameOver) {
@@ -386,10 +393,55 @@ class _GobangUI {
             return;
         }
 
-        // Helper move validation is now handled through WASM Integration
-        // Legacy JavaScript helpers are disabled
+        // Two-stage mouse input system
+        if (this.mouseState.requireConfirmation) {
+            this.handleTwoStageClick(row, col);
+        } else {
+            // Direct placement (fallback mode)
+            this.makeMove(row, col);
+        }
+    }
 
-        this.makeMove(row, col);
+    /**
+     * Handle two-stage click system (Phase 3)
+     */
+    handleTwoStageClick(row, col) {
+        const lastPos = this.mouseState.lastClickPosition;
+        
+        // Check if clicking on same position as last click
+        if (lastPos && lastPos.row === row && lastPos.col === col) {
+            // Second click on same position - place stone
+            this.mouseState.clickCount++;
+            
+            if (this.mouseState.clickCount >= 2) {
+                // Confirmed - place stone
+                this.makeMove(row, col);
+                this.resetMouseState();
+                return;
+            }
+        } else {
+            // First click or different position - move cursor
+            this.mouseState.lastClickPosition = { row, col };
+            this.mouseState.clickCount = 1;
+            
+            // Move cursor to clicked position
+            this.cursor.row = row;
+            this.cursor.col = col;
+            this.cursor.active = true;
+            this.updateCursorDisplay();
+            
+            // Add visual feedback for selection
+            this.updateIntersectionFeedback(row, col, 'selected');
+        }
+    }
+
+    /**
+     * Reset mouse state
+     */
+    resetMouseState() {
+        this.mouseState.lastClickPosition = null;
+        this.mouseState.clickCount = 0;
+        this.clearIntersectionFeedback();
     }
 
     /**
@@ -401,22 +453,36 @@ class _GobangUI {
         }
 
         const intersection = this.getIntersection(row, col);
-        if (!intersection.classList.contains('occupied')) {
-            // Show preview stone
-            const previewStone = document.createElement('div');
-            previewStone.className = `stone ${this.game.getPlayerColorClass(this.game.currentPlayer)} preview`;
-            intersection.appendChild(previewStone);
+        if (!intersection.classList.contains('occupied') && 
+            !intersection.classList.contains('feedback-selected')) {
+            
+            // Add hover feedback
+            intersection.classList.add('feedback-hover');
+            
+            // Add temporary stone preview for hover
+            this.addStonePreview(intersection);
         }
     }
 
     /**
-     * Handle intersection leave
+     * Handle intersection leave (Phase 3: Enhanced feedback)
      */
     onIntersectionLeave(row, col) {
         const intersection = this.getIntersection(row, col);
-        const previewStone = intersection.querySelector('.stone.preview');
-        if (previewStone) {
+        
+        // Remove hover feedback
+        intersection.classList.remove('feedback-hover');
+        
+        // Remove preview stones (but keep selected state)
+        const previewStone = intersection.querySelector('.stone-preview');
+        if (previewStone && !intersection.classList.contains('feedback-selected')) {
             previewStone.remove();
+        }
+        
+        // Legacy cleanup
+        const legacyPreview = intersection.querySelector('.stone.preview');
+        if (legacyPreview) {
+            legacyPreview.remove();
         }
     }
 
@@ -1037,6 +1103,56 @@ class _GobangUI {
         if (existingCursor) {
             existingCursor.classList.remove('cursor-active');
         }
+    }
+
+    // ==================== VISUAL FEEDBACK SYSTEM (Phase 3) ====================
+
+    /**
+     * Update intersection visual feedback
+     */
+    updateIntersectionFeedback(row, col, state) {
+        // Clear existing feedback first
+        this.clearIntersectionFeedback();
+        
+        const intersection = this.getIntersection(row, col);
+        if (intersection) {
+            intersection.classList.add(`feedback-${state}`);
+            
+            // Add stone preview if not occupied
+            if (!intersection.classList.contains('occupied')) {
+                this.addStonePreview(intersection);
+            }
+        }
+    }
+
+    /**
+     * Clear all intersection feedback
+     */
+    clearIntersectionFeedback() {
+        const feedbackElements = document.querySelectorAll('[class*="feedback-"]');
+        feedbackElements.forEach(element => {
+            element.classList.remove('feedback-selected', 'feedback-hover', 'feedback-preview');
+        });
+        
+        // Remove stone previews
+        const previews = document.querySelectorAll('.stone-preview');
+        previews.forEach(preview => preview.remove());
+    }
+
+    /**
+     * Add stone preview to intersection
+     */
+    addStonePreview(intersection) {
+        // Remove existing preview
+        const existingPreview = intersection.querySelector('.stone-preview');
+        if (existingPreview) {
+            existingPreview.remove();
+        }
+        
+        // Create preview stone
+        const preview = document.createElement('div');
+        preview.className = `stone-preview ${this.game.getPlayerColorClass(this.game.currentPlayer)}`;
+        intersection.appendChild(preview);
     }
 }
 
