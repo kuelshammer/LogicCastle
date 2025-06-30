@@ -1,5 +1,14 @@
 /* tslint:disable */
 /* eslint-disable */
+export function main(): void;
+export enum GameError {
+  OutOfBounds = 0,
+  PositionOccupied = 1,
+  GameAlreadyOver = 2,
+  InvalidPlayer = 3,
+  BoardError = 4,
+  InvalidMove = 5,
+}
 /**
  * Game phase enumeration for strategic evaluation
  */
@@ -225,6 +234,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly main: () => void;
   readonly __wbg_positionanalysis_free: (a: number, b: number) => void;
   readonly __wbg_get_positionanalysis_current_player_threats: (a: number) => number;
   readonly __wbg_set_positionanalysis_current_player_threats: (a: number, b: number) => void;
@@ -241,17 +251,19 @@ export interface InitOutput {
   readonly positionanalysis_get_current_player_threats: (a: number) => number;
   readonly positionanalysis_get_opponent_threats: (a: number) => number;
   readonly positionanalysis_get_total_pieces: (a: number) => number;
+  readonly positionanalysis_get_connectivity_score: (a: number) => number;
   readonly positionanalysis_get_game_phase: (a: number) => number;
+  readonly positionanalysis_get_evaluation_score: (a: number) => number;
   readonly positionanalysis_threat_advantage: (a: number) => number;
   readonly positionanalysis_is_critical: (a: number) => number;
-  readonly positionanalysis_summary: (a: number) => [number, number];
+  readonly positionanalysis_summary: (a: number, b: number) => void;
   readonly __wbg_board_free: (a: number, b: number) => void;
   readonly board_new: (a: number, b: number) => number;
   readonly board_get_rows: (a: number) => number;
   readonly board_get_cols: (a: number) => number;
-  readonly board_get_cells: (a: number) => [number, number];
-  readonly board_get_cell: (a: number, b: number, c: number) => [number, number, number];
-  readonly board_set_cell: (a: number, b: number, c: number, d: number) => [number, number];
+  readonly board_get_cells: (a: number, b: number) => void;
+  readonly board_get_cell: (a: number, b: number, c: number, d: number) => void;
+  readonly board_set_cell: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly board_is_within_bounds: (a: number, b: number, c: number) => number;
   readonly board_is_full: (a: number) => number;
   readonly board_is_column_full: (a: number, b: number) => number;
@@ -261,53 +273,51 @@ export interface InitOutput {
   readonly board_get_drop_row: (a: number, b: number) => number;
   readonly __wbg_game_free: (a: number, b: number) => void;
   readonly game_new: (a: number, b: number, c: number, d: number) => number;
-  readonly game_make_move_connect4_js: (a: number, b: number) => [number, number];
-  readonly game_make_move_gobang_js: (a: number, b: number, c: number) => [number, number];
+  readonly game_make_move_connect4_js: (a: number, b: number, c: number) => void;
+  readonly game_make_move_gobang_js: (a: number, b: number, c: number, d: number) => void;
   readonly game_check_win: (a: number) => number;
   readonly game_is_game_over: (a: number) => number;
-  readonly game_get_board: (a: number) => [number, number];
+  readonly game_get_board: (a: number, b: number) => void;
   readonly game_get_current_player: (a: number) => number;
   readonly game_get_starting_player: (a: number) => number;
   readonly game_set_starting_player: (a: number, b: number) => void;
   readonly game_reset_game: (a: number) => void;
   readonly game_reset_game_with_starter: (a: number, b: number) => void;
   readonly game_fast_clone: (a: number) => number;
-  readonly game_get_legal_moves_connect4: (a: number) => [number, number];
+  readonly game_get_legal_moves_connect4: (a: number, b: number) => void;
   readonly game_legal_move_count_connect4: (a: number) => number;
-  readonly game_simulate_move_connect4: (a: number, b: number) => [number, number, number];
+  readonly game_simulate_move_connect4: (a: number, b: number, c: number) => void;
   readonly game_simulate_move_connect4_js: (a: number, b: number) => number;
   readonly game_evaluate_position: (a: number) => number;
   readonly game_evaluate_position_simple: (a: number) => number;
   readonly game_evaluate_position_advanced: (a: number) => number;
   readonly game_count_threats: (a: number, b: number) => number;
-  readonly game_get_legal_moves_gobang: (a: number) => [number, number];
-  readonly game_simulate_move_gobang: (a: number, b: number, c: number) => [number, number, number];
+  readonly game_get_legal_moves_gobang: (a: number, b: number) => void;
+  readonly game_simulate_move_gobang: (a: number, b: number, c: number, d: number) => void;
   readonly game_get_winner: (a: number) => number;
   readonly game_get_game_phase: (a: number) => number;
   readonly game_analyze_position: (a: number) => number;
-  readonly game_detect_bottom_row_forks: (a: number, b: number) => [number, number];
-  readonly game_get_fork_blocking_moves: (a: number) => [number, number];
+  readonly game_detect_bottom_row_forks: (a: number, b: number, c: number) => void;
+  readonly game_get_fork_blocking_moves: (a: number, b: number) => void;
   readonly game_has_critical_fork_threats: (a: number) => number;
-  readonly game_detect_open_three: (a: number, b: number) => [number, number];
-  readonly game_detect_closed_four: (a: number, b: number) => [number, number];
-  readonly game_detect_double_three_forks: (a: number, b: number) => [number, number];
+  readonly game_detect_open_three: (a: number, b: number, c: number) => void;
+  readonly game_detect_closed_four: (a: number, b: number, c: number) => void;
+  readonly game_detect_double_three_forks: (a: number, b: number, c: number) => void;
   readonly game_get_threat_level: (a: number, b: number, c: number, d: number) => number;
-  readonly game_get_dangerous_moves_gobang: (a: number) => [number, number];
-  readonly game_get_winning_moves_gobang: (a: number) => [number, number];
-  readonly game_get_blocking_moves_gobang: (a: number) => [number, number];
+  readonly game_get_dangerous_moves_gobang: (a: number, b: number) => void;
+  readonly game_get_winning_moves_gobang: (a: number, b: number) => void;
+  readonly game_get_blocking_moves_gobang: (a: number, b: number) => void;
   readonly __wbg_triogame_free: (a: number, b: number) => void;
   readonly triogame_new: (a: number) => number;
-  readonly triogame_get_board: (a: number) => [number, number];
+  readonly triogame_get_board: (a: number, b: number) => void;
   readonly triogame_get_target_number: (a: number) => number;
   readonly triogame_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
-  readonly positionanalysis_get_connectivity_score: (a: number) => number;
-  readonly positionanalysis_get_evaluation_score: (a: number) => number;
   readonly game_is_terminal: (a: number) => number;
-  readonly __wbindgen_exn_store: (a: number) => void;
-  readonly __externref_table_alloc: () => number;
-  readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
-  readonly __externref_table_dealloc: (a: number) => void;
+  readonly __wbindgen_export_0: (a: number) => void;
+  readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_export_2: (a: number, b: number) => number;
+  readonly __wbindgen_export_3: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_start: () => void;
 }
 

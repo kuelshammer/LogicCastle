@@ -8,7 +8,7 @@ class GomokuGame {
     this.listeners = {};
     this.gameHistory = [];
     this.currentMove = 0;
-    this.usingWASM = false; // Will be true after successful WASM init
+    this.usingWASM = true; // WASM is the ONLY implementation
     
     // Game configuration for Gomoku
     this.rows = 15;
@@ -62,8 +62,8 @@ class GomokuGame {
         return true;
       }
       
-      // NO FALLBACK - WASM is required!
-      throw new Error('WASM engine is required for this game. Please use a modern browser that supports WebAssembly.');
+      // NO FALLBACK - WASM is required for this architecture
+      throw new Error('WASM initialization failed - JavaScript fallback is not allowed');
       
     } catch (error) {
       console.error('❌ Failed to initialize Rust/WASM engine:', error);
@@ -79,17 +79,28 @@ class GomokuGame {
       console.log('🔧 Loading WASM module...');
       console.log('📍 Current location:', window.location.href);
       
-      // Try different WASM paths for GitHub Pages with cache busting
-      const cacheBuster = '?v=gobang_advanced_' + Date.now();
-      const wasmPaths = [
+      // Detect environment (local vs GitHub Pages)
+      const isGitHubPages = window.location.hostname === 'www.maxkuelshammer.de';
+      const cacheBuster = '?v=gomoku_' + Date.now();
+      
+      // Choose appropriate paths based on environment
+      const wasmPaths = isGitHubPages ? [
         '/LogicCastle/game_engine/pkg/game_engine_bg.wasm' + cacheBuster, // GitHub Pages absolute path
-        '../../../game_engine/pkg/game_engine_bg.wasm' + cacheBuster, // Local relative path
         'https://www.maxkuelshammer.de/LogicCastle/game_engine/pkg/game_engine_bg.wasm' + cacheBuster // Full URL
+      ] : [
+        '../../game_engine/pkg/game_engine_bg.wasm', // Local relative path (no cache buster for local)
+        '../../../game_engine/pkg/game_engine_bg.wasm' // Alternative local path
       ];
       
-      // Import the WASM module with GitHub Pages path
+      // Import the WASM module with appropriate path
       console.log('📦 Importing WASM JavaScript wrapper...');
-      const wasmModule = await import('/LogicCastle/game_engine/pkg/game_engine.js');
+      console.log('📍 Environment detection: isGitHubPages =', isGitHubPages);
+      
+      const wasmModule = isGitHubPages ? 
+        await import('/LogicCastle/game_engine/pkg/game_engine.js') :
+        await import('../../game_engine/pkg/game_engine.js');
+      
+      console.log('✅ WASM module imported:', Object.keys(wasmModule));
       console.log('✅ WASM JavaScript wrapper loaded');
       
       const { default: init, Game, Player } = wasmModule;
@@ -156,6 +167,7 @@ class GomokuGame {
     }
   }
 
+
   // Game state management
   saveGameState() {
     if (!this.isInitialized) return;
@@ -191,103 +203,109 @@ class GomokuGame {
     try {
       const currentPlayer = this.getCurrentPlayer();
       
-      // Make move using WASM engine only
-      if (!this.usingWASM || !this.wasmGame) {
-        throw new Error('WASM engine not initialized');
+      // Make move using WASM ONLY
+      if (!this.wasmGame) {
+        throw new Error('WASM game engine not available');
       }
-      
-      // Debug: Check position validity
-      console.log(`🔍 Gobang move: row=${row}, col=${col}`);
-      console.log(`🔍 Board dimensions: ${this.rows}x${this.cols}`);
-      console.log(`🔍 Gravity enabled: ${this.gravityEnabled}`);
-      
-      const currentBoard = this.getBoard();
-      const cellIndex = row * this.cols + col;
-      console.log(`🔍 Cell at (${row},${col}) = ${currentBoard[cellIndex]}`);
-      
-      // Rust function returns Result<(), JsValue> - on success returns undefined, on error throws
-      try {
-        this.wasmGame.make_move_gobang_js(row, col);
-        console.log(`✅ WASM move successful at (${row}, ${col})`);
-      } catch (wasmError) {
-        console.error(`❌ WASM move failed at (${row}, ${col}):`, wasmError);
-        console.error(`❌ WASM error details:`, wasmError.toString());
-        throw new Error(`Invalid move: ${wasmError}`);
-      }
-      
-      // Add to move history
-      const moveData = {
-        row,
-        col,
-        player: currentPlayer,
-        moveNumber: this.moveHistory.length + 1
-      };
-      this.moveHistory.push(moveData);
-      
-      // Save state after move
-      this.saveGameState();
-      
-      // Update internal state
-      this.updateInternalState();
-      
-      // Prepare full move data for events
-      const fullMoveData = {
-        ...moveData,
-        board: this.getBoard(),
-        winner: this.winner,
-        isGameOver: this.gameOver
-      };
-
-      this.emit('move', fullMoveData);
-      this.emit('moveMade', fullMoveData); // Legacy compatibility event
-      
-      // Emit player change event for UI
-      const nextPlayer = this.getCurrentPlayer();
-      this.emit('playerChanged', nextPlayer);
-
-      if (this.gameOver) {
-        // Track winner for starter rotation
-        if (this.winner) {
-          this.lastWinner = this.wasmPlayerToString(this.winner);
-          // Update scores
-          this.scores[this.lastWinner]++;
-        } else {
-          this.lastWinner = 'draw';
-        }
-        
-        const gameOverData = {
-          winner: this.winner,
-          isDraw: !this.winner,
-          board: this.getBoard(),
-          scores: this.scores
-        };
-        this.emit('gameOver', gameOverData);
-        
-        if (this.winner) {
-          this.emit('gameWon', { 
-            winner: this.winner, 
-            winningStones: this.getWinningPositions() 
-          });
-        } else {
-          this.emit('gameDraw');
-        }
-      }
-
-      return fullMoveData;
+      return this.makeWasmMove(row, col, currentPlayer);
     } catch (error) {
       console.error('Failed to make move:', error);
       throw new Error(`Invalid move: ${error.message}`);
     }
   }
 
+  // WASM move implementation
+  makeWasmMove(row, col, currentPlayer) {
+    console.log(`🔍 WASM move: row=${row}, col=${col}`);
+    
+    // Rust function returns Result<(), JsValue> - on success returns undefined, on error throws
+    try {
+      this.wasmGame.make_move_gobang_js(row, col);
+      console.log(`✅ WASM move successful at (${row}, ${col})`);
+    } catch (wasmError) {
+      console.error(`❌ WASM move failed at (${row}, ${col}):`, wasmError);
+      throw new Error(`Invalid move: ${wasmError}`);
+    }
+    
+    return this.finalizeMove(row, col, currentPlayer);
+  }
+
+
+  // Common finalization for both WASM and JavaScript moves
+  finalizeMove(row, col, currentPlayer) {
+    // Add to move history
+    const moveData = {
+      row,
+      col,
+      player: currentPlayer,
+      moveNumber: this.moveHistory.length + 1
+    };
+    this.moveHistory.push(moveData);
+    
+    // Save state after move
+    this.saveGameState();
+    
+    // Update internal state from WASM
+    this.updateInternalState();
+    
+    // Prepare full move data for events
+    const fullMoveData = {
+      ...moveData,
+      board: this.getBoard(),
+      winner: this.winner,
+      isGameOver: this.gameOver
+    };
+
+    this.emit('move', fullMoveData);
+    this.emit('moveMade', fullMoveData); // Legacy compatibility event
+    
+    // Emit player change event for UI
+    const nextPlayer = this.getCurrentPlayer();
+    this.emit('playerChanged', nextPlayer);
+
+    if (this.gameOver) {
+      // Track winner for starter rotation
+      if (this.winner) {
+        this.lastWinner = this.wasmPlayerToString(this.winner);
+        // Update scores
+        this.scores[this.lastWinner]++;
+      } else {
+        this.lastWinner = 'draw';
+      }
+      
+      const gameOverData = {
+        winner: this.winner,
+        isDraw: !this.winner,
+        board: this.getBoard(),
+        scores: this.scores
+      };
+      this.emit('gameOver', gameOverData);
+      
+      if (this.winner) {
+        this.emit('gameWon', { 
+          winner: this.winner, 
+          winningStones: this.getWinningPositions() 
+        });
+      } else {
+        this.emit('gameDraw');
+      }
+    }
+
+    return fullMoveData;
+  }
+
   // Game state queries (WASM only)
   getBoard() {
-    if (!this.isInitialized || !this.wasmGame) return new Array(this.rows * this.cols).fill(0);
+    if (!this.isInitialized || !this.wasmGame) {
+      throw new Error('WASM game not initialized');
+    }
     return Array.from(this.wasmGame.get_board());
   }
 
   getCurrentPlayer() {
-    if (!this.isInitialized || !this.wasmGame) return window.WasmPlayer?.Yellow || 1;
+    if (!this.isInitialized || !this.wasmGame) {
+      throw new Error('WASM game not initialized');
+    }
     return this.wasmGame.get_current_player();
   }
 

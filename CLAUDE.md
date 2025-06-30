@@ -8,6 +8,12 @@ LogicCastle is a collection of mathematical strategy games with a modern Rust/We
 
 ## Development Commands
 
+### Rust/WASM Development
+- **Watch Rust changes**: `npm run watch:rust` (auto-rebuild WASM on file changes)
+- **Development mode**: `npm run dev:rust` (cargo watch + clippy + WASM rebuild)
+- **Build WASM**: `npm run wasm:build` (compile Rust to WebAssembly)
+- **Watch script**: `./watch-rust.sh` (direct script for advanced workflows)
+
 ### Testing
 - **Run all tests**: `npm test` (Vitest with WASM integration)
 - **Watch mode**: `npm run test:watch` (development with auto-reload)

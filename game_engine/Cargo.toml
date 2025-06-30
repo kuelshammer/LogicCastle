@@ -12,11 +12,45 @@ wasm-bindgen = "0.2"
 rand = { version = "0.8", features = ["small_rng"] }
 getrandom = { version = "0.2", features = ["js"] }
 
-[dev-dependencies]
-
-[target.'wasm32-unknown-unknown'.dependencies]
+# WASM-specific debugging and optimization
+console_error_panic_hook = { version = "0.1", optional = true }
 wee_alloc = { version = "0.4.5", optional = true }
 
+# Browser API access for debugging
+web-sys = { version = "0.3", features = [
+  "console",
+  "Window",
+  "Document",
+  "Element",
+], optional = true }
+
+js-sys = { version = "0.3", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
 [features]
-default = ["wee_alloc"]
+default = ["console_error_panic_hook", "wee_alloc", "web_sys", "js_sys"]
+console_error_panic_hook = ["dep:console_error_panic_hook"]
+web_sys = ["dep:web-sys"]  
+js_sys = ["dep:js-sys"]
+
+# Profile optimizations for WASM
+[profile.release]
+# Optimize for size (important for WASM)
+opt-level = "s"
+# Link Time Optimization for smaller binaries
+lto = true
+# Single codegen unit for better optimization
+codegen-units = 1
+# Abort on panic (smaller WASM binaries)
+panic = "abort"
+# Strip debug symbols in release
+strip = true
+
+[profile.dev]
+# Keep debug info for better WASM debugging
+debug = true
+# Don't optimize in debug for faster builds
+opt-level = 0
 

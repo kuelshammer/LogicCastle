@@ -497,11 +497,13 @@ class _GomokuUI {
 
         this.isProcessingMove = true;
 
-        const result = this.game.makeMove(row, col);
-
-        if (!result.success) {
+        try {
+            const result = this.game.makeMove(row, col);
+            console.log('Move result:', result);
+            // If we get here, the move was successful
+        } catch (error) {
             this.isProcessingMove = false;
-            this.showMessage(result.reason, 'error');
+            this.showMessage(error.message, 'error');
             return;
         }
 

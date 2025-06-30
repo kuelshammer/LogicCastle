@@ -3,6 +3,32 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand::thread_rng;
 
+// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+#[cfg(feature = "web_sys")]
+macro_rules! console_log {
+    ($($t:tt)*) => {
+        web_sys::console::log_1(&format_args!($($t)*).to_string().into());
+    }
+}
+
+// When the `console_error_panic_hook` feature is enabled, we can call the
+// `set_panic_hook` function at least once during initialization, and then
+// we will get better error messages if our code ever panics.
+//
+// For more details see
+// https://github.com/rustwasm/console_error_panic_hook#readme
+#[cfg(feature = "console_error_panic_hook")]
+extern crate console_error_panic_hook;
+
+#[wasm_bindgen(start)]
+pub fn main() {
+    #[cfg(feature = "console_error_panic_hook")]
+    console_error_panic_hook::set_once();
+    
+    #[cfg(feature = "web_sys")]
+    console_log!("🦀 WASM Game Engine initialized with debug support!");
+}
+
 /// Game phase enumeration for strategic evaluation
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -66,7 +92,38 @@ impl PositionAnalysis {
         )
     }
 }
-use std::collections::HashMap;
+// Custom error types for robust error handling instead of String errors
+#[derive(Debug, Clone)]
+#[wasm_bindgen]
+pub enum GameError {
+    OutOfBounds,
+    PositionOccupied, 
+    GameAlreadyOver,
+    InvalidPlayer,
+    BoardError,
+    InvalidMove,
+}
+
+impl std::fmt::Display for GameError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            GameError::OutOfBounds => write!(f, "Position out of bounds"),
+            GameError::PositionOccupied => write!(f, "Position already occupied"),
+            GameError::GameAlreadyOver => write!(f, "Game is already over"),
+            GameError::InvalidPlayer => write!(f, "Invalid player"),
+            GameError::BoardError => write!(f, "Board operation failed"),
+            GameError::InvalidMove => write!(f, "Invalid move"),
+        }
+    }
+}
+
+impl std::error::Error for GameError {}
+
+impl From<GameError> for String {
+    fn from(error: GameError) -> Self {
+        error.to_string()
+    }
+}
 
 #[wasm_bindgen]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)] // Added Debug trait
@@ -134,17 +191,17 @@ impl Board {
         self.cells.clone()
     }
 
-    pub fn get_cell(&self, row: usize, col: usize) -> Result<i8, String> {
+    pub fn get_cell(&self, row: usize, col: usize) -> Result<i8, GameError> {
         if row >= self.rows || col >= self.cols {
-            return Err("Coordinates out of bounds".to_string());
+            return Err(GameError::OutOfBounds);
         }
         let index = row * self.cols + col;
         Ok(self.cells[index])
     }
 
-    pub fn set_cell(&mut self, row: usize, col: usize, value: i8) -> Result<(), String> {
+    pub fn set_cell(&mut self, row: usize, col: usize, value: i8) -> Result<(), GameError> {
         if row >= self.rows || col >= self.cols {
-            return Err("Coordinates out of bounds".to_string());
+            return Err(GameError::OutOfBounds);
         }
         let index = row * self.cols + col;
         self.cells[index] = value;
@@ -237,45 +294,51 @@ impl Game {
 
     // This function will be exposed to JS, so we need to convert the String error to JsValue
     pub fn make_move_connect4_js(&mut self, col: usize) -> Result<(), JsValue> {
-        self._make_move_connect4(col).map_err(|e| JsValue::from_str(&e))
+        self._make_move_connect4(col).map_err(|e| JsValue::from_str(&e.to_string()))
     }
 
     pub fn make_move_gobang_js(&mut self, row: usize, col: usize) -> Result<(), JsValue> {
-        self._make_move_gobang(row, col).map_err(|e| JsValue::from_str(&e))
+        self._make_move_gobang(row, col).map_err(|e| JsValue::from_str(&e.to_string()))
     }
 
-    // Internal make_move for Connect4 that returns a Rust String error
-    fn _make_move_connect4(&mut self, col: usize) -> Result<(), String> {
+    // Internal make_move for Connect4 that returns a GameError
+    fn _make_move_connect4(&mut self, col: usize) -> Result<(), GameError> {
         if col >= self.board.cols {
-            return Err("Column out of bounds".to_string());
+            return Err(GameError::OutOfBounds);
         }
 
         if self.gravity_enabled {
             // Find the lowest empty spot in the column
             for row in (0..self.board.rows).rev() {
-                if self.board.get_cell(row, col).unwrap() == 0 { // Check if empty (0)
-                    self.board.set_cell(row, col, self.current_player.into()).unwrap(); // Convert Player to i8
-                    self.current_player = match self.current_player {
-                        Player::Yellow => Player::Red,
-                        Player::Red => Player::Yellow,
-                    };
-                    return Ok(());
+                match self.board.get_cell(row, col) {
+                    Ok(0) => { // Check if empty (0)
+                        self.board.set_cell(row, col, self.current_player.into())?;
+                        self.current_player = match self.current_player {
+                            Player::Yellow => Player::Red,
+                            Player::Red => Player::Yellow,
+                        };
+                        return Ok(());
+                    },
+                    Ok(_) => continue, // Cell is occupied, try next row
+                    Err(e) => return Err(e)
                 }
             }
-            Err("Column is full".to_string())
+            Err(GameError::InvalidMove) // Column is full
         } else {
-            Err("Gravity is disabled for this game. Use make_move_gobang_js for precise placement.".to_string())
+            Err(GameError::InvalidMove) // Gravity disabled
         }
     }
 
-    // Internal make_move for Gobang that returns a Rust String error
-    fn _make_move_gobang(&mut self, row: usize, col: usize) -> Result<(), String> {
+    // Internal make_move for Gobang that returns a GameError
+    fn _make_move_gobang(&mut self, row: usize, col: usize) -> Result<(), GameError> {
         if !self.board.is_within_bounds(row as isize, col as isize) {
-            return Err("Row or column out of bounds".to_string());
+            return Err(GameError::OutOfBounds);
         }
 
-        if self.board.get_cell(row, col).unwrap() != 0 { // Check if occupied
-            return Err("Spot is already occupied".to_string());
+        match self.board.get_cell(row, col) {
+            Ok(0) => {}, // Empty cell, continue
+            Ok(_) => return Err(GameError::PositionOccupied),
+            Err(e) => return Err(e)
         }
 
         // Gobang Rule: Second stone of starting player cannot touch first stone
@@ -283,13 +346,13 @@ impl Game {
         if total_pieces == 1 && self.current_player == self.starting_player {
             if let Some((first_row, first_col)) = self.find_first_stone() {
                 if self.is_adjacent(row, col, first_row, first_col) {
-                    return Err("Second stone cannot be adjacent to first stone (Gobang rule)".to_string());
+                    return Err(GameError::InvalidMove);
                 }
             }
         }
 
         // Place the stone
-        self.board.set_cell(row, col, self.current_player.into()).unwrap();
+        self.board.set_cell(row, col, self.current_player.into())?;
         self.current_player = match self.current_player {
             Player::Yellow => Player::Red,
             Player::Red => Player::Yellow,
@@ -301,8 +364,10 @@ impl Game {
     fn find_first_stone(&self) -> Option<(usize, usize)> {
         for row in 0..self.board.rows {
             for col in 0..self.board.cols {
-                if self.board.get_cell(row, col).unwrap() != 0 {
-                    return Some((row, col));
+                match self.board.get_cell(row, col) {
+                    Ok(value) if value != 0 => return Some((row, col)),
+                    Ok(_) => continue, // Empty cell
+                    Err(_) => continue // Skip invalid cells
                 }
             }
         }
@@ -326,11 +391,13 @@ impl Game {
         // Check horizontal wins
         for r in 0..self.board.rows {
             for c in 0..=(self.board.cols - self.win_condition) {
-                let cell_value = self.board.get_cell(r, c).unwrap();
-                if cell_value != 0 {
-                    let player_at_cell = Player::try_from(cell_value).unwrap();
-                    if let Some(player) = self._check_direction(r, c, 0, 1, player_at_cell) {
-                        return Some(player);
+                if let Ok(cell_value) = self.board.get_cell(r, c) {
+                    if cell_value != 0 {
+                        if let Ok(player_at_cell) = Player::try_from(cell_value) {
+                            if let Some(player) = self._check_direction(r, c, 0, 1, player_at_cell) {
+                                return Some(player);
+                            }
+                        }
                     }
                 }
             }
@@ -339,11 +406,13 @@ impl Game {
         // Check vertical wins
         for r in 0..=(self.board.rows - self.win_condition) {
             for c in 0..self.board.cols {
-                let cell_value = self.board.get_cell(r, c).unwrap();
-                if cell_value != 0 {
-                    let player_at_cell = Player::try_from(cell_value).unwrap();
-                    if let Some(player) = self._check_direction(r, c, 1, 0, player_at_cell) {
-                        return Some(player);
+                if let Ok(cell_value) = self.board.get_cell(r, c) {
+                    if cell_value != 0 {
+                        if let Ok(player_at_cell) = Player::try_from(cell_value) {
+                            if let Some(player) = self._check_direction(r, c, 1, 0, player_at_cell) {
+                                return Some(player);
+                            }
+                        }
                     }
                 }
             }
@@ -352,11 +421,13 @@ impl Game {
         // Check diagonal wins (top-left to bottom-right)
         for r in 0..=(self.board.rows - self.win_condition) {
             for c in 0..=(self.board.cols - self.win_condition) {
-                let cell_value = self.board.get_cell(r, c).unwrap();
-                if cell_value != 0 {
-                    let player_at_cell = Player::try_from(cell_value).unwrap();
-                    if let Some(player) = self._check_direction(r, c, 1, 1, player_at_cell) {
-                        return Some(player);
+                if let Ok(cell_value) = self.board.get_cell(r, c) {
+                    if cell_value != 0 {
+                        if let Ok(player_at_cell) = Player::try_from(cell_value) {
+                            if let Some(player) = self._check_direction(r, c, 1, 1, player_at_cell) {
+                                return Some(player);
+                            }
+                        }
                     }
                 }
             }
@@ -365,11 +436,13 @@ impl Game {
         // Check diagonal wins (top-right to bottom-left)
         for r in 0..=(self.board.rows - self.win_condition) {
             for c in (self.win_condition - 1)..self.board.cols {
-                let cell_value = self.board.get_cell(r, c).unwrap();
-                if cell_value != 0 {
-                    let player_at_cell = Player::try_from(cell_value).unwrap();
-                    if let Some(player) = self._check_direction(r, c, 1, -1, player_at_cell) {
-                        return Some(player);
+                if let Ok(cell_value) = self.board.get_cell(r, c) {
+                    if cell_value != 0 {
+                        if let Ok(player_at_cell) = Player::try_from(cell_value) {
+                            if let Some(player) = self._check_direction(r, c, 1, -1, player_at_cell) {
+                                return Some(player);
+                            }
+                        }
                     }
                 }
             }
@@ -388,10 +461,14 @@ impl Game {
                 return None; // Out of bounds
             }
 
-            let cell_value = self.board.get_cell(r as usize, c as usize).unwrap();
+            let cell_value = match self.board.get_cell(r as usize, c as usize) {
+                Ok(value) => value,
+                Err(_) => return None // Failed to get cell
+            };
 
-            if cell_value == 0 || Player::try_from(cell_value).unwrap() != player_to_check {
-                return None; // Empty cell or different player
+            match Player::try_from(cell_value) {
+                Ok(player) if player == player_to_check => continue,
+                _ => return None // Empty cell, invalid player, or different player
             }
         }
         Some(player_to_check) // Win condition met for this player
@@ -1361,7 +1438,9 @@ impl Game {
         
         // Check if this move wins immediately
         let mut temp_board = self.board.fast_clone();
-        temp_board.set_cell(row, col, player as i8).unwrap();
+        if let Err(_) = temp_board.set_cell(row, col, player as i8) {
+            return 0; // Invalid position, no threat
+        }
         if self.would_win_at(row, col, player as i8) {
             return 5; // Immediate win
         }
@@ -1536,10 +1615,16 @@ impl TrioGame {
         for r in 0..7 {
             for c in 0..7 {
                 if let Some(&num) = numbers_to_place.get(cell_idx) {
-                    board.set_cell(r, c, num as i8).unwrap();
+                    if let Err(_) = board.set_cell(r, c, num as i8) {
+                        // Invalid position during initialization, skip
+                        continue;
+                    }
                 } else {
                     // This should not happen
-                    board.set_cell(r, c, 0).unwrap(); 
+                    if let Err(_) = board.set_cell(r, c, 0) {
+                        // Invalid position during initialization, skip
+                        continue;
+                    }
                 }
                 cell_idx += 1;
             }
@@ -1560,13 +1645,28 @@ impl TrioGame {
                 continue;
             }
 
-            let n1 = board.get_cell(r1, c1).unwrap() as f64;
-            let n2 = board.get_cell(r2, c2).unwrap() as f64;
-            let n3 = board.get_cell(r3, c3).unwrap() as f64;
+            let n1 = match board.get_cell(r1, c1) {
+                Ok(val) => val as f64,
+                Err(_) => continue, // Invalid position, try again
+            };
+            let n2 = match board.get_cell(r2, c2) {
+                Ok(val) => val as f64,
+                Err(_) => continue, // Invalid position, try again
+            };
+            let n3 = match board.get_cell(r3, c3) {
+                Ok(val) => val as f64,
+                Err(_) => continue, // Invalid position, try again
+            };
 
             let ops: [fn(f64, f64) -> f64; 4] = [|a, b| a + b, |a, b| a - b, |a, b| a * b, |a, b| a / b];
-            let op1 = ops.choose(&mut rng).unwrap();
-            let op2 = ops.choose(&mut rng).unwrap();
+            let op1 = match ops.choose(&mut rng) {
+                Some(op) => op,
+                None => continue, // No operations available, try again
+            };
+            let op2 = match ops.choose(&mut rng) {
+                Some(op) => op,
+                None => continue, // No operations available, try again
+            };
 
             let result = op2(op1(n1, n2), n3);
 
@@ -1592,9 +1692,18 @@ impl TrioGame {
     }
 
     pub fn check_combination(&self, r1: usize, c1: usize, r2: usize, c2: usize, r3: usize, c3: usize) -> bool {
-        let n1 = self.board.get_cell(r1, c1).unwrap() as f64;
-        let n2 = self.board.get_cell(r2, c2).unwrap() as f64;
-        let n3 = self.board.get_cell(r3, c3).unwrap() as f64;
+        let n1 = match self.board.get_cell(r1, c1) {
+            Ok(val) => val as f64,
+            Err(_) => return false, // Invalid position
+        };
+        let n2 = match self.board.get_cell(r2, c2) {
+            Ok(val) => val as f64,
+            Err(_) => return false, // Invalid position
+        };
+        let n3 = match self.board.get_cell(r3, c3) {
+            Ok(val) => val as f64,
+            Err(_) => return false, // Invalid position
+        };
         let target = self.target_number as f64;
 
         let numbers = [n1, n2, n3];
