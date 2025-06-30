@@ -632,6 +632,3 @@ window.GobangGame = GobangGame;
 
 // Player enum from WASM only - no JavaScript fallback
 window.Player = window.WasmPlayer || { Yellow: 1, Red: 2 };
-
-export { GobangGame };
-export const Player = window.Player;
