@@ -309,9 +309,9 @@ class _GobangUI {
                     this.ai = new GobangAI('smart');
                 }
             } else {
-                // Use standard AI for JavaScript mode
-                const difficulty = this.gameMode.split('-').pop();
-                this.ai = new GobangAI(difficulty);
+                // Legacy JavaScript AI is deprecated - use Enhanced AI as fallback
+                console.warn('⚠️ JavaScript AI mode deprecated, using Enhanced AI instead');
+                this.ai = new window.EnhancedGobangAI('smart', this.wasmIntegration);
             }
         } else {
             this.ai = null;
@@ -333,17 +333,8 @@ class _GobangUI {
             return;
         }
 
-        // Check if this move is required by helpers
-        if (this.helpers && this.helpers.forcedMoveMode) {
-            const isRequiredMove = this.helpers.requiredMoves.some(
-                move => move.row === row && move.col === col
-            );
-
-            if (!isRequiredMove) {
-                console.log('⚠️ Move not allowed - must play one of the highlighted moves');
-                return;
-            }
-        }
+        // Helper move validation is now handled through WASM Integration
+        // Legacy JavaScript helpers are disabled
 
         this.makeMove(row, col);
     }
@@ -430,7 +421,8 @@ class _GobangUI {
 
         try {
             // Get move from AI (Enhanced AI returns more detailed move info)
-            const move = await this.ai.getBestMove(this.game, this.helpers);
+            // Note: helpers parameter is deprecated, Enhanced AI uses WASM integration instead
+            const move = await this.ai.getBestMove(this.game, null);
 
             this.hideThinkingIndicator();
 
@@ -659,14 +651,13 @@ class _GobangUI {
     }
 
     /**
-     * Initialize helpers system
+     * Initialize helpers system (WASM-only)
      */
     initializeHelpers() {
-        this.helpers = new GobangHelpers(this.game, this);
-
-        // Listen to helper events
-        this.helpers.on('forcedMoveActivated', data => this.onForcedMoveActivated(data));
-        this.helpers.on('forcedMoveDeactivated', () => this.onForcedMoveDeactivated());
+        // Legacy JavaScript helpers are deprecated
+        // All helper functionality is now provided through WASM Integration
+        console.log('🦀 Helpers functionality provided through WASM Integration');
+        this.helpers = null; // Disable legacy helpers
     }
 
     /**
@@ -697,7 +688,7 @@ class _GobangUI {
     }
 
     /**
-     * Update helper settings for a player
+     * Update helper settings for a player (WASM-only)
      */
     updateHelperSettings(player, level, enabled) {
         this.helpSettings[player][level] = enabled;
@@ -705,57 +696,30 @@ class _GobangUI {
     }
 
     /**
-     * Update helpers based on current player
+     * Update helpers based on current player (WASM-only)
      */
     updateCurrentPlayerHelpers() {
-        if (!this.helpers) {
-            return;
-        }
-
-        const currentPlayerKey =
-            this.game.currentPlayer === this.game.BLACK ? 'player1' : 'player2';
-        const settings = this.helpSettings[currentPlayerKey];
-
-        // Determine the highest enabled level
-        let enabledLevel = -1;
-        if (settings.level2) {
-            enabledLevel = 2;
-        } else if (settings.level1) {
-            enabledLevel = 1;
-        } else if (settings.level0) {
-            enabledLevel = 0;
-        }
-
-        if (enabledLevel >= 0) {
-            this.helpers.setEnabled(true, enabledLevel);
-        } else {
-            this.helpers.setEnabled(false);
-        }
+        // Legacy JavaScript helpers are deprecated
+        // Helper functionality is now provided through WASM Integration
+        console.log('🦀 Helper settings updated, functionality provided through WASM Integration');
     }
 
     /**
-     * Handle forced move activation
+     * Handle forced move activation (WASM-only)
      */
     onForcedMoveActivated(data) {
-        console.log(`🎯 Forced moves activated for level ${data.level}:`, data.requiredMoves);
-
-        // Highlight required moves on the board
-        this.clearHintHighlights();
-
-        data.requiredMoves.forEach(move => {
-            const intersection = this.getIntersection(move.row, move.col);
-            if (intersection) {
-                intersection.classList.add('hint-move', `hint-level-${data.level}`);
-            }
-        });
+        // Legacy JavaScript helper events are deprecated
+        // Hint visualization is now handled through WASM Integration
+        console.log('🦀 Forced move activation handled through WASM Integration');
     }
 
     /**
-     * Handle forced move deactivation
+     * Handle forced move deactivation (WASM-only)
      */
     onForcedMoveDeactivated() {
-        console.log('🎯 Forced moves deactivated');
-        this.clearHintHighlights();
+        // Legacy JavaScript helper events are deprecated
+        // Hint visualization is now handled through WASM Integration
+        console.log('🦀 Forced move deactivation handled through WASM Integration');
     }
 
     /**
@@ -797,7 +761,7 @@ class _GobangUI {
             previewStone.remove();
         }
 
-        // Clear hint highlights
+        // Hint highlighting is now handled through WASM Integration
         this.clearHintHighlights();
 
         // Create and add the actual stone
@@ -822,7 +786,7 @@ class _GobangUI {
             stone.classList.remove('stone-place');
             this.isProcessingMove = false;
 
-            // Update helpers for new player
+            // Helper updates are now handled through WASM Integration
             this.updateCurrentPlayerHelpers();
 
             // Process AI move if needed
@@ -842,6 +806,7 @@ class _GobangUI {
         this.clearHintHighlights();
         this.updateDisplay();
         this.hideThinkingIndicator();
+        // Helper updates are now handled through WASM Integration
         this.updateCurrentPlayerHelpers();
     }
 
