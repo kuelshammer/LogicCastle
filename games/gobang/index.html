@@ -369,7 +369,6 @@
       </div>
     </div>
 
-    <script src="js/game.js"></script>
     <script src="js/game_v2.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/ai-enhanced.js"></script>
@@ -379,8 +378,9 @@
     <script src="js/wasm-integration.js"></script>
     <script>
       // Initialize game when DOM is loaded
-      document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener('DOMContentLoaded', async function () {
         const game = new GobangGame();
+        await game.init(); // Initialize WASM
         const ui = new GobangUI(game);
         ui.init();
       });

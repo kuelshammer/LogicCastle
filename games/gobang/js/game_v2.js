@@ -15,6 +15,16 @@ class GobangGame {
     this.cols = 15;
     this.winCondition = 5;
     this.gravityEnabled = false; // Gobang uses free placement
+    
+    // UI compatibility properties
+    this.BOARD_SIZE = 15;
+    this.BLACK = 1;
+    this.WHITE = 2;
+    this.currentPlayer = this.BLACK;
+    this.gameOver = false;
+    this.winner = null;
+    this.scores = { black: 0, white: 0 };
+    this.moveHistory = [];
   }
 
   // Event handling
@@ -200,34 +210,55 @@ class GobangGame {
         throw new Error(`Invalid move: ${wasmError}`);
       }
       
-      // Save state after move
-      this.saveGameState();
-      
-      // Check for win condition
-      const winner = this.getWinner();
-      const isGameOver = this.isGameOver();
-      
+      // Add to move history
       const moveData = {
         row,
         col,
         player: currentPlayer,
+        moveNumber: this.moveHistory.length + 1
+      };
+      this.moveHistory.push(moveData);
+      
+      // Save state after move
+      this.saveGameState();
+      
+      // Update internal state
+      this.updateInternalState();
+      
+      // Prepare full move data for events
+      const fullMoveData = {
+        ...moveData,
         board: this.getBoard(),
-        winner: winner || null,
-        isGameOver,
-        moveNumber: this.currentMove
+        winner: this.winner,
+        isGameOver: this.gameOver
       };
 
-      this.emit('move', moveData);
+      this.emit('move', fullMoveData);
+      this.emit('moveMade', fullMoveData); // Legacy compatibility event
+      
+      // Emit player change event for UI
+      const nextPlayer = this.getCurrentPlayer();
+      this.emit('playerChanged', nextPlayer);
 
-      if (isGameOver) {
-        this.emit('gameOver', {
-          winner: winner || null,
-          isDraw: !winner,
+      if (this.gameOver) {
+        const gameOverData = {
+          winner: this.winner,
+          isDraw: !this.winner,
           board: this.getBoard()
-        });
+        };
+        this.emit('gameOver', gameOverData);
+        
+        if (this.winner) {
+          this.emit('gameWon', { 
+            winner: this.winner, 
+            winningStones: this.getWinningPositions() 
+          });
+        } else {
+          this.emit('gameDraw');
+        }
       }
 
-      return moveData;
+      return fullMoveData;
     } catch (error) {
       console.error('Failed to make move:', error);
       throw new Error(`Invalid move: ${error.message}`);
@@ -500,6 +531,99 @@ class GobangGame {
     this.listeners = {};
     this.gameHistory = [];
     this.currentMove = 0;
+  }
+  
+  // UI compatibility methods
+  getPlayerColorClass(player) {
+    return player === this.BLACK ? 'black' : 'white';
+  }
+  
+  getPlayerName(player) {
+    return player === this.BLACK ? 'Spieler 1 (Schwarz)' : 'Spieler 2 (Weiß)';
+  }
+  
+  positionToNotation(row, col) {
+    const colLetter = String.fromCharCode(65 + col); // A-O
+    const rowNumber = this.BOARD_SIZE - row; // 15-1
+    return `${colLetter}${rowNumber}`;
+  }
+  
+  getLastMove() {
+    return this.moveHistory.length > 0 ? this.moveHistory[this.moveHistory.length - 1] : null;
+  }
+  
+  resetGame() {
+    if (this.isInitialized && this.wasmGame) {
+      this.wasmGame.new_game();
+      this.gameHistory = [];
+      this.currentMove = 0;
+      this.moveHistory = [];
+      this.gameOver = false;
+      this.winner = null;
+      this.currentPlayer = this.BLACK;
+      this.emit('gameReset');
+    }
+  }
+  
+  resetScores() {
+    this.scores = { black: 0, white: 0 };
+    this.emit('scoresReset');
+  }
+  
+  undoMove() {
+    if (this.moveHistory.length === 0) {
+      return { success: false, reason: 'No moves to undo' };
+    }
+    
+    const lastMove = this.moveHistory.pop();
+    if (this.wasmGame) {
+      // Reset game state and replay all moves except the last one
+      this.wasmGame.new_game();
+      const movesToReplay = [...this.moveHistory];
+      this.moveHistory = [];
+      
+      for (const move of movesToReplay) {
+        this.wasmGame.make_move_gobang_js(move.row, move.col);
+        this.moveHistory.push(move);
+      }
+      
+      this.gameOver = false;
+      this.winner = null;
+      this.currentPlayer = this.getCurrentPlayer();
+      
+      this.emit('moveUndone', lastMove);
+      this.emit('playerChanged', this.currentPlayer);
+    }
+    
+    return { success: true, move: lastMove };
+  }
+  
+  // Update internal state after moves
+  updateInternalState() {
+    if (this.isInitialized && this.wasmGame) {
+      this.currentPlayer = this.getCurrentPlayer();
+      this.gameOver = this.isGameOver();
+      this.winner = this.getWinner();
+    }
+  }
+  
+  // Get winning positions for UI highlighting
+  getWinningPositions() {
+    if (!this.isInitialized || !this.wasmGame || !this.isGameOver()) return [];
+    
+    try {
+      const flatPositions = Array.from(this.wasmGame.get_winning_positions());
+      const positions = [];
+      
+      for (let i = 0; i < flatPositions.length; i += 2) {
+        positions.push({ row: flatPositions[i], col: flatPositions[i + 1] });
+      }
+      
+      return positions;
+    } catch (error) {
+      console.warn('Could not get winning positions:', error);
+      return [];
+    }
   }
 }
 
