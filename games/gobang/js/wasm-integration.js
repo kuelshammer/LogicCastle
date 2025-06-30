@@ -263,7 +263,7 @@ class WasmGobangIntegration {
         if (!this.wasmGame || !this.gameUI.game) return;
 
         // Reset WASM game
-        this.wasmGame.newGame();
+        this.wasmGame.resetGame();
 
         // Replay moves from UI game
         const moveHistory = this.gameUI.game.moveHistory || [];
