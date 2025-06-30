@@ -380,6 +380,10 @@
         await game.init(); // Initialize WASM
         const ui = new GobangUI(game);
         ui.init();
+        
+        // Initialize WASM integration for move analysis dashboard
+        const wasmIntegration = new WasmGobangIntegration(ui);
+        ui.wasmIntegration = wasmIntegration; // Connect integration to UI
       });
     </script>
   </body>

@@ -509,6 +509,11 @@ class _GobangUI {
         this.updateGameStatus();
         this.updateControls();
         this.updateMoveCounter();
+        
+        // Update WASM move analysis dashboard
+        if (this.wasmIntegration) {
+            this.wasmIntegration.updateAnalysisDashboard();
+        }
     }
 
     /**
