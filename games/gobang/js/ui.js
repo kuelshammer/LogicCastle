@@ -198,12 +198,22 @@ class _GobangUI {
     createBoard() {
         this.elements.gameBoard.innerHTML = '';
 
+        // Board inner dimensions (350px - padding)
+        const boardSize = 350; // 390px - 2*20px padding
+        const stepSize = boardSize / 14; // 14 intervals between 15 lines
+
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             for (let col = 0; col < this.game.BOARD_SIZE; col++) {
                 const intersection = document.createElement('div');
                 intersection.className = 'intersection';
                 intersection.dataset.row = row;
                 intersection.dataset.col = col;
+
+                // Position intersection at exact grid line crossing
+                const left = col * stepSize;
+                const top = row * stepSize;
+                intersection.style.left = `${left}px`;
+                intersection.style.top = `${top}px`;
 
                 // Add star points (traditional Go board markings)
                 if (this.isStarPoint(row, col)) {
