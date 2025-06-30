@@ -381,9 +381,16 @@
         const ui = new GobangUI(game);
         ui.init();
         
+        // Make objects globally available for debugging and integration
+        window.game = game;
+        window.ui = ui;
+        
         // Initialize WASM integration for move analysis dashboard
         const wasmIntegration = new WasmGobangIntegration(ui);
         ui.wasmIntegration = wasmIntegration; // Connect integration to UI
+        window.wasmIntegration = wasmIntegration; // Make globally available
+        
+        console.log('🎮 Gobang initialized with WASM integration');
       });
     </script>
   </body>
