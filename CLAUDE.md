@@ -197,3 +197,119 @@ LogicCastle/
 - For pip installs: `uv add package-name`
 - UV provides faster, more reliable Python environment management
 - This ensures consistent Python tooling across the project
+
+## GOBANG INPUT-SYSTEM NEUDESIGN PLAN
+**Status: 2025-06-30 - Akute Probleme mit Stein-Positionierung und Input-System**
+
+### Aktuelle Probleme:
+1. **Stein-Positionierung**: Steine landen nicht exakt auf Gitterpunkten
+2. **Click-Probleme**: Nicht alle Gitterpunkte sind anklickbar
+3. **Fehlende Tastatur-Navigation**: Kein Keyboard-Support
+4. **Hilfen-System**: Deaktiviert wegen WASM-Integration-Konflikten
+
+### ULTRATHINK-Plan: 4-Phasen Implementierung
+
+#### **Phase 1: Grid-Präzision (SOFORT - Kritisch)**
+**Ziel:** Mathematisch exakte Positionierung der Intersections und Steine
+
+1.1. **Koordinaten-Mathematik korrigieren**
+   - Board-Größe: 350px × 350px (ohne Padding)
+   - Gitterabstand: 350px ÷ 14 Intervalle = 25px exakt
+   - Intersection-Koordinaten: `x = col * 25`, `y = row * 25`
+   - Range: (0,0) bis (350,350) für 15×15 Grid
+
+1.2. **CSS-Gitterlinien synchronisieren**
+   ```css
+   background-image: 
+     repeating-linear-gradient(to right, #8b4513 0px, #8b4513 2px, transparent 2px, transparent 25px),
+     repeating-linear-gradient(to bottom, #8b4513 0px, #8b4513 2px, transparent 2px, transparent 25px);
+   ```
+
+1.3. **Click-Bereiche optimieren**
+   - Intersection-Größe: 32×32px (statt 24×24px)
+   - Überlappungsfreie Positionierung
+   - Bessere Touch-Targets für Mobile
+
+1.4. **Puppeteer-Test:** Exakte Stein-Positionierung auf allen Gitterlinien
+
+#### **Phase 2: Cursor-System (KERN-FEATURE)**
+**Ziel:** Robuste Tastatur-Navigation und visueller Cursor
+
+2.1. **Cursor-State-Management**
+   ```javascript
+   this.cursor = {
+     row: 7,        // Startposition Mitte
+     col: 7,
+     active: true,  // Cursor sichtbar
+     mode: 'navigate' // 'navigate' | 'confirm'
+   };
+   ```
+
+2.2. **Visuelle Cursor-Darstellung**
+   - Gelber Ring/Highlight auf aktueller Position
+   - Animierte Übergänge zwischen Positionen
+   - Deutlich sichtbar über Steinen und leerem Brett
+
+2.3. **Tastatur-Navigation**
+   - **Pfeiltasten**: Cursor über 15×15 Grid bewegen
+   - **Leertaste**: Stein an Cursor-Position platzieren
+   - **Escape**: Cursor deaktivieren/verstecken
+   - **Tab**: Cursor aktivieren wenn versteckt
+
+2.4. **Puppeteer-Test:** Vollständige Tastatur-Navigation über das gesamte Brett
+
+#### **Phase 3: Zwei-Stufen-Maus-Input (UX-VERBESSERUNG)**
+**Ziel:** Präzise Maus-Steuerung mit Bestätigungssystem
+
+3.1. **Cursor-Auswahl per Mausklick**
+   - Klick auf Intersection: Cursor springt zu dieser Position
+   - Cursor wird automatisch sichtbar und aktiv
+   - Hover-States für bessere UX
+
+3.2. **Stein-Platzierung bei Wiederholung**
+   - Erster Klick: Position auswählen (Cursor bewegen)
+   - Zweiter Klick auf gleiche Position: Stein platzieren
+   - Alternative: Bestätigungs-Button für Touch-Geräte
+
+3.3. **Visuelle Feedback-States**
+   - `hover`: Maushover über Intersection
+   - `selected`: Cursor an dieser Position  
+   - `preview`: Vorschau des zu platzierenden Steins
+   - `occupied`: Position bereits belegt
+
+3.4. **Puppeteer-Test:** Kombinierte Maus+Tastatur Interaktionen
+
+#### **Phase 4: Hilfen-Integration (STRATEGISCH)**
+**Ziel:** WASM-Integration reparieren und Hilfen-Overlay implementieren
+
+4.1. **WASM-Integration API-Konflikte lösen**
+   - GobangGame vs. WasmGobangIntegration Methodennamen-Konflikte
+   - Korrekte Game-State-Synchronisation
+   - `resetGame()` vs. `newGame()` API-Vereinheitlichung
+
+4.2. **Hilfen-Overlay auf Grid**
+   - **Gewinnzüge**: Grüne Highlights direkt auf Intersections
+   - **Blockier-Züge**: Rote Highlights
+   - **Gefährliche Züge**: Orange Warnungen
+   - **Threat-Level**: Nummer-Overlay (0-5)
+
+4.3. **Cursor-basierte Threat-Anzeige**
+   - Dynamische Bewertung der Cursor-Position
+   - Mini-Tooltip mit Threat-Level und Grund
+   - Integration in Cursor-Highlight-System
+
+4.4. **Puppeteer-Test:** Hilfen + Input-System Kompatibilität
+
+### Technische Spezifikationen:
+- **Grid-Mathematik**: 15×15 Intersections, 25px Abstand, 0-350px Range
+- **Input-Modi**: Tastatur (primär), Maus-Zweistufen (sekundär)
+- **Visuelle Hierarchie**: Cursor > Hilfen > Steine > Grid
+- **WASM-Integration**: Unified API für alle Game-Engines
+- **Testing**: Puppeteer nach jeder Phase für Live-Website-Validierung
+
+### Erfolgs-Kriterien:
+✅ Steine landen exakt auf Gitterlinien-Schnittpunkten  
+✅ Alle 225 Positionen (15×15) sind per Tastatur+Maus erreichbar  
+✅ Flüssige Navigation mit Pfeiltasten über das gesamte Brett  
+✅ Hilfen-System zeigt korrekte Analyse-Werte  
+✅ Keine Input-Konflikte zwischen den verschiedenen Modi

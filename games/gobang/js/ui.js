@@ -198,9 +198,9 @@ class _GobangUI {
     createBoard() {
         this.elements.gameBoard.innerHTML = '';
 
-        // Board inner dimensions (350px - padding)
+        // Board inner dimensions - mathematically exact
         const boardSize = 350; // 390px - 2*20px padding
-        const stepSize = boardSize / 14; // 14 intervals between 15 lines
+        const stepSize = 25; // Exact: 350px / 14 intervals = 25px per step
 
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             for (let col = 0; col < this.game.BOARD_SIZE; col++) {

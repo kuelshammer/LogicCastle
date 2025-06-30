@@ -213,7 +213,7 @@
   /* Traditional Go board: position intersections directly, not in grid cells */
 }
 
-/* Traditional Go board grid lines */
+/* Traditional Go board grid lines - mathematically exact */
 .game-board::before {
   content: '';
   position: absolute;
@@ -224,25 +224,25 @@
   background-image:
     repeating-linear-gradient(
       to right,
-      #8b4513 0,
+      #8b4513 0px,
       #8b4513 2px,
       transparent 2px,
-      transparent calc(100% / 14)
+      transparent 25px
     ),
     repeating-linear-gradient(
       to bottom,
-      #8b4513 0,
+      #8b4513 0px,
       #8b4513 2px,
       transparent 2px,
-      transparent calc(100% / 14)
+      transparent 25px
     );
   pointer-events: none;
 }
 
 .intersection {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
   display: flex;
   align-items: center;
