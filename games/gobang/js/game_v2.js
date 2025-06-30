@@ -25,6 +25,11 @@ class GobangGame {
     this.winner = null;
     this.scores = { black: 0, white: 0 };
     this.moveHistory = [];
+    
+    // Starter rotation tracking
+    this.lastWinner = null; // Track last game winner
+    this.defaultStarter = 'black'; // Default starting player (Black starts in Gobang)
+    this.scores = { black: 0, white: 0 }; // Track scores for rotation logic
   }
 
   // Event handling
@@ -241,10 +246,20 @@ class GobangGame {
       this.emit('playerChanged', nextPlayer);
 
       if (this.gameOver) {
+        // Track winner for starter rotation
+        if (this.winner) {
+          this.lastWinner = this.wasmPlayerToString(this.winner);
+          // Update scores
+          this.scores[this.lastWinner]++;
+        } else {
+          this.lastWinner = 'draw';
+        }
+        
         const gameOverData = {
           winner: this.winner,
           isDraw: !this.winner,
-          board: this.getBoard()
+          board: this.getBoard(),
+          scores: this.scores
         };
         this.emit('gameOver', gameOverData);
         
@@ -318,13 +333,30 @@ class GobangGame {
 
   // Start new game
   newGame() {
-    if (!this.isInitialized || !this.wasmGame) {
+    if (!this.isInitialized) {
       throw new Error('WASM game not initialized');
     }
 
-    // Free old game and create new one
-    this.wasmGame.free();
-    this.wasmGame = new window.WasmGame(this.rows, this.cols, this.winCondition, this.gravityEnabled);
+    // Determine starting player based on rotation logic
+    const nextStarter = this.getNextStarter();
+    
+    // Reset game using WASM reset method (more efficient than creating new instance)
+    if (this.wasmGame) {
+      // Set the starting player in WASM before reset
+      if (nextStarter === 'white') {
+        this.wasmGame.set_starting_player(2); // White = 2 in WASM
+      } else {
+        this.wasmGame.set_starting_player(1); // Black = 1 in WASM
+      }
+      this.wasmGame.reset_game();
+    } else {
+      // Create new game instance if needed
+      this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
+      if (nextStarter === 'white') {
+        this.wasmGame.set_starting_player(2);
+        this.wasmGame.reset_game();
+      }
+    }
     
     // Reset game state
     this.gameHistory = [];
@@ -333,8 +365,55 @@ class GobangGame {
 
     this.emit('newGame', {
       board: this.getBoard(),
-      currentPlayer: this.getCurrentPlayer()
+      currentPlayer: this.getCurrentPlayer(),
+      startingPlayer: nextStarter
     });
+  }
+
+  // Determine next starter based on rotation rules  
+  getNextStarter() {
+    // First game or no previous winner: use default
+    if (this.lastWinner === null) {
+      return this.defaultStarter;
+    }
+    
+    // Loser starts next game (competitive rule)
+    if (this.lastWinner === 'black') {
+      return 'white';
+    } else if (this.lastWinner === 'white') {
+      return 'black';
+    } else {
+      // Draw: same starter as previous game
+      return this.getStartingPlayer();
+    }
+  }
+
+  // Get current starting player
+  getStartingPlayer() {
+    if (!this.wasmGame) return this.defaultStarter;
+    
+    const startingPlayerNum = this.wasmGame.get_starting_player();
+    return startingPlayerNum === 1 ? 'black' : 'white';
+  }
+
+  // Convert WASM player number to string
+  wasmPlayerToString(wasmPlayer) {
+    return wasmPlayer === 1 ? 'black' : 'white';
+  }
+
+  // Reset scores and starter rotation
+  resetScores() {
+    this.scores = { black: 0, white: 0 };
+    this.lastWinner = null;
+    
+    this.emit('scoresReset', {
+      scores: this.scores
+    });
+  }
+
+  // Get current scores
+  getScores() {
+    return { ...this.scores };
   }
 
   // Get board cell value at position

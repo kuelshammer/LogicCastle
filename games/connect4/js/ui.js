@@ -257,7 +257,12 @@ class Connect4UI {
   // Reset score
   resetScore() {
     this.scores = { yellow: 0, red: 0 };
+    // Reset scores in game engine too
+    if (this.game && this.game.resetScores) {
+      this.game.resetScores();
+    }
     this.updateScoreDisplay();
+    this.updateUI(); // Update to refresh starter indication
     this.showToast('Score zurückgesetzt', 'info');
   }
 
@@ -331,9 +336,14 @@ class Connect4UI {
 
   onGameOver(data) {
     if (data.winner) {
-      // Update score
-      const winnerColor = data.winner === Player.Yellow ? 'yellow' : 'red';
-      this.scores[winnerColor]++;
+      // Use scores from game engine (already updated there)
+      if (data.scores) {
+        this.scores = data.scores;
+      } else {
+        // Fallback: update score manually
+        const winnerColor = data.winner === Player.Yellow ? 'yellow' : 'red';
+        this.scores[winnerColor]++;
+      }
       
       this.highlightWinningPieces();
       this.showToast(`${this.getPlayerName(data.winner)} gewinnt!`, 'success');
@@ -435,13 +445,21 @@ class Connect4UI {
       const winner = this.game.getWinner();
       if (winner) {
         status = `${this.getPlayerName(winner)} hat gewonnen!`;
+        // Show next starter info
+        const nextStarter = this.game.getNextStarter();
+        status += ` | Nächster Start: ${this.getPlayerNameFromString(nextStarter)}`;
       } else {
         status = 'Spiel beendet - Unentschieden!';
+        const nextStarter = this.game.getNextStarter();
+        status += ` | Nächster Start: ${this.getPlayerNameFromString(nextStarter)}`;
       }
     } else if (this.isAiThinking) {
       status = 'KI denkt nach...';
     } else {
       status = `${this.getPlayerName(this.game.getCurrentPlayer())} ist am Zug`;
+      // Show starting player for current game
+      const startingPlayer = this.game.getStartingPlayer();
+      status += ` | Starter: ${this.getPlayerNameFromString(startingPlayer)}`;
     }
     
     this.elements.gameStatus.textContent = status;
@@ -511,6 +529,19 @@ class Connect4UI {
       }
     }
     return player === Player.Yellow ? 'Spieler 1' : 'Spieler 2';
+  }
+
+  // Get player name from string (for starter rotation display)
+  getPlayerNameFromString(playerString) {
+    if (this.isAiMode()) {
+      if ((playerString === 'yellow' && this.aiPlayer === Player.Red) || 
+          (playerString === 'red' && this.aiPlayer === Player.Yellow)) {
+        return 'Spieler';
+      } else {
+        return 'KI';
+      }
+    }
+    return playerString === 'yellow' ? 'Spieler 1' : 'Spieler 2';
   }
 
   isAiMode() {

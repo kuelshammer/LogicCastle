@@ -53,6 +53,22 @@ export class Game {
   get_board(): Int8Array;
   get_current_player(): Player;
   /**
+   * Get the starting player for this game
+   */
+  get_starting_player(): Player;
+  /**
+   * Set the starting player (for rotation logic)
+   */
+  set_starting_player(player: Player): void;
+  /**
+   * Reset game to starting state with optional new starting player
+   */
+  reset_game(): void;
+  /**
+   * Reset game with a specific starting player
+   */
+  reset_game_with_starter(starter: Player): void;
+  /**
    * Fast clone for AI simulations - essential for minimax/MCTS
    */
   fast_clone(): Game;
@@ -251,6 +267,10 @@ export interface InitOutput {
   readonly game_is_game_over: (a: number) => number;
   readonly game_get_board: (a: number) => [number, number];
   readonly game_get_current_player: (a: number) => number;
+  readonly game_get_starting_player: (a: number) => number;
+  readonly game_set_starting_player: (a: number, b: number) => void;
+  readonly game_reset_game: (a: number) => void;
+  readonly game_reset_game_with_starter: (a: number, b: number) => void;
   readonly game_fast_clone: (a: number) => number;
   readonly game_get_legal_moves_connect4: (a: number) => [number, number];
   readonly game_legal_move_count_connect4: (a: number) => number;

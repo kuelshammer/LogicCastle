@@ -218,6 +218,7 @@ pub struct Game {
     win_condition: usize,
     gravity_enabled: bool,
     current_player: Player,
+    starting_player: Player, // Track who should start the game
 }
 
 #[wasm_bindgen]
@@ -229,7 +230,8 @@ impl Game {
             board,
             win_condition,
             gravity_enabled,
-            current_player: Player::Yellow, // Yellow starts
+            current_player: Player::Yellow, // Yellow starts by default
+            starting_player: Player::Yellow, // Default starter
         }
     }
 
@@ -272,16 +274,46 @@ impl Game {
             return Err("Row or column out of bounds".to_string());
         }
 
-        if self.board.get_cell(row, col).unwrap() == 0 { // Check if empty (0)
-            self.board.set_cell(row, col, self.current_player.into()).unwrap(); // Convert Player to i8
-            self.current_player = match self.current_player {
-                Player::Yellow => Player::Red,
-                Player::Red => Player::Yellow,
-            };
-            Ok(())
-        } else {
-            Err("Spot is already occupied".to_string())
+        if self.board.get_cell(row, col).unwrap() != 0 { // Check if occupied
+            return Err("Spot is already occupied".to_string());
         }
+
+        // Gobang Rule: Second stone of starting player cannot touch first stone
+        let total_pieces = self.count_total_pieces();
+        if total_pieces == 1 && self.current_player == self.starting_player {
+            if let Some((first_row, first_col)) = self.find_first_stone() {
+                if self.is_adjacent(row, col, first_row, first_col) {
+                    return Err("Second stone cannot be adjacent to first stone (Gobang rule)".to_string());
+                }
+            }
+        }
+
+        // Place the stone
+        self.board.set_cell(row, col, self.current_player.into()).unwrap();
+        self.current_player = match self.current_player {
+            Player::Yellow => Player::Red,
+            Player::Red => Player::Yellow,
+        };
+        Ok(())
+    }
+
+    /// Find the position of the first stone placed (for Gobang adjacency rule)
+    fn find_first_stone(&self) -> Option<(usize, usize)> {
+        for row in 0..self.board.rows {
+            for col in 0..self.board.cols {
+                if self.board.get_cell(row, col).unwrap() != 0 {
+                    return Some((row, col));
+                }
+            }
+        }
+        None
+    }
+
+    /// Check if two positions are adjacent (8-directional)
+    fn is_adjacent(&self, row1: usize, col1: usize, row2: usize, col2: usize) -> bool {
+        let row_diff = (row1 as i32 - row2 as i32).abs();
+        let col_diff = (col1 as i32 - col2 as i32).abs();
+        row_diff <= 1 && col_diff <= 1 && (row_diff != 0 || col_diff != 0)
     }
         
 
@@ -376,6 +408,28 @@ impl Game {
     pub fn get_current_player(&self) -> Player {
         self.current_player
     }
+
+    /// Get the starting player for this game
+    pub fn get_starting_player(&self) -> Player {
+        self.starting_player
+    }
+
+    /// Set the starting player (for rotation logic)
+    pub fn set_starting_player(&mut self, player: Player) {
+        self.starting_player = player;
+    }
+
+    /// Reset game to starting state with optional new starting player
+    pub fn reset_game(&mut self) {
+        self.board = Board::new(self.board.rows, self.board.cols);
+        self.current_player = self.starting_player;
+    }
+
+    /// Reset game with a specific starting player
+    pub fn reset_game_with_starter(&mut self, starter: Player) {
+        self.set_starting_player(starter);
+        self.reset_game();
+    }
     
     /// Fast clone for AI simulations - essential for minimax/MCTS
     pub fn fast_clone(&self) -> Game {
@@ -384,6 +438,7 @@ impl Game {
             win_condition: self.win_condition,
             gravity_enabled: self.gravity_enabled,
             current_player: self.current_player,
+            starting_player: self.starting_player,
         }
     }
     

@@ -15,6 +15,11 @@ class Connect4Game {
     this.cols = 7;
     this.winCondition = 4;
     this.gravityEnabled = true;
+    
+    // Starter rotation tracking
+    this.lastWinner = null; // Track last game winner
+    this.defaultStarter = 'yellow'; // Default starting player
+    this.scores = { yellow: 0, red: 0 }; // Track scores for rotation logic
   }
 
   // Event handling
@@ -201,10 +206,20 @@ class Connect4Game {
       this.emit('move', moveData);
 
       if (isGameOver) {
+        // Track winner for starter rotation
+        if (winner) {
+          this.lastWinner = this.wasmPlayerToString(winner);
+          // Update scores
+          this.scores[this.lastWinner]++;
+        } else {
+          this.lastWinner = 'draw';
+        }
+        
         this.emit('gameOver', {
           winner: winner || null,
           isDraw: !winner,
-          board: this.getBoard()
+          board: this.getBoard(),
+          scores: this.scores
         });
       }
 
@@ -286,6 +301,11 @@ class Connect4Game {
     return this.wasmGame.check_win() || null;
   }
 
+  // Convert WASM player number to string
+  wasmPlayerToString(wasmPlayer) {
+    return wasmPlayer === 1 ? 'yellow' : 'red';
+  }
+
   canUndo() {
     return this.currentMove > 0;
   }
@@ -329,15 +349,32 @@ class Connect4Game {
     return -1;
   }
 
-  // Start new game
+  // Start new game with optional starter rotation
   newGame() {
-    if (!this.isInitialized || !this.wasmGame) {
+    if (!this.isInitialized) {
       throw new Error('WASM game not initialized');
     }
 
-    // Free old game and create new one
-    this.wasmGame.free();
-    this.wasmGame = new window.WasmGame(this.rows, this.cols, this.winCondition, this.gravityEnabled);
+    // Determine starting player based on rotation logic
+    const nextStarter = this.getNextStarter();
+    
+    // Reset game using WASM reset method (more efficient than creating new instance)
+    if (this.wasmGame) {
+      // Set the starting player in WASM before reset
+      if (nextStarter === 'red') {
+        this.wasmGame.set_starting_player(2); // Red = 2 in WASM
+      } else {
+        this.wasmGame.set_starting_player(1); // Yellow = 1 in WASM
+      }
+      this.wasmGame.reset_game();
+    } else {
+      // Create new game instance if needed
+      this.wasmGame = new Game(this.rows, this.cols, this.winCondition, this.gravityEnabled);
+      if (nextStarter === 'red') {
+        this.wasmGame.set_starting_player(2);
+        this.wasmGame.reset_game();
+      }
+    }
     
     // Reset game state
     this.gameHistory = [];
@@ -346,8 +383,35 @@ class Connect4Game {
 
     this.emit('newGame', {
       board: this.getBoard(),
-      currentPlayer: this.getCurrentPlayer()
+      currentPlayer: this.getCurrentPlayer(),
+      startingPlayer: nextStarter
     });
+  }
+
+  // Determine next starter based on rotation rules  
+  getNextStarter() {
+    // First game or no previous winner: use default
+    if (this.lastWinner === null) {
+      return this.defaultStarter;
+    }
+    
+    // Loser starts next game (competitive rule)
+    if (this.lastWinner === 'yellow') {
+      return 'red';
+    } else if (this.lastWinner === 'red') {
+      return 'yellow';
+    } else {
+      // Draw: same starter as previous game
+      return this.getStartingPlayer();
+    }
+  }
+
+  // Get current starting player
+  getStartingPlayer() {
+    if (!this.wasmGame) return this.defaultStarter;
+    
+    const startingPlayerNum = this.wasmGame.get_starting_player();
+    return startingPlayerNum === 1 ? 'yellow' : 'red';
   }
 
   // Get board cell value at position
@@ -383,6 +447,21 @@ class Connect4Game {
   // ALL game logic handled by Rust/WASM - no JavaScript implementation!
 
   // Cleanup
+  // Reset scores and starter rotation
+  resetScores() {
+    this.scores = { yellow: 0, red: 0 };
+    this.lastWinner = null;
+    
+    this.emit('scoresReset', {
+      scores: this.scores
+    });
+  }
+
+  // Get current scores
+  getScores() {
+    return { ...this.scores };
+  }
+
   destroy() {
     if (this.wasmGame) {
       this.wasmGame.free();

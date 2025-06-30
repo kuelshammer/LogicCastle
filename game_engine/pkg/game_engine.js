@@ -317,6 +317,34 @@ export class Game {
         return ret;
     }
     /**
+     * Get the starting player for this game
+     * @returns {Player}
+     */
+    get_starting_player() {
+        const ret = wasm.game_get_starting_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Set the starting player (for rotation logic)
+     * @param {Player} player
+     */
+    set_starting_player(player) {
+        wasm.game_set_starting_player(this.__wbg_ptr, player);
+    }
+    /**
+     * Reset game to starting state with optional new starting player
+     */
+    reset_game() {
+        wasm.game_reset_game(this.__wbg_ptr);
+    }
+    /**
+     * Reset game with a specific starting player
+     * @param {Player} starter
+     */
+    reset_game_with_starter(starter) {
+        wasm.game_reset_game_with_starter(this.__wbg_ptr, starter);
+    }
+    /**
      * Fast clone for AI simulations - essential for minimax/MCTS
      * @returns {Game}
      */

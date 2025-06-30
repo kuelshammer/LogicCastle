@@ -100,6 +100,7 @@ class _GobangUI {
         this.game.on('moveMade', move => this.onMoveMade(move));
         this.game.on('gameWon', data => this.onGameWon(data));
         this.game.on('gameDraw', () => this.onGameDraw());
+        this.game.on('gameOver', data => this.onGameOver(data));
         this.game.on('gameReset', () => this.onGameReset());
         this.game.on('playerChanged', _player => this.onPlayerChanged(_player));
         this.game.on('moveUndone', move => this.onMoveUndone(move));
@@ -662,15 +663,29 @@ class _GobangUI {
             return;
         }
 
+        let status = '';
+        
         if (this.game.gameOver) {
             if (this.game.winner) {
-                this.elements.gameStatus.textContent = `${this.game.getPlayerName(this.game.winner)} hat gewonnen!`;
+                status = `${this.game.getPlayerName(this.game.winner)} hat gewonnen!`;
+                // Show next starter info
+                const nextStarter = this.game.getNextStarter();
+                status += ` | Nächster Start: ${this.getPlayerNameFromString(nextStarter)}`;
             } else {
-                this.elements.gameStatus.textContent = 'Unentschieden!';
+                status = 'Unentschieden!';
+                const nextStarter = this.game.getNextStarter();
+                status += ` | Nächster Start: ${this.getPlayerNameFromString(nextStarter)}`;
             }
         } else {
-            this.elements.gameStatus.textContent = 'Spiel läuft...';
+            status = 'Spiel läuft...';
+            // Show starting player for current game
+            if (this.game.getStartingPlayer) {
+                const startingPlayer = this.game.getStartingPlayer();
+                status += ` | Starter: ${this.getPlayerNameFromString(startingPlayer)}`;
+            }
         }
+        
+        this.elements.gameStatus.textContent = status;
     }
 
     /**
@@ -702,6 +717,14 @@ class _GobangUI {
     onGameDraw() {
         this.updateDisplay();
         this.showMessage('Unentschieden! Das Spielfeld ist voll.', 'draw');
+    }
+
+    onGameOver(data) {
+        // Update scores from game engine
+        if (data.scores) {
+            this.game.scores = data.scores;
+        }
+        this.updateDisplay();
     }
 
     onMoveUndone(move) {
@@ -773,6 +796,7 @@ class _GobangUI {
     resetScore() {
         this.game.resetScores();
         this.updateScores();
+        this.updateDisplay(); // Update to refresh starter indication
     }
 
     /**
@@ -933,6 +957,21 @@ class _GobangUI {
         this.hideThinkingIndicator();
         // Helper updates are now handled through WASM Integration
         this.updateCurrentPlayerHelpers();
+    }
+
+    /**
+     * Get player name from string (for starter rotation display)
+     */
+    getPlayerNameFromString(playerString) {
+        if (this.gameMode && this.gameMode.includes('bot')) {
+            // AI mode: second player (white) is AI, first player (black) is human
+            if (playerString === 'black') {
+                return 'Spieler';
+            } else {
+                return 'KI';
+            }
+        }
+        return playerString === 'black' ? 'Spieler 1 (Schwarz)' : 'Spieler 2 (Weiß)';
     }
 
     /**
