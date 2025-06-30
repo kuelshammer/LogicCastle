@@ -511,9 +511,10 @@ class _GobangUI {
         this.updateMoveCounter();
         
         // Update WASM move analysis dashboard
-        if (this.wasmIntegration) {
-            this.wasmIntegration.updateAnalysisDashboard();
-        }
+        // TODO: Re-enable when WASM integration is fixed
+        // if (this.wasmIntegration) {
+        //     this.wasmIntegration.updateAnalysisDashboard();
+        // }
     }
 
     /**

@@ -386,9 +386,9 @@
         window.ui = ui;
         
         // Initialize WASM integration for move analysis dashboard
-        const wasmIntegration = new WasmGobangIntegration(ui);
-        ui.wasmIntegration = wasmIntegration; // Connect integration to UI
-        window.wasmIntegration = wasmIntegration; // Make globally available
+        // TODO: Fix WASM integration - temporarily disabled due to method conflicts
+        // const wasmIntegration = new WasmGobangIntegration(ui);
+        // ui.wasmIntegration = wasmIntegration;
         
         console.log('🎮 Gobang initialized with WASM integration');
       });
