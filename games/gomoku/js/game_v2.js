@@ -651,7 +651,7 @@ class GomokuGame {
   
   resetGame() {
     if (this.isInitialized && this.wasmGame) {
-      this.wasmGame.new_game();
+      this.wasmGame.reset_game();
       this.gameHistory = [];
       this.currentMove = 0;
       this.moveHistory = [];
@@ -675,7 +675,7 @@ class GomokuGame {
     const lastMove = this.moveHistory.pop();
     if (this.wasmGame) {
       // Reset game state and replay all moves except the last one
-      this.wasmGame.new_game();
+      this.wasmGame.reset_game();
       const movesToReplay = [...this.moveHistory];
       this.moveHistory = [];
       
