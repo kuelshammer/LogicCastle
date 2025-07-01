@@ -385,6 +385,10 @@
         window.game = game;
         window.ui = ui;
         
+        // Crosshair system testing functions
+        window.testCrosshair = () => ui.testCrosshairPositions();
+        window.validateLines = () => ui.validateLineAlignment();
+        
         // Initialize WASM integration for move analysis dashboard
         // TODO: Fix WASM integration - temporarily disabled due to method conflicts
         // const wasmIntegration = new WasmGomokuIntegration(ui);

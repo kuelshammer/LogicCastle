@@ -46,6 +46,12 @@ class _GomokuUI {
             selectedColumn: 7,      // Default: Column H (A=0, B=1, ..., H=7, ..., O=14)
             highlightActive: true   // Show column highlight by default
         };
+
+        // Row Highlight System (Crosshair component)
+        this.rowState = {
+            selectedRow: 7,         // Default: Row 8 (1=0, 2=1, ..., 8=7, ..., 15=14)
+            highlightActive: true   // Show row highlight by default
+        };
     }
 
     /**
@@ -205,11 +211,11 @@ class _GomokuUI {
                 // Cursor Navigation (Phase 2)
                 case 'ArrowUp':
                     e.preventDefault();
-                    this.moveCursor('up');
+                    this.moveRowSelection('up');
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    this.moveCursor('down');
+                    this.moveRowSelection('down');
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
@@ -289,8 +295,14 @@ class _GomokuUI {
             }
         }
 
-        // Initialize column highlighting
+        // Create row highlight element
+        const rowHighlight = document.createElement('div');
+        rowHighlight.className = 'row-highlight';
+        this.elements.gameBoard.appendChild(rowHighlight);
+
+        // Initialize crosshair highlighting
         this.updateColumnHighlight();
+        this.updateRowHighlight();
     }
 
     /**
@@ -356,7 +368,8 @@ class _GomokuUI {
         const board = this.elements.gameBoard;
         
         if (this.columnState.highlightActive) {
-            // Calculate position: column * stepSize + padding
+            // Calculate position: column * stepSize + padding (centers on Grid LINE)
+            // Column A=0: 0*25+20=20px, Column H=7: 7*25+20=195px, Column O=14: 14*25+20=370px
             const leftPosition = this.columnState.selectedColumn * 25 + 20;
             
             // Update CSS custom property for column position
@@ -390,6 +403,39 @@ class _GomokuUI {
     }
 
     /**
+     * Update row highlight display
+     */
+    updateRowHighlight() {
+        const board = this.elements.gameBoard;
+        
+        if (this.rowState.highlightActive) {
+            // Calculate position: row * stepSize + padding (centers on Grid LINE)
+            // Row 1=0: 0*25+20=20px, Row 8=7: 7*25+20=195px, Row 15=14: 14*25+20=370px
+            const topPosition = this.rowState.selectedRow * 25 + 20;
+            
+            // Update CSS custom property for row position
+            board.style.setProperty('--highlight-row-top', `${topPosition}px`);
+            board.classList.add('row-highlighted');
+        } else {
+            board.classList.remove('row-highlighted');
+        }
+    }
+
+    /**
+     * Set selected row (0-14 for rows 1-15)
+     */
+    setSelectedRow(rowIndex) {
+        if (rowIndex >= 0 && rowIndex < this.game.BOARD_SIZE) {
+            this.rowState.selectedRow = rowIndex;
+            this.updateRowHighlight();
+            
+            // Log row selection for debugging
+            const rowNumber = rowIndex + 1; // Display as 1-15
+            console.log(`🎯 Row selected: ${rowNumber} (${rowIndex})`);
+        }
+    }
+
+    /**
      * Move column selection with arrow keys (Connect4-style)
      */
     moveColumnSelection(direction) {
@@ -407,13 +453,117 @@ class _GomokuUI {
         }
 
         this.setSelectedColumn(newCol);
-        
-        // Visual feedback for column change
+        this.provideCrosshairFeedback();
+    }
+
+    /**
+     * Move row selection with arrow keys (Crosshair component)
+     */
+    moveRowSelection(direction) {
+        const currentRow = this.rowState.selectedRow;
+        let newRow;
+
+        if (direction === 'up') {
+            // Move up with wrap-around: 1(0) wraps to 15(14)
+            newRow = currentRow > 0 ? currentRow - 1 : 14;
+        } else if (direction === 'down') {
+            // Move down with wrap-around: 15(14) wraps to 1(0)
+            newRow = currentRow < 14 ? currentRow + 1 : 0;
+        } else {
+            return; // Invalid direction
+        }
+
+        this.setSelectedRow(newRow);
+        this.provideCrosshairFeedback();
+    }
+
+    /**
+     * Visual feedback for crosshair navigation
+     */
+    provideCrosshairFeedback() {
         const board = this.elements.gameBoard;
         board.style.transform = 'scale(1.02)';
         setTimeout(() => {
             board.style.transform = 'scale(1)';
         }, 150);
+
+        // Log current crosshair position for debugging
+        this.logCrosshairPosition();
+    }
+
+    /**
+     * Get current crosshair position in chess notation
+     */
+    getCurrentCrosshairPosition() {
+        const columnLetter = String.fromCharCode(65 + this.columnState.selectedColumn); // A-O
+        const rowNumber = this.rowState.selectedRow + 1; // 1-15
+        return `${columnLetter}${rowNumber}`;
+    }
+
+    /**
+     * Log current crosshair position for testing
+     */
+    logCrosshairPosition() {
+        const position = this.getCurrentCrosshairPosition();
+        console.log(`🎯 Crosshair at: ${position} (Row ${this.rowState.selectedRow}, Col ${this.columnState.selectedColumn})`);
+    }
+
+    /**
+     * Test if specific positions are reachable (Go-Line validation)
+     */
+    testCrosshairPositions() {
+        const testPositions = [
+            { name: 'A1', row: 0, col: 0, expectedPos: '20px,20px' },
+            { name: 'A3', row: 2, col: 0, expectedPos: '20px,70px' },
+            { name: 'H8', row: 7, col: 7, expectedPos: '195px,195px' },
+            { name: 'H9', row: 8, col: 7, expectedPos: '195px,220px' },
+            { name: 'B14', row: 13, col: 1, expectedPos: '45px,345px' },
+            { name: 'O15', row: 14, col: 14, expectedPos: '370px,370px' },
+            { name: 'O1', row: 0, col: 14, expectedPos: '370px,20px' },
+            { name: 'A15', row: 14, col: 0, expectedPos: '20px,370px' }
+        ];
+
+        console.log('🧪 Testing Go-Line crosshair positioning:');
+        testPositions.forEach(pos => {
+            this.setSelectedRow(pos.row);
+            this.setSelectedColumn(pos.col);
+            
+            const current = this.getCurrentCrosshairPosition();
+            const success = current === pos.name;
+            
+            // Calculate actual pixel positions
+            const colPx = pos.col * 25 + 20;
+            const rowPx = pos.row * 25 + 20;
+            const actualPos = `${colPx}px,${rowPx}px`;
+            const posCorrect = actualPos === pos.expectedPos;
+            
+            console.log(`${success ? '✅' : '❌'} ${pos.name}: Chess ${current} | Pixels ${actualPos} ${posCorrect ? '✅' : '❌'}`);
+        });
+
+        // Reset to center and log final state
+        this.setSelectedRow(7);
+        this.setSelectedColumn(7);
+        console.log('🎯 Reset to center: H8 (Grid Line 195px,195px)');
+        console.log('📐 Line positions: A=20px, H=195px, O=370px | Row 1=20px, Row 8=195px, Row 15=370px');
+    }
+
+    /**
+     * Validate that highlights are on actual grid lines
+     */
+    validateLineAlignment() {
+        const board = this.elements.gameBoard;
+        const columnLeft = parseFloat(board.style.getPropertyValue('--highlight-column-left')) || 195;
+        const rowTop = parseFloat(board.style.getPropertyValue('--highlight-row-top')) || 195;
+        
+        // Grid lines are at: 20, 45, 70, 95, 120, 145, 170, 195, 220, 245, 270, 295, 320, 345, 370
+        const validPositions = Array.from({length: 15}, (_, i) => 20 + i * 25);
+        
+        const columnValid = validPositions.includes(columnLeft);
+        const rowValid = validPositions.includes(rowTop);
+        
+        console.log(`🔍 Alignment Check: Column ${columnLeft}px ${columnValid ? '✅' : '❌'} | Row ${rowTop}px ${rowValid ? '✅' : '❌'}`);
+        
+        return columnValid && rowValid;
     }
 
     /**
