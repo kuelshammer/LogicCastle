@@ -2,7 +2,7 @@
  * GomokuUI - User Interface for Gomoku game
  */
 /* global GomokuHelpers */
-class _GomokuUI {
+class GomokuUI {
     constructor(game) {
         this.game = game;
         this.ai = null;
@@ -26,40 +26,23 @@ class _GomokuUI {
         // WASM Integration
         this.wasmIntegration = null;
 
-        // Cursor System (Phase 2)
+        // UNIFIED CURSOR SYSTEM - Single source of truth for all positioning
         this.cursor = {
-            row: 7,          // Start in center
-            col: 7,
-            active: false,   // Initially hidden
-            mode: 'navigate' // 'navigate' | 'confirm'
+            row: 7,          // Current cursor position (0-14, center = 7)
+            col: 7,          // Current cursor position (0-14, center = 7)  
+            active: true,    // Cursor visible and responsive
+            mode: 'navigate' // 'navigate' | 'preview' | 'confirm'
         };
 
-        // Two-Stage Mouse System (Phase 3)
-        this.mouseState = {
-            lastClickPosition: null, // { row, col } of last click
-            clickCount: 0,           // Number of clicks on same position
-            requireConfirmation: false // Direct stone placement (one-click mode)
-        };
-
-        // Column Highlight System (Connect4-style)
-        this.columnState = {
-            selectedColumn: 7,      // Default: Column H (A=0, B=1, ..., H=7, ..., O=14)
-            highlightActive: true   // Show column highlight by default
-        };
-
-        // Row Highlight System (Crosshair component)
-        this.rowState = {
-            selectedRow: 7,         // Default: Row 8 (1=0, 2=1, ..., 8=7, ..., 15=14)
-            highlightActive: true   // Show row highlight by default
-        };
-
-        // Two-Stage Stone Placement System
+        // UNIFIED SELECTION SYSTEM - Manages two-stage stone placement
         this.selectionState = {
-            phase: 0,               // 0 = navigate, 1 = selected/preview
-            selectedRow: null,      // Row of selected intersection
-            selectedCol: null,      // Col of selected intersection  
-            hasPreview: false       // Whether preview stone is shown
+            phase: 0,               // 0 = navigate, 1 = preview/selected
+            hasPreview: false,      // Whether preview stone is shown
+            previewRow: null,       // Row where preview stone is displayed
+            previewCol: null        // Col where preview stone is displayed
         };
+
+        // REMOVED: columnState, rowState, mouseState - all unified into cursor system
     }
 
     /**
@@ -219,19 +202,19 @@ class _GomokuUI {
                 // Cursor Navigation (Phase 2)
                 case 'ArrowUp':
                     e.preventDefault();
-                    this.moveRowSelection('up');
+                    this.moveCursor('up');
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
-                    this.moveRowSelection('down');
+                    this.moveCursor('down');
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
-                    this.moveColumnSelection('left');
+                    this.moveCursor('left');
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    this.moveColumnSelection('right');
+                    this.moveCursor('right');
                     break;
                 case ' ':
                 case 'Enter':
@@ -378,10 +361,10 @@ class _GomokuUI {
     updateColumnHighlight() {
         const board = this.elements.gameBoard;
         
-        if (this.columnState.highlightActive) {
+        if (this.cursor.active) {
             // Calculate position: column * stepSize + padding (centers on Grid LINE)
             // Column A=0: 0*25+20=20px, Column H=7: 7*25+20=195px, Column O=14: 14*25+20=370px
-            const leftPosition = this.columnState.selectedColumn * 25 + 20;
+            const leftPosition = this.cursor.col * 25 + 20;
             
             // Update CSS custom property for column position
             board.style.setProperty('--highlight-column-left', `${leftPosition}px`);
@@ -394,10 +377,10 @@ class _GomokuUI {
     /**
      * Set selected column (0-14 for A-O)
      */
-    setSelectedColumn(columnIndex) {
+    setCursorColumn(columnIndex) {
         if (columnIndex >= 0 && columnIndex < this.game.BOARD_SIZE) {
-            this.columnState.selectedColumn = columnIndex;
-            this.updateColumnHighlight();
+            this.cursor.col = columnIndex;
+            this.updateCrosshairPosition();
             
             // Log column selection for debugging
             const columnLetter = String.fromCharCode(65 + columnIndex);
@@ -408,9 +391,10 @@ class _GomokuUI {
     /**
      * Toggle column highlighting on/off
      */
-    toggleColumnHighlight() {
-        this.columnState.highlightActive = !this.columnState.highlightActive;
-        this.updateColumnHighlight();
+    toggleCursor() {
+        this.cursor.active = !this.cursor.active;
+        this.updateCrosshairPosition();
+        console.log(`🎯 Cursor ${this.cursor.active ? 'activated' : 'deactivated'}`);
     }
 
     /**
@@ -419,10 +403,10 @@ class _GomokuUI {
     updateRowHighlight() {
         const board = this.elements.gameBoard;
         
-        if (this.rowState.highlightActive) {
+        if (this.cursor.active) {
             // Calculate position: row * stepSize + padding (centers on Grid LINE)
             // Row 1=0: 0*25+20=20px, Row 8=7: 7*25+20=195px, Row 15=14: 14*25+20=370px
-            const topPosition = this.rowState.selectedRow * 25 + 20;
+            const topPosition = this.cursor.row * 25 + 20;
             
             // Update CSS custom property for row position
             board.style.setProperty('--highlight-row-top', `${topPosition}px`);
@@ -435,9 +419,9 @@ class _GomokuUI {
     /**
      * Set selected row (0-14 for rows 1-15)
      */
-    setSelectedRow(rowIndex) {
+    setCursorRow(rowIndex) {
         if (rowIndex >= 0 && rowIndex < this.game.BOARD_SIZE) {
-            this.rowState.selectedRow = rowIndex;
+            this.cursor.row = rowIndex;
             this.updateRowHighlight();
             
             // Log row selection for debugging
@@ -447,51 +431,80 @@ class _GomokuUI {
     }
 
     /**
-     * Move column selection with arrow keys (Connect4-style)
+     * UNIFIED: Update crosshair position (both column and row highlights)
      */
-    moveColumnSelection(direction) {
-        const currentCol = this.columnState.selectedColumn;
-        let newCol;
-
-        if (direction === 'left') {
-            // Move left with wrap-around: A(0) wraps to O(14)
-            newCol = currentCol > 0 ? currentCol - 1 : 14;
-        } else if (direction === 'right') {
-            // Move right with wrap-around: O(14) wraps to A(0)
-            newCol = currentCol < 14 ? currentCol + 1 : 0;
-        } else {
-            return; // Invalid direction
-        }
-
-        this.setSelectedColumn(newCol);
-        this.provideCrosshairFeedback();
+    updateCrosshairPosition() {
+        this.updateColumnHighlight();
+        this.updateRowHighlight();
         
-        // Reset selection state when crosshair moves
-        this.resetSelectionState();
+        // Update cursor visual feedback
+        this.updateCursorVisual();
+        
+        // Log current position for debugging
+        this.logCrosshairPosition();
     }
 
     /**
-     * Move row selection with arrow keys (Crosshair component)
+     * UNIFIED: Update cursor visual indicators on intersections
      */
-    moveRowSelection(direction) {
-        const currentRow = this.rowState.selectedRow;
-        let newRow;
+    updateCursorVisual() {
+        // Remove previous cursor highlights
+        const allIntersections = this.elements.gameBoard.querySelectorAll('.intersection');
+        allIntersections.forEach(intersection => {
+            intersection.classList.remove('cursor-active');
+        });
 
-        if (direction === 'up') {
-            // Move up with wrap-around: 1(0) wraps to 15(14)
-            newRow = currentRow > 0 ? currentRow - 1 : 14;
-        } else if (direction === 'down') {
-            // Move down with wrap-around: 15(14) wraps to 1(0)
-            newRow = currentRow < 14 ? currentRow + 1 : 0;
-        } else {
-            return; // Invalid direction
+        // Add cursor highlight to current position
+        if (this.cursor.active) {
+            const currentIntersection = this.getIntersection(this.cursor.row, this.cursor.col);
+            if (currentIntersection) {
+                currentIntersection.classList.add('cursor-active');
+            }
+        }
+    }
+
+    /**
+     * UNIFIED: Move cursor with arrow keys (replaces moveColumnSelection and moveRowSelection)
+     */
+    moveCursor(direction) {
+        const currentRow = this.cursor.row;
+        const currentCol = this.cursor.col;
+        let newRow = currentRow;
+        let newCol = currentCol;
+
+        switch (direction) {
+            case 'left':
+                // Move left with wrap-around: A(0) wraps to O(14)
+                newCol = currentCol > 0 ? currentCol - 1 : 14;
+                break;
+            case 'right':
+                // Move right with wrap-around: O(14) wraps to A(0)
+                newCol = currentCol < 14 ? currentCol + 1 : 0;
+                break;
+            case 'up':
+                // Move up with wrap-around: Row 1(0) wraps to Row 15(14)
+                newRow = currentRow > 0 ? currentRow - 1 : 14;
+                break;
+            case 'down':
+                // Move down with wrap-around: Row 15(14) wraps to Row 1(0)
+                newRow = currentRow < 14 ? currentRow + 1 : 0;
+                break;
+            default:
+                return; // Invalid direction
         }
 
-        this.setSelectedRow(newRow);
-        this.provideCrosshairFeedback();
+        // Update cursor position
+        this.cursor.row = newRow;
+        this.cursor.col = newCol;
         
-        // Reset selection state when crosshair moves
+        // Update visual crosshair to follow cursor
+        this.updateCrosshairPosition();
+        
+        // Reset selection state when cursor moves
         this.resetSelectionState();
+        
+        const newPosition = String.fromCharCode(65 + newCol) + (newRow + 1);
+        console.log(`🎯 Cursor moved to ${newPosition} (${newRow}, ${newCol})`);
     }
 
     /**
@@ -512,8 +525,8 @@ class _GomokuUI {
      * Get current crosshair position in chess notation
      */
     getCurrentCrosshairPosition() {
-        const columnLetter = String.fromCharCode(65 + this.columnState.selectedColumn); // A-O
-        const rowNumber = this.rowState.selectedRow + 1; // 1-15
+        const columnLetter = String.fromCharCode(65 + this.cursor.col); // A-O
+        const rowNumber = this.cursor.row + 1; // 1-15
         return `${columnLetter}${rowNumber}`;
     }
 
@@ -522,7 +535,7 @@ class _GomokuUI {
      */
     logCrosshairPosition() {
         const position = this.getCurrentCrosshairPosition();
-        console.log(`🎯 Crosshair at: ${position} (Row ${this.rowState.selectedRow}, Col ${this.columnState.selectedColumn})`);
+        console.log(`🎯 Crosshair at: ${position} (Row ${this.cursor.row}, Col ${this.cursor.col})`);
     }
 
     /**
@@ -635,17 +648,15 @@ class _GomokuUI {
         // Check if position is valid (not occupied)
         if (!this.game.isEmpty(row, col)) return;
 
-        // Move crosshair to clicked position
+        // UNIFIED: Move cursor to clicked position
         this.cursor.row = row;
         this.cursor.col = col; 
         this.cursor.active = true;
-        this.updateCursorDisplay();
         
-        // Sync crosshair lines with cursor position
-        this.columnState.selectedColumn = col;
-        this.rowState.selectedRow = row;
-        this.setSelectedColumn(col);
-        this.setSelectedRow(row);
+        // Update all visual feedback
+        this.updateCrosshairPosition();
+        
+        console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
 
         // Use the same two-stage logic as spacebar
         this.placeCursorStone();
@@ -1284,7 +1295,7 @@ class _GomokuUI {
 
         // Update visual cursor if position changed
         if (oldRow !== this.cursor.row || oldCol !== this.cursor.col) {
-            this.updateCursorDisplay();
+            this.updateCrosshairPosition();
         }
     }
 
@@ -1293,7 +1304,7 @@ class _GomokuUI {
      */
     showCursor() {
         this.cursor.active = true;
-        this.updateCursorDisplay();
+        this.updateCrosshairPosition();
     }
 
     /**
@@ -1328,48 +1339,32 @@ class _GomokuUI {
         if (!this.game.isEmpty(cursorRow, cursorCol)) return;
         
         if (this.selectionState.phase === 0) {
-            // First spacebar press: Select and preview
-            this.setSelectionPhase(1, cursorRow, cursorCol);
+            // First interaction: Select and preview
+            this.selectionState.phase = 1;
+            this.selectionState.previewRow = cursorRow;
+            this.selectionState.previewCol = cursorCol;
+            this.selectionState.hasPreview = true;
             this.addSelectionPreview(cursorRow, cursorCol);
+            console.log(`🎯 Phase 1: Preview at ${this.getCurrentCrosshairPosition()}`);
         } else if (this.selectionState.phase === 1) {
-            if (this.selectionState.selectedRow === cursorRow && 
-                this.selectionState.selectedCol === cursorCol) {
-                // Second spacebar press on same position: Place stone
+            if (this.selectionState.previewRow === cursorRow && 
+                this.selectionState.previewCol === cursorCol) {
+                // Second interaction on same position: Place stone
                 this.makeMove(cursorRow, cursorCol);
                 this.resetSelectionState();
+                console.log(`🎯 Phase 2: Stone placed at ${this.getCurrentCrosshairPosition()}`);
             } else {
                 // Cursor moved to different position: Reset to phase 1 at new position
-                this.setSelectionPhase(1, cursorRow, cursorCol);
+                this.removeSelectionPreview();
+                this.selectionState.previewRow = cursorRow;
+                this.selectionState.previewCol = cursorCol;
                 this.addSelectionPreview(cursorRow, cursorCol);
+                console.log(`🎯 Phase 1: Moved preview to ${this.getCurrentCrosshairPosition()}`);
             }
         }
     }
 
-    /**
-     * Update visual cursor display
-     */
-    updateCursorDisplay() {
-        if (!this.cursor.active) return;
-
-        // Remove existing cursor
-        this.removeCursorDisplay();
-
-        // Get intersection at cursor position
-        const intersection = this.getIntersection(this.cursor.row, this.cursor.col);
-        if (intersection) {
-            intersection.classList.add('cursor-active');
-        }
-    }
-
-    /**
-     * Remove cursor visual display
-     */
-    removeCursorDisplay() {
-        const existingCursor = document.querySelector('.intersection.cursor-active');
-        if (existingCursor) {
-            existingCursor.classList.remove('cursor-active');
-        }
-    }
+    // REMOVED: updateCursorDisplay, removeCursorDisplay - unified into updateCursorVisual()
 
     // ==================== VISUAL FEEDBACK SYSTEM (Phase 3) ====================
 
@@ -1428,24 +1423,14 @@ class _GomokuUI {
      */
     resetSelectionState() {
         this.selectionState.phase = 0;
-        this.selectionState.selectedRow = null;
-        this.selectionState.selectedCol = null;
+        this.selectionState.previewRow = null;
+        this.selectionState.previewCol = null;
         this.selectionState.hasPreview = false;
         this.removeSelectionPreview();
-        // No need to call updateSelectionVisuals() - removeSelectionPreview() already handles cleanup
+        console.log('🔄 Selection state reset');
     }
 
-    /**
-     * Set selection phase and update state
-     */
-    setSelectionPhase(phase, row = null, col = null) {
-        this.selectionState.phase = phase;
-        if (phase >= 1 && row !== null && col !== null) {
-            this.selectionState.selectedRow = row;
-            this.selectionState.selectedCol = col;
-        }
-        this.updateSelectionVisuals();
-    }
+    // REMOVED: setSelectionPhase - unified into placeCursorStone() method
 
     /**
      * Add selection preview at specified position
@@ -1491,5 +1476,5 @@ class _GomokuUI {
 
 // Make available globally for backward compatibility
 if (typeof window !== 'undefined') {
-    window.GomokuUI = _GomokuUI;
+    window.GomokuUI = GomokuUI;
 }
