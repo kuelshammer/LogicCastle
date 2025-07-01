@@ -52,6 +52,14 @@ class _GomokuUI {
             selectedRow: 7,         // Default: Row 8 (1=0, 2=1, ..., 8=7, ..., 15=14)
             highlightActive: true   // Show row highlight by default
         };
+
+        // Two-Stage Stone Placement System
+        this.selectionState = {
+            phase: 0,               // 0 = navigate, 1 = selected/preview
+            selectedRow: null,      // Row of selected intersection
+            selectedCol: null,      // Col of selected intersection  
+            hasPreview: false       // Whether preview stone is shown
+        };
     }
 
     /**
@@ -454,6 +462,9 @@ class _GomokuUI {
 
         this.setSelectedColumn(newCol);
         this.provideCrosshairFeedback();
+        
+        // Reset selection state when crosshair moves
+        this.resetSelectionState();
     }
 
     /**
@@ -475,6 +486,9 @@ class _GomokuUI {
 
         this.setSelectedRow(newRow);
         this.provideCrosshairFeedback();
+        
+        // Reset selection state when crosshair moves
+        this.resetSelectionState();
     }
 
     /**
@@ -608,68 +622,32 @@ class _GomokuUI {
     }
 
     /**
-     * Handle intersection click (Phase 3: Two-stage system)
+     * Handle intersection click - integrated with crosshair system
      */
     onIntersectionClick(row, col) {
-        if (this.isProcessingMove || this.game.gameOver) {
+        if (this.isProcessingMove || this.game.gameOver || this.isAITurn()) {
             return;
         }
 
-        // Check if it's a human player's turn
-        if (this.isAITurn()) {
-            return;
-        }
+        // Check if position is valid (not occupied)
+        if (!this.game.isEmpty(row, col)) return;
 
-        // Two-stage mouse input system
-        if (this.mouseState.requireConfirmation) {
-            this.handleTwoStageClick(row, col);
-        } else {
-            // Direct placement (fallback mode)
-            this.makeMove(row, col);
-        }
-    }
-
-    /**
-     * Handle two-stage click system (Phase 3)
-     */
-    handleTwoStageClick(row, col) {
-        const lastPos = this.mouseState.lastClickPosition;
+        // Move crosshair to clicked position
+        this.cursor.row = row;
+        this.cursor.col = col; 
+        this.cursor.active = true;
+        this.updateCursorDisplay();
         
-        // Check if clicking on same position as last click
-        if (lastPos && lastPos.row === row && lastPos.col === col) {
-            // Second click on same position - place stone
-            this.mouseState.clickCount++;
-            
-            if (this.mouseState.clickCount >= 2) {
-                // Confirmed - place stone
-                this.makeMove(row, col);
-                this.resetMouseState();
-                return;
-            }
-        } else {
-            // First click or different position - move cursor
-            this.mouseState.lastClickPosition = { row, col };
-            this.mouseState.clickCount = 1;
-            
-            // Move cursor to clicked position
-            this.cursor.row = row;
-            this.cursor.col = col;
-            this.cursor.active = true;
-            this.updateCursorDisplay();
-            
-            // Add visual feedback for selection
-            this.updateIntersectionFeedback(row, col, 'selected');
-        }
+        // Sync crosshair lines with cursor position
+        this.columnState.selectedColumn = col;
+        this.rowState.selectedRow = row;
+        this.setSelectedColumn(col);
+        this.setSelectedRow(row);
+
+        // Use the same two-stage logic as spacebar
+        this.placeCursorStone();
     }
 
-    /**
-     * Reset mouse state
-     */
-    resetMouseState() {
-        this.mouseState.lastClickPosition = null;
-        this.mouseState.clickCount = 0;
-        this.clearIntersectionFeedback();
-    }
 
     /**
      * Handle intersection hover
@@ -1335,14 +1313,32 @@ class _GomokuUI {
     }
 
     /**
-     * Place stone at cursor position
+     * Two-stage stone placement at cursor position
      */
     placeCursorStone() {
         if (!this.cursor.active) return;
         
-        // Check if position is valid
-        if (this.game.isEmpty(this.cursor.row, this.cursor.col)) {
-            this.onIntersectionClick(this.cursor.row, this.cursor.col);
+        const cursorRow = this.cursor.row;
+        const cursorCol = this.cursor.col;
+        
+        // Check if position is valid (not occupied)
+        if (!this.game.isEmpty(cursorRow, cursorCol)) return;
+        
+        if (this.selectionState.phase === 0) {
+            // First spacebar press: Select and preview
+            this.setSelectionPhase(1, cursorRow, cursorCol);
+            this.addSelectionPreview(cursorRow, cursorCol);
+        } else if (this.selectionState.phase === 1) {
+            if (this.selectionState.selectedRow === cursorRow && 
+                this.selectionState.selectedCol === cursorCol) {
+                // Second spacebar press on same position: Place stone
+                this.makeMove(cursorRow, cursorCol);
+                this.resetSelectionState();
+            } else {
+                // Cursor moved to different position: Reset to phase 1 at new position
+                this.setSelectionPhase(1, cursorRow, cursorCol);
+                this.addSelectionPreview(cursorRow, cursorCol);
+            }
         }
     }
 
@@ -1420,6 +1416,73 @@ class _GomokuUI {
         const preview = document.createElement('div');
         preview.className = `stone-preview ${this.game.getPlayerColorClass(this.game.currentPlayer)}`;
         intersection.appendChild(preview);
+    }
+
+    // ==================== TWO-STAGE STONE PLACEMENT SYSTEM ==================== 
+
+    /**
+     * Reset selection state to phase 0 (navigation)
+     */
+    resetSelectionState() {
+        this.selectionState.phase = 0;
+        this.selectionState.selectedRow = null;
+        this.selectionState.selectedCol = null;
+        this.selectionState.hasPreview = false;
+        this.removeSelectionPreview();
+        this.updateSelectionVisuals();
+    }
+
+    /**
+     * Set selection phase and update state
+     */
+    setSelectionPhase(phase, row = null, col = null) {
+        this.selectionState.phase = phase;
+        if (phase >= 1 && row !== null && col !== null) {
+            this.selectionState.selectedRow = row;
+            this.selectionState.selectedCol = col;
+        }
+        this.updateSelectionVisuals();
+    }
+
+    /**
+     * Add selection preview at specified position
+     */
+    addSelectionPreview(row, col) {
+        this.removeSelectionPreview();
+        const intersection = this.getIntersection(row, col);
+        if (intersection && !intersection.classList.contains('occupied')) {
+            intersection.classList.add('feedback-selected');
+            this.addStonePreview(intersection);
+            this.selectionState.hasPreview = true;
+        }
+    }
+
+    /**
+     * Remove selection preview and feedback
+     */
+    removeSelectionPreview() {
+        const selected = document.querySelector('.intersection.feedback-selected');
+        if (selected) {
+            selected.classList.remove('feedback-selected');
+            const preview = selected.querySelector('.stone-preview');
+            if (preview) {
+                preview.remove();
+            }
+        }
+        this.selectionState.hasPreview = false;
+    }
+
+    /**
+     * Update visual feedback based on selection state
+     */
+    updateSelectionVisuals() {
+        if (this.selectionState.phase === 0) {
+            this.removeSelectionPreview();
+        } else if (this.selectionState.phase === 1 && 
+                   this.selectionState.selectedRow !== null && 
+                   this.selectionState.selectedCol !== null) {
+            this.addSelectionPreview(this.selectionState.selectedRow, this.selectionState.selectedCol);
+        }
     }
 }
 
