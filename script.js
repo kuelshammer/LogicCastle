@@ -71,10 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Navigation function
   function navigateToGame(gameName) {
+    const cacheBuster = '?v=method_fix_' + Date.now();
     const gameUrls = {
-      'connect4': 'games/connect4/index.html',
-      'gomoku': 'games/gomoku/index.html',
-      'trio': 'games/trio/index.html'
+      'connect4': 'games/connect4/index.html' + cacheBuster,
+      'gomoku': 'games/gomoku/index.html' + cacheBuster,
+      'trio': 'games/trio/index.html' + cacheBuster
     };
 
     if (gameUrls[gameName]) {
