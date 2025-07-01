@@ -38,7 +38,7 @@ class _GomokuUI {
         this.mouseState = {
             lastClickPosition: null, // { row, col } of last click
             clickCount: 0,           // Number of clicks on same position
-            requireConfirmation: true // Enable two-stage clicking
+            requireConfirmation: false // Direct stone placement (one-click mode)
         };
     }
 
