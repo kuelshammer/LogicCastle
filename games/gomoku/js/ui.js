@@ -40,6 +40,12 @@ class _GomokuUI {
             clickCount: 0,           // Number of clicks on same position
             requireConfirmation: false // Direct stone placement (one-click mode)
         };
+
+        // Column Highlight System (Connect4-style)
+        this.columnState = {
+            selectedColumn: 7,      // Default: Column H (A=0, B=1, ..., H=7, ..., O=14)
+            highlightActive: true   // Show column highlight by default
+        };
     }
 
     /**
@@ -207,11 +213,11 @@ class _GomokuUI {
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
-                    this.moveCursor('left');
+                    this.moveColumnSelection('left');
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    this.moveCursor('right');
+                    this.moveColumnSelection('right');
                     break;
                 case ' ':
                 case 'Enter':
@@ -282,6 +288,9 @@ class _GomokuUI {
                 this.elements.gameBoard.appendChild(intersection);
             }
         }
+
+        // Initialize column highlighting
+        this.updateColumnHighlight();
     }
 
     /**
@@ -338,6 +347,73 @@ class _GomokuUI {
             [11, 11]
         ];
         return starPoints.some(([r, c]) => r === row && c === col);
+    }
+
+    /**
+     * Update column highlight display
+     */
+    updateColumnHighlight() {
+        const board = this.elements.gameBoard;
+        
+        if (this.columnState.highlightActive) {
+            // Calculate position: column * stepSize + padding
+            const leftPosition = this.columnState.selectedColumn * 25 + 20;
+            
+            // Update CSS custom property for column position
+            board.style.setProperty('--highlight-column-left', `${leftPosition}px`);
+            board.classList.add('column-highlighted');
+        } else {
+            board.classList.remove('column-highlighted');
+        }
+    }
+
+    /**
+     * Set selected column (0-14 for A-O)
+     */
+    setSelectedColumn(columnIndex) {
+        if (columnIndex >= 0 && columnIndex < this.game.BOARD_SIZE) {
+            this.columnState.selectedColumn = columnIndex;
+            this.updateColumnHighlight();
+            
+            // Log column selection for debugging
+            const columnLetter = String.fromCharCode(65 + columnIndex);
+            console.log(`🎯 Column selected: ${columnLetter} (${columnIndex})`);
+        }
+    }
+
+    /**
+     * Toggle column highlighting on/off
+     */
+    toggleColumnHighlight() {
+        this.columnState.highlightActive = !this.columnState.highlightActive;
+        this.updateColumnHighlight();
+    }
+
+    /**
+     * Move column selection with arrow keys (Connect4-style)
+     */
+    moveColumnSelection(direction) {
+        const currentCol = this.columnState.selectedColumn;
+        let newCol;
+
+        if (direction === 'left') {
+            // Move left with wrap-around: A(0) wraps to O(14)
+            newCol = currentCol > 0 ? currentCol - 1 : 14;
+        } else if (direction === 'right') {
+            // Move right with wrap-around: O(14) wraps to A(0)
+            newCol = currentCol < 14 ? currentCol + 1 : 0;
+        } else {
+            return; // Invalid direction
+        }
+
+        this.setSelectedColumn(newCol);
+        
+        // Visual feedback for column change
+        const board = this.elements.gameBoard;
+        board.style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            board.style.transform = 'scale(1)';
+        }, 150);
     }
 
     /**

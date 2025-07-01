@@ -211,6 +211,7 @@
   width: 390px;
   height: 390px;
   /* Traditional Go board: position intersections directly, not in grid cells */
+  transition: transform 0.15s ease;
 }
 
 /* Traditional Go board grid lines - mathematically exact */
@@ -237,6 +238,36 @@
       transparent 25px
     );
   pointer-events: none;
+}
+
+/* Column Highlight System - Connect4-style column selection */
+.game-board::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  width: 25px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.0) 0%,
+    rgba(255, 255, 255, 0.4) 25%,
+    rgba(255, 255, 255, 0.4) 75%,
+    rgba(255, 255, 255, 0.0) 100%
+  );
+  box-shadow: 
+    0 0 15px rgba(255, 255, 255, 0.8),
+    inset 0 0 15px rgba(255, 255, 255, 0.3);
+  filter: blur(0.5px);
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 0;
+  /* Position is dynamically set via CSS custom property */
+  left: var(--highlight-column-left, 195px);
+}
+
+.game-board.column-highlighted::after {
+  opacity: 1;
 }
 
 .intersection {
