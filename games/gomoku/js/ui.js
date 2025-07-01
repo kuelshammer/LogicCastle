@@ -1432,7 +1432,7 @@ class _GomokuUI {
         this.selectionState.selectedCol = null;
         this.selectionState.hasPreview = false;
         this.removeSelectionPreview();
-        this.updateSelectionVisuals();
+        // No need to call updateSelectionVisuals() - removeSelectionPreview() already handles cleanup
     }
 
     /**
