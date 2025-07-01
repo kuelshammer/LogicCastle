@@ -235,9 +235,12 @@ class _GomokuUI {
                     break;
                 case ' ':
                 case 'Enter':
+                    e.preventDefault();
                     if (this.cursor.active) {
-                        e.preventDefault();
                         this.placeCursorStone();
+                    } else {
+                        // Activate cursor when spacebar is pressed
+                        this.showCursor();
                     }
                     break;
                 case 'Tab':
