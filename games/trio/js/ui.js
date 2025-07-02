@@ -1,7 +1,9 @@
 /**
  * TrioUI - User Interface controller for Trio mathematical game
  */
-class _TrioUI {
+import { TrioGame } from './game.js';
+
+export class TrioUI {
     constructor(game) {
         this.game = game;
         this.selectedPositions = [];

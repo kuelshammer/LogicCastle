@@ -3,8 +3,9 @@
  * Provides visual and enforcement-based assistance for Gomoku players
  * Adapted from Connect4 assistance system with Gomoku-specific features
  */
+import { CoordUtils } from '../../../assets/js/coord-utils.js';
 
-class GomokuAssistanceSystem {
+export class GomokuAssistanceSystem {
     constructor(ui) {
         this.ui = ui;
         this.game = ui.game;
@@ -417,11 +418,12 @@ class GomokuAssistanceSystem {
         
         try {
             // Temporarily place stone and check for open three patterns
-            const originalValue = this.game.board ? this.game.board[row * 15 + col] : 0;
+            const index = CoordUtils.gridToIndex(row, col, 15);
+            const originalValue = this.game.board ? this.game.board[index] : 0;
             
             // Simulate move
             if (this.game.board) {
-                this.game.board[row * 15 + col] = player;
+                this.game.board[index] = player;
             }
             
             const openThrees = this.game.wasmGame.detect_open_three(player);
@@ -429,7 +431,7 @@ class GomokuAssistanceSystem {
             
             // Restore original state
             if (this.game.board) {
-                this.game.board[row * 15 + col] = originalValue;
+                this.game.board[index] = originalValue;
             }
             
             return hasOpenThree;

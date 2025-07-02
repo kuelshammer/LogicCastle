@@ -1,5 +1,6 @@
 // Connect4 UI Controller
 import { Player } from './game.js';
+import { CoordUtils } from '../../../assets/js/coord-utils.js';
 
 class Connect4UI {
   constructor(game) {
@@ -490,7 +491,7 @@ class Connect4UI {
     const board = this.game.getBoard();
     for (let row = 0; row < 6; row++) {
       for (let col = 0; col < 7; col++) {
-        const cellValue = board[row * 7 + col];
+        const cellValue = board[CoordUtils.gridToIndex(row, col, 7)];
         if (cellValue !== 0) {
           const slot = this.getSlot(row, col);
           if (slot) {

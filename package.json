@@ -16,16 +16,21 @@
     "lint:check": "eslint games/**/*.js tests/**/*.js",
     "format": "prettier --write games/**/*.{js,html,css} tests/**/*.js",
     "format:check": "prettier --check games/**/*.{js,html,css} tests/**/*.js",
+    "dev": "vite",
+    "dev:legacy": "concurrently \"npm run serve\" \"npm run test:watch\"",
+    "build": "npm run wasm:build && vite build",
+    "preview": "vite preview",
     "serve": "http-server . -p 8080 -o",
-    "dev": "concurrently \"npm run serve\" \"npm run test:watch\"",
-    "ci": "npm run lint:check && npm run format:check && npm run test",
-    "tailwind:build": "node ./node_modules/tailwindcss/dist/lib.mjs -i ./games/connect4/css/input.css -o ./games/connect4/css/output.css",
+    "ci": "npm run lint:check && npm run format:check && npm run test && npm run build",
+    "tailwind:build": "node ./node_modules/tailwindcss/dist/lib.mjs -i ./assets/css/main.css -o ./dist/assets/css/main.css",
     "wasm:build": "PATH=$HOME/.cargo/bin:$PATH wasm-pack build game_engine --target web --out-dir pkg",
     "watch:rust": "./watch-rust.sh",
-    "dev:rust": "npm run watch:rust"
+    "dev:rust": "concurrently \"npm run watch:rust\" \"npm run dev\""
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@tailwindcss/postcss": "^4.1.11",
+    "@vitejs/plugin-legacy": "^7.0.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "autoprefixer": "^10.4.21",
@@ -42,6 +47,7 @@
     "prettier": "^3.1.1",
     "puppeteer": "^23.9.0",
     "tailwindcss": "^4.1.11",
+    "vite": "^7.0.0",
     "vitest": "^3.2.4"
   },
   "lint-staged": {

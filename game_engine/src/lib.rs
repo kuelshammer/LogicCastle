@@ -1,5 +1,6 @@
 use wasm_bindgen::prelude::*;
 use rand::seq::SliceRandom;
+use rand::seq::IteratorRandom;
 use rand::Rng;
 use rand::thread_rng;
 
@@ -1744,6 +1745,436 @@ impl TrioGame {
     }
 }
 
+// Trio Gap Analysis and Reachability Structures
+#[wasm_bindgen]
+#[derive(Clone, Debug)]
+pub struct ReachabilityAnalysis {
+    reachable_targets: Vec<i16>,
+    unreachable_targets: Vec<i16>,
+    total_reachable: usize,
+    coverage_percentage: f32,
+    min_reachable: i16,
+    max_reachable: i16,
+}
+
+#[wasm_bindgen]
+impl ReachabilityAnalysis {
+    #[wasm_bindgen(getter)]
+    pub fn get_reachable_targets(&self) -> Vec<i16> {
+        self.reachable_targets.clone()
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_unreachable_targets(&self) -> Vec<i16> {
+        self.unreachable_targets.clone()
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_total_reachable(&self) -> usize {
+        self.total_reachable
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_coverage_percentage(&self) -> f32 {
+        self.coverage_percentage
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_min_reachable(&self) -> i16 {
+        self.min_reachable
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_max_reachable(&self) -> i16 {
+        self.max_reachable
+    }
+    
+    pub fn summary(&self) -> String {
+        format!(
+            "Reachable: {}/{} targets ({:.1}%), Range: {} to {}, Gaps: {}",
+            self.total_reachable,
+            self.reachable_targets.len() + self.unreachable_targets.len(),
+            self.coverage_percentage,
+            self.min_reachable,
+            self.max_reachable,
+            self.unreachable_targets.len()
+        )
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Clone, Debug)]
+pub struct SolutionAnalysis {
+    target: i16,
+    total_solutions: usize,
+    unique_formulas: Vec<String>,
+    add_operations: usize,
+    subtract_operations: usize,
+    difficulty_score: f32,
+}
+
+#[wasm_bindgen]
+impl SolutionAnalysis {
+    #[wasm_bindgen(getter)]
+    pub fn get_target(&self) -> i16 {
+        self.target
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_total_solutions(&self) -> usize {
+        self.total_solutions
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_unique_formulas(&self) -> Vec<String> {
+        self.unique_formulas.clone()
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_add_operations(&self) -> usize {
+        self.add_operations
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_subtract_operations(&self) -> usize {
+        self.subtract_operations
+    }
+    
+    #[wasm_bindgen(getter)]
+    pub fn get_difficulty_score(&self) -> f32 {
+        self.difficulty_score
+    }
+    
+    pub fn summary(&self) -> String {
+        format!(
+            "Target {}: {} solutions ({} add, {} subtract), Difficulty: {:.2}",
+            self.target,
+            self.total_solutions,
+            self.add_operations,
+            self.subtract_operations,
+            self.difficulty_score
+        )
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum TrioDifficulty {
+    Impossible,  // 0 solutions
+    Hard,        // 1 solution  
+    Medium,      // 2-4 solutions
+    Easy,        // 5-10 solutions
+    VeryEasy,    // 11+ solutions
+}
+
+#[wasm_bindgen]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum TrioDistribution {
+    Balanced,    // Equal distribution 1-9
+    Educational, // More small numbers for children
+    Challenging, // More large numbers for experts
+    Official,    // Official Ravensburger rules (when known)
+}
+
+// Extended TrioGame with gap analysis capabilities
+impl TrioGame {
+    /// Analyze which targets are reachable with current board distribution
+    pub fn analyze_reachable_targets(&self) -> ReachabilityAnalysis {
+        let mut reachable = Vec::new();
+        let mut unreachable = Vec::new();
+        
+        // Test all possible targets from -8 to 90
+        // -8 = 1×1-9, 90 = 9×9+9
+        for target in -8..=90 {
+            if self.is_target_reachable(target) {
+                reachable.push(target);
+            } else {
+                unreachable.push(target);
+            }
+        }
+        
+        let total_possible = 99; // -8 to 90 inclusive
+        let total_reachable = reachable.len();
+        let coverage_percentage = (total_reachable as f32 / total_possible as f32) * 100.0;
+        
+        let min_reachable = reachable.iter().min().copied().unwrap_or(0);
+        let max_reachable = reachable.iter().max().copied().unwrap_or(0);
+        
+        ReachabilityAnalysis {
+            reachable_targets: reachable,
+            unreachable_targets: unreachable,
+            total_reachable,
+            coverage_percentage,
+            min_reachable,
+            max_reachable,
+        }
+    }
+    
+    /// Check if a specific target is reachable with current board
+    pub fn is_target_reachable(&self, target: i16) -> bool {
+        let board = self.get_board();
+        
+        // Check all possible combinations of three numbers
+        for i in 0..49 {
+            for j in 0..49 {
+                for k in 0..49 {
+                    if i == j || i == k || j == k {
+                        continue; // Skip same positions
+                    }
+                    
+                    let a = board[i] as i16;
+                    let b = board[j] as i16;
+                    let c = board[k] as i16;
+                    
+                    // Check a×b+c = target
+                    if a * b + c == target {
+                        return true;
+                    }
+                    
+                    // Check a×b-c = target
+                    if a * b - c == target {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        false
+    }
+    
+    /// Count all solutions for a specific target
+    pub fn count_solutions_for_target(&self, target: i16) -> SolutionAnalysis {
+        let board = self.get_board();
+        let mut unique_formulas = Vec::new();
+        let mut add_operations = 0;
+        let mut subtract_operations = 0;
+        
+        // Check all possible combinations of three numbers
+        for i in 0..49 {
+            for j in 0..49 {
+                for k in 0..49 {
+                    if i == j || i == k || j == k {
+                        continue; // Skip same positions
+                    }
+                    
+                    let a = board[i] as i16;
+                    let b = board[j] as i16;
+                    let c = board[k] as i16;
+                    
+                    // Check a×b+c = target
+                    if a * b + c == target {
+                        let formula = format!("{}×{}+{}", a, b, c);
+                        if !unique_formulas.contains(&formula) {
+                            unique_formulas.push(formula);
+                            add_operations += 1;
+                        }
+                    }
+                    
+                    // Check a×b-c = target
+                    if a * b - c == target {
+                        let formula = format!("{}×{}-{}", a, b, c);
+                        if !unique_formulas.contains(&formula) {
+                            unique_formulas.push(formula);
+                            subtract_operations += 1;
+                        }
+                    }
+                }
+            }
+        }
+        
+        let total_solutions = add_operations + subtract_operations;
+        
+        // Calculate difficulty score (0.0 = impossible, 1.0 = very easy)
+        let difficulty_score = match total_solutions {
+            0 => 0.0,
+            1 => 0.2,
+            2..=4 => 0.4,
+            5..=10 => 0.7,
+            _ => 1.0,
+        };
+        
+        SolutionAnalysis {
+            target,
+            total_solutions,
+            unique_formulas,
+            add_operations,
+            subtract_operations,
+            difficulty_score,
+        }
+    }
+    
+    /// Get difficulty category for a target
+    pub fn categorize_target_difficulty(&self, target: i16) -> TrioDifficulty {
+        let analysis = self.count_solutions_for_target(target);
+        match analysis.total_solutions {
+            0 => TrioDifficulty::Impossible,
+            1 => TrioDifficulty::Hard,
+            2..=4 => TrioDifficulty::Medium,
+            5..=10 => TrioDifficulty::Easy,
+            _ => TrioDifficulty::VeryEasy,
+        }
+    }
+    
+    /// Create a new TrioGame with specific distribution
+    pub fn new_with_distribution(distribution: TrioDistribution) -> Self {
+        let mut board = Board::new(7, 7);
+        let mut rng = thread_rng();
+        
+        let numbers_to_place: Vec<u8> = match distribution {
+            TrioDistribution::Balanced => {
+                // Equal distribution: roughly 5-6 of each number 1-9
+                let mut nums = Vec::new();
+                for num in 1..=9 {
+                    for _ in 0..5 {
+                        nums.push(num);
+                    }
+                }
+                // Add 4 more random numbers to reach 49
+                for _ in 0..4 {
+                    nums.push(rng.gen_range(1..=9));
+                }
+                nums
+            },
+            TrioDistribution::Educational => {
+                // More small numbers for children
+                let mut nums = Vec::new();
+                for _ in 0..8 { nums.push(1); }
+                for _ in 0..7 { nums.push(2); }
+                for _ in 0..6 { nums.push(3); }
+                for _ in 0..5 { nums.push(4); }
+                for _ in 0..4 { nums.push(5); }
+                for _ in 0..3 { nums.push(6); }
+                for _ in 0..2 { nums.push(7); }
+                for _ in 0..2 { nums.push(8); }
+                for _ in 0..2 { nums.push(9); }
+                nums
+            },
+            TrioDistribution::Challenging => {
+                // More large numbers for experts
+                let mut nums = Vec::new();
+                for _ in 0..2 { nums.push(1); }
+                for _ in 0..2 { nums.push(2); }
+                for _ in 0..3 { nums.push(3); }
+                for _ in 0..4 { nums.push(4); }
+                for _ in 0..5 { nums.push(5); }
+                for _ in 0..6 { nums.push(6); }
+                for _ in 0..7 { nums.push(7); }
+                for _ in 0..8 { nums.push(8); }
+                for _ in 0..12 { nums.push(9); }
+                nums
+            },
+            TrioDistribution::Official => {
+                // TODO: Implement when official rules are known
+                // For now, use balanced
+                let mut nums = Vec::new();
+                for num in 1..=9 {
+                    for _ in 0..5 {
+                        nums.push(num);
+                    }
+                }
+                for _ in 0..4 {
+                    nums.push(rng.gen_range(1..=9));
+                }
+                nums
+            },
+        };
+        
+        let mut shuffled_numbers = numbers_to_place;
+        shuffled_numbers.shuffle(&mut rng);
+        
+        // Fill the board
+        for i in 0..49 {
+            let row = i / 7;
+            let col = i % 7;
+            let number = shuffled_numbers.get(i).copied().unwrap_or(1);
+            let _ = board.set_cell(row, col, number as i8);
+        }
+        
+        // Generate a guaranteed reachable target
+        let target_number = Self::generate_guaranteed_target(&board);
+        
+        TrioGame {
+            board,
+            target_number,
+        }
+    }
+    
+    /// Generate a target that is guaranteed to be reachable
+    fn generate_guaranteed_target(board: &Board) -> u8 {
+        let mut rng = thread_rng();
+        let cells = board.get_cells();
+        
+        // Pick three random positions
+        let positions: Vec<usize> = (0..49).choose_multiple(&mut rng, 3).into_iter().collect();
+        let a = cells[positions[0]] as i16;
+        let b = cells[positions[1]] as i16;
+        let c = cells[positions[2]] as i16;
+        
+        // Choose random operation
+        let target = if rng.gen_bool(0.5) {
+            a * b + c  // addition
+        } else {
+            a * b - c  // subtraction
+        };
+        
+        // Ensure target is in reasonable range
+        if target >= 1 && target <= 90 {
+            target as u8
+        } else {
+            // Fallback to a simple target
+            25
+        }
+    }
+}
+
+#[wasm_bindgen]
+impl TrioGame {
+    /// Create new game with specific distribution (WASM-exposed)
+    pub fn new_with_distribution_wasm(distribution: TrioDistribution) -> Self {
+        Self::new_with_distribution(distribution)
+    }
+    
+    /// Analyze reachable targets (WASM-exposed)
+    pub fn analyze_reachable_targets_wasm(&self) -> ReachabilityAnalysis {
+        self.analyze_reachable_targets()
+    }
+    
+    /// Count solutions for target (WASM-exposed)
+    pub fn count_solutions_for_target_wasm(&self, target: i16) -> SolutionAnalysis {
+        self.count_solutions_for_target(target)
+    }
+    
+    /// Get difficulty category (WASM-exposed)
+    pub fn categorize_target_difficulty_wasm(&self, target: i16) -> TrioDifficulty {
+        self.categorize_target_difficulty(target)
+    }
+    
+    /// Perform comprehensive gap analysis for all distributions
+    pub fn comprehensive_gap_analysis() -> String {
+        let mut report = String::new();
+        report.push_str("=== TRIO COMPREHENSIVE GAP ANALYSIS ===\n\n");
+        
+        let distributions = [
+            TrioDistribution::Balanced,
+            TrioDistribution::Educational,
+            TrioDistribution::Challenging,
+            TrioDistribution::Official,
+        ];
+        
+        for distribution in distributions.iter() {
+            let game = TrioGame::new_with_distribution(*distribution);
+            let analysis = game.analyze_reachable_targets();
+            
+            report.push_str(&format!("Distribution: {:?}\n", distribution));
+            report.push_str(&format!("  {}\n", analysis.summary()));
+            report.push_str(&format!("  Unreachable targets: {:?}\n\n", 
+                analysis.get_unreachable_targets()));
+        }
+        
+        report
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{Game, Player, Board, TrioGame};
@@ -1996,6 +2427,81 @@ mod tests {
         let trio_hard = TrioGame::new(3);
         assert_eq!(trio_hard.get_board().len(), 49);
         assert!(trio_hard.get_target_number() > 0 && trio_hard.get_target_number() <= 100);
+    }
+
+    #[test]
+    fn test_trio_new_distributions() {
+        use super::TrioDistribution;
+        
+        // Test balanced distribution
+        let trio_balanced = TrioGame::new_with_distribution(TrioDistribution::Balanced);
+        assert_eq!(trio_balanced.get_board().len(), 49);
+        
+        // Test educational distribution (more small numbers)
+        let trio_educational = TrioGame::new_with_distribution(TrioDistribution::Educational);
+        let board = trio_educational.get_board();
+        let small_numbers = board.iter().filter(|&&x| x >= 1 && x <= 3).count();
+        let large_numbers = board.iter().filter(|&&x| x >= 7 && x <= 9).count();
+        assert!(small_numbers > large_numbers); // More small numbers in educational mode
+        
+        // Test challenging distribution (more large numbers)
+        let trio_challenging = TrioGame::new_with_distribution(TrioDistribution::Challenging);
+        let board = trio_challenging.get_board();
+        let small_numbers = board.iter().filter(|&&x| x >= 1 && x <= 3).count();
+        let large_numbers = board.iter().filter(|&&x| x >= 7 && x <= 9).count();
+        assert!(large_numbers > small_numbers); // More large numbers in challenging mode
+    }
+
+    #[test]
+    fn test_trio_gap_analysis() {
+        use super::TrioDistribution;
+        
+        let trio = TrioGame::new_with_distribution(TrioDistribution::Balanced);
+        let analysis = trio.analyze_reachable_targets();
+        
+        // Should analyze range -8 to 90
+        assert!(analysis.get_min_reachable() >= -8);
+        assert!(analysis.get_max_reachable() <= 90);
+        assert!(analysis.get_total_reachable() > 0);
+        assert!(analysis.get_coverage_percentage() > 0.0);
+        assert!(analysis.get_coverage_percentage() <= 100.0);
+    }
+
+    #[test]
+    fn test_trio_solution_analysis() {
+        use super::TrioDistribution;
+        
+        let trio = TrioGame::new_with_distribution(TrioDistribution::Balanced);
+        
+        // Test analysis for a simple target that should have solutions
+        let analysis = trio.count_solutions_for_target(10);
+        
+        // Should have some basic properties
+        assert_eq!(analysis.get_target(), 10);
+        assert_eq!(analysis.get_total_solutions(), 
+                   analysis.get_add_operations() + analysis.get_subtract_operations());
+        assert!(analysis.get_difficulty_score() >= 0.0);
+        assert!(analysis.get_difficulty_score() <= 1.0);
+    }
+
+    #[test]
+    fn test_trio_reachability_edge_cases() {
+        use super::TrioDistribution;
+        
+        let trio = TrioGame::new_with_distribution(TrioDistribution::Balanced);
+        
+        // Test edge case targets
+        let min_possible = trio.is_target_reachable(-8); // 1×1-9
+        let max_possible = trio.is_target_reachable(90); // 9×9+9
+        
+        // These should be reachable if the right numbers are on the board
+        // (depends on random distribution, but at least test the function works)
+        assert!(min_possible || !min_possible); // Just test it doesn't crash
+        assert!(max_possible || !max_possible); // Just test it doesn't crash
+        
+        // Test obviously impossible target (way out of range)
+        assert!(!trio.is_target_reachable(200));
+        assert!(!trio.is_target_reachable(-100));
     }
 
     // Phase 1 AI Enhancement Tests

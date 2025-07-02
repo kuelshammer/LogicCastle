@@ -155,30 +155,6 @@ function getArrayU32FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
 }
-
-let cachedInt16ArrayMemory0 = null;
-
-function getInt16ArrayMemory0() {
-    if (cachedInt16ArrayMemory0 === null || cachedInt16ArrayMemory0.byteLength === 0) {
-        cachedInt16ArrayMemory0 = new Int16Array(wasm.memory.buffer);
-    }
-    return cachedInt16ArrayMemory0;
-}
-
-function getArrayI16FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getInt16ArrayMemory0().subarray(ptr / 2, ptr / 2 + len);
-}
-
-function getArrayJsValueFromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    const mem = getDataViewMemory0();
-    const result = [];
-    for (let i = ptr; i < ptr + 4 * len; i += 4) {
-        result.push(takeObject(mem.getUint32(i, true)));
-    }
-    return result;
-}
 /**
  * @enum {0 | 1 | 2 | 3 | 4 | 5}
  */
@@ -205,25 +181,6 @@ export const GamePhase = Object.freeze({
 export const Player = Object.freeze({
     Yellow: 1, "1": "Yellow",
     Red: 2, "2": "Red",
-});
-/**
- * @enum {0 | 1 | 2 | 3 | 4}
- */
-export const TrioDifficulty = Object.freeze({
-    Impossible: 0, "0": "Impossible",
-    Hard: 1, "1": "Hard",
-    Medium: 2, "2": "Medium",
-    Easy: 3, "3": "Easy",
-    VeryEasy: 4, "4": "VeryEasy",
-});
-/**
- * @enum {0 | 1 | 2 | 3}
- */
-export const TrioDistribution = Object.freeze({
-    Balanced: 0, "0": "Balanced",
-    Educational: 1, "1": "Educational",
-    Challenging: 2, "2": "Challenging",
-    Official: 3, "3": "Official",
 });
 
 const BoardFinalization = (typeof FinalizationRegistry === 'undefined')
@@ -1050,222 +1007,11 @@ export class PositionAnalysis {
     }
 }
 
-const ReachabilityAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_reachabilityanalysis_free(ptr >>> 0, 1));
-
-export class ReachabilityAnalysis {
-
-    static __wrap(ptr) {
-        ptr = ptr >>> 0;
-        const obj = Object.create(ReachabilityAnalysis.prototype);
-        obj.__wbg_ptr = ptr;
-        ReachabilityAnalysisFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-    }
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        ReachabilityAnalysisFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_reachabilityanalysis_free(ptr, 0);
-    }
-    /**
-     * @returns {Int16Array}
-     */
-    get get_reachable_targets() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.reachabilityanalysis_get_reachable_targets(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayI16FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 2, 2);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @returns {Int16Array}
-     */
-    get get_unreachable_targets() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.reachabilityanalysis_get_unreachable_targets(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayI16FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 2, 2);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @returns {number}
-     */
-    get get_total_reachable() {
-        const ret = wasm.reachabilityanalysis_get_total_reachable(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @returns {number}
-     */
-    get get_coverage_percentage() {
-        const ret = wasm.reachabilityanalysis_get_coverage_percentage(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get get_min_reachable() {
-        const ret = wasm.reachabilityanalysis_get_min_reachable(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get get_max_reachable() {
-        const ret = wasm.reachabilityanalysis_get_max_reachable(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {string}
-     */
-    summary() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.reachabilityanalysis_summary(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            deferred1_0 = r0;
-            deferred1_1 = r1;
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
-        }
-    }
-}
-
-const SolutionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_solutionanalysis_free(ptr >>> 0, 1));
-
-export class SolutionAnalysis {
-
-    static __wrap(ptr) {
-        ptr = ptr >>> 0;
-        const obj = Object.create(SolutionAnalysis.prototype);
-        obj.__wbg_ptr = ptr;
-        SolutionAnalysisFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-    }
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        SolutionAnalysisFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_solutionanalysis_free(ptr, 0);
-    }
-    /**
-     * @returns {number}
-     */
-    get get_target() {
-        const ret = wasm.solutionanalysis_get_target(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get get_total_solutions() {
-        const ret = wasm.solutionanalysis_get_total_solutions(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @returns {string[]}
-     */
-    get get_unique_formulas() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.solutionanalysis_get_unique_formulas(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayJsValueFromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @returns {number}
-     */
-    get get_add_operations() {
-        const ret = wasm.solutionanalysis_get_add_operations(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @returns {number}
-     */
-    get get_subtract_operations() {
-        const ret = wasm.solutionanalysis_get_subtract_operations(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @returns {number}
-     */
-    get get_difficulty_score() {
-        const ret = wasm.solutionanalysis_get_difficulty_score(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {string}
-     */
-    summary() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.solutionanalysis_summary(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            deferred1_0 = r0;
-            deferred1_1 = r1;
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
-        }
-    }
-}
-
 const TrioGameFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_triogame_free(ptr >>> 0, 1));
 
 export class TrioGame {
-
-    static __wrap(ptr) {
-        ptr = ptr >>> 0;
-        const obj = Object.create(TrioGame.prototype);
-        obj.__wbg_ptr = ptr;
-        TrioGameFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-    }
 
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -1322,61 +1068,6 @@ export class TrioGame {
     check_combination(r1, c1, r2, c2, r3, c3) {
         const ret = wasm.triogame_check_combination(this.__wbg_ptr, r1, c1, r2, c2, r3, c3);
         return ret !== 0;
-    }
-    /**
-     * Create new game with specific distribution (WASM-exposed)
-     * @param {TrioDistribution} distribution
-     * @returns {TrioGame}
-     */
-    static new_with_distribution_wasm(distribution) {
-        const ret = wasm.triogame_new_with_distribution_wasm(distribution);
-        return TrioGame.__wrap(ret);
-    }
-    /**
-     * Analyze reachable targets (WASM-exposed)
-     * @returns {ReachabilityAnalysis}
-     */
-    analyze_reachable_targets_wasm() {
-        const ret = wasm.triogame_analyze_reachable_targets_wasm(this.__wbg_ptr);
-        return ReachabilityAnalysis.__wrap(ret);
-    }
-    /**
-     * Count solutions for target (WASM-exposed)
-     * @param {number} target
-     * @returns {SolutionAnalysis}
-     */
-    count_solutions_for_target_wasm(target) {
-        const ret = wasm.triogame_count_solutions_for_target_wasm(this.__wbg_ptr, target);
-        return SolutionAnalysis.__wrap(ret);
-    }
-    /**
-     * Get difficulty category (WASM-exposed)
-     * @param {number} target
-     * @returns {TrioDifficulty}
-     */
-    categorize_target_difficulty_wasm(target) {
-        const ret = wasm.triogame_categorize_target_difficulty_wasm(this.__wbg_ptr, target);
-        return ret;
-    }
-    /**
-     * Perform comprehensive gap analysis for all distributions
-     * @returns {string}
-     */
-    static comprehensive_gap_analysis() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.triogame_comprehensive_gap_analysis(retptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            deferred1_0 = r0;
-            deferred1_1 = r1;
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
-        }
     }
 }
 
@@ -1571,7 +1262,6 @@ function __wbg_finalize_init(instance, module) {
     wasm = instance.exports;
     __wbg_init.__wbindgen_wasm_module = module;
     cachedDataViewMemory0 = null;
-    cachedInt16ArrayMemory0 = null;
     cachedInt8ArrayMemory0 = null;
     cachedUint32ArrayMemory0 = null;
     cachedUint8ArrayMemory0 = null;

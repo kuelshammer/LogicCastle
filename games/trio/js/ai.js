@@ -2,7 +2,9 @@
  * TrioAI - AI system for Trio mathematical game
  * Finds solutions for target numbers using a×b+c or a×b-c formulas
  */
-class _TrioAI {
+import { TrioGame } from './game.js';
+
+export class TrioAI {
     constructor(difficulty = 'medium') {
         this.difficulty = difficulty;
         this.searchDepth = this.getSearchDepth(difficulty);

@@ -310,13 +310,10 @@
 .intersection.pattern-double-fork {
   border: 2px solid #dc3545;
   box-shadow: 0 0 8px rgba(220, 53, 69, 0.4);
-  animation: pulse-fork 1.5s infinite;
+  /* REMOVED: animation: pulse-fork 1.5s infinite; - Scale transforms break intersection positioning */
 }
 
-@keyframes pulse-fork {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
+/* REMOVED: @keyframes pulse-fork - Scale transforms break intersection positioning */
 
 /* WASM Button */
 .btn-wasm {
@@ -415,8 +412,8 @@
 }
 
 @keyframes spin {
-  0% { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Position Highlights */
@@ -424,15 +421,11 @@
   background: radial-gradient(circle, rgba(255, 255, 0, 0.8) 0%, rgba(255, 255, 0, 0.3) 70%, transparent 100%);
   border: 2px solid #ffd700;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
-  animation: highlight-pulse 0.5s ease-in-out;
+  /* REMOVED: animation: highlight-pulse 0.5s ease-in-out; - Scale transforms break intersection positioning */
   z-index: 10;
 }
 
-@keyframes highlight-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
+/* REMOVED: @keyframes highlight-pulse - Scale transforms break intersection positioning */
 
 /* Enhanced intersection styles for better visibility */
 .intersection {
@@ -443,9 +436,8 @@
 .intersection::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 15px; /* Center in 30px intersection */
+  left: 15px; /* Center in 30px intersection */
   width: 0;
   height: 0;
   background: currentColor;
@@ -456,6 +448,8 @@
 .intersection:hover::before {
   width: 8px;
   height: 8px;
+  top: 11px; /* Adjust position when expanded: (30-8)/2 */
+  left: 11px; /* Adjust position when expanded: (30-8)/2 */
   opacity: 0.3;
 }
 
@@ -464,8 +458,7 @@
   content: attr(data-threat-level);
   position: absolute;
   top: -25px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 10px; /* Center tooltip: assume ~10px width for single digit */
   background: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 2px 6px;

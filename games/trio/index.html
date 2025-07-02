@@ -147,19 +147,22 @@
       </div>
     </div>
 
-    <!-- Game Scripts -->
-    <script src="js/game.js"></script>
-    <script src="js/ai.js"></script>
-    <script src="js/ui.js"></script>
-
-    <!-- Load WASM module -->
+    <!-- Load WASM and initialize game modules -->
     <script type="module">
       import init, { Game } from '../../game_engine/pkg/game_engine.js';
+      import { TrioGame, initTrioWasm } from './js/game.js';
+      import { TrioUI } from './js/ui.js';
+      import { TrioAI } from './js/ai.js';
 
       async function run() {
+        // Initialize WASM module
         await init();
-        // Make WASM Game available globally
+        
+        // Make WASM Game available globally for backwards compatibility
         window.WasmGame = Game;
+        
+        // Initialize Trio WASM integration
+        await initTrioWasm();
         
         // Initialize the game when page loads
         document.addEventListener('DOMContentLoaded', () => {
@@ -168,7 +171,8 @@
           ui.init();
         });
       }
-      run();
+      
+      run().catch(console.error);
     </script>
   </body>
 </html>

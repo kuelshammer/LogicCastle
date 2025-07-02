@@ -2,7 +2,18 @@
  * TrioGame - Core game logic for Trio mathematical game by Ravensburger
  * Find three numbers in a 7x7 grid that solve: target = a×b+c or target = a×b-c
  */
-class _TrioGame {
+
+// WASM import - will be dynamically loaded
+let WasmGame = null;
+
+// Initialize WASM module
+export async function initTrioWasm() {
+    if (!WasmGame && typeof window !== 'undefined' && window.WasmGame) {
+        WasmGame = window.WasmGame;
+    }
+}
+
+export class TrioGame {
     constructor() {
         this.ROWS = 7;
         this.COLS = 7;
@@ -40,7 +51,7 @@ class _TrioGame {
      */
     initializeGame() {
         // Wait for WASM to be available
-        if (!window.WasmGame) {
+        if (!WasmGame) {
             console.error('WASM Game not available yet');
             setTimeout(() => this.initializeGame(), 100);
             return;
@@ -49,7 +60,7 @@ class _TrioGame {
         try {
             // Create TrioGame instance using WASM Game with Trio configuration
             // Trio uses a 7x7 board with no gravity and no win condition (puzzle mode)
-            this.wasmGame = new window.WasmGame(this.ROWS, this.COLS, 0, false);
+            this.wasmGame = new WasmGame(this.ROWS, this.COLS, 0, false);
             
             // Get board and target from WASM
             this.numberGrid = this.convertWasmBoardToJsGrid(this.wasmGame.get_board());
@@ -467,12 +478,5 @@ class _TrioGame {
     }
 }
 
-// Make class available globally for tests
-if (typeof window !== 'undefined') {
-    window.TrioGame = _TrioGame;
-}
-
-// Make class available globally for tests
-if (typeof window !== 'undefined') {
-    window.TrioGame = _TrioGame;
-}
+// ES6 Module export - no global assignment needed
+// Class is exported as named export: TrioGame

@@ -48,6 +48,10 @@ panic = "abort"
 # Strip debug symbols in release
 strip = true
 
+[package.metadata.wasm-pack.profile.release]
+# Disable wasm-opt to avoid bulk memory issues
+wasm-opt = false
+
 [profile.dev]
 # Keep debug info for better WASM debugging
 debug = true

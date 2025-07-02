@@ -1,4 +1,6 @@
 // Connect4 AI Implementation
+import { CoordUtils } from '../../../assets/js/coord-utils.js';
+
 class Connect4AI {
   
   // Get best move for AI player
@@ -64,7 +66,7 @@ class Connect4AI {
       return isMaximizing ? -1000 : 1000; // Invalid move penalty
     }
     
-    tempBoard[dropRow * 7 + col] = currentPlayer;
+    tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = currentPlayer;
     
     // Check if this move wins the game
     const winner = this.checkWinForBoard(tempBoard, dropRow, col, currentPlayer);
@@ -122,7 +124,7 @@ class Connect4AI {
       return isMaximizing ? -1000 : 1000;
     }
     
-    tempBoard[dropRow * 7 + col] = player;
+    tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = player;
     
     // Check win condition
     const winner = this.checkWinForBoard(tempBoard, dropRow, col, player);
@@ -169,10 +171,10 @@ class Connect4AI {
     for (let row = 0; row < 6; row++) {
       for (let col = 0; col < 4; col++) {
         const window = [
-          board[row * 7 + col],
-          board[row * 7 + col + 1],
-          board[row * 7 + col + 2],
-          board[row * 7 + col + 3]
+          board[CoordUtils.gridToIndex(row, col, 7)],
+          board[CoordUtils.gridToIndex(row, col + 1, 7)],
+          board[CoordUtils.gridToIndex(row, col + 2, 7)],
+          board[CoordUtils.gridToIndex(row, col + 3, 7)]
         ];
         score += this.evaluateWindow(window);
       }
@@ -182,10 +184,10 @@ class Connect4AI {
     for (let col = 0; col < 7; col++) {
       for (let row = 0; row < 3; row++) {
         const window = [
-          board[row * 7 + col],
-          board[(row + 1) * 7 + col],
-          board[(row + 2) * 7 + col],
-          board[(row + 3) * 7 + col]
+          board[CoordUtils.gridToIndex(row, col, 7)],
+          board[CoordUtils.gridToIndex(row + 1, col, 7)],
+          board[CoordUtils.gridToIndex(row + 2, col, 7)],
+          board[CoordUtils.gridToIndex(row + 3, col, 7)]
         ];
         score += this.evaluateWindow(window);
       }
@@ -195,10 +197,10 @@ class Connect4AI {
     for (let row = 0; row < 3; row++) {
       for (let col = 0; col < 4; col++) {
         const window = [
-          board[row * 7 + col],
-          board[(row + 1) * 7 + col + 1],
-          board[(row + 2) * 7 + col + 2],
-          board[(row + 3) * 7 + col + 3]
+          board[CoordUtils.gridToIndex(row, col, 7)],
+          board[CoordUtils.gridToIndex(row + 1, col + 1, 7)],
+          board[CoordUtils.gridToIndex(row + 2, col + 2, 7)],
+          board[CoordUtils.gridToIndex(row + 3, col + 3, 7)]
         ];
         score += this.evaluateWindow(window);
       }
@@ -208,10 +210,10 @@ class Connect4AI {
     for (let row = 3; row < 6; row++) {
       for (let col = 0; col < 4; col++) {
         const window = [
-          board[row * 7 + col],
-          board[(row - 1) * 7 + col + 1],
-          board[(row - 2) * 7 + col + 2],
-          board[(row - 3) * 7 + col + 3]
+          board[CoordUtils.gridToIndex(row, col, 7)],
+          board[CoordUtils.gridToIndex(row - 1, col + 1, 7)],
+          board[CoordUtils.gridToIndex(row - 2, col + 2, 7)],
+          board[CoordUtils.gridToIndex(row - 3, col + 3, 7)]
         ];
         score += this.evaluateWindow(window);
       }
@@ -220,9 +222,9 @@ class Connect4AI {
     // Bonus for center column control
     const centerCol = 3;
     for (let row = 0; row < 6; row++) {
-      if (board[row * 7 + centerCol] === Player.Red) {
+      if (board[CoordUtils.gridToIndex(row, centerCol, 7)] === Player.Red) {
         score += 3;
-      } else if (board[row * 7 + centerCol] === Player.Yellow) {
+      } else if (board[CoordUtils.gridToIndex(row, centerCol, 7)] === Player.Yellow) {
         score -= 3;
       }
     }
@@ -274,7 +276,7 @@ class Connect4AI {
     if (col < 0 || col >= 7) return -1;
     
     for (let row = 5; row >= 0; row--) {
-      if (board[row * 7 + col] === 0) {
+      if (board[CoordUtils.gridToIndex(row, col, 7)] === 0) {
         return row;
       }
     }
@@ -287,12 +289,12 @@ class Connect4AI {
     let count = 1;
     
     // Check left
-    for (let c = col - 1; c >= 0 && board[row * 7 + c] === player; c--) {
+    for (let c = col - 1; c >= 0 && board[CoordUtils.gridToIndex(row, c, 7)] === player; c--) {
       count++;
     }
     
     // Check right
-    for (let c = col + 1; c < 7 && board[row * 7 + c] === player; c++) {
+    for (let c = col + 1; c < 7 && board[CoordUtils.gridToIndex(row, c, 7)] === player; c++) {
       count++;
     }
     
@@ -302,7 +304,7 @@ class Connect4AI {
     count = 1;
     
     // Check down
-    for (let r = row + 1; r < 6 && board[r * 7 + col] === player; r++) {
+    for (let r = row + 1; r < 6 && board[CoordUtils.gridToIndex(r, col, 7)] === player; r++) {
       count++;
     }
     
@@ -312,12 +314,12 @@ class Connect4AI {
     count = 1;
     
     // Check down-left
-    for (let r = row + 1, c = col - 1; r < 6 && c >= 0 && board[r * 7 + c] === player; r++, c--) {
+    for (let r = row + 1, c = col - 1; r < 6 && c >= 0 && board[CoordUtils.gridToIndex(r, c, 7)] === player; r++, c--) {
       count++;
     }
     
     // Check up-right
-    for (let r = row - 1, c = col + 1; r >= 0 && c < 7 && board[r * 7 + c] === player; r--, c++) {
+    for (let r = row - 1, c = col + 1; r >= 0 && c < 7 && board[CoordUtils.gridToIndex(r, c, 7)] === player; r--, c++) {
       count++;
     }
     
@@ -327,12 +329,12 @@ class Connect4AI {
     count = 1;
     
     // Check down-right
-    for (let r = row + 1, c = col + 1; r < 6 && c < 7 && board[r * 7 + c] === player; r++, c++) {
+    for (let r = row + 1, c = col + 1; r < 6 && c < 7 && board[CoordUtils.gridToIndex(r, c, 7)] === player; r++, c++) {
       count++;
     }
     
     // Check up-left
-    for (let r = row - 1, c = col - 1; r >= 0 && c >= 0 && board[r * 7 + c] === player; r--, c--) {
+    for (let r = row - 1, c = col - 1; r >= 0 && c >= 0 && board[CoordUtils.gridToIndex(r, c, 7)] === player; r--, c--) {
       count++;
     }
     
@@ -353,7 +355,7 @@ class Connect4AI {
     if (dropRow === -1) return false;
     
     const tempBoard = [...board];
-    tempBoard[dropRow * 7 + col] = player;
+    tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = player;
     
     // Check if this creates a winning threat (3 in a row with open space)
     return this.hasThreatsAfterMove(tempBoard, dropRow, col, player);

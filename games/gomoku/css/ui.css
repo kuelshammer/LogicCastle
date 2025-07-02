@@ -272,9 +272,8 @@
 /* Move history indicator */
 .move-indicator {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 11px; /* 50% of 22px stone height */
+  left: 11px; /* 50% of 22px stone width */
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -286,9 +285,8 @@
 /* Threat highlighting */
 .threat-highlight {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 3px; /* Center 24px element in 30px intersection: (30-24)/2 */
+  left: 3px; /* Center 24px element in 30px intersection: (30-24)/2 */
   width: 24px;
   height: 24px;
   border: 2px solid #ff4444;
@@ -303,11 +301,11 @@
   0%,
   100% {
     opacity: 0.7;
-    transform: translate(-50%, -50%) scale(1);
+    transform: scale(1);
   }
   50% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
+    transform: scale(1.1);
   }
 }
 
@@ -315,9 +313,8 @@
 .intersection.hint-move::after {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0; /* Full 30px overlay on 30px intersection */
+  left: 0; /* Full 30px overlay on 30px intersection */
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -351,11 +348,11 @@
   0%,
   100% {
     opacity: 0.6;
-    transform: translate(-50%, -50%) scale(0.9);
+    transform: scale(0.9);
   }
   50% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
+    transform: scale(1.1);
   }
 }
 
@@ -447,9 +444,8 @@
 .help-checkbox-input:checked + .help-checkbox-label::after {
   content: '✓';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 4px; /* Center in 30px label: (30-22)/2 = 4px for 1.2rem font */
+  left: 9px; /* Center checkmark horizontally */
   color: white;
   font-weight: bold;
   font-size: 1.2rem;

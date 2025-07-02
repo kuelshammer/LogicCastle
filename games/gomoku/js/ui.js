@@ -1,8 +1,9 @@
 /**
  * GomokuUI - User Interface for Gomoku game
  */
-/* global GomokuHelpers */
-class GomokuUI {
+import { CoordUtils } from '../../../assets/js/coord-utils.js';
+
+export class GomokuUI {
     constructor(game) {
         this.game = game;
         this.ai = null;
@@ -305,22 +306,24 @@ class GomokuUI {
     createBoard() {
         this.elements.gameBoard.innerHTML = '';
 
-        // Board inner dimensions - mathematically exact (FIXED!)
-        const boardSize = 350; // Inner board area (390px total - 2*20px padding)
-        const stepSize = 25; // EXACT: 350px / 14 intervals = 25px per step
+        // Board dimensions: 390px total with 20px padding = 350px inner area
+        const boardTotalSize = 390;
+        const boardPadding = 20;
 
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             for (let col = 0; col < this.game.BOARD_SIZE; col++) {
                 const intersection = document.createElement('div');
                 intersection.className = 'intersection';
-                intersection.dataset.row = row;
-                intersection.dataset.col = col;
+                
+                // Use standardized coordinate mapping
+                CoordUtils.coordsToElement(intersection, row, col);
 
-                // Position intersection at exact grid line crossing
-                const left = col * stepSize;
-                const top = row * stepSize;
-                intersection.style.left = `${left}px`;
-                intersection.style.top = `${top}px`;
+                // Position intersection using standardized pixel calculation
+                const [pixelX, pixelY] = CoordUtils.gomokuGridToPixel(
+                    row, col, boardTotalSize, boardPadding, this.game.BOARD_SIZE
+                );
+                intersection.style.left = `${pixelX}px`;
+                intersection.style.top = `${pixelY}px`;
 
                 // Add star points (traditional Go board markings)
                 if (this.isStarPoint(row, col)) {
@@ -412,9 +415,10 @@ class GomokuUI {
         const board = this.elements.gameBoard;
         
         if (this.cursor.active) {
-            // Calculate position: column * stepSize + padding (centers on Grid LINE)
-            // Column A=0: 0*25+20=20px, Column H=7: 7*25+20=195px, Column O=14: 14*25+20=370px
-            const leftPosition = this.cursor.col * 25 + 20;
+            // Calculate cursor position using standardized coordinate mapping
+            const [leftPosition, _] = CoordUtils.gomokuGridToPixel(
+                0, this.cursor.col, 390, 20, this.game.BOARD_SIZE
+            );
             
             // Update CSS custom property for column position
             board.style.setProperty('--highlight-column-left', `${leftPosition}px`);
@@ -454,9 +458,10 @@ class GomokuUI {
         const board = this.elements.gameBoard;
         
         if (this.cursor.active) {
-            // Calculate position: row * stepSize + padding (centers on Grid LINE)
-            // Row 1=0: 0*25+20=20px, Row 8=7: 7*25+20=195px, Row 15=14: 14*25+20=370px
-            const topPosition = this.cursor.row * 25 + 20;
+            // Calculate cursor position using standardized coordinate mapping
+            const [_, topPosition] = CoordUtils.gomokuGridToPixel(
+                this.cursor.row, 0, 390, 20, this.game.BOARD_SIZE
+            );
             
             // Update CSS custom property for row position
             board.style.setProperty('--highlight-row-top', `${topPosition}px`);
@@ -611,9 +616,10 @@ class GomokuUI {
             const current = this.getCurrentCrosshairPosition();
             const success = current === pos.name;
             
-            // Calculate actual pixel positions
-            const colPx = pos.col * 25 + 20;
-            const rowPx = pos.row * 25 + 20;
+            // Calculate actual pixel positions using standardized coordinate mapping
+            const [colPx, rowPx] = CoordUtils.gomokuGridToPixel(
+                pos.row, pos.col, 390, 20, this.game.BOARD_SIZE
+            );
             const actualPos = `${colPx}px,${rowPx}px`;
             const posCorrect = actualPos === pos.expectedPos;
             
@@ -1416,20 +1422,28 @@ class GomokuUI {
         const oldRow = this.cursor.row;
         const oldCol = this.cursor.col;
 
+        let newRow = this.cursor.row;
+        let newCol = this.cursor.col;
+
         switch (direction) {
             case 'up':
-                this.cursor.row = Math.max(0, this.cursor.row - 1);
+                newRow = this.cursor.row - 1;
                 break;
             case 'down':
-                this.cursor.row = Math.min(this.game.BOARD_SIZE - 1, this.cursor.row + 1);
+                newRow = this.cursor.row + 1;
                 break;
             case 'left':
-                this.cursor.col = Math.max(0, this.cursor.col - 1);
+                newCol = this.cursor.col - 1;
                 break;
             case 'right':
-                this.cursor.col = Math.min(this.game.BOARD_SIZE - 1, this.cursor.col + 1);
+                newCol = this.cursor.col + 1;
                 break;
         }
+
+        // Use standardized coordinate clamping
+        [this.cursor.row, this.cursor.col] = CoordUtils.clampCoords(
+            newRow, newCol, this.game.BOARD_SIZE, this.game.BOARD_SIZE
+        );
 
         // Update visual cursor if position changed
         if (oldRow !== this.cursor.row || oldCol !== this.cursor.col) {

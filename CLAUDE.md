@@ -29,10 +29,13 @@ LogicCastle is a collection of mathematical strategy games with a modern Rust/We
 - **CI pipeline**: `npm run ci` (full quality check + tests)
 
 ### Local Development
-- **Serve locally**: `npm run serve` (HTTP server on port 8080)
-- **Development mode**: `npm run dev` (server + test watch mode)
-- **Main entry point**: Open `index.html` in browser
-- **Individual games**: Navigate to `games/{game-name}/index.html`
+- **Development server**: `npm run dev` (Vite server with HMR on port 5173)
+- **Legacy HTTP server**: `npm run serve` (Simple HTTP server on port 8080)
+- **Main entry point**: http://localhost:5173 (Vite) or open `index.html`
+- **Individual games**: 
+  - Connect4: http://localhost:5173/games/connect4/
+  - Gomoku: http://localhost:5173/games/gomoku/
+  - Trio: http://localhost:5173/games/trio/
 
 ### GitHub Pages Deployment
 - **Live site**: https://www.maxkuelshammer.de/LogicCastle/
@@ -529,3 +532,164 @@ Nach systematischer Code-Analyse wurden **5 kritische Systembauteile** identifiz
 
 **Geschätzte Zeit**: 2-3 Stunden für robuste, systematische Lösung  
 **Erfolg-Kriterium**: Alle 225 Positionen via Mouse + Keyboard erreichbar
+
+## Architectural Guidelines (basierend auf GEMINI-Analysis)
+
+**Referenz**: Siehe `/GEMINI_REPORTS/` für detaillierte externe Architektur-Analyse und Perplexity-Validation.
+
+### Koordinaten-Mapping-Standards
+
+**Standard-Konvention für alle Spiele:**
+- **Indexierung**: `(row, col)` 0-based für alle Spiele (Connect4: 0-5,0-6, Gomoku: 0-14,0-14, Trio: 0-6,0-6)
+- **Array-Index**: `index = row * cols + col` (einheitliche Transformation)
+- **DOM-Attributes**: `data-row` und `data-col` für alle interaktiven Elemente
+- **Debugging**: Nutze `CoordUtils` für alle Koordinaten-Transformationen
+
+**Standard-Utilities für Koordinaten:**
+```javascript
+export const CoordUtils = {
+  gridToIndex: (row, col, cols) => row * cols + col,
+  indexToGrid: (index, cols) => [Math.floor(index / cols), index % cols],
+  validateCoords: (row, col, maxRow, maxCol) => 
+    row >= 0 && row < maxRow && col >= 0 && col < maxCol,
+  // Debug-Hilfsfunktionen
+  logCoordTransform: (row, col, cols) => 
+    console.log(`(${row},${col}) → index ${row * cols + col}`)
+};
+```
+
+### UI-Design-System-Standards
+
+**Tailwind-Komponenten-Bibliothek:**
+```css
+@layer components {
+  /* Game Board Standards */
+  .game-board-grid { 
+    @apply grid gap-1 p-2 bg-gray-800 rounded-lg;
+  }
+  
+  /* Interactive Elements */
+  .game-button { 
+    @apply px-4 py-2 rounded-lg font-semibold transition-all 
+           bg-blue-600 hover:bg-blue-700 text-white;
+  }
+  .game-button-secondary { 
+    @apply px-4 py-2 rounded-lg font-semibold transition-all 
+           bg-gray-600 hover:bg-gray-700 text-white;
+  }
+  
+  /* Modal System */
+  .game-modal { 
+    @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50;
+  }
+  .game-modal-content { 
+    @apply bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl;
+  }
+  
+  /* Game Pieces */
+  .game-piece { 
+    @apply w-8 h-8 rounded-full border-2 transition-all duration-200;
+  }
+  .player-yellow { 
+    @apply bg-yellow-400 border-yellow-600;
+  }
+  .player-red { 
+    @apply bg-red-500 border-red-700;
+  }
+}
+```
+
+**Responsive Design-Patterns pro Spiel-Kategorie:**
+- **Cell-based Games** (Connect4, Trio): CSS Grid mit `aspect-ratio`
+- **Intersection-based Games** (Gomoku): SVG oder CSS Grid + absolute positioning
+- **Hex-based Games** (zukünftig): SVG mit `viewBox`-Skalierung
+
+**Accessibility-First-Prinzipien:**
+- Alle interaktiven Elemente: `tabindex`, `aria-label`, `role` attributes
+- Tastatur-Navigation für alle Spiele implementieren
+- Hover + Focus states für alle klickbaren Elemente
+- Screenreader-kompatible Spielzustände
+
+### Module-System-Guidelines
+
+**ES6-Module-Pattern für alle neuen/umgeschriebenen Dateien:**
+```javascript
+// game-wrapper.js
+export class GameWrapper {
+  constructor(wasmGame) { 
+    this.wasm = wasmGame; 
+  }
+  
+  makeMove(row, col) {
+    return this.wasm.make_move_gobang_js(row, col);
+  }
+}
+
+// ui-controller.js  
+import { GameWrapper } from './game-wrapper.js';
+
+export class UIController {
+  constructor(gameWrapper) { 
+    this.game = gameWrapper; 
+  }
+}
+
+// main.js (entry point)
+import { GameWrapper } from './game-wrapper.js';
+import { UIController } from './ui-controller.js';
+
+// NO window.* globals!
+```
+
+**Standard-Pattern für Game-Integration:**
+1. **GameWrapper**: WASM-Interface-Klasse (eine pro Spiel)
+2. **UIController**: DOM-Manipulation und Event-Handling
+3. **EventHandler**: Input-System (Mouse, Keyboard, Touch)
+4. **Main Entry Point**: Module-Initialisierung ohne globals
+
+**Import/Export-Standards:**
+- **Named Exports**: `export class GameWrapper` (nicht default)
+- **Clear Dependencies**: Explizite imports, keine `import *`
+- **No Window Pollution**: Vermeide `window.game`, `window.ui` assignments
+
+### Build-System & Cache-Management
+
+**Automatisches Cache-Busting:**
+- **Build-Tool**: Vite für Asset-Hashing (eliminiert `?v=20250701_final_fix`)
+- **CSS-Bundling**: PostCSS + Tailwind + Autoprefixer
+- **Module-Bundling**: ES6-Module mit Tree-Shaking
+
+**Development Workflow:**
+- **Watch-Mode**: `npm run dev` für automatische Rebuilds
+- **Hot-Reload**: Vite dev server für schnelle Iteration
+- **Production Build**: `npm run build` für optimierte Assets
+
+### Was NICHT umsetzen (aus GEMINI-Reports)
+
+**❌ Akademische Über-Optimierungen vermeiden:**
+- **Bit-Packing für Zellen**: Browser-Spiele brauchen 2-bit Optimierung nicht
+- **Const-Generics für Board-Größen**: Premature optimization für unsere Use Cases
+- **Zero-Allocation MoveValidator**: Über-engineered für Browser-Performance
+- **Komplette KI-Migration nach Rust**: JavaScript-KI funktioniert ausreichend
+
+**❌ Gefährliche Architektur-Änderungen:**
+- **5-Phasen-Komplett-Migration**: Würde funktionierende Systeme gefährden
+- **lib.rs komplett ersetzen**: Aktuelle Implementation ist stabil und produktiv
+- **Trio komplett nach Rust migrieren**: Hybrid-Ansatz funktioniert bereits gut
+
+**✅ Pragmatische Verbesserungen fokussieren:**
+- **Developer Experience**: Koordinaten-Bugs, CSS-Duplikation eliminieren  
+- **Code Consistency**: Module-System, Design-System standardisieren
+- **Maintenance**: Build-Automatisierung, Dead-Code-Cleanup
+- **User Experience**: Responsive Design, Accessibility verbessern
+
+### GEMINI-Reports Integration
+
+**Externe Analyse-Dokumente** (Stand: 2025-07-02):
+- **Rust Structure Analysis**: `GEMINI_REPORTS/20250702-15:00:00_LogicCastle_Rust_Structure.md`
+- **Refactoring Plan**: `GEMINI_REPORTS/20250702-15:30:00_Refactoring_Plan_LogicCastle.md`  
+- **UI Implementation**: `GEMINI_REPORTS/20250702-17:30:00_UI_Implementation_Plan.md`
+- **UI Improvements**: `GEMINI_REPORTS/20250702-17:45:00_UI_Improvement_Plan.md`
+- **Perplexity Validation**: `GEMINI_REPORTS/Perplexity_LogicCastle.md`
+
+**Adoption Strategy**: Pragmatische Developer-Experience-Verbesserungen aus Reports umsetzen, akademische Performance-Optimierungen vermeiden.

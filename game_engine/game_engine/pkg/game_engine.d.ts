@@ -21,19 +21,6 @@ export enum Player {
   Yellow = 1,
   Red = 2,
 }
-export enum TrioDifficulty {
-  Impossible = 0,
-  Hard = 1,
-  Medium = 2,
-  Easy = 3,
-  VeryEasy = 4,
-}
-export enum TrioDistribution {
-  Balanced = 0,
-  Educational = 1,
-  Challenging = 2,
-  Official = 3,
-}
 export class Board {
   free(): void;
   constructor(rows: number, cols: number);
@@ -235,54 +222,12 @@ export class PositionAnalysis {
   readonly get_game_phase: GamePhase;
   readonly get_evaluation_score: number;
 }
-export class ReachabilityAnalysis {
-  private constructor();
-  free(): void;
-  summary(): string;
-  readonly get_reachable_targets: Int16Array;
-  readonly get_unreachable_targets: Int16Array;
-  readonly get_total_reachable: number;
-  readonly get_coverage_percentage: number;
-  readonly get_min_reachable: number;
-  readonly get_max_reachable: number;
-}
-export class SolutionAnalysis {
-  private constructor();
-  free(): void;
-  summary(): string;
-  readonly get_target: number;
-  readonly get_total_solutions: number;
-  readonly get_unique_formulas: string[];
-  readonly get_add_operations: number;
-  readonly get_subtract_operations: number;
-  readonly get_difficulty_score: number;
-}
 export class TrioGame {
   free(): void;
   constructor(difficulty: number);
   get_board(): Int8Array;
   get_target_number(): number;
   check_combination(r1: number, c1: number, r2: number, c2: number, r3: number, c3: number): boolean;
-  /**
-   * Create new game with specific distribution (WASM-exposed)
-   */
-  static new_with_distribution_wasm(distribution: TrioDistribution): TrioGame;
-  /**
-   * Analyze reachable targets (WASM-exposed)
-   */
-  analyze_reachable_targets_wasm(): ReachabilityAnalysis;
-  /**
-   * Count solutions for target (WASM-exposed)
-   */
-  count_solutions_for_target_wasm(target: number): SolutionAnalysis;
-  /**
-   * Get difficulty category (WASM-exposed)
-   */
-  categorize_target_difficulty_wasm(target: number): TrioDifficulty;
-  /**
-   * Perform comprehensive gap analysis for all distributions
-   */
-  static comprehensive_gap_analysis(): string;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -367,27 +312,6 @@ export interface InitOutput {
   readonly triogame_get_board: (a: number, b: number) => void;
   readonly triogame_get_target_number: (a: number) => number;
   readonly triogame_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
-  readonly __wbg_reachabilityanalysis_free: (a: number, b: number) => void;
-  readonly reachabilityanalysis_get_reachable_targets: (a: number, b: number) => void;
-  readonly reachabilityanalysis_get_unreachable_targets: (a: number, b: number) => void;
-  readonly reachabilityanalysis_get_total_reachable: (a: number) => number;
-  readonly reachabilityanalysis_get_coverage_percentage: (a: number) => number;
-  readonly reachabilityanalysis_get_min_reachable: (a: number) => number;
-  readonly reachabilityanalysis_get_max_reachable: (a: number) => number;
-  readonly reachabilityanalysis_summary: (a: number, b: number) => void;
-  readonly __wbg_solutionanalysis_free: (a: number, b: number) => void;
-  readonly solutionanalysis_get_target: (a: number) => number;
-  readonly solutionanalysis_get_total_solutions: (a: number) => number;
-  readonly solutionanalysis_get_unique_formulas: (a: number, b: number) => void;
-  readonly solutionanalysis_get_add_operations: (a: number) => number;
-  readonly solutionanalysis_get_subtract_operations: (a: number) => number;
-  readonly solutionanalysis_get_difficulty_score: (a: number) => number;
-  readonly solutionanalysis_summary: (a: number, b: number) => void;
-  readonly triogame_new_with_distribution_wasm: (a: number) => number;
-  readonly triogame_analyze_reachable_targets_wasm: (a: number) => number;
-  readonly triogame_count_solutions_for_target_wasm: (a: number, b: number) => number;
-  readonly triogame_categorize_target_difficulty_wasm: (a: number, b: number) => number;
-  readonly triogame_comprehensive_gap_analysis: (a: number) => void;
   readonly game_is_terminal: (a: number) => number;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
