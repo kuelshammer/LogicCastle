@@ -109,28 +109,48 @@ class GomokuUI {
         this.game.on('playerChanged', _player => this.onPlayerChanged(_player));
         this.game.on('moveUndone', move => this.onMoveUndone(move));
 
-        // UI controls
-        this.elements.newGameBtn.addEventListener('click', () => this.newGame());
-        this.elements.undoBtn.addEventListener('click', () => this.undoMove());
-        this.elements.resetScoreBtn.addEventListener('click', () => this.resetScore());
-        this.elements.helpBtn.addEventListener('click', () => this.toggleHelp());
-        this.elements.gameHelpBtn.addEventListener('click', () => this.toggleGameHelp());
-        this.elements.closeHelpBtn.addEventListener('click', () => this.toggleHelp());
-        this.elements.closeGameHelpBtn.addEventListener('click', () => this.toggleGameHelp());
-        this.elements.gameMode.addEventListener('change', () => this.updateGameMode());
+        // UI controls - with null checks
+        if (this.elements.newGameBtn) {
+            this.elements.newGameBtn.addEventListener('click', () => this.newGame());
+        }
+        if (this.elements.undoBtn) {
+            this.elements.undoBtn.addEventListener('click', () => this.undoMove());
+        }
+        if (this.elements.resetScoreBtn) {
+            this.elements.resetScoreBtn.addEventListener('click', () => this.resetScore());
+        }
+        if (this.elements.helpBtn) {
+            this.elements.helpBtn.addEventListener('click', () => this.toggleHelp());
+        }
+        if (this.elements.gameHelpBtn) {
+            this.elements.gameHelpBtn.addEventListener('click', () => this.toggleGameHelp());
+        }
+        if (this.elements.closeHelpBtn) {
+            this.elements.closeHelpBtn.addEventListener('click', () => this.toggleHelp());
+        }
+        if (this.elements.closeGameHelpBtn) {
+            this.elements.closeGameHelpBtn.addEventListener('click', () => this.toggleGameHelp());
+        }
+        if (this.elements.gameMode) {
+            this.elements.gameMode.addEventListener('change', () => this.updateGameMode());
+        }
 
-        // Modal overlay clicks
-        this.elements.helpModal.addEventListener('click', e => {
-            if (e.target === this.elements.helpModal) {
-                this.toggleHelp();
-            }
-        });
+        // Modal overlay clicks - with null checks
+        if (this.elements.helpModal) {
+            this.elements.helpModal.addEventListener('click', e => {
+                if (e.target === this.elements.helpModal) {
+                    this.toggleHelp();
+                }
+            });
+        }
 
-        this.elements.gameHelpModal.addEventListener('click', e => {
-            if (e.target === this.elements.gameHelpModal) {
-                this.toggleGameHelp();
-            }
-        });
+        if (this.elements.gameHelpModal) {
+            this.elements.gameHelpModal.addEventListener('click', e => {
+                if (e.target === this.elements.gameHelpModal) {
+                    this.toggleGameHelp();
+                }
+            });
+        }
 
         // Helper checkboxes
         this.setupHelperCheckboxes();
@@ -1018,11 +1038,19 @@ class GomokuUI {
     }
 
     toggleHelp() {
-        this.elements.helpModal.classList.toggle('active');
+        if (this.elements.helpModal) {
+            this.elements.helpModal.classList.toggle('active');
+        } else {
+            console.warn('⚠️ helpModal element not found');
+        }
     }
 
     toggleGameHelp() {
-        this.elements.gameHelpModal.classList.toggle('active');
+        if (this.elements.gameHelpModal) {
+            this.elements.gameHelpModal.classList.toggle('active');
+        } else {
+            console.warn('⚠️ gameHelpModal element not found');
+        }
     }
 
     resetScore() {
@@ -1045,27 +1073,39 @@ class GomokuUI {
      * Setup helper checkboxes
      */
     setupHelperCheckboxes() {
-        // Player 1 (Black) checkboxes
-        this.elements.helpPlayer1Level0.addEventListener('change', e =>
-            this.updateHelperSettings('player1', 'level0', e.target.checked)
-        );
-        this.elements.helpPlayer1Level1.addEventListener('change', e =>
-            this.updateHelperSettings('player1', 'level1', e.target.checked)
-        );
-        this.elements.helpPlayer1Level2.addEventListener('change', e =>
-            this.updateHelperSettings('player1', 'level2', e.target.checked)
-        );
+        // Player 1 (Black) checkboxes - with null checks
+        if (this.elements.helpPlayer1Level0) {
+            this.elements.helpPlayer1Level0.addEventListener('change', e =>
+                this.updateHelperSettings('player1', 'level0', e.target.checked)
+            );
+        }
+        if (this.elements.helpPlayer1Level1) {
+            this.elements.helpPlayer1Level1.addEventListener('change', e =>
+                this.updateHelperSettings('player1', 'level1', e.target.checked)
+            );
+        }
+        if (this.elements.helpPlayer1Level2) {
+            this.elements.helpPlayer1Level2.addEventListener('change', e =>
+                this.updateHelperSettings('player1', 'level2', e.target.checked)
+            );
+        }
 
-        // Player 2 (White) checkboxes
-        this.elements.helpPlayer2Level0.addEventListener('change', e =>
-            this.updateHelperSettings('player2', 'level0', e.target.checked)
-        );
-        this.elements.helpPlayer2Level1.addEventListener('change', e =>
-            this.updateHelperSettings('player2', 'level1', e.target.checked)
-        );
-        this.elements.helpPlayer2Level2.addEventListener('change', e =>
-            this.updateHelperSettings('player2', 'level2', e.target.checked)
-        );
+        // Player 2 (White) checkboxes - with null checks
+        if (this.elements.helpPlayer2Level0) {
+            this.elements.helpPlayer2Level0.addEventListener('change', e =>
+                this.updateHelperSettings('player2', 'level0', e.target.checked)
+            );
+        }
+        if (this.elements.helpPlayer2Level1) {
+            this.elements.helpPlayer2Level1.addEventListener('change', e =>
+                this.updateHelperSettings('player2', 'level1', e.target.checked)
+            );
+        }
+        if (this.elements.helpPlayer2Level2) {
+            this.elements.helpPlayer2Level2.addEventListener('change', e =>
+                this.updateHelperSettings('player2', 'level2', e.target.checked)
+            );
+        }
     }
 
     /**

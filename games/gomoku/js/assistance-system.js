@@ -78,79 +78,115 @@ class GomokuAssistanceSystem {
     }
     
     setupEventListeners() {
-        // Modal controls
-        this.elements.assistanceBtn?.addEventListener('click', () => this.showAssistanceModal());
-        this.elements.closeAssistanceBtn?.addEventListener('click', () => this.hideAssistanceModal());
-        this.elements.resetAssistanceBtn?.addEventListener('click', () => this.resetAllSettings());
+        // Modal controls - with explicit null checks
+        if (this.elements.assistanceBtn) {
+            this.elements.assistanceBtn.addEventListener('click', () => this.showAssistanceModal());
+        } else {
+            console.warn('⚠️ assistanceBtn element not found');
+        }
         
-        // Player 1 settings
-        this.elements.player1WinningMoves?.addEventListener('change', (e) => {
-            this.playerAssistance.player1.winningMoves = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🖤 Player 1 winning moves enforcement: ${e.target.checked}`);
-        });
+        if (this.elements.closeAssistanceBtn) {
+            this.elements.closeAssistanceBtn.addEventListener('click', () => this.hideAssistanceModal());
+        } else {
+            console.warn('⚠️ closeAssistanceBtn element not found');
+        }
         
-        this.elements.player1BlockingMoves?.addEventListener('change', (e) => {
-            this.playerAssistance.player1.blockingMoves = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🖤 Player 1 blocking moves enforcement: ${e.target.checked}`);
-        });
+        if (this.elements.resetAssistanceBtn) {
+            this.elements.resetAssistanceBtn.addEventListener('click', () => this.resetAllSettings());
+        } else {
+            console.warn('⚠️ resetAssistanceBtn element not found');
+        }
         
-        this.elements.player1OpenThreeWarning?.addEventListener('change', (e) => {
-            this.playerAssistance.player1.openThreeWarning = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🖤 Player 1 open three warning: ${e.target.checked}`);
-        });
+        // Player 1 settings - with explicit null checks
+        if (this.elements.player1WinningMoves) {
+            this.elements.player1WinningMoves.addEventListener('change', (e) => {
+                this.playerAssistance.player1.winningMoves = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🖤 Player 1 winning moves enforcement: ${e.target.checked}`);
+            });
+        }
         
-        this.elements.player1ForkWarning?.addEventListener('change', (e) => {
-            this.playerAssistance.player1.forkWarning = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🖤 Player 1 fork warning: ${e.target.checked}`);
-        });
+        if (this.elements.player1BlockingMoves) {
+            this.elements.player1BlockingMoves.addEventListener('change', (e) => {
+                this.playerAssistance.player1.blockingMoves = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🖤 Player 1 blocking moves enforcement: ${e.target.checked}`);
+            });
+        }
         
-        this.elements.player1VisualMode?.addEventListener('change', (e) => {
-            this.playerAssistance.player1.visualMode = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🖤 Player 1 visual mode: ${e.target.checked}`);
-        });
+        if (this.elements.player1OpenThreeWarning) {
+            this.elements.player1OpenThreeWarning.addEventListener('change', (e) => {
+                this.playerAssistance.player1.openThreeWarning = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🖤 Player 1 open three warning: ${e.target.checked}`);
+            });
+        }
         
-        // Player 2 settings
-        this.elements.player2WinningMoves?.addEventListener('change', (e) => {
-            this.playerAssistance.player2.winningMoves = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🤍 Player 2 winning moves enforcement: ${e.target.checked}`);
-        });
+        if (this.elements.player1ForkWarning) {
+            this.elements.player1ForkWarning.addEventListener('change', (e) => {
+                this.playerAssistance.player1.forkWarning = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🖤 Player 1 fork warning: ${e.target.checked}`);
+            });
+        }
         
-        this.elements.player2BlockingMoves?.addEventListener('change', (e) => {
-            this.playerAssistance.player2.blockingMoves = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🤍 Player 2 blocking moves enforcement: ${e.target.checked}`);
-        });
+        if (this.elements.player1VisualMode) {
+            this.elements.player1VisualMode.addEventListener('change', (e) => {
+                this.playerAssistance.player1.visualMode = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🖤 Player 1 visual mode: ${e.target.checked}`);
+            });
+        }
         
-        this.elements.player2OpenThreeWarning?.addEventListener('change', (e) => {
-            this.playerAssistance.player2.openThreeWarning = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🤍 Player 2 open three warning: ${e.target.checked}`);
-        });
+        // Player 2 settings - with explicit null checks
+        if (this.elements.player2WinningMoves) {
+            this.elements.player2WinningMoves.addEventListener('change', (e) => {
+                this.playerAssistance.player2.winningMoves = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🤍 Player 2 winning moves enforcement: ${e.target.checked}`);
+            });
+        }
         
-        this.elements.player2ForkWarning?.addEventListener('change', (e) => {
-            this.playerAssistance.player2.forkWarning = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🤍 Player 2 fork warning: ${e.target.checked}`);
-        });
+        if (this.elements.player2BlockingMoves) {
+            this.elements.player2BlockingMoves.addEventListener('change', (e) => {
+                this.playerAssistance.player2.blockingMoves = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🤍 Player 2 blocking moves enforcement: ${e.target.checked}`);
+            });
+        }
         
-        this.elements.player2VisualMode?.addEventListener('change', (e) => {
-            this.playerAssistance.player2.visualMode = e.target.checked;
-            this.updateAssistanceDisplay();
-            console.log(`🤍 Player 2 visual mode: ${e.target.checked}`);
-        });
+        if (this.elements.player2OpenThreeWarning) {
+            this.elements.player2OpenThreeWarning.addEventListener('change', (e) => {
+                this.playerAssistance.player2.openThreeWarning = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🤍 Player 2 open three warning: ${e.target.checked}`);
+            });
+        }
+        
+        if (this.elements.player2ForkWarning) {
+            this.elements.player2ForkWarning.addEventListener('change', (e) => {
+                this.playerAssistance.player2.forkWarning = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🤍 Player 2 fork warning: ${e.target.checked}`);
+            });
+        }
+        
+        if (this.elements.player2VisualMode) {
+            this.elements.player2VisualMode.addEventListener('change', (e) => {
+                this.playerAssistance.player2.visualMode = e.target.checked;
+                this.updateAssistanceDisplay();
+                console.log(`🤍 Player 2 visual mode: ${e.target.checked}`);
+            });
+        }
         
         // Close modal on overlay click
-        this.elements.assistanceModal?.addEventListener('click', (e) => {
-            if (e.target === this.elements.assistanceModal) {
-                this.hideAssistanceModal();
-            }
-        });
+        if (this.elements.assistanceModal) {
+            this.elements.assistanceModal.addEventListener('click', (e) => {
+                if (e.target === this.elements.assistanceModal) {
+                    this.hideAssistanceModal();
+                }
+            });
+        }
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -158,21 +194,21 @@ class GomokuAssistanceSystem {
                 e.preventDefault();
                 this.showAssistanceModal();
             }
-            if (e.key === 'Escape' && this.elements.assistanceModal?.classList.contains('show')) {
+            if (e.key === 'Escape' && this.elements.assistanceModal?.classList.contains('active')) {
                 this.hideAssistanceModal();
             }
         });
     }
     
     showAssistanceModal() {
-        this.elements.assistanceModal?.classList.add('show');
+        this.elements.assistanceModal?.classList.add('active');
         document.body.style.overflow = 'hidden';
         this.syncCheckboxStates();
         this.updateWasmStatus();
     }
     
     hideAssistanceModal() {
-        this.elements.assistanceModal?.classList.remove('show');
+        this.elements.assistanceModal?.classList.remove('active');
         document.body.style.overflow = '';
     }
     
@@ -498,4 +534,3 @@ class GomokuAssistanceSystem {
 
 // Export for integration
 window.GomokuAssistanceSystem = GomokuAssistanceSystem;
-export { GomokuAssistanceSystem };
