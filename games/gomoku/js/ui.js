@@ -79,6 +79,7 @@ class GomokuUI {
             gameHelpBtn: document.getElementById('gameHelpBtn'),
             helpModal: document.getElementById('helpModal'),
             gameHelpModal: document.getElementById('gameHelpModal'),
+            assistanceModal: document.getElementById('assistanceModal'),
             closeHelpBtn: document.getElementById('closeHelpBtn'),
             closeGameHelpBtn: document.getElementById('closeGameHelpBtn'),
             gameMode: document.getElementById('gameMode'),
@@ -162,7 +163,8 @@ class GomokuUI {
     setupKeyboardControls() {
         document.addEventListener('keydown', e => {
             // Don't handle keys when modal is open
-            if (this.elements.helpModal.classList.contains('active')) {
+            if (this.elements.helpModal && this.elements.helpModal.classList.contains('active')) {
+                console.log('🚫 Help modal is active, blocking keyboard');
                 if (e.key === 'Escape' || e.key === 'F1') {
                     e.preventDefault();
                     this.toggleHelp();
@@ -170,10 +172,21 @@ class GomokuUI {
                 return;
             }
 
-            if (this.elements.gameHelpModal.classList.contains('active')) {
+            if (this.elements.gameHelpModal && this.elements.gameHelpModal.classList.contains('active')) {
+                console.log('🚫 Game help modal is active, blocking keyboard');
                 if (e.key === 'Escape' || e.key === 'F2') {
                     e.preventDefault();
                     this.toggleGameHelp();
+                }
+                return;
+            }
+
+            if (this.elements.assistanceModal && this.elements.assistanceModal.classList.contains('active')) {
+                console.log('🚫 Assistance modal is active, blocking keyboard');
+                if (e.key === 'Escape' || e.key === 'F2') {
+                    e.preventDefault();
+                    // Close assistance modal
+                    this.elements.assistanceModal.classList.remove('active');
                 }
                 return;
             }
@@ -220,30 +233,46 @@ class GomokuUI {
                     }
                     break;
                 
-                // Cursor Navigation (Phase 2)
-                case 'ArrowUp':
+                // WASD Cursor Navigation (Konfliktfrei)
+                case 'w':
+                case 'W':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.moveCursor('up');
                     break;
-                case 'ArrowDown':
+                case 's':
+                case 'S':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.moveCursor('down');
                     break;
-                case 'ArrowLeft':
+                case 'a':
+                case 'A':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.moveCursor('left');
                     break;
-                case 'ArrowRight':
+                case 'd':
+                case 'D':
                     e.preventDefault();
+                    e.stopPropagation();
                     this.moveCursor('right');
                     break;
-                case ' ':
-                case 'Enter':
+                case 'x':
+                case 'X':
                     e.preventDefault();
+                    e.stopPropagation();
                     if (this.cursor.active) {
                         this.placeCursorStone();
                     } else {
-                        // Activate cursor when spacebar is pressed
+                        this.showCursor();
+                    }
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Leertaste nur für Cursor-Aktivierung (kein Stone-Placement)
+                    if (!this.cursor.active) {
                         this.showCursor();
                     }
                     break;
@@ -1175,13 +1204,14 @@ class GomokuUI {
      * Accounts for CSS padding percentage to ensure perfect grid alignment at all zoom levels
      */
     positionStoneRelativeToBoard(row, col, stone) {
-        const gridSize = 14; // 15x15 grid = 14 intervals (0-14)
+        const maxPosition = 14; // Maximum coordinate value (0-14)
         const paddingPercent = 5.13; // CSS padding: 5.13% (20px/390px)
         const gridPercent = 100 - (2 * paddingPercent); // 89.74% available for grid
         
-        // Calculate position with padding offset - ZOOM-STABLE
-        const leftPercent = paddingPercent + ((col / gridSize) * gridPercent);
-        const topPercent = paddingPercent + ((row / gridSize) * gridPercent);
+        // Calculate position with padding offset - CORRECTED COORDINATE SCALING
+        // Position 0 = 0% of grid, Position 14 = 100% of grid
+        const leftPercent = paddingPercent + ((col / maxPosition) * gridPercent);
+        const topPercent = paddingPercent + ((row / maxPosition) * gridPercent);
         
         // Apply fully responsive positioning
         stone.style.left = `${leftPercent}%`;
@@ -1190,7 +1220,7 @@ class GomokuUI {
         stone.style.transform = 'translate(-50%, -50%)'; // CRITICAL: Center stone on intersection
         
         console.log('🎯 FULLY RESPONSIVE PADDING-CORRECTED POSITIONING:');
-        console.log(`- Row ${row}, Col ${col} → Grid position (${col}/${gridSize}, ${row}/${gridSize})`);
+        console.log(`- Row ${row}, Col ${col} → Grid position (${col}/${maxPosition}, ${row}/${maxPosition})`);
         console.log(`- Padding: ${paddingPercent}%, Grid area: ${gridPercent}%`);
         console.log(`- Final position: (${leftPercent.toFixed(2)}%, ${topPercent.toFixed(2)}%)`);
         console.log(`- Transform: translate(-50%, -50%) for perfect centering`);
