@@ -1,7 +1,9 @@
 // Gomoku Game Logic Wrapper for WASM Engine (RUST ONLY!)
 // CRITICAL: NO JavaScript fallback - WASM/Rust implementation only!
 
-class GomokuGame {
+import { CoordUtils } from '../../../assets/js/coord-utils.js';
+
+export class GomokuGame {
   constructor() {
     this.wasmGame = null;
     this.isInitialized = false;
@@ -724,8 +726,6 @@ class GomokuGame {
   }
 }
 
-// Export for use in other modules
-window.GomokuGame = GomokuGame;
-
-// Player enum from WASM only - no JavaScript fallback
-window.Player = window.WasmPlayer || { Yellow: 1, Red: 2 };
+// ES6 Module exports - no global assignments needed
+// Player enum from WASM will be imported where needed
+export { GomokuGame as default };

@@ -232,6 +232,65 @@ LogicCastle/
 - **Performance**: Rust core provides 10x+ performance improvements over legacy JavaScript
 - **Modern Stack**: Focus on modern web standards and progressive enhancement
 
+## 🎯 **REFACTORING STATUS (Stand: 02.07.2025)**
+
+### ✅ **ABGESCHLOSSEN: 4-Phasen Architektur-Modernisierung**
+
+**Phase 1: UI-System-Standardisierung** ✅
+- Tailwind CSS Design-System etabliert (`assets/css/main.css`)
+- Vite Build-System mit Cache-Busting (`vite.config.js`)
+- Semantic HTML Landing Page (game cards als `<a>` tags)
+
+**Phase 2: JavaScript-Module-Cleanup** ✅
+- Landing Page: ES6-Module (`assets/js/landing-page.js`)
+- Trio Game: Vollständige ES6-Konvertierung (`games/trio/js/*.js`)
+- WASM-Integration modernisiert mit Import/Export-Pattern
+
+**Phase 3: Koordinaten-Mapping-Standardisierung** ✅ **[KRITISCHER FIX]**
+- CoordUtils Bibliothek erstellt (`assets/js/coord-utils.js`)
+- **Gomoku Input-Bug behoben**: Standardisierte Pixel-Berechnung
+- Connect4: 55+ hardcodierte Array-Indexing-Pattern eliminiert
+- Gomoku: Manual bounds checking durch `CoordUtils.clampCoords()` ersetzt
+
+**Phase 4: Code-Debt-Reduction** ✅
+- Debugging-Files eliminiert (19 temporäre Test-Scripte)
+- `lib_alternative.rs` entfernt (543 Zeilen toter Code)
+- Clean Git-Status wiederhergestellt
+
+### ✅ **ABGESCHLOSSEN: Phase 5 - Gomoku ES6-Module-Conversion**
+
+**Ziel**: Vollständige Architektur-Einheitlichkeit durch ES6-Module für Gomoku ✅ **ERREICHT**
+
+**Modernisierte Gomoku-Architektur** (ES6-Module):
+```javascript
+// games/gomoku/index.html (modernisiert)
+<script type="module">
+  import init, { Game, Player } from '../../game_engine/pkg/game_engine.js';
+  import { GomokuGame } from './js/game_v2.js';
+  import { GomokuUI } from './js/ui.js';
+  import { EnhancedGobangAI } from './js/ai-enhanced.js';
+  import { GomokuAssistanceSystem } from './js/assistance-system.js';
+  import { WasmGomokuIntegration } from './js/wasm-integration.js';
+  
+  // Clean async module initialization with error handling
+  async function initializeGomoku() { /* ... */ }
+</script>
+```
+
+**✅ Conversion Completed**:
+1. **game_v2.js**: ✅ `export class GomokuGame` + CoordUtils-Import
+2. **ui.js**: ✅ `export class GomokuUI` (bereits konvertiert mit CoordUtils)
+3. **ai-enhanced.js**: ✅ `export class EnhancedGobangAI`
+4. **assistance-system.js**: ✅ `export class GomokuAssistanceSystem` + CoordUtils
+5. **wasm-integration.js**: ✅ `export class WasmGomokuIntegration`
+6. **index.html**: ✅ ES6-Module-Initialization mit Async/Await + Error-Handling
+
+**🎯 Architektur-Erfolg**: 100% ES6-Module für **ALLE** Spiele
+- **Connect4**: ES6-Module + CoordUtils-Standardisierung ✅
+- **Gomoku**: ES6-Module + CoordUtils-Standardisierung ✅  
+- **Trio**: ES6-Module + WASM-Integration ✅
+- **Landing Page**: ES6-Module + PWA-Features ✅
+
 ## CRITICAL RULE: RUST/WASM ONLY FOR GAME LOGIC
 ⚠️ **NEVER implement game logic in JavaScript as fallback!**
 - ALL game logic MUST be implemented in Rust and compiled to WASM

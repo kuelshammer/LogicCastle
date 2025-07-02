@@ -3,7 +3,7 @@
  * Integrates advanced Rust/WASM analysis for superior strategic decisions
  */
 
-class EnhancedGobangAI {
+export class EnhancedGobangAI {
     constructor(difficulty = 'wasm-smart', wasmIntegration = null) {
         this.difficulty = difficulty;
         this.wasmIntegration = wasmIntegration;
@@ -459,5 +459,4 @@ class EnhancedGobangAI {
     }
 }
 
-// Export for global use
-window.EnhancedGobangAI = EnhancedGobangAI;
+// ES6 Module export - no global assignment needed

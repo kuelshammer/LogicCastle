@@ -3,7 +3,7 @@
  * Provides advanced analysis features using Rust/WASM engine
  */
 
-class WasmGomokuIntegration {
+export class WasmGomokuIntegration {
     constructor(gameUI) {
         this.gameUI = gameUI;
         this.wasmGame = null;
@@ -567,5 +567,4 @@ class WasmGomokuIntegration {
     }
 }
 
-// Export for use in other modules
-window.WasmGomokuIntegration = WasmGomokuIntegration;
+// ES6 Module export - no global assignment needed
