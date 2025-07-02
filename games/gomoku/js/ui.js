@@ -56,6 +56,7 @@ class GomokuUI {
         this.createCoordinates();
         this.initializeHelpers();
         this.initializeWasmIntegration();
+        this.initializeAssistanceSystem();
         this.updateDisplay();
         this.updateGameMode();
     }
@@ -255,9 +256,9 @@ class GomokuUI {
     createBoard() {
         this.elements.gameBoard.innerHTML = '';
 
-        // Board inner dimensions - mathematically exact
-        const boardSize = 350; // 390px - 2*20px padding
-        const stepSize = boardSize / 14; // Exact: 350px / 14 intervals = 25px per step
+        // Board inner dimensions - mathematically exact (FIXED!)
+        const boardSize = 350; // Inner board area (390px total - 2*20px padding)
+        const stepSize = 25; // EXACT: 350px / 14 intervals = 25px per step
 
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             for (let col = 0; col < this.game.BOARD_SIZE; col++) {
@@ -657,6 +658,17 @@ class GomokuUI {
         this.updateCrosshairPosition();
         
         console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
+
+        // Assistance System: Validate move before placement
+        if (this.assistanceSystem) {
+            const validation = this.assistanceSystem.validateMove(row, col);
+            if (!validation.allowed) {
+                if (validation.reason && validation.suggestion) {
+                    alert(`${validation.reason}\n\n${validation.suggestion}`);
+                }
+                return; // Block the move
+            }
+        }
 
         // Use the same two-stage logic as spacebar
         this.placeCursorStone();
@@ -1119,30 +1131,69 @@ class GomokuUI {
     }
 
     /**
-     * Override move made handler to update helpers
+     * Stone positioning - FULLY RESPONSIVE WITH PADDING CORRECTION
+     * Accounts for CSS padding percentage to ensure perfect grid alignment at all zoom levels
+     */
+    positionStoneRelativeToBoard(row, col, stone) {
+        const gridSize = 14; // 15x15 grid = 14 intervals (0-14)
+        const paddingPercent = 5.13; // CSS padding: 5.13% (20px/390px)
+        const gridPercent = 100 - (2 * paddingPercent); // 89.74% available for grid
+        
+        // Calculate position with padding offset - ZOOM-STABLE
+        const leftPercent = paddingPercent + ((col / gridSize) * gridPercent);
+        const topPercent = paddingPercent + ((row / gridSize) * gridPercent);
+        
+        // Apply fully responsive positioning
+        stone.style.left = `${leftPercent}%`;
+        stone.style.top = `${topPercent}%`;
+        stone.style.position = 'absolute'; // Relative to board container
+        stone.style.transform = 'translate(-50%, -50%)'; // CRITICAL: Center stone on intersection
+        
+        console.log('🎯 FULLY RESPONSIVE PADDING-CORRECTED POSITIONING:');
+        console.log(`- Row ${row}, Col ${col} → Grid position (${col}/${gridSize}, ${row}/${gridSize})`);
+        console.log(`- Padding: ${paddingPercent}%, Grid area: ${gridPercent}%`);
+        console.log(`- Final position: (${leftPercent.toFixed(2)}%, ${topPercent.toFixed(2)}%)`);
+        console.log(`- Transform: translate(-50%, -50%) for perfect centering`);
+        
+        return stone;
+    }
+
+    /**
+     * Override move made handler - NEW BOARD-RELATIVE APPROACH
      */
     onMoveMade(move) {
+        console.log('🔍 onMoveMade called:', move);
+        
+        // Get intersection for cleanup and state management only
         const intersection = this.getIntersection(move.row, move.col);
+        if (!intersection) {
+            console.error('❌ CRITICAL: No intersection found for state management!', move);
+            return;
+        }
 
-        // Remove any preview stones
+        // Remove any preview stones from intersection
         const previewStone = intersection.querySelector('.stone.preview');
         if (previewStone) {
             previewStone.remove();
         }
 
-        // Hint highlighting is now handled through WASM Integration
+        // Clear hints and last move indicators
         this.clearHintHighlights();
-
-        // Create and add the actual stone
-        const stone = document.createElement('div');
-        stone.className = `stone ${this.game.getPlayerColorClass(move.player)} stone-place`;
-
-        // Add last move indicator
         this.clearLastMoveIndicators();
-        stone.classList.add('last-move');
 
-        intersection.appendChild(stone);
+        // Create stone element
+        const stone = document.createElement('div');
+        const playerClass = this.game.getPlayerColorClass(move.player);
+        stone.className = `stone ${playerClass} stone-place last-move`;
+        console.log('🔍 Stone created:', stone.className, 'player:', move.player);
+
+        // NEW APPROACH: Position stone relative to board (bypasses intersection issues)
+        this.positionStoneRelativeToBoard(move.row, move.col, stone);
+        
+        // Append stone to game board and mark intersection as occupied
+        this.elements.gameBoard.appendChild(stone);
         intersection.classList.add('occupied');
+        console.log('✅ Stone positioned with board-relative method! Total stones:', document.querySelectorAll('.stone').length);
 
         // Add move indicator for notation
         const moveIndicator = document.createElement('div');
@@ -1157,6 +1208,11 @@ class GomokuUI {
 
             // Helper updates are now handled through WASM Integration
             this.updateCurrentPlayerHelpers();
+
+            // Update Assistance System visual indicators
+            if (this.assistanceSystem) {
+                this.assistanceSystem.onGameStateChanged();
+            }
 
             // Process AI move if needed
             if (this.isAITurn() && !this.game.gameOver) {
@@ -1211,6 +1267,18 @@ class GomokuUI {
             console.log('✅ WASM Integration initialized');
         } else {
             console.log('⚠️ WASM Integration not available');
+        }
+    }
+
+    /**
+     * Initialize Assistance System
+     */
+    initializeAssistanceSystem() {
+        if (typeof window.GomokuAssistanceSystem !== 'undefined') {
+            this.assistanceSystem = new window.GomokuAssistanceSystem(this);
+            console.log('✅ Assistance System initialized');
+        } else {
+            console.log('⚠️ Assistance System not available');
         }
     }
 

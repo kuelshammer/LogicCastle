@@ -1,0 +1,428 @@
+/* Gomoku Assistance System CSS */
+/* Adapted from Connect4 assistance system for Gomoku game */
+
+/* ==================== ASSISTANCE MODAL ==================== */
+
+.assistance-modal {
+  max-width: 800px;
+  width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.assistance-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.assistance-table thead {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.assistance-table th {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: white;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.assistance-feature-col {
+  width: 50%;
+  text-align: left !important;
+}
+
+.assistance-player-col {
+  width: 25%;
+  font-size: 1.1rem;
+}
+
+/* Player specific styling */
+.player1-col {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(50, 50, 50, 0.1));
+  border-left: 4px solid #333;
+}
+
+.player2-col {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(240, 240, 240, 0.1));
+  border-left: 4px solid #fff;
+}
+
+/* Table rows */
+.assistance-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.assistance-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(2px);
+}
+
+.assistance-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.assistance-table td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+.assistance-feature {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.feature-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.feature-icon {
+  font-size: 1.5rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.feature-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.feature-name {
+  font-weight: 600;
+  color: white;
+  font-size: 1rem;
+}
+
+.feature-description {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.3;
+}
+
+/* Checkbox styling */
+.assistance-checkbox-cell {
+  text-align: center;
+  padding: 1.5rem 1rem;
+}
+
+.assistance-checkbox-cell:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.assistance-checkbox {
+  width: 24px;
+  height: 24px;
+  accent-color: #00b894;
+  cursor: pointer;
+  transform: scale(1.2);
+  transition: all 0.2s ease;
+}
+
+.assistance-checkbox:hover {
+  transform: scale(1.3);
+  filter: brightness(1.2);
+}
+
+.assistance-checkbox:checked {
+  accent-color: #00d4aa;
+  transform: scale(1.2);
+}
+
+.assistance-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(1);
+}
+
+/* Player-specific checkbox styling */
+.player1-col .assistance-checkbox:checked {
+  accent-color: #333;
+  box-shadow: 0 0 8px rgba(51, 51, 51, 0.5);
+}
+
+.player2-col .assistance-checkbox:checked {
+  accent-color: #fff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* ==================== VISUAL INDICATORS ON BOARD ==================== */
+
+/* Assistance ring overlays for intersections */
+.intersection.help-overlay {
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 15;
+}
+
+/* Winning move indicator */
+.intersection.help-winning {
+  border: 4px solid #00ff00 !important;
+  background: rgba(0, 255, 0, 0.1) !important;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+  animation: winningPulse 1.5s infinite ease-in-out;
+}
+
+/* Blocking move indicator */
+.intersection.help-blocking {
+  border: 4px solid #ff0000 !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+  animation: blockingPulse 1.2s infinite ease-in-out;
+}
+
+/* Dangerous move indicator (open three warning) */
+.intersection.help-dangerous {
+  border: 3px solid #ff8800 !important;
+  background: rgba(255, 136, 0, 0.1) !important;
+  box-shadow: 0 0 12px rgba(255, 136, 0, 0.5);
+  animation: dangerousPulse 2s infinite ease-in-out;
+}
+
+/* Fork warning indicator */
+.intersection.help-fork {
+  border: 3px solid #8800ff !important;
+  background: rgba(136, 0, 255, 0.1) !important;
+  box-shadow: 0 0 12px rgba(136, 0, 255, 0.5);
+  animation: forkPulse 1.8s infinite ease-in-out;
+}
+
+/* Strategic suggestion indicator */
+.intersection.help-strategic {
+  border: 2px solid #0088ff !important;
+  background: rgba(0, 136, 255, 0.05) !important;
+  box-shadow: 0 0 8px rgba(0, 136, 255, 0.4);
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+@keyframes winningPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+    border-color: #00ff00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+    border-color: #44ff44;
+    box-shadow: 0 0 25px rgba(0, 255, 0, 0.9);
+  }
+}
+
+@keyframes blockingPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+    border-color: #ff0000;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+    border-color: #ff4444;
+    box-shadow: 0 0 22px rgba(255, 0, 0, 0.8);
+  }
+}
+
+@keyframes dangerousPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+    border-color: #ff8800;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+    border-color: #ffaa44;
+  }
+}
+
+@keyframes forkPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+    border-color: #8800ff;
+  }
+  33% {
+    transform: scale(1.03);
+    opacity: 0.9;
+    border-color: #aa44ff;
+  }
+  66% {
+    transform: scale(1.06);
+    opacity: 1;
+    border-color: #bb66ff;
+  }
+}
+
+/* ==================== MODAL SECTIONS ==================== */
+
+.help-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #00b894;
+}
+
+.help-section h3 {
+  margin: 0 0 1rem 0;
+  color: #00d4aa;
+  font-size: 1.2rem;
+}
+
+.help-section ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  line-height: 1.6;
+}
+
+.help-section li {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.help-section strong {
+  color: white;
+  font-weight: 600;
+}
+
+/* WASM Status Section */
+.wasm-status-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #ff6b6b;
+}
+
+.wasm-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+}
+
+.status-indicator {
+  font-size: 1.25rem;
+  animation: spin 2s linear infinite;
+}
+
+.status-text {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* WASM status states */
+.wasm-status.ready .status-indicator {
+  animation: none;
+}
+
+.wasm-status.ready .status-indicator::before {
+  content: '✅';
+}
+
+.wasm-status.error .status-indicator {
+  animation: none;
+}
+
+.wasm-status.error .status-indicator::before {
+  content: '❌';
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 768px) {
+  .assistance-modal {
+    width: 95vw;
+    padding: 1rem;
+  }
+  
+  .assistance-table th,
+  .assistance-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .assistance-feature-col {
+    width: 60%;
+  }
+  
+  .assistance-player-col {
+    width: 20%;
+  }
+  
+  .feature-name {
+    font-size: 0.9rem;
+  }
+  
+  .feature-description {
+    font-size: 0.8rem;
+  }
+  
+  .feature-icon {
+    font-size: 1.25rem;
+    min-width: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .assistance-table {
+    font-size: 0.875rem;
+  }
+  
+  .feature-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .feature-icon {
+    align-self: center;
+  }
+  
+  .assistance-checkbox {
+    width: 20px;
+    height: 20px;
+    transform: scale(1.1);
+  }
+}
+
+/* ==================== GRID PROTECTION ==================== */
+/* These styles are additive only - no changes to existing grid system */
+
+.intersection.help-overlay {
+  /* Position and size inherited from existing .intersection class */
+  /* Only adding border, background, and box-shadow properties */
+  /* Z-index ensures overlays appear above stones but below cursor */
+}
+
+/* Ensure help overlays don't interfere with stone placement */
+.intersection.help-overlay.occupied {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* Help overlays fade when intersection is hovered for stone placement */
+.intersection.help-overlay:hover {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}

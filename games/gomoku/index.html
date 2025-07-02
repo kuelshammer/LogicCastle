@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>5 Gewinnt (Gomoku) - LogicCastle</title>
-    <link rel="stylesheet" href="css/game.css" />
-    <link rel="stylesheet" href="css/ui.css" />
-    <link rel="stylesheet" href="css/wasm-enhancements.css" />
+    <link rel="stylesheet" href="css/game.css?v=20250701_vmin_square_fix" />
+    <link rel="stylesheet" href="css/ui.css?v=20250701_no_transform" />
+    <link rel="stylesheet" href="css/wasm-enhancements.css?v=20250701_final_animation_fix" />
+    <link rel="stylesheet" href="css/assistance.css?v=20250702_assistance_system" />
   </head>
   <body>
     <div class="game-container">
@@ -134,7 +135,7 @@
           <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
           <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
           <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
-          <button class="btn btn-success" id="gameHelpBtn">Spielhilfen (F2)</button>
+          <button class="btn btn-success" id="assistanceBtn">Spielhilfen (F2)</button>
           <button class="btn btn-wasm" id="wasmTestBtn">⚡ Performance Test</button>
         </div>
       </main>
@@ -232,147 +233,145 @@
       </div>
     </div>
 
-    <!-- Game Help Modal (Spielhilfen) -->
-    <div class="modal-overlay" id="gameHelpModal">
-      <div class="modal game-help-modal">
-        <h2>🎯 Spielhilfen</h2>
+    <!-- Player Assistance Modal (Spielhilfen) -->
+    <div class="modal-overlay" id="assistanceModal">
+      <div class="modal assistance-modal">
+        <h2>🎛️ Spielhilfen</h2>
 
         <div class="help-content">
-          <p>Aktiviere verschiedene Hilfe-Level für bessere Spielunterstützung:</p>
-
-          <div class="help-table-container">
-            <table class="help-table">
-              <thead>
-                <tr>
-                  <th>Farbe</th>
-                  <th>Level 0<br /><small>Gewinnzüge</small></th>
-                  <th>Level 1<br /><small>Bedrohungen</small></th>
-                  <th>Level 2<br /><small>Fallen</small></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="player-label">⚫</td>
-                  <td class="help-cell">
-                    <input
-                      type="checkbox"
-                      id="helpPlayer1Level0"
-                      class="help-checkbox-input"
-                      tabindex="1"
-                      accesskey="1"
-                    />
-                    <label for="helpPlayer1Level0" class="help-checkbox-label"></label>
-                  </td>
-                  <td class="help-cell">
-                    <input
-                      type="checkbox"
-                      id="helpPlayer1Level1"
-                      class="help-checkbox-input"
-                      tabindex="2"
-                      accesskey="2"
-                    />
-                    <label for="helpPlayer1Level1" class="help-checkbox-label"></label>
-                  </td>
-                  <td class="help-cell">
-                    <input
-                      type="checkbox"
-                      id="helpPlayer1Level2"
-                      class="help-checkbox-input"
-                      tabindex="3"
-                      accesskey="3"
-                    />
-                    <label for="helpPlayer1Level2" class="help-checkbox-label"></label>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="player-label">⚪</td>
-                  <td class="help-cell">
-                    <input
-                      type="checkbox"
-                      id="helpPlayer2Level0"
-                      class="help-checkbox-input"
-                      tabindex="4"
-                      accesskey="4"
-                    />
-                    <label for="helpPlayer2Level0" class="help-checkbox-label"></label>
-                  </td>
-                  <td class="help-cell">
-                    <input
-                      type="checkbox"
-                      id="helpPlayer2Level1"
-                      class="help-checkbox-input"
-                      tabindex="5"
-                      accesskey="5"
-                    />
-                    <label for="helpPlayer2Level1" class="help-checkbox-label"></label>
-                  </td>
-                  <td class="help-cell">
-                    <input
-                      type="checkbox"
-                      id="helpPlayer2Level2"
-                      class="help-checkbox-input"
-                      tabindex="6"
-                      accesskey="6"
-                    />
-                    <label for="helpPlayer2Level2" class="help-checkbox-label"></label>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="help-legend">
-              <div class="legend-item"><strong>Level 0:</strong> Erkennt eigene Gewinnchancen (5er vollenden)</div>
-              <div class="legend-item">
-                <strong>Level 1:</strong> Blockiert gegnerische Bedrohungen (4er blockieren)
-              </div>
-              <div class="legend-item"><strong>Level 2:</strong> Vermeidet Fallen (Look-ahead für sichere Züge)</div>
+          <table class="assistance-table">
+            <thead>
+              <tr>
+                <th class="assistance-feature-col">Spielerhilfe</th>
+                <th class="assistance-player-col player1-col">⚫ Spieler 1 (Schwarz)</th>
+                <th class="assistance-player-col player2-col">⚪ Spieler 2 (Weiß)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">🏆</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Gewinnzüge erzwingen</span>
+                      <span class="feature-description">Verhindert andere Züge wenn Gewinn möglich</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-winning-moves" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-winning-moves" class="assistance-checkbox">
+                </td>
+              </tr>
               
-              <div class="wasm-features-section">
-                <h4>🦀 WASM-Enhanced Features</h4>
-                <div class="feature-group">
-                  <label class="feature-toggle">
-                    <input type="checkbox" id="enableWasmEngine">
-                    <span>WASM-Engine aktivieren</span>
-                    <small>(1.6x schneller + erweiterte Features)</small>
-                  </label>
-                </div>
-                <div class="feature-group advanced-features" id="advancedFeatures" style="display: none;">
-                  <h5>🎯 Erweiterte Analyse:</h5>
-                  <label class="feature-toggle">
-                    <input type="checkbox" id="enableOpenThreeDetection">
-                    <span>Open Three Detection</span>
-                    <small>Erkenne offene Drei-Pattern (_ X X X _)</small>
-                  </label>
-                  <label class="feature-toggle">
-                    <input type="checkbox" id="enableClosedFourDetection">
-                    <span>Closed Four Detection</span>
-                    <small>Erkenne geschlossene Vier-Pattern (O X X X X _)</small>
-                  </label>
-                  <label class="feature-toggle">
-                    <input type="checkbox" id="enableDoubleThreeForks">
-                    <span>Double Three Fork Analysis</span>
-                    <small>Erkenne Gabel-Situationen (zwei offene Dreier)</small>
-                  </label>
-                  <label class="feature-toggle">
-                    <input type="checkbox" id="enableThreatLevelAnalysis">
-                    <span>5-Level Threat Assessment</span>
-                    <small>Bewerte Bedrohungsgrad (0=sicher → 5=kritisch)</small>
-                  </label>
-                </div>
-              </div>
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">🛡️</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Blockierzüge erzwingen</span>
+                      <span class="feature-description">Verhindert andere Züge wenn blocken nötig</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-blocking-moves" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-blocking-moves" class="assistance-checkbox">
+                </td>
+              </tr>
+              
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">⚠️</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Offene Dreier warnen</span>
+                      <span class="feature-description">Warnt vor gefährlichen _ X X X _ Mustern</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-open-three-warning" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-open-three-warning" class="assistance-checkbox">
+                </td>
+              </tr>
+              
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">🔱</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Gabeln-Warnung</span>
+                      <span class="feature-description">Warnt vor Double-Three Fork Situationen</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-fork-warning" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-fork-warning" class="assistance-checkbox">
+                </td>
+              </tr>
+
+              <tr class="assistance-row">
+                <td class="assistance-feature">
+                  <div class="feature-info">
+                    <span class="feature-icon">👁️</span>
+                    <div class="feature-details">
+                      <span class="feature-name">Visueller Modus</span>
+                      <span class="feature-description">Zeigt Hilfen als Farbringe (ohne Zwang)</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player1-visual-mode" class="assistance-checkbox">
+                </td>
+                <td class="assistance-checkbox-cell">
+                  <input type="checkbox" id="player2-visual-mode" class="assistance-checkbox">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="help-section">
+            <h3>ℹ️ Hinweise</h3>
+            <ul>
+              <li><strong>Erzwingen:</strong> Verhindert Züge die nicht den Regeln entsprechen</li>
+              <li><strong>Warnen:</strong> Zeigt Warnung bevor gefährlicher Zug gemacht wird</li>
+              <li><strong>Visuell:</strong> Zeigt Farbringe für Gewinn/Block/Gefahr Positionen</li>
+              <li><strong>Individuelle Einstellungen:</strong> Jeder Spieler kann eigene Hilfen wählen</li>
+              <li><strong>Echtzeit:</strong> Alle Hilfen nutzen WASM-Pattern-Erkennung</li>
+            </ul>
+          </div>
+
+          <div class="wasm-status-section">
+            <h3>🦀 WASM Status</h3>
+            <div class="wasm-status" id="wasmStatus">
+              <span class="status-indicator">🔄</span>
+              <span class="status-text">Überprüfe WASM-Engine...</span>
             </div>
           </div>
         </div>
 
         <div class="modal-buttons">
-          <button class="btn btn-primary" id="closeGameHelpBtn">Verstanden!</button>
+          <button class="btn btn-secondary" id="resetAssistanceBtn">Alle zurücksetzen</button>
+          <button class="btn btn-primary" id="closeAssistanceBtn">Einstellungen speichern</button>
         </div>
       </div>
     </div>
 
-    <script src="js/game_v2.js?v=20250701_ultrathink"></script>
-    <script src="js/ai-enhanced.js?v=20250701_ultrathink"></script>
-    <script src="js/ui.js?v=20250701_ultrathink"></script>
-    <script src="js/wasm-integration.js?v=20250701_ultrathink"></script>
+    <script src="js/game_v2.js?v=20250701_final_fix"></script>
+    <script src="js/ai-enhanced.js?v=20250701_final_fix"></script>
+    <script src="js/assistance-system.js?v=20250702_assistance_system"></script>
+    <script src="js/ui.js?v=20250702_assistance_integration"></script>
+    <script src="js/wasm-integration.js?v=20250701_final_fix"></script>
     <script>
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
