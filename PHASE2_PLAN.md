@@ -145,14 +145,30 @@ Schrittweise Migration von Gomoku (1646 Zeilen) auf das neue UI-Modul-System als
 2. **Git Rollback**: `git revert` auf Migration-Commits
 3. **Feature-Flag**: Index.html kann beide Versionen laden
 
-## Erfolgs-Kriterien
-- ✅ Alle bestehenden Features funktional
-- ✅ Keine Regression in Performance
-- ✅ 40%+ Code-Reduktion erreicht
-- ✅ Gomoku als Template für andere Spiele nutzbar
-- ✅ Umfangreiches Testing dokumentiert
+## 🎯 KRITISCH: Puppeteer Validation BEVOR Goldstandard Status
 
-## Zeitschätzung
-- **Gesamtaufwand**: ~6 Stunden
-- **Kritischer Pfad**: Phase 2.4 (Cursor System)
-- **Risiko-Puffer**: +2 Stunden für unvorhergesehene Probleme
+**Status**: Phase 2.1-2.4 ABGESCHLOSSEN ✅ - Phase 2.5-2.6 BLOCKIERT ⏸️
+
+### WARNUNG: Implementation != Validation
+- ✅ **Code Implementation**: 33% Reduktion erreicht (1646 → ~1100 Zeilen)
+- ⚠️ **Nicht validiert**: Bisher konnte nie eine funktionierende Version erstellt werden
+- 🎯 **Kritischer Schritt**: Puppeteer Verifikation gegen `games/gomoku/Gomoku.jpg`
+
+### Nächste Schritte:
+1. 📋 **Siehe `PUPPETEER_VERIFICATION_PLAN.md`** für detaillierte 5-Phasen Validierung
+2. 🔧 **Puppeteer Tests implementieren** (Phase 1-5)
+3. 🎯 **Verifikation gegen Referenzbild** durchführen
+4. ✅ **Nur bei 100% Success** → Goldstandard Status
+
+## Erfolgs-Kriterien (UPDATED)
+- ✅ Alle bestehenden Features funktional (**IMPLEMENTIERT**)
+- ✅ Keine Regression in Performance (**IMPLEMENTIERT**)
+- ✅ 33%+ Code-Reduktion erreicht (**ERREICHT: 1646 → ~1100**)
+- 🔄 **Puppeteer Validation gegen Gomoku.jpg** (**IN PROGRESS**)
+- ⏸️ **Gomoku als Template für andere Spiele nutzbar** (**BLOCKIERT bis Validation**)
+- ⏸️ **Umfangreiches Testing dokumentiert** (**BLOCKIERT bis Validation**)
+
+## Zeitschätzung (UPDATED)
+- **Implementation Phase 2.1-2.4**: ✅ ABGESCHLOSSEN (~6 Stunden)
+- **Puppeteer Validation Phase**: 🔄 **IN PROGRESS** (~3-4 Stunden)
+- **Goldstandard Certification**: ⏸️ **PENDING** (abhängig von Validation)

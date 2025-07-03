@@ -56,9 +56,18 @@
 - Erstelle Entwickler-Dokumentation für UI-Module
 - Code-Review und Optimierungen
 
+## 🎯 KRITISCHER ZWISCHENSCHRITT: Puppeteer Validation
+
+**BEVOR weitere Spiele migriert werden:**
+- 📋 **Siehe `PUPPETEER_VERIFICATION_PLAN.md`** für detaillierte 5-Phasen Validierung
+- ⚠️ **Problem:** Bisher konnte nie eine funktionierende Version erstellt werden
+- 🎯 **Ziel:** Verifikation gegen Referenzbild `games/gomoku/Gomoku.jpg`
+- ✅ **Erfolg:** Nur bei 100% Testpass + Visual Match → Goldstandard Status
+
 ## Überprüfbare Meilensteine:
-- ✅ Duplikations-Analyse dokumentiert
-- ✅ UI-Module funktionsfähig  
-- ✅ Gomoku-Pilot vollständig funktional
-- ✅ Alle Spiele migriert ohne Funktionalitätsverlust
-- ✅ Codebase deutlich reduziert und wartbarer
+- ✅ Duplikations-Analyse dokumentiert (ANALYSIS_PHASE1.md)
+- ✅ UI-Module funktionsfähig (BaseGameUI, ElementBinder, KeyboardController, ModalManager) 
+- ✅ Gomoku-Pilot Phase 2.1-2.4 implementiert (33% Code-Reduktion)
+- 🔄 **IN PROGRESS:** Puppeteer Validation für Goldstandard Status
+- ⏸️ **BLOCKIERT:** Weitere Spiele Migration bis Validation complete
+- ⏸️ **BLOCKIERT:** Codebase cleanup bis Validation erfolgreich

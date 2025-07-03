@@ -31,19 +31,26 @@ Der Großteil der Spiele ist funktional und auf dem neuesten technischen Stand.
 
 Die primären Architekturarbeiten sind abgeschlossen. Die verbleibenden Aufgaben konzentrieren sich auf die Konsolidierung und Dokumentation.
 
-1.  **Einführung eines "Flexiblen Modul-Layouts" für UI-Komponenten (Höchste Priorität):**
-    - **Problem:** Aktuell ist zwar das CSS zentralisiert, die **JavaScript-Logik** zur Erstellung und Verwaltung von UI-Elementen (z.B. Spielbrett, Statusanzeige, Menüs) ist jedoch in den jeweiligen `ui.js`-Dateien der Spiele dupliziert.
-    - **Lösung:** Erstellung einer Bibliothek von wiederverwendbaren UI-Modulen (Widgets) im `assets/js/`-Verzeichnis. Diese Module (z.B. `createBoard`, `createStatusPanel`) sollten so konzipiert sein, dass sie von den einzelnen Spielen mit spezifischen Konfigurationen aufgerufen werden können.
-    - **Ziel:** Reduzierung der Code-Duplizierung im JavaScript, Vereinfachung der Wartung und Sicherstellung eines konsistenten Verhaltens der UI-Elemente über alle Spiele hinweg.
-    - **📋 Detaillierter Plan:** Siehe `TODO.md` für eine 8-Phasen-Roadmap mit überprüfbaren Meilensteinen.
+1.  **🎯 KRITISCH: Puppeteer Goldstandard Validation (Stand: 2025-07-03)**
+    - **Status:** Phase 2.4 der UI-Module ist vollständig implementiert - ABER noch nicht validiert!
+    - **Problem:** Bisher konnte nie eine funktionierende Version erstellt werden, die dem Referenzbild `games/gomoku/Gomoku.jpg` entspricht
+    - **Aufgabe:** Vollständige Verifikation mit Puppeteer-Tests gegen das Referenzbild
+    - **📋 Detaillierter Plan:** Siehe `PUPPETEER_VERIFICATION_PLAN.md` für 5-Phasen Validierung
+    - **Ziel:** Nur bei 100% Testpass + Visual Match → Goldstandard für andere Spiele Migration
 
-2.  **Abschluss des Connect4-Refactorings:**
+2.  **Einführung eines "Flexiblen Modul-Layouts" für UI-Komponenten (FAST ABGESCHLOSSEN):**
+    - **Problem:** Aktuell ist zwar das CSS zentralisiert, die **JavaScript-Logik** zur Erstellung und Verwaltung von UI-Elementen (z.B. Spielbrett, Statusanzeige, Menüs) ist jedoch in den jeweiligen `ui.js`-Dateien der Spiele dupliziert.
+    - **Status:** Phase 2.1-2.4 für Gomoku vollständig implementiert (33% Code-Reduktion erreicht)
+    - **NÄCHSTER SCHRITT:** Puppeteer validation BEVOR Migration anderer Spiele
+    - **📋 Detaillierter Plan:** Siehe `TODO.md` für 8-Phasen-Roadmap mit überprüfbaren Meilensteinen.
+
+3.  **Abschluss des Connect4-Refactorings:**
     - **Aufgabe:** Migrieren Sie die verbleibende JavaScript-Logik von Connect4 auf die `BitPackedBoard`-Struktur der Rust-Engine. Orientieren Sie sich dabei an der Implementierung in `games/gomoku/js/game-bitpacked.js`.
 
-3.  **Vereinheitlichung der Rust-API:**
+4.  **Vereinheitlichung der Rust-API:**
     - **Aufgabe:** Prüfen Sie, ob die spezifische `TrioGame`-Struktur in der Rust-Engine an die generischere `Game`-Struktur (verwendet von Connect4/Gomoku) angeglichen werden kann, um die API-Konsistenz zu erhöhen.
 
-4.  **Aktualisierung der Projektdokumentation:**
+5.  **Aktualisierung der Projektdokumentation:**
     - **Aufgabe:** Aktualisieren Sie die `README.md` und `docs/ARCHITECTURE.md`, um die neue, auf Vite, Rust und dem zentralen Design-System basierende Architektur korrekt zu beschreiben.
 
 Dieses Dokument spiegelt den aktuellen Stand nach den Commits vom 3. Juli 2025 wider und ersetzt alle vorherigen Versionen.
