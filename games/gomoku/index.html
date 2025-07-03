@@ -449,12 +449,14 @@
           window.WasmGame = Game;
           window.WasmPlayer = Player;
           
-          // Initialize game when DOM is loaded
-          document.addEventListener('DOMContentLoaded', async function () {
+          // Initialize game - handle both pre-loaded and post-loaded DOM states
+          async function initializeGameUI() {
+            console.log('🎮 Starting game UI initialization...');
+            
             const game = new GomokuGame();
             await game.init(); // Initialize WASM
             const ui = new GomokuUINew(game);
-            ui.init();
+            await ui.init();
             
             // Make objects globally available for debugging and integration
             window.game = game;
@@ -486,7 +488,15 @@
             }
             
             console.log('🎮 Gomoku initialized with ES6 modules + WASM integration');
-          });
+          }
+          
+          // Call initialization immediately if DOM is ready, or wait for it
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeGameUI);
+          } else {
+            // DOM is already ready, initialize immediately
+            await initializeGameUI();
+          }
           
         } catch (error) {
           console.error('❌ Failed to initialize Gomoku WASM:', error);
