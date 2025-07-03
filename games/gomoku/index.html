@@ -407,7 +407,7 @@
     <script type="module">
       import init, { Game, Player, GomokuBoard } from '../../game_engine/pkg/game_engine.js';
       import { GomokuGame } from './js/game_v2.js';
-      import { GomokuUI } from './js/ui.js';
+      import { GomokuUINew } from './js/ui-new.js';
       import { EnhancedGobangAI } from './js/ai-enhanced.js';
       import { GomokuAssistanceSystem } from './js/assistance-system.js';
       import { WasmGomokuIntegration } from './js/wasm-integration.js';
@@ -426,7 +426,7 @@
           document.addEventListener('DOMContentLoaded', async function () {
             const game = new GomokuGame();
             await game.init(); // Initialize WASM
-            const ui = new GomokuUI(game);
+            const ui = new GomokuUINew(game);
             ui.init();
             
             // Make objects globally available for debugging and integration
