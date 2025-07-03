@@ -1,150 +1,11 @@
 /* UI Components for Gobang */
-
-/* Button Styles */
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  outline: none;
-}
-
-.btn:focus {
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-}
-
-.btn-primary {
-  background: linear-gradient(145deg, #ff6b6b, #ee5a52);
-  color: white;
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: linear-gradient(145deg, #ff5252, #d32f2f);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-}
-
-.btn-secondary {
-  background: linear-gradient(145deg, #74b9ff, #0984e3);
-  color: white;
-  box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(145deg, #0984e3, #74b9ff);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
-}
-
-.btn-info {
-  background: linear-gradient(145deg, #17a2b8, #138496);
-  color: white;
-  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
-}
-
-.btn-info:hover:not(:disabled) {
-  background: linear-gradient(145deg, #138496, #17a2b8);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(23, 162, 184, 0.4);
-}
-
-.btn-success {
-  background: linear-gradient(145deg, #28a745, #218838);
-  color: white;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-}
-
-.btn-success:hover:not(:disabled) {
-  background: linear-gradient(145deg, #218838, #1e7e34);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-}
-
-.btn-outline {
-  background: transparent;
-  color: #6c757d;
-  border: 2px solid #6c757d;
-  box-shadow: none;
-}
-
-.btn-outline:hover:not(:disabled) {
-  background: #6c757d;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.modal-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.modal {
-  background: white;
-  border-radius: 15px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  text-align: left;
-  transform: scale(0.9);
-  transition: all 0.3s ease;
-}
-
-.modal-overlay.active .modal {
-  transform: scale(1);
-}
-
-.modal h2 {
-  margin: 0 0 1rem 0;
-  color: #333;
-  text-align: center;
-}
-
-.modal p {
-  margin: 0 0 1rem 0;
-  color: #666;
-  line-height: 1.5;
-}
-
-.modal-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 1.5rem;
-}
+/* 
+ * Note: Core styles imported from central design system (assets/css/main.css):
+ * - Button styles (.btn, .game-button variants)
+ * - Modal styles (.modal-overlay, .modal, .game-modal variants) 
+ * - Loading states (.btn.loading, @keyframes spin)
+ * - Form elements (.form-group, .form-control)
+ */
 
 /* Help Modal Styles */
 .help-modal {
@@ -199,34 +60,7 @@
   color: white;
 }
 
-/* Loading States */
-.btn.loading {
-  position: relative;
-  color: transparent;
-}
-
-.btn.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin: -10px 0 0 -10px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
+/* Loading States - now imported from central design system */
 
 /* Thinking indicator for AI */
 .thinking-indicator {
@@ -256,18 +90,7 @@
   animation-delay: -0.16s;
 }
 
-@keyframes thinkingPulse {
-  0%,
-  80%,
-  100% {
-    opacity: 0.3;
-    transform: scale(0.8);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* @keyframes thinkingPulse - now imported from central design system */
 
 /* Move history indicator */
 .move-indicator {
@@ -297,17 +120,7 @@
   animation: threatPulse 1s infinite;
 }
 
-@keyframes threatPulse {
-  0%,
-  100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
+/* @keyframes threatPulse - now imported from central design system */
 
 /* Hint highlighting for forced moves */
 .intersection.hint-move::after {
@@ -344,17 +157,7 @@
   box-shadow: 0 0 15px rgba(0, 128, 255, 0.3);
 }
 
-@keyframes hintPulse {
-  0%,
-  100% {
-    opacity: 0.6;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
+/* @keyframes hintPulse - now imported from central design system */
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {

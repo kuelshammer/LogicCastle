@@ -1,4 +1,8 @@
 /* Connect4 Game Board Styles */
+/* 
+ * Note: Core styles imported from central design system (assets/css/main.css):
+ * - Button styles, Modal styles, Loading states, Form elements
+ */
 .game-container {
   max-width: 1400px;
   margin: 0 auto;

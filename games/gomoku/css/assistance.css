@@ -1,5 +1,9 @@
 /* Gomoku Assistance System CSS */
 /* Adapted from Connect4 assistance system for Gomoku game */
+/* 
+ * Note: Core styles imported from central design system (assets/css/main.css):
+ * - Button styles, Modal styles, Loading states (@keyframes spin), Form elements
+ */
 
 /* ==================== ASSISTANCE MODAL ==================== */
 
@@ -342,10 +346,7 @@
   content: '❌';
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
+/* @keyframes spin - now imported from central design system */
 
 /* ==================== RESPONSIVE DESIGN ==================== */
 
