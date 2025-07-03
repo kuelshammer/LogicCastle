@@ -1210,26 +1210,39 @@ export class GomokuUI {
      * Accounts for CSS padding percentage to ensure perfect grid alignment at all zoom levels
      */
     positionStoneRelativeToBoard(row, col, stone) {
+        const board = this.elements.gameBoard;
+        
+        // Get actual computed styles from the DOM for TRUE responsiveness
+        const computedStyle = window.getComputedStyle(board);
+        const paddingLeft = parseFloat(computedStyle.paddingLeft);
+        const paddingTop = parseFloat(computedStyle.paddingTop);
+        const boardWidth = parseFloat(computedStyle.width);
+        const boardHeight = parseFloat(computedStyle.height);
+        
+        // Calculate ACTUAL padding percentages based on current dimensions
+        const paddingLeftPercent = (paddingLeft / boardWidth) * 100;
+        const paddingTopPercent = (paddingTop / boardHeight) * 100;
+        
+        // Calculate available grid space (accounting for padding on both sides)
+        const gridWidthPercent = 100 - (2 * paddingLeftPercent);
+        const gridHeightPercent = 100 - (2 * paddingTopPercent);
+        
+        // Calculate position within the grid (0-14 maps to 0%-100% of grid space)
         const maxPosition = 14; // Maximum coordinate value (0-14)
-        const paddingPercent = 5.13; // CSS padding: 5.13% (20px/390px)
-        const gridPercent = 100 - (2 * paddingPercent); // 89.74% available for grid
+        const leftPercent = paddingLeftPercent + ((col / maxPosition) * gridWidthPercent);
+        const topPercent = paddingTopPercent + ((row / maxPosition) * gridHeightPercent);
         
-        // Calculate position with padding offset - CORRECTED COORDINATE SCALING
-        // Position 0 = 0% of grid, Position 14 = 100% of grid
-        const leftPercent = paddingPercent + ((col / maxPosition) * gridPercent);
-        const topPercent = paddingPercent + ((row / maxPosition) * gridPercent);
-        
-        // Apply fully responsive positioning
+        // Apply truly responsive positioning
         stone.style.left = `${leftPercent}%`;
         stone.style.top = `${topPercent}%`;
         stone.style.position = 'absolute'; // Relative to board container
         stone.style.transform = 'translate(-50%, -50%)'; // CRITICAL: Center stone on intersection
         
-        console.log('🎯 FULLY RESPONSIVE PADDING-CORRECTED POSITIONING:');
-        console.log(`- Row ${row}, Col ${col} → Grid position (${col}/${maxPosition}, ${row}/${maxPosition})`);
-        console.log(`- Padding: ${paddingPercent}%, Grid area: ${gridPercent}%`);
-        console.log(`- Final position: (${leftPercent.toFixed(2)}%, ${topPercent.toFixed(2)}%)`);
-        console.log(`- Transform: translate(-50%, -50%) for perfect centering`);
+        console.log('🎯 RUNTIME RESPONSIVE COORDINATE MAPPING:');
+        console.log(`- Board dimensions: ${boardWidth.toFixed(0)}x${boardHeight.toFixed(0)}px`);
+        console.log(`- Actual padding: ${paddingLeft.toFixed(1)}px (${paddingLeftPercent.toFixed(2)}%)`);
+        console.log(`- Row ${row}, Col ${col} → Final position: (${leftPercent.toFixed(2)}%, ${topPercent.toFixed(2)}%)`);
+        console.log(`- No coordinate drift at any zoom level!`);
         
         return stone;
     }

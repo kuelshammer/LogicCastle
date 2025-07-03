@@ -111,19 +111,15 @@ class LGameUI {
             throw new Error('Game board element not found');
         }
         
-        const gridContainer = this.boardElement.querySelector('.grid');
-        if (!gridContainer) {
-            throw new Error('Grid container not found');
-        }
-        
-        // Clear existing content
-        gridContainer.innerHTML = '';
+        // Clear existing content and apply CSS classes
+        this.boardElement.innerHTML = '';
+        this.boardElement.className = 'lgame-board';
         
         // Create 16 cells for 4x4 board
         for (let row = 0; row < 4; row++) {
             for (let col = 0; col < 4; col++) {
                 const cell = this.createBoardCell(row, col);
-                gridContainer.appendChild(cell);
+                this.boardElement.appendChild(cell);
             }
         }
     }
@@ -170,12 +166,11 @@ class LGameUI {
             
             console.log(`Cell clicked: (${row}, ${col})`);
             
-            // For now, implement basic move placement for testing
-            // In a real L-Game, this would be L-piece placement + optional neutral piece move
-            // TODO: Implement proper L-piece selection and movement with orientations
+            // L-Game move: L-piece placement + optional neutral piece move
+            // Using correct WASM interface: makeMove(l_anchor_row, l_anchor_col, l_orientation, neutral_id?, neutral_row?, neutral_col?)
             try {
-                // Try to make a simple move (this will need to be enhanced for proper L-Game logic)
-                this.game.makeMove(row, col, 0); // row, col, orientation (placeholder)
+                // Try to make a move with L-piece at clicked position, orientation 0 (no neutral piece move)
+                this.game.makeMove(row, col, 0, null, null, null);
                 
                 // Update UI after successful move
                 this.updateGameDisplay();
@@ -185,13 +180,14 @@ class LGameUI {
                 if (this.game.isGameOver()) {
                     const winner = this.game.getWinner();
                     if (winner !== undefined) {
-                        this.showTemporaryMessage(`Spieler ${winner === 1 ? '1' : '2'} gewinnt!`, 'success');
+                        const playerName = winner === 1 ? 'Spieler 1' : 'Spieler 2';
+                        this.showTemporaryMessage(`${playerName} gewinnt!`, 'success');
                     }
                 }
                 
             } catch (moveError) {
-                console.warn('Move failed:', moveError);
-                this.showTemporaryMessage('Ungültiger Zug', 'error');
+                console.warn('Move failed:', moveError.message);
+                this.showTemporaryMessage('Ungültiger Zug - L-Stein kann dort nicht platziert werden', 'error');
             }
             
         } catch (error) {
@@ -370,17 +366,32 @@ class LGameUI {
         if (!this.game) return;
         
         try {
-            const debugInfo = this.game.getDebugInfo();
-            console.log('L-Game Debug Info:', debugInfo);
+            // Get available information from WASM LGame interface
+            const currentPlayer = this.game.getCurrentPlayer();
+            const isGameOver = this.game.isGameOver();
+            const winner = this.game.getWinner();
+            const legalMoves = this.game.getLegalMoves();
+            const board = this.game.getBoard();
             
             // Show debug info in a formatted way
             const info = `
-Game Initialized: ${debugInfo.initialized}
-Current Player: ${debugInfo.gameStats.currentPlayer}
-Game Over: ${debugInfo.gameStats.gameOver}
-Move Count: ${debugInfo.gameStats.moveCount}
-Available Moves: ${debugInfo.gameStats.availableMovesCount}
+L-Game Debug Information:
+═══════════════════════
+Initialized: ${this.initialized}
+Current Player: ${currentPlayer === 1 ? 'Spieler 1' : 'Spieler 2'} 
+Game Over: ${isGameOver}
+Winner: ${winner !== undefined ? `Spieler ${winner}` : 'None'}
+Legal Moves: ${legalMoves.length}
+Board Size: ${board.length} cells (4x4)
             `.trim();
+            
+            console.log('L-Game Debug Info:', {
+                currentPlayer,
+                isGameOver,
+                winner,
+                legalMovesCount: legalMoves.length,
+                boardState: Array.from(board)
+            });
             
             alert(info);
         } catch (error) {

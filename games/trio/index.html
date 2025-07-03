@@ -149,7 +149,7 @@
 
     <!-- Load WASM and initialize game modules -->
     <script type="module">
-      import init, { Game } from '../../game_engine/pkg/game_engine.js';
+      import init, { Game, TrioGame as WasmTrioGame } from '../../game_engine/pkg/game_engine.js';
       import { TrioGame, initTrioWasm } from './js/game.js';
       import { TrioUI } from './js/ui.js';
       import { TrioAI } from './js/ai.js';
@@ -158,8 +158,9 @@
         // Initialize WASM module
         await init();
         
-        // Make WASM Game available globally for backwards compatibility
+        // Make WASM Game and TrioGame available globally
         window.WasmGame = Game;
+        window.TrioGame = WasmTrioGame;
         
         // Initialize Trio WASM integration
         await initTrioWasm();

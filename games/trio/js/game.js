@@ -5,11 +5,16 @@
 
 // WASM import - will be dynamically loaded
 let WasmGame = null;
+let WasmTrioGame = null;
 
 // Initialize WASM module
 export async function initTrioWasm() {
     if (!WasmGame && typeof window !== 'undefined' && window.WasmGame) {
         WasmGame = window.WasmGame;
+    }
+    // Import TrioGame from WASM module 
+    if (typeof window !== 'undefined' && window.TrioGame) {
+        WasmTrioGame = window.TrioGame;
     }
 }
 
@@ -51,25 +56,39 @@ export class TrioGame {
      */
     initializeGame() {
         // Wait for WASM to be available
-        if (!WasmGame) {
-            console.error('WASM Game not available yet');
+        if (!WasmTrioGame) {
+            console.error('WASM TrioGame not available yet');
             setTimeout(() => this.initializeGame(), 100);
             return;
         }
 
         try {
-            // Create TrioGame instance using WASM Game with Trio configuration
-            // Trio uses a 7x7 board with no gravity and no win condition (puzzle mode)
-            this.wasmGame = new WasmGame(this.ROWS, this.COLS, 0, false);
+            // Create proper TrioGame instance using dedicated WASM TrioGame class
+            let difficultyValue = 1; // Default to easy
+            switch (this.difficulty) {
+                case 'kinderfreundlich':
+                    difficultyValue = 1;
+                    break;
+                case 'vollspektrum':
+                    difficultyValue = 2;
+                    break;
+                case 'strategisch':
+                case 'analytisch':
+                    difficultyValue = 3;
+                    break;
+            }
             
-            // Get board and target from WASM
+            this.wasmGame = new WasmTrioGame(difficultyValue);
+            
+            // Get board and target from proper TrioGame WASM
             this.numberGrid = this.convertWasmBoardToJsGrid(this.wasmGame.get_board());
+            this.currentTarget = this.wasmGame.get_target_number();
             
-            // For now, generate a simple target - we'll enhance this later
-            this.targetChips = [this.generateSimpleTarget()];
+            // For now, generate additional targets - we'll enhance this later
+            this.targetChips = [this.currentTarget];
             this.resetGameState();
             
-            console.log('✅ Trio WASM game initialized successfully');
+            console.log('✅ Trio WASM game initialized successfully with target:', this.currentTarget);
         } catch (error) {
             console.error('❌ Failed to initialize Trio WASM game:', error);
         }
@@ -78,10 +97,14 @@ export class TrioGame {
     convertWasmBoardToJsGrid(wasmBoard) {
         const grid = [];
         let index = 0;
+        
+        // Convert Int8Array to regular array if needed
+        const boardArray = wasmBoard instanceof Int8Array ? Array.from(wasmBoard) : wasmBoard;
+        
         for (let row = 0; row < this.ROWS; row++) {
             grid[row] = [];
             for (let col = 0; col < this.COLS; col++) {
-                grid[row][col] = wasmBoard[index++];
+                grid[row][col] = boardArray[index++];
             }
         }
         return grid;
@@ -251,7 +274,7 @@ export class TrioGame {
      * Start a new round with a target number
      */
     startNewRound() {
-        // Generate a new WASM game instance for the next round
+        // Generate a new WASM TrioGame instance for the next round
         let difficultyValue = 1; // Default to easy
         switch (this.difficulty) {
             case 'kinderfreundlich':
@@ -265,9 +288,9 @@ export class TrioGame {
                 difficultyValue = 3;
                 break;
         }
-        this.wasmGame = new window.WasmGame(this.ROWS, this.COLS, 0, false);
+        this.wasmGame = new WasmTrioGame(difficultyValue);
         this.numberGrid = this.convertWasmBoardToJsGrid(this.wasmGame.get_board());
-        this.currentTarget = this.generateSimpleTarget();
+        this.currentTarget = this.wasmGame.get_target_number();
 
         this.emit('newRound', { target: this.currentTarget });
 
@@ -328,123 +351,98 @@ export class TrioGame {
 
     /**
      * Validate if three numbers solve the target using a×b+c or a×b-c
+     * Uses WASM TrioGame for efficient validation
      */
     validateSolution(a, b, c, target) {
-        // Check both mathematical formulas directly
-        // Formula 1: a × b + c = target
-        if (a * b + c === target) {
-            return {
-                isValid: true,
-                formula: `${a} × ${b} + ${c} = ${target}`,
-                operation: 'add',
-                numbers: [a, b, c]
-            };
-        }
-        
-        // Formula 2: a × b - c = target
-        if (a * b - c === target) {
-            return {
-                isValid: true,
-                formula: `${a} × ${b} - ${c} = ${target}`,
-                operation: 'subtract',
-                numbers: [a, b, c]
-            };
+        // Find positions of the numbers in the grid
+        const positions = [];
+        for (let row = 0; row < this.ROWS; row++) {
+            for (let col = 0; col < this.COLS; col++) {
+                const value = this.numberGrid[row][col];
+                if (value === a && positions.length === 0) {
+                    positions.push({row, col});
+                } else if (value === b && positions.length === 1) {
+                    positions.push({row, col});
+                } else if (value === c && positions.length === 2) {
+                    positions.push({row, col});
+                    break;
+                }
+            }
+            if (positions.length === 3) break;
         }
 
-        // Check with different permutations of a, b, c
-        // Try b × a + c and b × a - c
-        if (b * a + c === target) {
-            return {
-                isValid: true,
-                formula: `${b} × ${a} + ${c} = ${target}`,
-                operation: 'add',
-                numbers: [b, a, c]
-            };
-        }
-        
-        if (b * a - c === target) {
-            return {
-                isValid: true,
-                formula: `${b} × ${a} - ${c} = ${target}`,
-                operation: 'subtract',
-                numbers: [b, a, c]
-            };
+        // If we can't find all three numbers, fall back to manual validation
+        if (positions.length !== 3 || !this.wasmGame.check_combination) {
+            return this.validateSolutionManual(a, b, c, target);
         }
 
-        // Try a × c + b and a × c - b
-        if (a * c + b === target) {
-            return {
-                isValid: true,
-                formula: `${a} × ${c} + ${b} = ${target}`,
-                operation: 'add',
-                numbers: [a, c, b]
-            };
-        }
-        
-        if (a * c - b === target) {
-            return {
-                isValid: true,
-                formula: `${a} × ${c} - ${b} = ${target}`,
-                operation: 'subtract',
-                numbers: [a, c, b]
-            };
+        try {
+            // Use WASM TrioGame's efficient combination checking
+            const isValid = this.wasmGame.check_combination(
+                positions[0].row, positions[0].col,
+                positions[1].row, positions[1].col,
+                positions[2].row, positions[2].col
+            );
+
+            if (isValid) {
+                // Figure out the correct formula by testing both operations
+                if (a * b + c === target) {
+                    return {
+                        isValid: true,
+                        formula: `${a} × ${b} + ${c} = ${target}`,
+                        operation: 'add',
+                        numbers: [a, b, c]
+                    };
+                } else if (a * b - c === target) {
+                    return {
+                        isValid: true,
+                        formula: `${a} × ${b} - ${c} = ${target}`,
+                        operation: 'subtract',
+                        numbers: [a, b, c]
+                    };
+                }
+                // Try other permutations...
+                return this.validateSolutionManual(a, b, c, target);
+            }
+        } catch (error) {
+            console.warn('WASM validation failed, falling back to manual:', error);
         }
 
-        // Try c × a + b and c × a - b
-        if (c * a + b === target) {
-            return {
-                isValid: true,
-                formula: `${c} × ${a} + ${b} = ${target}`,
-                operation: 'add',
-                numbers: [c, a, b]
-            };
-        }
-        
-        if (c * a - b === target) {
-            return {
-                isValid: true,
-                formula: `${c} × ${a} - ${b} = ${target}`,
-                operation: 'subtract',
-                numbers: [c, a, b]
-            };
-        }
+        return {
+            isValid: false,
+            attempted: `No valid formula found for ${a}, ${b}, ${c} = ${target}`
+        };
+    }
 
-        // Try b × c + a and b × c - a
-        if (b * c + a === target) {
-            return {
-                isValid: true,
-                formula: `${b} × ${c} + ${a} = ${target}`,
-                operation: 'add',
-                numbers: [b, c, a]
-            };
-        }
-        
-        if (b * c - a === target) {
-            return {
-                isValid: true,
-                formula: `${b} × ${c} - ${a} = ${target}`,
-                operation: 'subtract',
-                numbers: [b, c, a]
-            };
-        }
+    /**
+     * Manual solution validation fallback
+     */
+    validateSolutionManual(a, b, c, target) {
+        // Check all permutations and both operations
+        const permutations = [
+            [a, b, c], [a, c, b], [b, a, c], 
+            [b, c, a], [c, a, b], [c, b, a]
+        ];
 
-        // Try c × b + a and c × b - a
-        if (c * b + a === target) {
-            return {
-                isValid: true,
-                formula: `${c} × ${b} + ${a} = ${target}`,
-                operation: 'add',
-                numbers: [c, b, a]
-            };
-        }
-        
-        if (c * b - a === target) {
-            return {
-                isValid: true,
-                formula: `${c} × ${b} - ${a} = ${target}`,
-                operation: 'subtract',
-                numbers: [c, b, a]
-            };
+        for (const [x, y, z] of permutations) {
+            // Try addition: x × y + z = target
+            if (x * y + z === target) {
+                return {
+                    isValid: true,
+                    formula: `${x} × ${y} + ${z} = ${target}`,
+                    operation: 'add',
+                    numbers: [x, y, z]
+                };
+            }
+            // Try subtraction: x × y - z = target
+            if (x * y - z === target) {
+                return {
+                    isValid: true,
+                    formula: `${x} × ${y} - ${z} = ${target}`,
+                    operation: 'subtract',
+                    numbers: [x, y, z]
+                };
+            }
         }
 
         return {
