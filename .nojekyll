@@ -1,0 +1,2 @@
+# This file tells GitHub Pages to skip Jekyll processing
+# Required for WebAssembly deployment to ensure .wasm files are served correctly

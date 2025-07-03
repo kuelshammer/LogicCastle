@@ -413,10 +413,37 @@
       import { WasmGomokuIntegration } from './js/wasm-integration.js';
       import { BitPackedGomokuIntegration } from './js/bitpacked-integration.js';
 
+      // Progressive WASM loading strategy for GitHub Pages compatibility
+      async function initWasmWithFallback() {
+        // Detect environment for optimal loading strategy
+        const isGitHubPages = window.location.hostname.includes('github.io') || 
+                             window.location.hostname.includes('pages.dev');
+        
+        console.log(`🌐 Environment detected: ${isGitHubPages ? 'GitHub Pages' : 'Local Development'}`);
+        
+        try {
+          if (isGitHubPages) {
+            // GitHub Pages strategy: Use fetch + instantiate (bypasses MIME type issues)
+            console.log('🔧 Using GitHub Pages compatible WASM loading...');
+            await init();
+          } else {
+            // Local development: Use standard streaming (optimal performance)
+            console.log('🚀 Using streaming WASM loading for local development...');
+            await init();
+          }
+          
+          console.log('✅ WASM module initialized successfully');
+          return true;
+        } catch (error) {
+          console.error('❌ WASM initialization failed:', error);
+          throw error;
+        }
+      }
+
       async function initializeGomoku() {
         try {
-          // Initialize WASM module
-          await init();
+          // Initialize WASM module with fallback strategy
+          await initWasmWithFallback();
           
           // Make WASM classes available globally for compatibility
           window.WasmGame = Game;
@@ -463,16 +490,36 @@
           
         } catch (error) {
           console.error('❌ Failed to initialize Gomoku WASM:', error);
-          // Fallback: Show error to user
+          
+          // Graceful degradation: Keep UI structure, show WASM status
           document.addEventListener('DOMContentLoaded', () => {
-            document.body.innerHTML = `
-              <div style="text-align: center; padding: 50px; font-family: Arial;">
-                <h1>❌ WASM Loading Error</h1>
-                <p>Failed to load Rust/WASM game engine.</p>
-                <p>Error: ${error.message}</p>
-                <button onclick="location.reload()">🔄 Retry</button>
-              </div>
-            `;
+            // Update WASM status in assistance modal instead of destroying page
+            const wasmStatus = document.getElementById('wasmStatus');
+            if (wasmStatus) {
+              wasmStatus.innerHTML = `
+                <span class="status-indicator">❌</span>
+                <span class="status-text">WASM Loading Failed: ${error.message}</span>
+              `;
+            }
+            
+            // Update game status to indicate WASM issue
+            const gameStatus = document.getElementById('gameStatus');
+            if (gameStatus) {
+              gameStatus.textContent = 'WASM Engine nicht verfügbar - Seite neu laden versuchen';
+              gameStatus.style.color = '#ff6b6b';
+            }
+            
+            // Add retry button to game controls
+            const controls = document.querySelector('.game-controls');
+            if (controls) {
+              const retryBtn = document.createElement('button');
+              retryBtn.className = 'btn btn-warning';
+              retryBtn.innerHTML = '🔄 WASM Neu laden';
+              retryBtn.onclick = () => location.reload();
+              controls.prepend(retryBtn);
+            }
+            
+            console.log('🛡️ Graceful degradation activated - UI structure preserved');
           });
         }
       }

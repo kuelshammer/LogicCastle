@@ -1,0 +1,26 @@
+# Headers for WebAssembly files
+# Note: GitHub Pages doesn't support _headers files natively
+# This file documents the required configuration for future hosting solutions
+
+/*.wasm
+  Content-Type: application/wasm
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Opener-Policy: same-origin
+
+# Cache optimization for static assets
+/game_engine/pkg/*.wasm
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+/game_engine/pkg/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# ES6 modules
+/assets/js/**/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=86400
+
+/games/*/js/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=86400
