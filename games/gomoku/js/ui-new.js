@@ -372,28 +372,316 @@ export class GomokuUINew extends BaseGameUI {
         }
     }
 
-    // ==================== PLACEHOLDER METHODS ====================
-    // These methods need to be implemented in subsequent phases
-    // For now they maintain the legacy interface
+    // ==================== CORE UI MODULE INTEGRATION ====================
+    // Phase 2.2: Working methods using the module system
+
+    /**
+     * Get intersection element by coordinates
+     */
+    getIntersection(row, col) {
+        return this.elements.gameBoard.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+    }
+
+    /**
+     * Update display using module system
+     */
+    updateDisplay() {
+        this.updateCurrentPlayer();
+        this.updateScores();
+        this.updateGameStatus();
+        this.updateControls();
+        this.updateMoveCounter();
+    }
+
+    /**
+     * Update current player indicator
+     */
+    updateCurrentPlayer() {
+        if (!this.elements.currentPlayerIndicator) return;
+        
+        const indicator = this.elements.currentPlayerIndicator;
+        const playerStone = indicator.querySelector('.player-stone');
+        const playerName = indicator.querySelector('.player-name');
+
+        if (playerStone && this.game) {
+            playerStone.className = `player-stone ${this.game.getPlayerColorClass(this.game.currentPlayer)}`;
+        }
+        if (playerName && this.game) {
+            playerName.textContent = this.game.getPlayerName(this.game.currentPlayer);
+        }
+    }
+
+    /**
+     * Update scores display
+     */
+    updateScores() {
+        if (this.elements.blackScore && this.game && this.game.scores) {
+            this.elements.blackScore.textContent = this.game.scores.black || 0;
+        }
+        if (this.elements.whiteScore && this.game && this.game.scores) {
+            this.elements.whiteScore.textContent = this.game.scores.white || 0;
+        }
+    }
+
+    /**
+     * Update move counter
+     */
+    updateMoveCounter() {
+        if (this.elements.moveCounter && this.game && this.game.moveHistory) {
+            this.elements.moveCounter.textContent = this.game.moveHistory.length;
+        }
+    }
+
+    /**
+     * Update game status
+     */
+    updateGameStatus(customMessage = null) {
+        if (!this.elements.gameStatus) return;
+        
+        if (customMessage) {
+            this.elements.gameStatus.textContent = customMessage;
+            return;
+        }
+
+        let status = '';
+        
+        if (this.game && this.game.gameOver) {
+            if (this.game.winner) {
+                status = `${this.game.getPlayerName(this.game.winner)} hat gewonnen!`;
+            } else {
+                status = 'Unentschieden!';
+            }
+        } else {
+            status = 'Spiel läuft...';
+        }
+        
+        this.elements.gameStatus.textContent = status;
+    }
+
+    /**
+     * Update control buttons state
+     */
+    updateControls() {
+        if (this.elements.undoBtn && this.game && this.game.moveHistory) {
+            this.elements.undoBtn.disabled = 
+                this.game.moveHistory.length === 0 || this.isProcessingMove;
+        }
+    }
+
+    /**
+     * Handle intersection click with module integration
+     */
+    onIntersectionClick(row, col) {
+        if (this.isProcessingMove || (this.game && this.game.gameOver)) {
+            return;
+        }
+
+        // Check if position is valid (not occupied)
+        if (this.game && !this.game.isEmpty(row, col)) return;
+
+        // Update cursor position
+        this.cursor.row = row;
+        this.cursor.col = col; 
+        this.cursor.active = true;
+        
+        // Update visual feedback
+        this.updateCrosshairPosition();
+        
+        console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
+
+        // Use the same two-stage logic as keyboard
+        this.placeCursorStone();
+    }
+
+    /**
+     * Handle intersection hover
+     */
+    onIntersectionHover(row, col) {
+        if (this.isProcessingMove || (this.game && this.game.gameOver)) {
+            return;
+        }
+
+        const intersection = this.getIntersection(row, col);
+        if (intersection && !intersection.classList.contains('occupied') && 
+            !intersection.classList.contains('feedback-selected')) {
+            
+            // Add hover feedback
+            intersection.classList.add('feedback-hover');
+            
+            // Add temporary stone preview for hover
+            this.addStonePreview(intersection);
+        }
+    }
+
+    /**
+     * Handle intersection leave
+     */
+    onIntersectionLeave(row, col) {
+        const intersection = this.getIntersection(row, col);
+        
+        if (intersection) {
+            // Remove hover feedback
+            intersection.classList.remove('feedback-hover');
+            
+            // Remove preview stones (but keep selected state)
+            const previewStone = intersection.querySelector('.stone-preview');
+            if (previewStone && !intersection.classList.contains('feedback-selected')) {
+                previewStone.remove();
+            }
+        }
+    }
+
+    /**
+     * Add stone preview to intersection
+     */
+    addStonePreview(intersection) {
+        // Remove existing preview
+        const existingPreview = intersection.querySelector('.stone-preview');
+        if (existingPreview) {
+            existingPreview.remove();
+        }
+        
+        // Create preview stone
+        const preview = document.createElement('div');
+        preview.className = `stone-preview ${this.game ? this.game.getPlayerColorClass(this.game.currentPlayer) : 'black'}`;
+        intersection.appendChild(preview);
+    }
+
+    /**
+     * Make a move with module integration
+     */
+    makeMove(row, col) {
+        if (this.isProcessingMove) {
+            return;
+        }
+
+        this.isProcessingMove = true;
+
+        try {
+            const result = this.game.makeMove(row, col);
+            console.log('Move result:', result);
+            // If we get here, the move was successful
+        } catch (error) {
+            this.isProcessingMove = false;
+            this.showMessage(error.message, 'error');
+            return;
+        }
+
+        // Animation will complete and set isProcessingMove to false
+    }
+
+    /**
+     * Override newGame to use module system
+     */
+    newGame() {
+        if (this.game && typeof this.game.resetGame === 'function') {
+            this.game.resetGame();
+        }
+        this.showMessage('Neues Spiel gestartet', 'info');
+        console.log('🆕 New game started');
+    }
+
+    /**
+     * Override undoMove to use module system
+     */
+    undoMove() {
+        if (this.isProcessingMove) {
+            return;
+        }
+
+        if (this.game && typeof this.game.undoMove === 'function') {
+            this.game.undoMove();
+            
+            // In AI mode, undo one more move to get back to human player's turn
+            if (this.ai && this.gameMode.includes('bot') && this.game.moveHistory.length > 0) {
+                this.game.undoMove();
+            }
+        }
+        
+        this.showMessage('Zug rückgängig gemacht', 'info');
+        console.log('↩️ Move undone');
+    }
+
+    /**
+     * Override resetScore to use module system
+     */
+    resetScore() {
+        if (this.game && typeof this.game.resetScores === 'function') {
+            this.game.resetScores();
+        }
+        this.updateScores();
+        this.updateDisplay();
+        this.showMessage('Punkte zurückgesetzt', 'info');
+        console.log('🔄 Scores reset');
+    }
+
+    // ==================== WORKING PLACEHOLDER METHODS ====================
+    // These are simplified implementations for Phase 2.2
 
     updateColumnHighlight() {
-        // TODO: Implement in Phase 2.4
-        console.log('⚠️ updateColumnHighlight - TODO in Phase 2.4');
+        // Simplified implementation - full version in Phase 2.4
+        const board = this.elements.gameBoard;
+        
+        if (this.cursor.active && board) {
+            board.classList.add('column-highlighted');
+        } else if (board) {
+            board.classList.remove('column-highlighted');
+        }
     }
 
     updateRowHighlight() {
-        // TODO: Implement in Phase 2.4  
-        console.log('⚠️ updateRowHighlight - TODO in Phase 2.4');
+        // Simplified implementation - full version in Phase 2.4
+        const board = this.elements.gameBoard;
+        
+        if (this.cursor.active && board) {
+            board.classList.add('row-highlighted');
+        } else if (board) {
+            board.classList.remove('row-highlighted');
+        }
     }
 
     updateCrosshairPosition() {
-        // TODO: Implement in Phase 2.4
-        console.log('⚠️ updateCrosshairPosition - TODO in Phase 2.4');
+        // Phase 2.2: Basic implementation using modules
+        this.updateColumnHighlight();
+        this.updateRowHighlight();
+        this.updateCursorVisual();
+        
+        // Log current position for debugging
+        const position = this.getCurrentCrosshairPosition();
+        console.log(`🎯 Crosshair at: ${position} (Row ${this.cursor.row}, Col ${this.cursor.col})`);
+    }
+
+    /**
+     * Update cursor visual indicators on intersections
+     */
+    updateCursorVisual() {
+        // Remove previous cursor highlights
+        const allIntersections = this.elements.gameBoard.querySelectorAll('.intersection');
+        allIntersections.forEach(intersection => {
+            intersection.classList.remove('cursor-active');
+        });
+
+        // Add cursor highlight to current position
+        if (this.cursor.active) {
+            const currentIntersection = this.getIntersection(this.cursor.row, this.cursor.col);
+            if (currentIntersection) {
+                currentIntersection.classList.add('cursor-active');
+            }
+        }
     }
 
     removeCursorDisplay() {
-        // TODO: Implement in Phase 2.4
-        console.log('⚠️ removeCursorDisplay - TODO in Phase 2.4');
+        // Phase 2.2: Basic implementation
+        const board = this.elements.gameBoard;
+        if (board) {
+            board.classList.remove('column-highlighted', 'row-highlighted');
+        }
+        
+        // Remove cursor highlights from intersections
+        const allIntersections = this.elements.gameBoard.querySelectorAll('.intersection');
+        allIntersections.forEach(intersection => {
+            intersection.classList.remove('cursor-active');
+        });
     }
 
     getCurrentCrosshairPosition() {
@@ -403,13 +691,27 @@ export class GomokuUINew extends BaseGameUI {
     }
 
     addSelectionPreview(row, col) {
-        // TODO: Implement in Phase 2.4
-        console.log(`⚠️ addSelectionPreview(${row}, ${col}) - TODO in Phase 2.4`);
+        // Phase 2.2: Working implementation
+        this.removeSelectionPreview();
+        const intersection = this.getIntersection(row, col);
+        if (intersection && !intersection.classList.contains('occupied')) {
+            intersection.classList.add('feedback-selected');
+            this.addStonePreview(intersection);
+            this.selectionState.hasPreview = true;
+        }
     }
 
     removeSelectionPreview() {
-        // TODO: Implement in Phase 2.4
-        console.log('⚠️ removeSelectionPreview - TODO in Phase 2.4');
+        // Phase 2.2: Working implementation
+        const selected = this.elements.gameBoard.querySelector('.intersection.feedback-selected');
+        if (selected) {
+            selected.classList.remove('feedback-selected');
+            const preview = selected.querySelector('.stone-preview');
+            if (preview) {
+                preview.remove();
+            }
+        }
+        this.selectionState.hasPreview = false;
     }
 
     resetSelectionState() {
@@ -465,33 +767,145 @@ export class GomokuUINew extends BaseGameUI {
         console.log('⚠️ initializeAssistanceSystem - TODO in Phase 2.5');
     }
 
-    // Game event handlers (placeholder implementations)
+    // ==================== GAME EVENT HANDLERS ====================
+    // Phase 2.2: Working implementations using module system
+
     onMoveMade(move) {
-        console.log('⚠️ onMoveMade - TODO in Phase 2.4', move);
+        console.log('🔍 onMoveMade called:', move);
+        
+        // Get intersection for cleanup and state management
+        const intersection = this.getIntersection(move.row, move.col);
+        if (!intersection) {
+            console.error('❌ No intersection found for move!', move);
+            return;
+        }
+
+        // Remove any preview stones from intersection
+        const previewStone = intersection.querySelector('.stone-preview');
+        if (previewStone) {
+            previewStone.remove();
+        }
+
+        // Clear hints and last move indicators
+        this.clearHintHighlights();
+        this.clearLastMoveIndicators();
+
+        // Create stone element
+        const stone = document.createElement('div');
+        const playerClass = this.game.getPlayerColorClass(move.player);
+        stone.className = `stone ${playerClass} stone-place last-move`;
+
+        // Position stone in intersection
+        intersection.appendChild(stone);
+        intersection.classList.add('occupied');
+        console.log('✅ Stone placed! Total stones:', document.querySelectorAll('.stone').length);
+
+        // Add move indicator for notation
+        const moveIndicator = document.createElement('div');
+        moveIndicator.className = 'move-indicator';
+        moveIndicator.title = `${move.moveNumber || 'Move'}. ${this.getCurrentCrosshairPosition()}`;
+        stone.appendChild(moveIndicator);
+
+        // Remove animation class after animation completes
+        setTimeout(() => {
+            stone.classList.remove('stone-place');
+            this.isProcessingMove = false;
+            this.updateDisplay();
+        }, this.animationDuration);
     }
 
     onGameWon(data) {
-        this.showMessage(`${data.winner} has won!`, 'win');
+        // Highlight winning stones
+        if (data.winningStones) {
+            data.winningStones.forEach(stonePos => {
+                const intersection = this.getIntersection(stonePos.row, stonePos.col);
+                const stone = intersection?.querySelector('.stone');
+                if (stone) {
+                    stone.classList.add('winning');
+                }
+            });
+        }
+
+        this.updateDisplay();
+        this.showMessage(`${this.game.getPlayerName(data.winner)} hat gewonnen!`, 'win');
     }
 
     onGameDraw() {
-        this.showMessage('Game ended in a draw', 'info');
+        this.updateDisplay();
+        this.showMessage('Unentschieden! Das Spielfeld ist voll.', 'info');
     }
 
     onGameOver(data) {
-        console.log('⚠️ onGameOver - TODO in Phase 2.4', data);
+        // Update scores from game engine
+        if (data.scores) {
+            this.game.scores = data.scores;
+        }
+        this.updateDisplay();
     }
 
     onGameReset() {
-        console.log('⚠️ onGameReset - TODO in Phase 2.4');
+        this.createBoard();
+        this.clearHintHighlights();
+        this.updateDisplay();
+        console.log('🔄 Game reset completed');
     }
 
     onPlayerChanged(player) {
-        console.log('⚠️ onPlayerChanged - TODO in Phase 2.4', player);
+        this.updateDisplay();
+        console.log(`👤 Player changed to: ${player}`);
     }
 
     onMoveUndone(move) {
-        console.log('⚠️ onMoveUndone - TODO in Phase 2.4', move);
+        const intersection = this.getIntersection(move.row, move.col);
+        const stone = intersection?.querySelector('.stone');
+        if (stone) {
+            stone.remove();
+        }
+        intersection?.classList.remove('occupied');
+
+        // Remove winning highlights
+        document.querySelectorAll('.stone.winning').forEach(stone => {
+            stone.classList.remove('winning');
+        });
+
+        this.clearLastMoveIndicators();
+
+        // Add last move indicator to the new last move
+        if (this.game.getLastMove) {
+            const lastMove = this.game.getLastMove();
+            if (lastMove) {
+                const lastIntersection = this.getIntersection(lastMove.row, lastMove.col);
+                const lastStone = lastIntersection?.querySelector('.stone');
+                if (lastStone) {
+                    lastStone.classList.add('last-move');
+                }
+            }
+        }
+
+        this.updateDisplay();
+    }
+
+    /**
+     * Clear hint highlights
+     */
+    clearHintHighlights() {
+        document.querySelectorAll('.intersection.hint-move').forEach(intersection => {
+            intersection.classList.remove(
+                'hint-move',
+                'hint-level-0',
+                'hint-level-1',
+                'hint-level-2'
+            );
+        });
+    }
+
+    /**
+     * Clear last move indicators
+     */
+    clearLastMoveIndicators() {
+        document.querySelectorAll('.stone.last-move').forEach(stone => {
+            stone.classList.remove('last-move');
+        });
     }
 }
 
