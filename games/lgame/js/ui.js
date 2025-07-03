@@ -12,7 +12,7 @@
  * - Error handling and user feedback
  */
 
-import { createLGame } from './wasm-integration.js';
+import init, { LGame } from '../../../game_engine/pkg/game_engine.js';
 import { LGameCoordUtils } from './coord-utils.js';
 
 class LGameUI {
@@ -46,21 +46,21 @@ class LGameUI {
             
             this.updateLoadingProgress('Lade WASM Engine...');
             
-            // Initialize game engine
-            this.game = await createLGame();
+            // Initialize WASM module
+            await init();
+            
+            // Create L-Game instance
+            this.game = new LGame();
             this.initialized = true;
             
-            // Set up game state callbacks
-            this.game.onStateChange((eventType, gameState) => {
-                this.updateGameDisplay(gameState);
-            });
+            // Game state will be updated manually after moves
             
             this.updateLoadingProgress('Fertig!');
             await this.delay(500);
             
             // Hide loading overlay and show game
             this.hideLoadingOverlay();
-            this.updateGameDisplay(this.game.getGameStats());
+            this.updateGameDisplay();
             this.renderBoard();
             
             console.log('✅ L-Game UI initialized successfully');
@@ -162,12 +162,37 @@ class LGameUI {
         console.log(`Cell clicked: (${row}, ${col})`);
         
         try {
-            // For now, just show debug info about the clicked cell
-            const gameState = this.game.getGameStats();
-            console.log('Current game state:', gameState);
+            // Check if it's game over
+            if (this.game.isGameOver()) {
+                this.showTemporaryMessage('Spiel ist beendet!', 'info');
+                return;
+            }
             
-            // TODO: Implement move selection and execution
-            this.showTemporaryMessage(`Zelle (${row}, ${col}) geklickt`, 'info');
+            console.log(`Cell clicked: (${row}, ${col})`);
+            
+            // For now, implement basic move placement for testing
+            // In a real L-Game, this would be L-piece placement + optional neutral piece move
+            // TODO: Implement proper L-piece selection and movement with orientations
+            try {
+                // Try to make a simple move (this will need to be enhanced for proper L-Game logic)
+                this.game.makeMove(row, col, 0); // row, col, orientation (placeholder)
+                
+                // Update UI after successful move
+                this.updateGameDisplay();
+                this.renderBoard();
+                
+                // Check for game end
+                if (this.game.isGameOver()) {
+                    const winner = this.game.getWinner();
+                    if (winner !== undefined) {
+                        this.showTemporaryMessage(`Spieler ${winner === 1 ? '1' : '2'} gewinnt!`, 'success');
+                    }
+                }
+                
+            } catch (moveError) {
+                console.warn('Move failed:', moveError);
+                this.showTemporaryMessage('Ungültiger Zug', 'error');
+            }
             
         } catch (error) {
             console.error('Error handling cell click:', error);
@@ -185,17 +210,15 @@ class LGameUI {
         
         try {
             const board = this.game.getBoard();
-            const cells = this.boardElement.querySelectorAll('.board-cell');
+            const cells = this.boardElement.querySelectorAll('.lgame-cell');
             
             cells.forEach((cell, index) => {
                 const row = Math.floor(index / 4);
                 const col = index % 4;
-                const cellValue = board[row][col];
+                const cellValue = board[row * 4 + col];
                 
-                // Clear previous styling
-                cell.className = 'board-cell bg-white border-2 border-amber-600 rounded cursor-pointer hover:bg-amber-50 transition-colors flex items-center justify-center relative';
-                cell.style.width = `${this.cellSize}px`;
-                cell.style.height = `${this.cellSize}px`;
+                // Clear previous styling and content
+                cell.className = 'lgame-cell';
                 cell.innerHTML = '';
                 
                 // Render cell content based on value
@@ -226,47 +249,66 @@ class LGameUI {
     
     /**
      * Update game display with current state
-     * @param {Object} gameState - Current game state
      */
-    updateGameDisplay(gameState) {
-        // Update current player
-        const currentPlayerElement = document.getElementById('current-player');
-        if (currentPlayerElement) {
-            currentPlayerElement.textContent = gameState.currentPlayer;
-            currentPlayerElement.className = gameState.currentPlayer === 'Player 1' 
-                ? 'text-lg font-bold text-blue-600' 
-                : 'text-lg font-bold text-red-600';
-        }
+    updateGameDisplay() {
+        if (!this.game) return;
         
-        // Update move count
-        const moveCountElement = document.getElementById('move-count');
-        if (moveCountElement) {
-            moveCountElement.textContent = gameState.moveCount;
-        }
-        
-        // Update legal moves count
-        const legalMovesElement = document.getElementById('legal-moves-count');
-        if (legalMovesElement) {
-            legalMovesElement.textContent = gameState.availableMovesCount;
-        }
-        
-        // Update game status
-        const gameStatusElement = document.getElementById('game-status');
-        if (gameStatusElement) {
-            if (gameState.gameOver) {
-                gameStatusElement.textContent = `${gameState.winner} gewinnt!`;
-                gameStatusElement.className = 'font-bold text-green-600';
-            } else {
-                gameStatusElement.textContent = 'Läuft';
-                gameStatusElement.className = 'font-bold text-blue-600';
+        try {
+            // Get current game state from WASM
+            const currentPlayer = this.game.getCurrentPlayer();
+            const isGameOver = this.game.isGameOver();
+            
+            // Update current player
+            const currentPlayerElement = document.getElementById('current-player');
+            if (currentPlayerElement) {
+                const playerName = currentPlayer === 1 ? 'Spieler 1' : 'Spieler 2';
+                currentPlayerElement.textContent = playerName;
+                currentPlayerElement.className = currentPlayer === 1 
+                    ? 'text-lg font-bold text-blue-600' 
+                    : 'text-lg font-bold text-red-600';
             }
+            
+            // Update move count (placeholder - L-Game doesn't track move count the same way)
+            const moveCountElement = document.getElementById('move-count');
+            if (moveCountElement) {
+                moveCountElement.textContent = '0'; // TODO: Implement proper move counting
+            }
+            
+            // Update legal moves count
+            const legalMovesElement = document.getElementById('legal-moves-count');
+            if (legalMovesElement) {
+                try {
+                    const legalMoves = this.game.getLegalMoves();
+                    legalMovesElement.textContent = legalMoves.length;
+                } catch (error) {
+                    legalMovesElement.textContent = '-';
+                }
+            }
+            
+            // Update game status
+            const gameStatusElement = document.getElementById('game-status');
+            if (gameStatusElement) {
+                if (isGameOver) {
+                    const winner = this.game.getWinner();
+                    if (winner !== undefined) {
+                        gameStatusElement.textContent = `Spieler ${winner === 1 ? '1' : '2'} gewinnt!`;
+                        gameStatusElement.className = 'font-bold text-green-600';
+                    } else {
+                        gameStatusElement.textContent = 'Unentschieden';
+                        gameStatusElement.className = 'font-bold text-gray-600';
+                    }
+                } else {
+                    gameStatusElement.textContent = 'Läuft';
+                    gameStatusElement.className = 'font-bold text-blue-600';
+                }
+            }
+            
+            // Update system status
+            this.updateSystemStatus();
+            
+        } catch (error) {
+            console.error('Error updating game display:', error);
         }
-        
-        // Update system status
-        this.updateSystemStatus();
-        
-        // Re-render board
-        this.renderBoard();
     }
     
     /**
@@ -294,7 +336,10 @@ class LGameUI {
         if (!this.game) return;
         
         try {
-            await this.game.resetGame();
+            // Create new game instance instead of resetGame (which may not exist)
+            this.game = new LGame();
+            this.updateGameDisplay();
+            this.renderBoard();
             this.showTemporaryMessage('Spiel zurückgesetzt', 'success');
         } catch (error) {
             console.error('Error resetting game:', error);
@@ -410,5 +455,5 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.initialize();
 });
 
-// Export for testing and debugging
-window.LGameUI = LGameUI;
+// Export for ES6 modules
+export default LGameUI;

@@ -32,12 +32,12 @@
     </script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 font-sans text-gray-800">
-    <header class="text-center text-white p-4 md:p-8">
+    <header class="text-center text-white p-4 md:p-8" role="banner">
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-shadow-lg">🏰 LogicCastle</h1>
         <p class="text-lg md:text-xl opacity-90">Eine Sammlung mathematischer Spiele</p>
     </header>
 
-    <main class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8 p-4 md:p-8 max-w-6xl mx-auto">
+    <main class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8 p-4 md:p-8 max-w-6xl mx-auto" role="main" aria-label="Spielesammlung">
         <a href="games/connect4/" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="connect4" data-key="1" role="button" aria-label="4 Gewinnt spielen - Klassisches Strategiespiel">
             <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">1</div>
             <h2 class="text-2xl font-bold mb-4 text-gray-800">4 Gewinnt</h2>
@@ -196,7 +196,7 @@
         </a>
     </main>
 
-    <footer class="text-center p-8 text-white opacity-80">
+    <footer class="text-center p-8 text-white opacity-80" role="contentinfo">
         <p class="text-lg mb-4">Verwende die Tasten 1-5 oder klicke auf ein Spiel zum Starten</p>
         <div class="text-sm opacity-60">
             <div class="mb-1">Letzte Aktualisierung: 03.07.2025 - 14:30 Uhr</div>
@@ -205,6 +205,6 @@
         </div>
     </footer>
 
-    <script type="module" src="./assets/js/landing-page.js"></script>
+    <script type="module" src="./assets/js/landing-page.js?v=20250703"></script>
 </body>
 </html>

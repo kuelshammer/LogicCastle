@@ -677,8 +677,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // Make game globally available for debugging
-    window.hexGame = game;
+    // Export for debugging (avoid window globals)
+    if (typeof window !== 'undefined') {
+        window.hexGame = game; // Only for development debugging
+    }
     
     // Initialize the game
     await game.init();
