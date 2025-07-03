@@ -1,5 +1,45 @@
 /* WASM-Enhanced Gobang UI Styles */
 
+/* BitPackedBoard Performance Section */
+.bitpacked-status-section {
+  margin-top: 15px;
+  padding: 15px;
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+  border: 1px solid #c3e6c3;
+  border-radius: 8px;
+}
+
+.bitpacked-status-section h4 {
+  margin: 0 0 10px 0;
+  color: #2d5a2d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.performance-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+.metric-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-weight: 600;
+  color: #2d5a2d;
+}
+
 /* Move Analysis Dashboard */
 .move-analysis-dashboard {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);

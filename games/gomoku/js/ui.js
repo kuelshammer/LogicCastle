@@ -26,6 +26,7 @@ export class GomokuUI {
 
         // WASM Integration
         this.wasmIntegration = null;
+        this.bitPackedIntegration = null;
 
         // UNIFIED CURSOR SYSTEM - Single source of truth for all positioning
         this.cursor = {

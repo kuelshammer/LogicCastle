@@ -204,6 +204,29 @@ export class Game {
    */
   get_blocking_moves_gobang(): Uint32Array;
 }
+export class GomokuBoard {
+  free(): void;
+  constructor();
+  get_cell(row: number, col: number): number;
+  make_move(row: number, col: number): boolean;
+  check_win(): boolean;
+  is_game_over(): boolean;
+  get_winner(): number | undefined;
+  get_current_player(): number;
+  get_move_count(): number;
+  clear(): void;
+  /**
+   * Get board state as Int8Array for JavaScript UI
+   */
+  get_board(): Int8Array;
+  memory_usage(): number;
+  is_valid_position(row: number, col: number): boolean;
+  count_stones(player: number): number;
+  /**
+   * Get legal moves for current player
+   */
+  get_legal_moves(): Uint32Array;
+}
 export class HexBoard {
   free(): void;
   constructor();
@@ -321,6 +344,31 @@ export class SolutionAnalysis {
   readonly get_add_operations: number;
   readonly get_subtract_operations: number;
   readonly get_difficulty_score: number;
+}
+export class TrioBoardBitPacked {
+  free(): void;
+  constructor(difficulty: number);
+  get_cell(row: number, col: number): number;
+  get_target_number(): number;
+  get_difficulty(): number;
+  /**
+   * Get board state as Int8Array for JavaScript UI
+   */
+  get_board(): Int8Array;
+  memory_usage(): number;
+  is_valid_position(row: number, col: number): boolean;
+  /**
+   * Check if three numbers at positions form a valid solution
+   */
+  check_combination(r1: number, c1: number, r2: number, c2: number, r3: number, c3: number): boolean;
+  /**
+   * Clear and regenerate the board
+   */
+  regenerate(difficulty: number): void;
+  /**
+   * Get performance statistics
+   */
+  get_performance_stats(): string;
 }
 export class TrioGame {
   free(): void;
@@ -484,7 +532,33 @@ export interface InitOutput {
   readonly hexboard_is_valid_position: (a: number, b: number, c: number) => number;
   readonly hexboard_count_stones: (a: number, b: number) => number;
   readonly hexboard_get_board_debug: (a: number, b: number) => void;
+  readonly __wbg_gomokuboard_free: (a: number, b: number) => void;
+  readonly gomokuboard_new: () => number;
+  readonly gomokuboard_get_cell: (a: number, b: number, c: number) => number;
+  readonly gomokuboard_make_move: (a: number, b: number, c: number, d: number) => void;
+  readonly gomokuboard_check_win: (a: number) => number;
+  readonly gomokuboard_is_game_over: (a: number) => number;
+  readonly gomokuboard_get_winner: (a: number) => number;
+  readonly gomokuboard_get_current_player: (a: number) => number;
+  readonly gomokuboard_get_move_count: (a: number) => number;
+  readonly gomokuboard_clear: (a: number) => void;
+  readonly gomokuboard_get_board: (a: number, b: number) => void;
+  readonly gomokuboard_memory_usage: (a: number) => number;
+  readonly gomokuboard_is_valid_position: (a: number, b: number, c: number) => number;
+  readonly gomokuboard_count_stones: (a: number, b: number) => number;
+  readonly gomokuboard_get_legal_moves: (a: number, b: number) => void;
+  readonly trioboardbitpacked_new: (a: number) => number;
+  readonly trioboardbitpacked_get_cell: (a: number, b: number, c: number) => number;
+  readonly trioboardbitpacked_get_target_number: (a: number) => number;
+  readonly trioboardbitpacked_get_difficulty: (a: number) => number;
+  readonly trioboardbitpacked_get_board: (a: number, b: number) => void;
+  readonly trioboardbitpacked_is_valid_position: (a: number, b: number, c: number) => number;
+  readonly trioboardbitpacked_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+  readonly trioboardbitpacked_regenerate: (a: number, b: number) => void;
+  readonly trioboardbitpacked_get_performance_stats: (a: number, b: number) => void;
   readonly game_is_terminal: (a: number) => number;
+  readonly __wbg_trioboardbitpacked_free: (a: number, b: number) => void;
+  readonly trioboardbitpacked_memory_usage: (a: number) => number;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_2: (a: number, b: number) => number;

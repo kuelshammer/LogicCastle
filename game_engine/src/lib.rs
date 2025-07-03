@@ -3524,8 +3524,387 @@ impl HexBoard {
     }
 }
 
+// WASM bindings for BitPackedBoard - GomokuBoard for performance AI
+#[wasm_bindgen]
+pub struct GomokuBoard {
+    inner: BitPackedBoard<15, 15, 2>, // 15x15 Gomoku board, 2 bits per cell (4 states)
+    current_player: u8,
+    move_count: u32,
+}
+
+#[wasm_bindgen]
+impl GomokuBoard {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self {
+            inner: BitPackedBoard::new(),
+            current_player: 1, // Player 1 (Black) starts
+            move_count: 0,
+        }
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_cell(&self, row: usize, col: usize) -> u8 {
+        self.inner.get_cell(row, col)
+    }
+    
+    #[wasm_bindgen]
+    pub fn make_move(&mut self, row: usize, col: usize) -> Result<bool, JsValue> {
+        // Check if position is valid and empty
+        if !self.inner.is_valid_position(row, col) {
+            return Err(JsValue::from_str("Invalid position"));
+        }
+        
+        if self.inner.get_cell(row, col) != 0 {
+            return Err(JsValue::from_str("Position already occupied"));
+        }
+        
+        // Place stone
+        self.inner.set_cell(row, col, self.current_player)
+            .map_err(|e| JsValue::from_str(&e))?;
+        
+        self.move_count += 1;
+        
+        // Check for win
+        let win = self.check_win();
+        
+        if !win {
+            // Switch players
+            self.current_player = if self.current_player == 1 { 2 } else { 1 };
+        }
+        
+        Ok(win)
+    }
+    
+    #[wasm_bindgen]
+    pub fn check_win(&self) -> bool {
+        self.check_win_for_player(self.current_player)
+    }
+    
+    #[wasm_bindgen]
+    pub fn is_game_over(&self) -> bool {
+        self.check_win_for_player(1) || self.check_win_for_player(2) || self.is_board_full()
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_winner(&self) -> Option<u8> {
+        if self.check_win_for_player(1) {
+            Some(1)
+        } else if self.check_win_for_player(2) {
+            Some(2)
+        } else {
+            None
+        }
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_current_player(&self) -> u8 {
+        self.current_player
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_move_count(&self) -> u32 {
+        self.move_count
+    }
+    
+    #[wasm_bindgen]
+    pub fn clear(&mut self) {
+        self.inner.clear();
+        self.current_player = 1;
+        self.move_count = 0;
+    }
+    
+    /// Get board state as Int8Array for JavaScript UI
+    #[wasm_bindgen]
+    pub fn get_board(&self) -> Vec<i8> {
+        let mut board = vec![0i8; 15 * 15];
+        for row in 0..15 {
+            for col in 0..15 {
+                let index = row * 15 + col;
+                board[index] = self.inner.get_cell(row, col) as i8;
+            }
+        }
+        board
+    }
+    
+    #[wasm_bindgen]
+    pub fn memory_usage(&self) -> usize {
+        self.inner.memory_usage()
+    }
+    
+    #[wasm_bindgen]
+    pub fn is_valid_position(&self, row: usize, col: usize) -> bool {
+        self.inner.is_valid_position(row, col)
+    }
+    
+    #[wasm_bindgen]
+    pub fn count_stones(&self, player: u8) -> usize {
+        self.inner.count_cells_with_value(player)
+    }
+    
+    /// Get legal moves for current player
+    #[wasm_bindgen]
+    pub fn get_legal_moves(&self) -> Vec<usize> {
+        let mut moves = Vec::new();
+        for row in 0..15 {
+            for col in 0..15 {
+                if self.inner.get_cell(row, col) == 0 {
+                    moves.push(row);
+                    moves.push(col);
+                }
+            }
+        }
+        moves
+    }
+    
+    // Performance optimized win checking using BitPackedBoard
+    fn check_win_for_player(&self, player: u8) -> bool {
+        // Check all possible 5-in-a-row combinations efficiently
+        let directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
+        
+        for row in 0..15 {
+            for col in 0..15 {
+                if self.inner.get_cell(row, col) == player {
+                    for &(dr, dc) in &directions {
+                        if self.check_line(row, col, dr, dc, player, 5) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
+    
+    fn check_line(&self, start_row: usize, start_col: usize, dr: i32, dc: i32, player: u8, target_length: usize) -> bool {
+        let mut count = 1; // Count the starting position
+        
+        // Check forward direction
+        let mut r = start_row as i32 + dr;
+        let mut c = start_col as i32 + dc;
+        while r >= 0 && r < 15 && c >= 0 && c < 15 {
+            if self.inner.get_cell(r as usize, c as usize) == player {
+                count += 1;
+                if count >= target_length {
+                    return true;
+                }
+            } else {
+                break;
+            }
+            r += dr;
+            c += dc;
+        }
+        
+        // Check backward direction
+        r = start_row as i32 - dr;
+        c = start_col as i32 - dc;
+        while r >= 0 && r < 15 && c >= 0 && c < 15 {
+            if self.inner.get_cell(r as usize, c as usize) == player {
+                count += 1;
+                if count >= target_length {
+                    return true;
+                }
+            } else {
+                break;
+            }
+            r -= dr;
+            c -= dc;
+        }
+        
+        count >= target_length
+    }
+    
+    fn is_board_full(&self) -> bool {
+        self.move_count >= 225 // 15x15 = 225
+    }
+}
+
+// WASM bindings for BitPackedBoard - TrioBoardBitPacked for performance optimization
+#[wasm_bindgen]
+pub struct TrioBoardBitPacked {
+    inner: BitPackedBoard<7, 7, 4>, // 7x7 Trio board, 4 bits per cell (values 0-15)
+    target_number: u8,
+    difficulty: u8,
+}
+
+#[wasm_bindgen]
+impl TrioBoardBitPacked {
+    #[wasm_bindgen(constructor)]
+    pub fn new(difficulty: u8) -> Self {
+        let mut inner = BitPackedBoard::new();
+        let mut rng = thread_rng();
+        
+        // Generate numbers based on difficulty
+        let mut numbers_to_place: Vec<u8> = Vec::new();
+        match difficulty {
+            1 => {
+                // Easy: More small numbers, frequent 1s and 2s
+                for _ in 0..6 { numbers_to_place.push(1); }
+                for _ in 0..5 { numbers_to_place.push(2); }
+                for _ in 0..4 { numbers_to_place.push(3); }
+                for _ in 0..3 { numbers_to_place.push(4); }
+                for _ in 0..2 { numbers_to_place.push(5); }
+                for _ in 0..2 { numbers_to_place.push(6); }
+                for _ in 0..1 { numbers_to_place.push(7); }
+                for _ in 0..1 { numbers_to_place.push(8); }
+                for _ in 0..1 { numbers_to_place.push(9); }
+            },
+            2 => {
+                // Medium: Balanced distribution
+                for _ in 0..5 { numbers_to_place.push(1); }
+                for _ in 0..4 { numbers_to_place.push(2); }
+                for _ in 0..4 { numbers_to_place.push(3); }
+                for _ in 0..4 { numbers_to_place.push(4); }
+                for _ in 0..3 { numbers_to_place.push(5); }
+                for _ in 0..3 { numbers_to_place.push(6); }
+                for _ in 0..3 { numbers_to_place.push(7); }
+                for _ in 0..2 { numbers_to_place.push(8); }
+                for _ in 0..2 { numbers_to_place.push(9); }
+            },
+            _ => {
+                // Hard: More large numbers, challenging combinations
+                for _ in 0..3 { numbers_to_place.push(1); }
+                for _ in 0..3 { numbers_to_place.push(2); }
+                for _ in 0..3 { numbers_to_place.push(3); }
+                for _ in 0..4 { numbers_to_place.push(4); }
+                for _ in 0..4 { numbers_to_place.push(5); }
+                for _ in 0..4 { numbers_to_place.push(6); }
+                for _ in 0..4 { numbers_to_place.push(7); }
+                for _ in 0..4 { numbers_to_place.push(8); }
+                for _ in 0..4 { numbers_to_place.push(9); }
+            }
+        }
+        
+        // Shuffle and place numbers
+        numbers_to_place.shuffle(&mut rng);
+        
+        // Fill the 7x7 board
+        let mut index = 0;
+        for row in 0..7 {
+            for col in 0..7 {
+                if index < numbers_to_place.len() {
+                    let _ = inner.set_cell(row, col, numbers_to_place[index]);
+                    index += 1;
+                } else {
+                    // Fill remaining cells with random numbers 1-9
+                    let random_num = rng.gen_range(1..=9);
+                    let _ = inner.set_cell(row, col, random_num);
+                }
+            }
+        }
+        
+        // Generate target number (10-50 range for good gameplay)
+        let target_number = rng.gen_range(10..=50);
+        
+        Self {
+            inner,
+            target_number,
+            difficulty,
+        }
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_cell(&self, row: usize, col: usize) -> u8 {
+        self.inner.get_cell(row, col)
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_target_number(&self) -> u8 {
+        self.target_number
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_difficulty(&self) -> u8 {
+        self.difficulty
+    }
+    
+    /// Get board state as Int8Array for JavaScript UI
+    #[wasm_bindgen]
+    pub fn get_board(&self) -> Vec<i8> {
+        let mut board = vec![0i8; 7 * 7];
+        for row in 0..7 {
+            for col in 0..7 {
+                let index = row * 7 + col;
+                board[index] = self.inner.get_cell(row, col) as i8;
+            }
+        }
+        board
+    }
+    
+    #[wasm_bindgen]
+    pub fn memory_usage(&self) -> usize {
+        self.inner.memory_usage()
+    }
+    
+    #[wasm_bindgen]
+    pub fn is_valid_position(&self, row: usize, col: usize) -> bool {
+        self.inner.is_valid_position(row, col)
+    }
+    
+    /// Check if three numbers at positions form a valid solution
+    #[wasm_bindgen]
+    pub fn check_combination(&self, r1: usize, c1: usize, r2: usize, c2: usize, r3: usize, c3: usize) -> bool {
+        if !self.inner.is_valid_position(r1, c1) || 
+           !self.inner.is_valid_position(r2, c2) || 
+           !self.inner.is_valid_position(r3, c3) {
+            return false;
+        }
+        
+        let a = self.inner.get_cell(r1, c1);
+        let b = self.inner.get_cell(r2, c2);
+        let c = self.inner.get_cell(r3, c3);
+        
+        self.validate_solution_internal(a, b, c)
+    }
+    
+    /// Clear and regenerate the board
+    #[wasm_bindgen]
+    pub fn regenerate(&mut self, difficulty: u8) {
+        *self = Self::new(difficulty);
+    }
+    
+    /// Get performance statistics
+    #[wasm_bindgen]
+    pub fn get_performance_stats(&self) -> String {
+        let memory_usage = self.memory_usage();
+        let naive_memory = 49; // 7x7 array of bytes
+        let savings = ((naive_memory - memory_usage) as f64 / naive_memory as f64 * 100.0);
+        
+        format!(
+            "{{\"memoryUsage\":{},\"naiveMemory\":{},\"memorySavings\":\"{:.1}%\",\"boardSize\":\"7×7\",\"bitsPerCell\":4,\"engineType\":\"BitPackedBoard<7,7,4>\"}}",
+            memory_usage, naive_memory, savings
+        )
+    }
+    
+    // Internal validation logic (optimized for BitPackedBoard)
+    fn validate_solution_internal(&self, a: u8, b: u8, c: u8) -> bool {
+        let target = self.target_number;
+        
+        // Check all permutations efficiently
+        let permutations = [
+            (a, b, c), (a, c, b), (b, a, c), 
+            (b, c, a), (c, a, b), (c, b, a)
+        ];
+        
+        for (x, y, z) in permutations {
+            // Try addition: x * y + z = target
+            if x * y + z == target {
+                return true;
+            }
+            // Try subtraction: x * y - z = target
+            if x * y >= z && x * y - z == target {
+                return true;
+            }
+        }
+        
+        false
+    }
+}
+
 // Type aliases for common board configurations
 pub type HexBoardInternal = BitPackedBoard<11, 11, 2>;  // 11x11 hex, 2 bits per cell
+pub type GomokuBoardInternal = BitPackedBoard<15, 15, 2>; // 15x15 Gomoku, 2 bits per cell
+pub type TrioBoardInternal = BitPackedBoard<7, 7, 4>;   // 7x7 Trio, 4 bits per cell (0-15, for numbers 1-9)
 pub type DotsBoxesBoard = BitPackedBoard<8, 8, 3>;     // 8x8 dots&boxes, 3 bits per cell
 pub type ShannonBoard = BitPackedBoard<7, 7, 2>;       // 7x7 Shannon game, 2 bits per cell
 pub type LargeGomokuBoard = BitPackedBoard<19, 19, 2>; // 19x19 professional Gomoku

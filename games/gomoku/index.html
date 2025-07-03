@@ -367,6 +367,32 @@
               <span class="status-indicator">🔄</span>
               <span class="status-text">Überprüfe WASM-Engine...</span>
             </div>
+            
+            <div class="bitpacked-status-section" id="bitpackedSection" style="display: none;">
+              <h4>⚡ BitPackedBoard Performance</h4>
+              <div class="performance-metrics">
+                <div class="metric">
+                  <span class="metric-label">Engine:</span>
+                  <span class="metric-value" id="bitpacked-status">Standard Board</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Memory:</span>
+                  <span class="metric-value" id="memory-usage">225 bytes</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Savings:</span>
+                  <span class="metric-value" id="memory-savings">0%</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Moves:</span>
+                  <span class="metric-value" id="move-count">0</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">Avg Time:</span>
+                  <span class="metric-value" id="avg-move-time">0ms</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -379,12 +405,13 @@
 
     <!-- Load WASM and initialize game modules -->
     <script type="module">
-      import init, { Game, Player } from '../../game_engine/pkg/game_engine.js';
+      import init, { Game, Player, GomokuBoard } from '../../game_engine/pkg/game_engine.js';
       import { GomokuGame } from './js/game_v2.js';
       import { GomokuUI } from './js/ui.js';
       import { EnhancedGobangAI } from './js/ai-enhanced.js';
       import { GomokuAssistanceSystem } from './js/assistance-system.js';
       import { WasmGomokuIntegration } from './js/wasm-integration.js';
+      import { BitPackedGomokuIntegration } from './js/bitpacked-integration.js';
 
       async function initializeGomoku() {
         try {
@@ -415,6 +442,18 @@
               const wasmIntegration = new WasmGomokuIntegration(ui);
               ui.wasmIntegration = wasmIntegration;
               console.log('✅ WASM Integration enabled');
+              
+              // Initialize BitPackedBoard integration for performance optimization
+              const bitPackedIntegration = new BitPackedGomokuIntegration(ui);
+              ui.bitPackedIntegration = bitPackedIntegration;
+              
+              // Show BitPackedBoard performance section
+              const bitpackedSection = document.getElementById('bitpackedSection');
+              if (bitpackedSection) {
+                bitpackedSection.style.display = 'block';
+              }
+              
+              console.log('⚡ BitPackedBoard Integration enabled');
             } catch (error) {
               console.warn('⚠️ WASM Integration disabled due to conflicts:', error.message);
             }

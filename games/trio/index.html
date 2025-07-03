@@ -149,10 +149,11 @@
 
     <!-- Load WASM and initialize game modules -->
     <script type="module">
-      import init, { Game, TrioGame as WasmTrioGame } from '../../game_engine/pkg/game_engine.js';
+      import init, { Game, TrioGame as WasmTrioGame, TrioBoardBitPacked } from '../../game_engine/pkg/game_engine.js';
       import { TrioGame, initTrioWasm } from './js/game.js';
       import { TrioUI } from './js/ui.js';
       import { TrioAI } from './js/ai.js';
+      import { TrioBitPackedIntegration } from './js/bitpacked-integration.js';
 
       async function run() {
         // Initialize WASM module
@@ -161,15 +162,28 @@
         // Make WASM Game and TrioGame available globally
         window.WasmGame = Game;
         window.TrioGame = WasmTrioGame;
+        window.TrioBoardBitPacked = TrioBoardBitPacked;
         
         // Initialize Trio WASM integration
         await initTrioWasm();
         
         // Initialize the game when page loads
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
           const game = new TrioGame();
           const ui = new TrioUI(game);
           ui.init();
+          
+          // Initialize BitPackedBoard integration for performance optimization
+          try {
+            const bitPackedIntegration = new TrioBitPackedIntegration(game);
+            ui.bitPackedIntegration = bitPackedIntegration;
+            game.bitPackedIntegration = bitPackedIntegration;
+            
+            console.log('⚡ Trio BitPackedBoard Integration enabled');
+            console.log('📊 Memory savings:', bitPackedIntegration.getMemoryComparison());
+          } catch (error) {
+            console.warn('⚠️ Trio BitPackedBoard Integration disabled:', error.message);
+          }
         });
       }
       

@@ -930,6 +930,156 @@ export class Game {
     }
 }
 
+const GomokuBoardFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_gomokuboard_free(ptr >>> 0, 1));
+
+export class GomokuBoard {
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        GomokuBoardFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_gomokuboard_free(ptr, 0);
+    }
+    constructor() {
+        const ret = wasm.gomokuboard_new();
+        this.__wbg_ptr = ret >>> 0;
+        GomokuBoardFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_cell(row, col) {
+        const ret = wasm.gomokuboard_get_cell(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {boolean}
+     */
+    make_move(row, col) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokuboard_make_move(retptr, this.__wbg_ptr, row, col);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 !== 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @returns {boolean}
+     */
+    check_win() {
+        const ret = wasm.gomokuboard_check_win(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @returns {boolean}
+     */
+    is_game_over() {
+        const ret = wasm.gomokuboard_is_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    get_winner() {
+        const ret = wasm.gomokuboard_get_winner(this.__wbg_ptr);
+        return ret === 0xFFFFFF ? undefined : ret;
+    }
+    /**
+     * @returns {number}
+     */
+    get_current_player() {
+        const ret = wasm.gomokuboard_get_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @returns {number}
+     */
+    get_move_count() {
+        const ret = wasm.gomokuboard_get_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    clear() {
+        wasm.gomokuboard_clear(this.__wbg_ptr);
+    }
+    /**
+     * Get board state as Int8Array for JavaScript UI
+     * @returns {Int8Array}
+     */
+    get_board() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokuboard_get_board(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayI8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.gomokuboard_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {boolean}
+     */
+    is_valid_position(row, col) {
+        const ret = wasm.gomokuboard_is_valid_position(this.__wbg_ptr, row, col);
+        return ret !== 0;
+    }
+    /**
+     * @param {number} player
+     * @returns {number}
+     */
+    count_stones(player) {
+        const ret = wasm.gomokuboard_count_stones(this.__wbg_ptr, player);
+        return ret >>> 0;
+    }
+    /**
+     * Get legal moves for current player
+     * @returns {Uint32Array}
+     */
+    get_legal_moves() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokuboard_get_legal_moves(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+}
+
 const HexBoardFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_hexboard_free(ptr >>> 0, 1));
@@ -1612,6 +1762,131 @@ export class SolutionAnalysis {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             wasm.solutionanalysis_summary(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+}
+
+const TrioBoardBitPackedFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_trioboardbitpacked_free(ptr >>> 0, 1));
+
+export class TrioBoardBitPacked {
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        TrioBoardBitPackedFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_trioboardbitpacked_free(ptr, 0);
+    }
+    /**
+     * @param {number} difficulty
+     */
+    constructor(difficulty) {
+        const ret = wasm.trioboardbitpacked_new(difficulty);
+        this.__wbg_ptr = ret >>> 0;
+        TrioBoardBitPackedFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_cell(row, col) {
+        const ret = wasm.trioboardbitpacked_get_cell(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * @returns {number}
+     */
+    get_target_number() {
+        const ret = wasm.trioboardbitpacked_get_target_number(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @returns {number}
+     */
+    get_difficulty() {
+        const ret = wasm.trioboardbitpacked_get_difficulty(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get board state as Int8Array for JavaScript UI
+     * @returns {Int8Array}
+     */
+    get_board() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.trioboardbitpacked_get_board(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayI8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.gomokuboard_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {boolean}
+     */
+    is_valid_position(row, col) {
+        const ret = wasm.trioboardbitpacked_is_valid_position(this.__wbg_ptr, row, col);
+        return ret !== 0;
+    }
+    /**
+     * Check if three numbers at positions form a valid solution
+     * @param {number} r1
+     * @param {number} c1
+     * @param {number} r2
+     * @param {number} c2
+     * @param {number} r3
+     * @param {number} c3
+     * @returns {boolean}
+     */
+    check_combination(r1, c1, r2, c2, r3, c3) {
+        const ret = wasm.trioboardbitpacked_check_combination(this.__wbg_ptr, r1, c1, r2, c2, r3, c3);
+        return ret !== 0;
+    }
+    /**
+     * Clear and regenerate the board
+     * @param {number} difficulty
+     */
+    regenerate(difficulty) {
+        wasm.trioboardbitpacked_regenerate(this.__wbg_ptr, difficulty);
+    }
+    /**
+     * Get performance statistics
+     * @returns {string}
+     */
+    get_performance_stats() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.trioboardbitpacked_get_performance_stats(retptr, this.__wbg_ptr);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             deferred1_0 = r0;
