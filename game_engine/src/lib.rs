@@ -2925,3 +2925,607 @@ mod tests {
         assert!(!game.has_critical_fork_threats());
     }
 }
+
+// ============================================================================
+// L-GAME IMPLEMENTATION
+// ============================================================================
+// Edward de Bono's L-Game: Strategic blockade game on 4x4 board
+// Two L-shaped pieces + two neutral pieces, goal: block opponent's L-piece
+
+/// L-Game piece representation - simple coordinate + orientation approach
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct LPiece {
+    anchor_row: u8,     // 0-3: anchor point for L-shape
+    anchor_col: u8,     // 0-3: anchor point for L-shape  
+    orientation: u8,    // 0-7: orientation index
+}
+
+/// L-Game move representation
+#[wasm_bindgen]
+#[derive(Clone, Copy, Debug)]
+pub struct LGameMove {
+    // L-piece movement (mandatory)
+    pub l_piece_anchor_row: u8,
+    pub l_piece_anchor_col: u8,
+    pub l_piece_orientation: u8,
+    
+    // Neutral piece movement (optional)
+    pub neutral_piece_id: Option<u8>,    // 0 or 1, or None for no neutral move
+    pub neutral_new_row: Option<u8>,     // 0-3
+    pub neutral_new_col: Option<u8>,     // 0-3
+}
+
+/// L-Game main struct - Edward de Bono's strategic blockade game
+#[wasm_bindgen]
+pub struct LGame {
+    board: Board,               // 4x4 board for occupancy checking (0=free, 1=occupied)
+    player1_l_piece: LPiece,    // Player 1's L-piece position
+    player2_l_piece: LPiece,    // Player 2's L-piece position  
+    neutral1_pos: (u8, u8),     // Neutral piece 1 position
+    neutral2_pos: (u8, u8),     // Neutral piece 2 position
+    current_player: Player,     // Current player (Yellow/Red)
+    game_over: bool,            // Game ended flag
+    winner: Option<Player>,     // Winner if game over
+}
+
+/// Precomputed L-shapes: 8 orientations (4 rotations × 2 mirror states)
+/// Each shape is 4 coordinate offsets from anchor point
+const L_SHAPES: [[(i8, i8); 4]; 8] = [
+    // Original orientations (4 rotations)
+    [(0,0), (1,0), (2,0), (2,1)], // Standard L (pointing right-down)
+    [(0,0), (0,1), (0,2), (1,0)], // 90° rotated (pointing down-left)  
+    [(0,0), (0,1), (1,1), (2,1)], // 180° rotated (pointing left-up)
+    [(0,1), (1,0), (1,1), (1,2)], // 270° rotated (pointing up-right)
+    
+    // Mirrored orientations (4 rotations of mirror)
+    [(0,1), (1,1), (2,0), (2,1)], // Mirrored standard L
+    [(0,0), (1,0), (1,1), (1,2)], // Mirrored 90°
+    [(0,0), (0,1), (1,0), (2,0)], // Mirrored 180°
+    [(0,0), (0,1), (0,2), (1,2)], // Mirrored 270°
+];
+
+#[wasm_bindgen]
+impl LGame {
+    /// Create new L-Game in standard starting position
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        let board = Board::new(4, 4);
+        
+        // Standard starting positions (one possible setup)
+        let player1_l_piece = LPiece { anchor_row: 0, anchor_col: 0, orientation: 0 };
+        let player2_l_piece = LPiece { anchor_row: 1, anchor_col: 2, orientation: 4 };
+        let neutral1_pos = (1, 1);
+        let neutral2_pos = (2, 2);
+        
+        let mut game = LGame {
+            board,
+            player1_l_piece,
+            player2_l_piece,
+            neutral1_pos,
+            neutral2_pos,
+            current_player: Player::Yellow, // Player 1 starts
+            game_over: false,
+            winner: None,
+        };
+        
+        // Update board occupancy
+        game.update_board_occupancy();
+        
+        game
+    }
+    
+    /// Get current board state as Int8Array for JavaScript
+    #[wasm_bindgen(js_name = getBoard)]
+    pub fn get_board(&self) -> js_sys::Int8Array {
+        let cells = self.board.get_cells();
+        js_sys::Int8Array::from(&cells[..])
+    }
+    
+    /// Get current player
+    #[wasm_bindgen(js_name = getCurrentPlayer)]  
+    pub fn get_current_player(&self) -> Player {
+        self.current_player
+    }
+    
+    /// Check if game is over
+    #[wasm_bindgen(js_name = isGameOver)]
+    pub fn is_game_over(&self) -> bool {
+        self.game_over
+    }
+    
+    /// Get winner if game is over
+    #[wasm_bindgen(js_name = getWinner)]
+    pub fn get_winner(&self) -> Option<Player> {
+        self.winner
+    }
+    
+    /// Get legal moves for current player
+    #[wasm_bindgen(js_name = getLegalMoves)]
+    pub fn get_legal_moves(&self) -> js_sys::Array {
+        let moves = self._get_legal_moves();
+        let js_array = js_sys::Array::new();
+        
+        for game_move in moves {
+            // Convert LGameMove to JavaScript object
+            let js_move = js_sys::Object::new();
+            
+            // Set L-piece move properties
+            js_sys::Reflect::set(&js_move, &"lPieceAnchorRow".into(), &game_move.l_piece_anchor_row.into()).unwrap();
+            js_sys::Reflect::set(&js_move, &"lPieceAnchorCol".into(), &game_move.l_piece_anchor_col.into()).unwrap();
+            js_sys::Reflect::set(&js_move, &"lPieceOrientation".into(), &game_move.l_piece_orientation.into()).unwrap();
+            
+            // Set optional neutral piece move
+            if let Some(neutral_id) = game_move.neutral_piece_id {
+                js_sys::Reflect::set(&js_move, &"neutralPieceId".into(), &neutral_id.into()).unwrap();
+                js_sys::Reflect::set(&js_move, &"neutralNewRow".into(), &game_move.neutral_new_row.unwrap().into()).unwrap();
+                js_sys::Reflect::set(&js_move, &"neutralNewCol".into(), &game_move.neutral_new_col.unwrap().into()).unwrap();
+            }
+            
+            js_array.push(&js_move);
+        }
+        
+        js_array
+    }
+    
+    /// Make a move (L-piece movement + optional neutral piece movement)
+    #[wasm_bindgen(js_name = makeMove)]
+    pub fn make_move(&mut self, 
+                     l_anchor_row: u8, l_anchor_col: u8, l_orientation: u8,
+                     neutral_id: Option<u8>, neutral_row: Option<u8>, neutral_col: Option<u8>) -> Result<(), JsValue> {
+        
+        let game_move = LGameMove {
+            l_piece_anchor_row: l_anchor_row,
+            l_piece_anchor_col: l_anchor_col,
+            l_piece_orientation: l_orientation,
+            neutral_piece_id: neutral_id,
+            neutral_new_row: neutral_row,
+            neutral_new_col: neutral_col,
+        };
+        
+        self._make_move(game_move).map_err(|e| JsValue::from_str(&format!("{:?}", e)))
+    }
+}
+
+impl LGame {
+    /// Internal method to get legal moves
+    fn _get_legal_moves(&self) -> Vec<LGameMove> {
+        if self.game_over {
+            return Vec::new();
+        }
+        
+        let mut moves = Vec::new();
+        
+        // Get current player's L-piece
+        let current_l_piece = match self.current_player {
+            Player::Yellow => self.player1_l_piece,
+            Player::Red => self.player2_l_piece,
+        };
+        
+        // Try all possible L-piece positions (brute force approach for 4x4)
+        for anchor_row in 0..4 {
+            for anchor_col in 0..4 {
+                for orientation in 0..8 {
+                    let new_l_piece = LPiece { anchor_row, anchor_col, orientation };
+                    
+                    // Check if this is a valid L-piece placement
+                    if self.is_valid_l_position(&new_l_piece) && 
+                       new_l_piece != current_l_piece { // Must be different from current position
+                        
+                        // Basic move without neutral piece movement
+                        moves.push(LGameMove {
+                            l_piece_anchor_row: anchor_row,
+                            l_piece_anchor_col: anchor_col,
+                            l_piece_orientation: orientation,
+                            neutral_piece_id: None,
+                            neutral_new_row: None,
+                            neutral_new_col: None,
+                        });
+                        
+                        // Add moves with neutral piece movements
+                        for neutral_id in 0..2 {
+                            for new_row in 0..4 {
+                                for new_col in 0..4 {
+                                    let current_neutral_pos = if neutral_id == 0 { self.neutral1_pos } else { self.neutral2_pos };
+                                    
+                                    // Only if neutral piece position changes
+                                    if (new_row, new_col) != current_neutral_pos {
+                                        // Check if new neutral position is valid (after L-piece is moved)
+                                        if self.is_valid_neutral_position(new_row, new_col, &new_l_piece) {
+                                            moves.push(LGameMove {
+                                                l_piece_anchor_row: anchor_row,
+                                                l_piece_anchor_col: anchor_col,
+                                                l_piece_orientation: orientation,
+                                                neutral_piece_id: Some(neutral_id),
+                                                neutral_new_row: Some(new_row),
+                                                neutral_new_col: Some(new_col),
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        moves
+    }
+    
+    /// Internal method to make a move
+    fn _make_move(&mut self, game_move: LGameMove) -> Result<(), GameError> {
+        if self.game_over {
+            return Err(GameError::GameAlreadyOver);
+        }
+        
+        // Validate L-piece move
+        let new_l_piece = LPiece {
+            anchor_row: game_move.l_piece_anchor_row,
+            anchor_col: game_move.l_piece_anchor_col,
+            orientation: game_move.l_piece_orientation,
+        };
+        
+        if !self.is_valid_l_position(&new_l_piece) {
+            return Err(GameError::InvalidMove);
+        }
+        
+        // Update L-piece position
+        match self.current_player {
+            Player::Yellow => self.player1_l_piece = new_l_piece,
+            Player::Red => self.player2_l_piece = new_l_piece,
+        }
+        
+        // Handle optional neutral piece move
+        if let (Some(neutral_id), Some(new_row), Some(new_col)) = 
+            (game_move.neutral_piece_id, game_move.neutral_new_row, game_move.neutral_new_col) {
+            
+            if !self.is_valid_neutral_position(new_row, new_col, &new_l_piece) {
+                return Err(GameError::InvalidMove);
+            }
+            
+            if neutral_id == 0 {
+                self.neutral1_pos = (new_row, new_col);
+            } else if neutral_id == 1 {
+                self.neutral2_pos = (new_row, new_col);
+            } else {
+                return Err(GameError::InvalidMove);
+            }
+        }
+        
+        // Update board occupancy
+        self.update_board_occupancy();
+        
+        // Switch player
+        self.current_player = match self.current_player {
+            Player::Yellow => Player::Red,
+            Player::Red => Player::Yellow,
+        };
+        
+        // Check if game is over (new current player has no legal moves)
+        if self._get_legal_moves().is_empty() {
+            self.game_over = true;
+            self.winner = Some(match self.current_player {
+                Player::Yellow => Player::Red, // Red wins because Yellow is blocked
+                Player::Red => Player::Yellow,  // Yellow wins because Red is blocked
+            });
+        }
+        
+        Ok(())
+    }
+    
+    /// Check if L-piece position is valid (fits on board, no collisions)
+    fn is_valid_l_position(&self, l_piece: &LPiece) -> bool {
+        let shape = &L_SHAPES[l_piece.orientation as usize];
+        
+        for &(dr, dc) in shape {
+            let row = l_piece.anchor_row as i8 + dr;
+            let col = l_piece.anchor_col as i8 + dc;
+            
+            // Check bounds
+            if row < 0 || row >= 4 || col < 0 || col >= 4 {
+                return false;
+            }
+            
+            let pos = (row as u8, col as u8);
+            
+            // Check collision with opponent's L-piece
+            let opponent_l_piece = match self.current_player {
+                Player::Yellow => self.player2_l_piece,
+                Player::Red => self.player1_l_piece,
+            };
+            
+            if self.l_piece_occupies_position(&opponent_l_piece, pos) {
+                return false;
+            }
+            
+            // Check collision with neutral pieces
+            if pos == self.neutral1_pos || pos == self.neutral2_pos {
+                return false;
+            }
+        }
+        
+        true
+    }
+    
+    /// Check if neutral piece position is valid (considering new L-piece position)
+    fn is_valid_neutral_position(&self, row: u8, col: u8, new_l_piece: &LPiece) -> bool {
+        let pos = (row, col);
+        
+        // Check if position is occupied by the new L-piece
+        if self.l_piece_occupies_position(new_l_piece, pos) {
+            return false;
+        }
+        
+        // Check if position is occupied by opponent's L-piece
+        let opponent_l_piece = match self.current_player {
+            Player::Yellow => self.player2_l_piece,
+            Player::Red => self.player1_l_piece,
+        };
+        
+        if self.l_piece_occupies_position(&opponent_l_piece, pos) {
+            return false;
+        }
+        
+        // Check if position is occupied by other neutral piece
+        let other_neutral_pos = if (row, col) == self.neutral1_pos { self.neutral2_pos } else { self.neutral1_pos };
+        if pos == other_neutral_pos {
+            return false;
+        }
+        
+        true
+    }
+    
+    /// Check if L-piece occupies a specific position
+    fn l_piece_occupies_position(&self, l_piece: &LPiece, pos: (u8, u8)) -> bool {
+        let shape = &L_SHAPES[l_piece.orientation as usize];
+        
+        for &(dr, dc) in shape {
+            let row = l_piece.anchor_row as i8 + dr;
+            let col = l_piece.anchor_col as i8 + dc;
+            
+            if row >= 0 && row < 4 && col >= 0 && col < 4 {
+                if (row as u8, col as u8) == pos {
+                    return true;
+                }
+            }
+        }
+        
+        false
+    }
+    
+    /// Update board occupancy for collision detection
+    fn update_board_occupancy(&mut self) {
+        // Clear board
+        for row in 0..4 {
+            for col in 0..4 {
+                let _ = self.board.set_cell(row, col, 0);
+            }
+        }
+        
+        // Mark L-piece positions
+        let player1_piece = self.player1_l_piece;
+        let player2_piece = self.player2_l_piece;
+        self.mark_l_piece_on_board(&player1_piece);
+        self.mark_l_piece_on_board(&player2_piece);
+        
+        // Mark neutral piece positions
+        let _ = self.board.set_cell(self.neutral1_pos.0 as usize, self.neutral1_pos.1 as usize, 1);
+        let _ = self.board.set_cell(self.neutral2_pos.0 as usize, self.neutral2_pos.1 as usize, 1);
+    }
+    
+    /// Mark L-piece positions on board
+    fn mark_l_piece_on_board(&mut self, l_piece: &LPiece) {
+        let shape = &L_SHAPES[l_piece.orientation as usize];
+        
+        for &(dr, dc) in shape {
+            let row = l_piece.anchor_row as i8 + dr;
+            let col = l_piece.anchor_col as i8 + dc;
+            
+            if row >= 0 && row < 4 && col >= 0 && col < 4 {
+                let _ = self.board.set_cell(row as usize, col as usize, 1);
+            }
+        }
+    }
+}
+
+// ==========================================
+// BitPackedBoard Framework for Large Games
+// ==========================================
+
+/// Memory-efficient board implementation for large games (>100 cells)
+/// Uses bit packing to store multiple cell states in single u64 values
+/// 
+/// Generic parameters:
+/// - ROWS: Number of board rows
+/// - COLS: Number of board columns  
+/// - BITS_PER_CELL: Bits needed per cell (2 for 4 states, 3 for 8 states)
+pub struct BitPackedBoard<const ROWS: usize, const COLS: usize, const BITS_PER_CELL: usize> {
+    data: Vec<u64>,
+    cells_per_u64: usize,
+    total_cells: usize,
+    mask: u64,
+}
+
+impl<const ROWS: usize, const COLS: usize, const BITS_PER_CELL: usize> BitPackedBoard<ROWS, COLS, BITS_PER_CELL> {
+    /// Create new BitPackedBoard
+    pub fn new() -> Self {
+        const BITS_PER_U64: usize = 64;
+        let cells_per_u64 = BITS_PER_U64 / BITS_PER_CELL;
+        let total_cells = ROWS * COLS;
+        let data_size = (total_cells + cells_per_u64 - 1) / cells_per_u64;
+        let mask = (1u64 << BITS_PER_CELL) - 1;
+        
+        Self {
+            data: vec![0; data_size],
+            cells_per_u64,
+            total_cells,
+            mask,
+        }
+    }
+    
+    /// Get cell value at (row, col)
+    pub fn get_cell(&self, row: usize, col: usize) -> u8 {
+        if row >= ROWS || col >= COLS {
+            return 0;
+        }
+        
+        let cell_index = row * COLS + col;
+        let u64_index = cell_index / self.cells_per_u64;
+        let bit_offset = (cell_index % self.cells_per_u64) * BITS_PER_CELL;
+        
+        ((self.data[u64_index] >> bit_offset) & self.mask) as u8
+    }
+    
+    /// Set cell value at (row, col)
+    pub fn set_cell(&mut self, row: usize, col: usize, value: u8) -> Result<(), String> {
+        if row >= ROWS || col >= COLS {
+            return Err("Position out of bounds".to_string());
+        }
+        
+        if (value as u64) > self.mask {
+            return Err("Value exceeds maximum for cell".to_string());
+        }
+        
+        let cell_index = row * COLS + col;
+        let u64_index = cell_index / self.cells_per_u64;
+        let bit_offset = (cell_index % self.cells_per_u64) * BITS_PER_CELL;
+        
+        // Clear existing bits and set new value
+        self.data[u64_index] &= !(self.mask << bit_offset);
+        self.data[u64_index] |= (value as u64) << bit_offset;
+        
+        Ok(())
+    }
+    
+    /// Clear all cells
+    pub fn clear(&mut self) {
+        self.data.fill(0);
+    }
+    
+    /// Get memory usage in bytes
+    pub fn memory_usage(&self) -> usize {
+        self.data.len() * std::mem::size_of::<u64>()
+    }
+    
+    /// Get board dimensions
+    pub fn dimensions(&self) -> (usize, usize) {
+        (ROWS, COLS)
+    }
+    
+    /// Get total number of cells
+    pub fn total_cells(&self) -> usize {
+        self.total_cells
+    }
+    
+    /// Check if position is valid
+    pub fn is_valid_position(&self, row: usize, col: usize) -> bool {
+        row < ROWS && col < COLS
+    }
+    
+    /// Get all non-empty cells as vector of (row, col, value)
+    pub fn get_occupied_cells(&self) -> Vec<(usize, usize, u8)> {
+        let mut occupied = Vec::new();
+        
+        for row in 0..ROWS {
+            for col in 0..COLS {
+                let value = self.get_cell(row, col);
+                if value != 0 {
+                    occupied.push((row, col, value));
+                }
+            }
+        }
+        
+        occupied
+    }
+    
+    /// Count cells with specific value
+    pub fn count_cells_with_value(&self, target_value: u8) -> usize {
+        let mut count = 0;
+        
+        for row in 0..ROWS {
+            for col in 0..COLS {
+                if self.get_cell(row, col) == target_value {
+                    count += 1;
+                }
+            }
+        }
+        
+        count
+    }
+}
+
+// WASM bindings for BitPackedBoard - example with HexBoard
+#[wasm_bindgen]
+pub struct HexBoard {
+    inner: BitPackedBoard<11, 11, 2>, // 11x11 hex grid, 2 bits per cell (4 states)
+}
+
+#[wasm_bindgen]
+impl HexBoard {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self {
+            inner: BitPackedBoard::new(),
+        }
+    }
+    
+    #[wasm_bindgen]
+    pub fn get_cell(&self, row: usize, col: usize) -> u8 {
+        self.inner.get_cell(row, col)
+    }
+    
+    #[wasm_bindgen]
+    pub fn set_cell(&mut self, row: usize, col: usize, value: u8) -> Result<(), JsValue> {
+        self.inner.set_cell(row, col, value)
+            .map_err(|e| JsValue::from_str(&e))
+    }
+    
+    #[wasm_bindgen]
+    pub fn clear(&mut self) {
+        self.inner.clear();
+    }
+    
+    #[wasm_bindgen]
+    pub fn memory_usage(&self) -> usize {
+        self.inner.memory_usage()
+    }
+    
+    #[wasm_bindgen]
+    pub fn dimensions(&self) -> Vec<usize> {
+        let (rows, cols) = self.inner.dimensions();
+        vec![rows, cols]
+    }
+    
+    #[wasm_bindgen]
+    pub fn is_valid_position(&self, row: usize, col: usize) -> bool {
+        self.inner.is_valid_position(row, col)
+    }
+    
+    #[wasm_bindgen]
+    pub fn count_stones(&self, player: u8) -> usize {
+        self.inner.count_cells_with_value(player)
+    }
+    
+    /// Get board state as simple string for debugging
+    #[wasm_bindgen]
+    pub fn get_board_debug(&self) -> String {
+        let occupied = self.inner.get_occupied_cells();
+        let mut result = String::new();
+        
+        for (row, col, value) in occupied {
+            result.push_str(&format!("({},{}):{} ", row, col, value));
+        }
+        
+        if result.is_empty() {
+            "empty".to_string()
+        } else {
+            result
+        }
+    }
+}
+
+// Type aliases for common board configurations
+pub type HexBoardInternal = BitPackedBoard<11, 11, 2>;  // 11x11 hex, 2 bits per cell
+pub type DotsBoxesBoard = BitPackedBoard<8, 8, 3>;     // 8x8 dots&boxes, 3 bits per cell
+pub type ShannonBoard = BitPackedBoard<7, 7, 2>;       // 7x7 Shannon game, 2 bits per cell
+pub type LargeGomokuBoard = BitPackedBoard<19, 19, 2>; // 19x19 professional Gomoku

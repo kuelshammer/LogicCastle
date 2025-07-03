@@ -47,54 +47,104 @@
   }
   
   /* ==========================================
-   * INTERACTIVE ELEMENTS
+   * INTERACTIVE ELEMENTS (Enhanced from legacy games)
    * ========================================== */
   
-  .game-button { 
+  /* Unified Button System - replaces .btn from individual games */
+  .game-button, .btn { 
     @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
            bg-blue-600 hover:bg-blue-700 active:bg-blue-800 
-           text-white shadow-lg hover:shadow-xl
+           text-white shadow-lg hover:shadow-xl border-none cursor-pointer
            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
-  .game-button:disabled {
-    @apply bg-gray-400 text-gray-200 cursor-not-allowed shadow-none;
+  .game-button:disabled, .btn:disabled {
+    @apply bg-gray-400 text-gray-200 cursor-not-allowed shadow-none opacity-60;
+    transform: none !important;
   }
   
-  .game-button-secondary { 
+  .game-button-secondary, .btn-secondary { 
     @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
            bg-gray-600 hover:bg-gray-700 active:bg-gray-800 
            text-white shadow-lg hover:shadow-xl
            focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75;
   }
   
-  .game-button-outline { 
+  .game-button-outline, .btn-outline { 
     @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
            bg-transparent border-2 border-blue-600 text-blue-600 
            hover:bg-blue-600 hover:text-white shadow-md hover:shadow-lg
            focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
   }
   
-  .game-button-danger { 
+  .game-button-danger, .btn-primary { 
     @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
            bg-red-600 hover:bg-red-700 active:bg-red-800 
            text-white shadow-lg hover:shadow-xl
            focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75;
   }
   
-  /* ==========================================
-   * MODAL SYSTEM
-   * ========================================== */
-  
-  .game-modal { 
-    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50
-           backdrop-blur-sm;
+  .btn-info {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
+           bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 
+           text-white shadow-lg hover:shadow-xl
+           focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75;
   }
   
-  .game-modal-content { 
+  .btn-success {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
+           bg-green-600 hover:bg-green-700 active:bg-green-800 
+           text-white shadow-lg hover:shadow-xl
+           focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75;
+  }
+  
+  /* Button Loading States */
+  .btn.loading, .game-button.loading {
+    position: relative;
+    color: transparent;
+  }
+  
+  .btn.loading::after, .game-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  /* ==========================================
+   * MODAL SYSTEM (Unified from legacy games)
+   * ========================================== */
+  
+  .game-modal, .modal-overlay { 
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50
+           backdrop-blur-sm opacity-0 invisible transition-all duration-300;
+  }
+  
+  .game-modal.active, .modal-overlay.active, .modal-overlay.show {
+    @apply opacity-100 visible;
+  }
+  
+  .game-modal-content, .modal { 
     @apply bg-white rounded-lg p-6 max-w-md mx-4 shadow-2xl
-           transform transition-all duration-300
+           transform transition-all duration-300 scale-95
            dark:bg-gray-800 dark:text-white;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .game-modal.active .game-modal-content,
+  .modal-overlay.active .modal,
+  .modal-overlay.show .modal {
+    @apply scale-100;
   }
   
   .game-modal-header {
@@ -102,8 +152,8 @@
            dark:border-gray-600;
   }
   
-  .game-modal-title {
-    @apply text-xl font-bold text-gray-900 dark:text-white;
+  .game-modal-title, .modal h2 {
+    @apply text-xl font-bold text-gray-900 dark:text-white text-center;
   }
   
   .game-modal-close {
@@ -112,13 +162,51 @@
            dark:text-gray-300 dark:hover:text-gray-100;
   }
   
-  .game-modal-body {
+  .game-modal-body, .modal p {
     @apply text-gray-700 dark:text-gray-300 space-y-4;
+    line-height: 1.6;
   }
   
-  .game-modal-footer {
-    @apply mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-3
+  .game-modal-footer, .modal-buttons {
+    @apply mt-6 pt-4 border-t border-gray-200 flex justify-center space-x-3
            dark:border-gray-600;
+  }
+  
+  /* Help Modal Specific Styling */
+  .help-content {
+    line-height: 1.6;
+  }
+  
+  .help-section {
+    @apply mb-6;
+  }
+  
+  .help-section h3 {
+    @apply text-lg font-semibold text-gray-800 mb-3 pb-2 border-b-2 border-gray-200
+           dark:text-white dark:border-gray-600;
+  }
+  
+  .help-section h4 {
+    @apply text-base font-medium text-gray-700 mb-2
+           dark:text-gray-300;
+  }
+  
+  .help-section ul {
+    @apply ml-6 space-y-2;
+  }
+  
+  .help-section li {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .control-group h4 {
+    @apply text-base font-medium text-gray-700 mb-3
+           dark:text-gray-300;
+  }
+  
+  .control-group strong {
+    @apply bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono
+           dark:bg-gray-700 dark:text-gray-200;
   }
   
   /* ==========================================
@@ -209,6 +297,36 @@
     /* 15x15 intersections positioned via JavaScript */
   }
   
+  /* L-Game specific - 4x4 grid */
+  .lgame-board {
+    @apply game-board-cells;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    aspect-ratio: 1/1;
+    background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+  }
+  
+  .lgame-cell {
+    @apply border border-amber-800 relative cursor-pointer transition-all duration-200
+           hover:bg-amber-200 hover:bg-opacity-50;
+  }
+  
+  .lgame-piece {
+    @apply absolute inset-1 rounded transition-all duration-200;
+  }
+  
+  .lgame-piece.player1 {
+    @apply bg-blue-500 border-2 border-blue-700;
+  }
+  
+  .lgame-piece.player2 {
+    @apply bg-red-500 border-2 border-red-700;
+  }
+  
+  .lgame-piece.neutral {
+    @apply bg-white border-2 border-gray-400 rounded-full;
+  }
+  
   /* ==========================================
    * UTILITY CLASSES
    * ========================================== */
@@ -277,6 +395,148 @@
     }
   }
   
+  /* ==========================================
+   * GAME-SPECIFIC COMPONENTS (Unified from legacy games)
+   * ========================================== */
+   
+  /* Toast Notification System */
+  .toast {
+    @apply fixed top-5 right-5 bg-white text-gray-800 px-6 py-4 rounded-lg shadow-xl
+           transform translate-x-full transition-transform duration-300 z-50 max-w-sm;
+  }
+  
+  .toast.show {
+    @apply translate-x-0;
+  }
+  
+  .toast.success {
+    @apply border-l-4 border-green-500;
+  }
+  
+  .toast.error {
+    @apply border-l-4 border-red-500;
+  }
+  
+  .toast.info {
+    @apply border-l-4 border-blue-500;
+  }
+  
+  /* Game Status Messages */
+  .status-message {
+    @apply p-4 rounded-lg text-center font-semibold my-4;
+  }
+  
+  .status-message.win {
+    @apply bg-green-500 text-white;
+  }
+  
+  .status-message.lose {
+    @apply bg-red-500 text-white;
+  }
+  
+  /* Assistance/Hint System */
+  .assistance-indicator {
+    @apply absolute text-sm pointer-events-none z-10 animate-pulse;
+  }
+  
+  .threat-indicator {
+    @apply border-4 border-red-500 bg-red-100 bg-opacity-20 rounded-full;
+  }
+  
+  .winning-indicator {
+    @apply border-4 border-green-500 bg-green-100 bg-opacity-20 rounded-full;
+  }
+  
+  .blocked-indicator {
+    @apply border-4 border-pink-500 bg-pink-100 bg-opacity-20 rounded-full;
+  }
+  
+  /* Move History Indicators */
+  .move-indicator {
+    @apply absolute w-2 h-2 bg-orange-400 rounded-full z-10 pointer-events-none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  /* Thinking/Loading Indicators */
+  .thinking-indicator {
+    @apply inline-flex items-center gap-2 text-white opacity-80;
+  }
+  
+  .thinking-dots {
+    @apply flex gap-0.5;
+  }
+  
+  .thinking-dot {
+    @apply w-1 h-1 bg-current rounded-full animate-pulse;
+  }
+  
+  .thinking-dot:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+  
+  .thinking-dot:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+  
+  /* Form Elements */
+  .form-group {
+    @apply mb-6;
+  }
+  
+  .form-group label {
+    @apply block mb-2 text-gray-700 font-medium dark:text-gray-300;
+  }
+  
+  .form-control {
+    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-base
+           transition-colors duration-200 outline-none
+           focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+           dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+  }
+
+  /* ==========================================
+   * ANIMATIONS (Consolidated)
+   * ========================================== */
+   
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes thinkingPulse {
+    0%, 80%, 100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes threatPulse {
+    0%, 100% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+  
+  @keyframes hintPulse {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+
   /* ==========================================
    * DEBUGGING UTILITIES (Development only)
    * ========================================== */

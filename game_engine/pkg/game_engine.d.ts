@@ -204,6 +204,71 @@ export class Game {
    */
   get_blocking_moves_gobang(): Uint32Array;
 }
+export class HexBoard {
+  free(): void;
+  constructor();
+  get_cell(row: number, col: number): number;
+  set_cell(row: number, col: number, value: number): void;
+  clear(): void;
+  memory_usage(): number;
+  dimensions(): Uint32Array;
+  is_valid_position(row: number, col: number): boolean;
+  count_stones(player: number): number;
+  /**
+   * Get board state as simple string for debugging
+   */
+  get_board_debug(): string;
+}
+/**
+ * L-Game main struct - Edward de Bono's strategic blockade game
+ */
+export class LGame {
+  free(): void;
+  /**
+   * Create new L-Game in standard starting position
+   */
+  constructor();
+  /**
+   * Get current board state as Int8Array for JavaScript
+   */
+  getBoard(): Int8Array;
+  /**
+   * Get current player
+   */
+  getCurrentPlayer(): Player;
+  /**
+   * Check if game is over
+   */
+  isGameOver(): boolean;
+  /**
+   * Get winner if game is over
+   */
+  getWinner(): Player | undefined;
+  /**
+   * Get legal moves for current player
+   */
+  getLegalMoves(): Array<any>;
+  /**
+   * Make a move (L-piece movement + optional neutral piece movement)
+   */
+  makeMove(l_anchor_row: number, l_anchor_col: number, l_orientation: number, neutral_id?: number | null, neutral_row?: number | null, neutral_col?: number | null): void;
+}
+/**
+ * L-Game move representation
+ */
+export class LGameMove {
+  private constructor();
+  free(): void;
+  l_piece_anchor_row: number;
+  l_piece_anchor_col: number;
+  l_piece_orientation: number;
+  get neutral_piece_id(): number | undefined;
+  set neutral_piece_id(value: number | null | undefined);
+  get neutral_new_row(): number | undefined;
+  set neutral_new_row(value: number | null | undefined);
+  get neutral_new_col(): number | undefined;
+  set neutral_new_col(value: number | null | undefined);
+}
 /**
  * Position analysis structure for AI decision making
  */
@@ -388,6 +453,37 @@ export interface InitOutput {
   readonly triogame_count_solutions_for_target_wasm: (a: number, b: number) => number;
   readonly triogame_categorize_target_difficulty_wasm: (a: number, b: number) => number;
   readonly triogame_comprehensive_gap_analysis: (a: number) => void;
+  readonly __wbg_lgamemove_free: (a: number, b: number) => void;
+  readonly __wbg_get_lgamemove_l_piece_anchor_row: (a: number) => number;
+  readonly __wbg_set_lgamemove_l_piece_anchor_row: (a: number, b: number) => void;
+  readonly __wbg_get_lgamemove_l_piece_anchor_col: (a: number) => number;
+  readonly __wbg_set_lgamemove_l_piece_anchor_col: (a: number, b: number) => void;
+  readonly __wbg_get_lgamemove_l_piece_orientation: (a: number) => number;
+  readonly __wbg_set_lgamemove_l_piece_orientation: (a: number, b: number) => void;
+  readonly __wbg_get_lgamemove_neutral_piece_id: (a: number) => number;
+  readonly __wbg_set_lgamemove_neutral_piece_id: (a: number, b: number) => void;
+  readonly __wbg_get_lgamemove_neutral_new_row: (a: number) => number;
+  readonly __wbg_set_lgamemove_neutral_new_row: (a: number, b: number) => void;
+  readonly __wbg_get_lgamemove_neutral_new_col: (a: number) => number;
+  readonly __wbg_set_lgamemove_neutral_new_col: (a: number, b: number) => void;
+  readonly __wbg_lgame_free: (a: number, b: number) => void;
+  readonly lgame_new: () => number;
+  readonly lgame_getBoard: (a: number) => number;
+  readonly lgame_getCurrentPlayer: (a: number) => number;
+  readonly lgame_isGameOver: (a: number) => number;
+  readonly lgame_getWinner: (a: number) => number;
+  readonly lgame_getLegalMoves: (a: number) => number;
+  readonly lgame_makeMove: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => void;
+  readonly __wbg_hexboard_free: (a: number, b: number) => void;
+  readonly hexboard_new: () => number;
+  readonly hexboard_get_cell: (a: number, b: number, c: number) => number;
+  readonly hexboard_set_cell: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly hexboard_clear: (a: number) => void;
+  readonly hexboard_memory_usage: (a: number) => number;
+  readonly hexboard_dimensions: (a: number, b: number) => void;
+  readonly hexboard_is_valid_position: (a: number, b: number, c: number) => number;
+  readonly hexboard_count_stones: (a: number, b: number) => number;
+  readonly hexboard_get_board_debug: (a: number, b: number) => void;
   readonly game_is_terminal: (a: number) => number;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;

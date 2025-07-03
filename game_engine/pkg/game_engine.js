@@ -124,6 +124,71 @@ function isLikeNone(x) {
     return x === undefined || x === null;
 }
 
+function debugString(val) {
+    // primitive types
+    const type = typeof val;
+    if (type == 'number' || type == 'boolean' || val == null) {
+        return  `${val}`;
+    }
+    if (type == 'string') {
+        return `"${val}"`;
+    }
+    if (type == 'symbol') {
+        const description = val.description;
+        if (description == null) {
+            return 'Symbol';
+        } else {
+            return `Symbol(${description})`;
+        }
+    }
+    if (type == 'function') {
+        const name = val.name;
+        if (typeof name == 'string' && name.length > 0) {
+            return `Function(${name})`;
+        } else {
+            return 'Function';
+        }
+    }
+    // objects
+    if (Array.isArray(val)) {
+        const length = val.length;
+        let debug = '[';
+        if (length > 0) {
+            debug += debugString(val[0]);
+        }
+        for(let i = 1; i < length; i++) {
+            debug += ', ' + debugString(val[i]);
+        }
+        debug += ']';
+        return debug;
+    }
+    // Test for built-in
+    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+    let className;
+    if (builtInMatches && builtInMatches.length > 1) {
+        className = builtInMatches[1];
+    } else {
+        // Failed to match the standard '[object ClassName]'
+        return toString.call(val);
+    }
+    if (className == 'Object') {
+        // we're a user defined class or Object
+        // JSON.stringify avoids problems with cycles, and is generally much
+        // easier than looping through ownProperties of `val`.
+        try {
+            return 'Object(' + JSON.stringify(val) + ')';
+        } catch (_) {
+            return 'Object';
+        }
+    }
+    // errors
+    if (val instanceof Error) {
+        return `${val.name}: ${val.message}\n${val.stack}`;
+    }
+    // TODO we could test for more things here, like `Set`s and `Map`s.
+    return className;
+}
+
 export function main() {
     wasm.main();
 }
@@ -865,6 +930,312 @@ export class Game {
     }
 }
 
+const HexBoardFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_hexboard_free(ptr >>> 0, 1));
+
+export class HexBoard {
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        HexBoardFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_hexboard_free(ptr, 0);
+    }
+    constructor() {
+        const ret = wasm.hexboard_new();
+        this.__wbg_ptr = ret >>> 0;
+        HexBoardFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_cell(row, col) {
+        const ret = wasm.hexboard_get_cell(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @param {number} value
+     */
+    set_cell(row, col, value) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.hexboard_set_cell(retptr, this.__wbg_ptr, row, col, value);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    clear() {
+        wasm.hexboard_clear(this.__wbg_ptr);
+    }
+    /**
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.hexboard_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @returns {Uint32Array}
+     */
+    dimensions() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.hexboard_dimensions(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @param {number} row
+     * @param {number} col
+     * @returns {boolean}
+     */
+    is_valid_position(row, col) {
+        const ret = wasm.hexboard_is_valid_position(this.__wbg_ptr, row, col);
+        return ret !== 0;
+    }
+    /**
+     * @param {number} player
+     * @returns {number}
+     */
+    count_stones(player) {
+        const ret = wasm.hexboard_count_stones(this.__wbg_ptr, player);
+        return ret >>> 0;
+    }
+    /**
+     * Get board state as simple string for debugging
+     * @returns {string}
+     */
+    get_board_debug() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.hexboard_get_board_debug(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+}
+
+const LGameFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_lgame_free(ptr >>> 0, 1));
+/**
+ * L-Game main struct - Edward de Bono's strategic blockade game
+ */
+export class LGame {
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        LGameFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_lgame_free(ptr, 0);
+    }
+    /**
+     * Create new L-Game in standard starting position
+     */
+    constructor() {
+        const ret = wasm.lgame_new();
+        this.__wbg_ptr = ret >>> 0;
+        LGameFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Get current board state as Int8Array for JavaScript
+     * @returns {Int8Array}
+     */
+    getBoard() {
+        const ret = wasm.lgame_getBoard(this.__wbg_ptr);
+        return takeObject(ret);
+    }
+    /**
+     * Get current player
+     * @returns {Player}
+     */
+    getCurrentPlayer() {
+        const ret = wasm.lgame_getCurrentPlayer(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Check if game is over
+     * @returns {boolean}
+     */
+    isGameOver() {
+        const ret = wasm.lgame_isGameOver(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get winner if game is over
+     * @returns {Player | undefined}
+     */
+    getWinner() {
+        const ret = wasm.lgame_getWinner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Get legal moves for current player
+     * @returns {Array<any>}
+     */
+    getLegalMoves() {
+        const ret = wasm.lgame_getLegalMoves(this.__wbg_ptr);
+        return takeObject(ret);
+    }
+    /**
+     * Make a move (L-piece movement + optional neutral piece movement)
+     * @param {number} l_anchor_row
+     * @param {number} l_anchor_col
+     * @param {number} l_orientation
+     * @param {number | null} [neutral_id]
+     * @param {number | null} [neutral_row]
+     * @param {number | null} [neutral_col]
+     */
+    makeMove(l_anchor_row, l_anchor_col, l_orientation, neutral_id, neutral_row, neutral_col) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_makeMove(retptr, this.__wbg_ptr, l_anchor_row, l_anchor_col, l_orientation, isLikeNone(neutral_id) ? 0xFFFFFF : neutral_id, isLikeNone(neutral_row) ? 0xFFFFFF : neutral_row, isLikeNone(neutral_col) ? 0xFFFFFF : neutral_col);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+}
+
+const LGameMoveFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_lgamemove_free(ptr >>> 0, 1));
+/**
+ * L-Game move representation
+ */
+export class LGameMove {
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        LGameMoveFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_lgamemove_free(ptr, 0);
+    }
+    /**
+     * @returns {number}
+     */
+    get l_piece_anchor_row() {
+        const ret = wasm.__wbg_get_lgamemove_l_piece_anchor_row(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set l_piece_anchor_row(arg0) {
+        wasm.__wbg_set_lgamemove_l_piece_anchor_row(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get l_piece_anchor_col() {
+        const ret = wasm.__wbg_get_lgamemove_l_piece_anchor_col(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set l_piece_anchor_col(arg0) {
+        wasm.__wbg_set_lgamemove_l_piece_anchor_col(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get l_piece_orientation() {
+        const ret = wasm.__wbg_get_lgamemove_l_piece_orientation(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set l_piece_orientation(arg0) {
+        wasm.__wbg_set_lgamemove_l_piece_orientation(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    get neutral_piece_id() {
+        const ret = wasm.__wbg_get_lgamemove_neutral_piece_id(this.__wbg_ptr);
+        return ret === 0xFFFFFF ? undefined : ret;
+    }
+    /**
+     * @param {number | null} [arg0]
+     */
+    set neutral_piece_id(arg0) {
+        wasm.__wbg_set_lgamemove_neutral_piece_id(this.__wbg_ptr, isLikeNone(arg0) ? 0xFFFFFF : arg0);
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    get neutral_new_row() {
+        const ret = wasm.__wbg_get_lgamemove_neutral_new_row(this.__wbg_ptr);
+        return ret === 0xFFFFFF ? undefined : ret;
+    }
+    /**
+     * @param {number | null} [arg0]
+     */
+    set neutral_new_row(arg0) {
+        wasm.__wbg_set_lgamemove_neutral_new_row(this.__wbg_ptr, isLikeNone(arg0) ? 0xFFFFFF : arg0);
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    get neutral_new_col() {
+        const ret = wasm.__wbg_get_lgamemove_neutral_new_col(this.__wbg_ptr);
+        return ret === 0xFFFFFF ? undefined : ret;
+    }
+    /**
+     * @param {number | null} [arg0]
+     */
+    set neutral_new_col(arg0) {
+        wasm.__wbg_set_lgamemove_neutral_new_col(this.__wbg_ptr, isLikeNone(arg0) ? 0xFFFFFF : arg0);
+    }
+}
+
 const PositionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_positionanalysis_free(ptr >>> 0, 1));
@@ -1451,8 +1822,20 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).msCrypto;
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_new_405e22f390576ce2 = function() {
+        const ret = new Object();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_new_78feb108b6472713 = function() {
+        const ret = new Array();
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_new_8a6f238a6ece86ea = function() {
         const ret = new Error();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_new_8de0180919aeafa0 = function(arg0) {
+        const ret = new Int8Array(getObject(arg0));
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_new_a12002a7f91c75be = function(arg0) {
@@ -1461,6 +1844,10 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_newnoargs_105ed471475aaf50 = function(arg0, arg1) {
         const ret = new Function(getStringFromWasm0(arg0, arg1));
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_newwithbyteoffsetandlength_840f3c038856d4e9 = function(arg0, arg1, arg2) {
+        const ret = new Int8Array(getObject(arg0), arg1 >>> 0, arg2 >>> 0);
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_newwithbyteoffsetandlength_d97e637ebe145a9a = function(arg0, arg1, arg2) {
@@ -1479,6 +1866,10 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).process;
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_push_737cfc8c1432c2c6 = function(arg0, arg1) {
+        const ret = getObject(arg0).push(getObject(arg1));
+        return ret;
+    };
     imports.wbg.__wbg_randomFillSync_ac0988aba3254290 = function() { return handleError(function (arg0, arg1) {
         getObject(arg0).randomFillSync(takeObject(arg1));
     }, arguments) };
@@ -1489,6 +1880,10 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_65595bdd868b3009 = function(arg0, arg1, arg2) {
         getObject(arg0).set(getObject(arg1), arg2 >>> 0);
     };
+    imports.wbg.__wbg_set_bb8cecf6a62b9f46 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = Reflect.set(getObject(arg0), getObject(arg1), getObject(arg2));
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_stack_0ed75d68575b0f3c = function(arg0, arg1) {
         const ret = getObject(arg1).stack;
         const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_2, wasm.__wbindgen_export_3);
@@ -1519,6 +1914,13 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_versions_c01dfd4722a88165 = function(arg0) {
         const ret = getObject(arg0).versions;
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbindgen_debug_string = function(arg0, arg1) {
+        const ret = debugString(getObject(arg1));
+        const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_2, wasm.__wbindgen_export_3);
+        const len1 = WASM_VECTOR_LEN;
+        getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
+        getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
     };
     imports.wbg.__wbindgen_is_function = function(arg0) {
         const ret = typeof(getObject(arg0)) === 'function';

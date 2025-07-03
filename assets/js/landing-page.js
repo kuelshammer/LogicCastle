@@ -65,10 +65,10 @@ class LandingPageController {
       }
     });
 
-    // Handle keyboard navigation (1-3 keys)
+    // Handle keyboard navigation (1-4 keys)
     document.addEventListener('keydown', (e) => {
       const key = e.key;
-      if (key >= '1' && key <= '3') {
+      if (key >= '1' && key <= '4') {
         this.handleKeyboardNavigation(parseInt(key) - 1);
       }
     });
@@ -107,7 +107,8 @@ class LandingPageController {
     const gameUrls = {
       'connect4': 'games/connect4/index.html' + cacheBuster,
       'gomoku': 'games/gomoku/index.html' + cacheBuster,
-      'trio': 'games/trio/index.html' + cacheBuster
+      'trio': 'games/trio/index.html' + cacheBuster,
+      'lgame': 'games/lgame/index.html' + cacheBuster
     };
 
     if (gameUrls[gameName]) {

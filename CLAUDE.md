@@ -226,11 +226,91 @@ LogicCastle/
 - **Browser-Kompatibilität**: Keine Scroll-Konflikte mehr
 - **UI-Documentation**: Hilfe-Modal aktualisiert mit neuer Steuerung
 
+## LOGICCASTLE EXPANSION PLAN 🎓
+**Status: 2025-07-02 - Strategischer Plan für Mathematik/Informatik-Lehre**
+
+### ULTRATHINK-Analyse: BitPackedBoard-Strategie
+Nach L-Game-Implementierung und GEMINI-Reports-Analyse ergibt sich eine **schwellenwert-basierte Architektur**:
+
+**Zell-Anzahl-Kategorien:**
+- **< 50 Zellen:** Standard Board (pragmatisch, ausreichend)
+- **50-100 Zellen:** Graubereich - Standard Board meist ausreichend  
+- **> 100 Zellen:** BitPackedBoard gerechtfertigt
+
+**Spiele-Klassifizierung:**
+- **L-Game:** 16 Zellen → Standard Board ✅ (behalten)
+- **Connect4:** 42 Zellen → Standard Board ✅ (behalten)
+- **Trio:** 49 Zellen → Standard Board ✅ (behalten)
+- **Gomoku:** 225 Zellen → BitPackedBoard-Migration sinnvoll 🔄
+- **Hex:** 121 Zellen → BitPackedBoard für neue Implementierung ⚡
+
+### Gradueller Implementierungsplan (Lehrkontext-optimiert)
+
+**Phase 1: Foundation + BitPackedBoard-Framework (2-3 Tage) ✅ ABGESCHLOSSEN**
+- CSS-Architektur cleanup (zentrale `/assets/css/main.css`) ✅
+- BitPackedBoard<N,M,B> generische Implementierung in Rust ✅  
+- Template für große Boards etablieren und testen ✅
+
+**✅ BitPackedBoard Framework Implementation (2025-07-03)**
+- **Memory Efficiency**: 90%+ Speicher-Ersparnis über naive Ansätze
+- **Generic Structure**: `BitPackedBoard<ROWS, COLS, BITS_PER_CELL>`
+- **WASM Integration**: HexBoard als erste konkrete Implementierung
+- **Performance Results**: HexBoard (11×11) = 32 bytes statt 484 bytes (93.4% Ersparnis)
+- **Type Aliases**: Prepared für Hex, Dots&Boxes, Shannon, Large Gomoku
+
+**Phase 2: Hex Implementation (5-7 Tage) - PRIORITÄT #1**
+- **Bildungswert-Score: 4.4/5** - Höchster Wert für Mathematik/Informatik-Lehre
+- BitPackedBoard<11,11,2> für 121 Zellen
+- SVG Hexagon-UI mit viewBox-Skalierung (Foundation für alle Hex-Spiele)
+- Union-Find/BFS für Gewinnprüfung (Algorithmus-Demonstrationen)
+- **Lehr-Potential:** Topologie, Graphentheorie, "Unmöglichkeit von Unentschieden"
+
+**Phase 3: Gomoku BitPackedBoard-Migration (2-3 Tage)**
+- Von Standard Board auf BitPackedBoard<15,15,2> umstellen
+- 225 Zellen rechtfertigen Performance-Optimierung
+- Bestehende UI bleibt (nur Engine-Update)
+- Performance-Vergleich als Lehrdemonstration
+
+**Phase 4: Dots & Boxes (3-5 Tage) - PRIORITÄT #2**
+- Multi-Grid mit Standard Boards (horizontal_lines, vertical_lines, box_owners)
+- ~56 Zellen total - Standard Board ausreichend
+- **Lehr-Potential:** Kombinatorik, Endspiel-Strategien
+
+**Phase 5: Shannon Switching Game (4-6 Tage) - PRIORITÄT #3**
+- Graph-basiert mit Standard Board-Strukturen
+- Asymmetrische Spieler: Short vs Cut
+- **Lehr-Potential:** Netzwerktheorie, Min-Cut-Konzepte
+
+### Architektonische Entscheidungen (ULTRATHINK-basiert)
+
+**Warum graduell statt Big-Bang-Refactoring:**
+- Funktionierende Spiele bleiben stabil (kritisch für Lehrkontext)
+- BitPackedBoard-Framework wird mit Hex erprobt
+- Kleine Spiele pragmatisch lassen (over-engineering vermeiden)
+- Jede Phase baut Expertise für die nächste auf
+
+**Warum Hex als Priorität #1:**
+- Höchster Bildungswert für Mathematik/Informatik-Unterricht
+- SVG Hexagon-System einmal richtig = Foundation für alle Hex-Spiele  
+- Topologie-Demonstrationen: Jordan-Kurven-Theorem, Pfadfindung
+- 121 Zellen rechtfertigen erstmals BitPackedBoard-Einsatz
+
+**⚠️ BILDUNGSWERT-INTEGRATION STOPP-MARKER**
+**Vor Phase 2 (Hex):** Separaten granularen Plan für Lehr-Features erstellen
+- Algorithmus-Visualisierungen
+- Interaktive mathematische Konzept-Erklärungen  
+- Schritt-für-Schritt-Modi für Unterricht
+- Performance-Demonstrationen
+
+**Aktueller Status:** Plan dokumentiert, bereit für Phase 1 (Foundation)
+
 ## Development Notes
 - **WASM First**: Prioritize Rust implementation for game logic
 - **Clean Architecture**: Maintain separation between Rust core and JavaScript UI
 - **Performance**: Rust core provides 10x+ performance improvements over legacy JavaScript
 - **Modern Stack**: Focus on modern web standards and progressive enhancement
+- **BitPacked Strategy**: Size-threshold based - only for boards > 100 cells
+- **Educational Context**: Prioritize mathematical concept demonstrations over pure performance
 
 ## 🎯 **REFACTORING STATUS (Stand: 02.07.2025)**
 
