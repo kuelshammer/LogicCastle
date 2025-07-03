@@ -147,12 +147,59 @@
             </div>
             <p class="text-gray-600 leading-relaxed">Edward de Bono's strategisches Blockade-Spiel auf 4x4 Brett!</p>
         </a>
+
+        <a href="games/hex/" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="hex" data-key="5" role="button" aria-label="Hex spielen - Strategisches Verbindungsspiel auf hexagonalem Brett">
+            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">5</div>
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Hex ⬡</h2>
+            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+                <svg width="120" height="100" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Background -->
+                    <rect width="120" height="100" fill="#f8f9fa" rx="8"/>
+                    
+                    <!-- Hex grid preview -->
+                    <g transform="translate(15, 15)">
+                        <!-- Row 1 -->
+                        <polygon points="15,8 21,4 27,8 27,16 21,20 15,16" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                        <polygon points="27,8 33,4 39,8 39,16 33,20 27,16" fill="#dc3545" stroke="#a71e2a" stroke-width="1"/>
+                        <polygon points="39,8 45,4 51,8 51,16 45,20 39,16" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                        <polygon points="51,8 57,4 63,8 63,16 57,20 51,16" fill="#007bff" stroke="#0056b3" stroke-width="1"/>
+                        
+                        <!-- Row 2 -->
+                        <polygon points="21,20 27,16 33,20 33,28 27,32 21,28" fill="#007bff" stroke="#0056b3" stroke-width="1"/>
+                        <polygon points="33,20 39,16 45,20 45,28 39,32 33,28" fill="#dc3545" stroke="#a71e2a" stroke-width="1"/>
+                        <polygon points="45,20 51,16 57,20 57,28 51,32 45,28" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                        <polygon points="57,20 63,16 69,20 69,28 63,32 57,28" fill="#dc3545" stroke="#a71e2a" stroke-width="1"/>
+                        
+                        <!-- Row 3 -->
+                        <polygon points="15,32 21,28 27,32 27,40 21,44 15,40" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                        <polygon points="27,32 33,28 39,32 39,40 33,44 27,40" fill="#007bff" stroke="#0056b3" stroke-width="1"/>
+                        <polygon points="39,32 45,28 51,32 51,40 45,44 39,40" fill="#dc3545" stroke="#a71e2a" stroke-width="1"/>
+                        <polygon points="51,32 57,28 63,32 63,40 57,44 51,40" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                        
+                        <!-- Row 4 -->
+                        <polygon points="21,44 27,40 33,44 33,52 27,56 21,52" fill="#dc3545" stroke="#a71e2a" stroke-width="1"/>
+                        <polygon points="33,44 39,40 45,44 45,52 39,56 33,52" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                        <polygon points="45,44 51,40 57,44 57,52 51,56 45,52" fill="#007bff" stroke="#0056b3" stroke-width="1"/>
+                        <polygon points="57,44 63,40 69,44 69,52 63,56 57,52" fill="#ffffff" stroke="#dee2e6" stroke-width="1"/>
+                    </g>
+                    
+                    <!-- Red borders (left/right) -->
+                    <rect x="8" y="20" width="3" height="50" fill="#dc3545" opacity="0.8"/>
+                    <rect x="109" y="20" width="3" height="50" fill="#dc3545" opacity="0.8"/>
+                    
+                    <!-- Blue borders (top/bottom) -->
+                    <rect x="20" y="8" width="80" height="3" fill="#007bff" opacity="0.8"/>
+                    <rect x="20" y="89" width="80" height="3" fill="#007bff" opacity="0.8"/>
+                </svg>
+            </div>
+            <p class="text-gray-600 leading-relaxed">Verbinde deine Seiten auf dem hexagonalen Brett - BitPackedBoard!</p>
+        </a>
     </main>
 
     <footer class="text-center p-8 text-white opacity-80">
-        <p class="text-lg mb-4">Verwende die Tasten 1-4 oder klicke auf ein Spiel zum Starten</p>
+        <p class="text-lg mb-4">Verwende die Tasten 1-5 oder klicke auf ein Spiel zum Starten</p>
         <div class="text-sm opacity-60">
-            <div class="mb-1">Letzte Aktualisierung: 02.07.2025 - 17:45 Uhr</div>
+            <div class="mb-1">Letzte Aktualisierung: 03.07.2025 - 14:30 Uhr</div>
             <div>Build: <span id="commitHash">38f3861</span> • 
             <span id="buildTime">2025-06-28 14:23</span></div>
         </div>

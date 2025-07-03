@@ -65,10 +65,10 @@ class LandingPageController {
       }
     });
 
-    // Handle keyboard navigation (1-4 keys)
+    // Handle keyboard navigation (1-5 keys)
     document.addEventListener('keydown', (e) => {
       const key = e.key;
-      if (key >= '1' && key <= '4') {
+      if (key >= '1' && key <= '5') {
         this.handleKeyboardNavigation(parseInt(key) - 1);
       }
     });
