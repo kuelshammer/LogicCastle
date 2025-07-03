@@ -123,6 +123,34 @@ export class GomokuUINew extends BaseGameUI {
                 }
             }
         }
+        
+        console.log(`⌨️ Registered ${Object.keys(gomokuActions).length} Gomoku-specific keyboard actions`);
+    }
+
+    /**
+     * Enhanced keyboard action binding that handles all Gomoku shortcuts
+     */
+    setupAdvancedKeyboardActions() {
+        const keyboardController = this.getModule('keyboard');
+        if (!keyboardController) {
+            console.warn('⚠️ KeyboardController not available');
+            return;
+        }
+
+        // Register advanced Gomoku shortcuts that aren't in BaseGameUI
+        const advancedActions = {
+            'F3': () => this.resetScore(),
+            'Ctrl+z': () => this.undoMove(),
+            'Ctrl+Z': () => this.undoMove(),
+            'Ctrl+r': () => this.newGame(),
+            'Ctrl+R': () => this.newGame()
+        };
+
+        for (const [key, handler] of Object.entries(advancedActions)) {
+            keyboardController.register(key, `advanced_${key.replace(/\+/g, '_')}`, handler);
+        }
+
+        console.log(`⌨️ Registered ${Object.keys(advancedActions).length} advanced keyboard shortcuts`);
     }
 
     /**
@@ -132,6 +160,12 @@ export class GomokuUINew extends BaseGameUI {
         // Create Gomoku board and coordinates
         this.createBoard();
         this.createCoordinates();
+        
+        // Setup advanced keyboard shortcuts not covered by BaseGameUI
+        this.setupAdvancedKeyboardActions();
+        
+        // Test modal system integration
+        this.testModalIntegration();
         
         // Initialize Gomoku-specific systems
         this.initializeHelpers();
@@ -146,16 +180,84 @@ export class GomokuUINew extends BaseGameUI {
     }
 
     /**
-     * Handle Escape key - close modals or hide cursor
+     * Test modal system integration
+     */
+    testModalIntegration() {
+        const modalManager = this.getModule('modals');
+        if (modalManager) {
+            console.log('🪟 Modal system available:', modalManager.getDebugInfo());
+            
+            // Test modal registration
+            const registeredModals = Object.keys(this.config.modals);
+            console.log(`🪟 Registered modals: ${registeredModals.join(', ')}`);
+            
+        } else {
+            console.warn('⚠️ Modal manager not available');
+        }
+    }
+
+    /**
+     * Handle Escape key - close modals or hide cursor (Enhanced with module integration)
      */
     handleEscapeKey() {
-        // First try to close any open modals
+        // Phase 2.3: Use ModalManager instead of manual modal handling
         const modalManager = this.getModule('modals');
         if (modalManager && modalManager.getActiveModals().length > 0) {
             modalManager.hideAll();
+            console.log('🪟 Closed all modals via ModalManager');
         } else if (this.cursor.active) {
             // If no modals open, hide cursor
             this.hideCursor();
+            console.log('🎯 Cursor hidden via Escape key');
+        }
+    }
+
+    /**
+     * Enhanced modal methods using ModalManager
+     */
+    toggleHelp() {
+        const modalManager = this.getModule('modals');
+        if (modalManager) {
+            modalManager.toggle('help');
+            console.log('🪟 Help modal toggled via ModalManager');
+        } else {
+            console.warn('⚠️ ModalManager not available for help modal');
+        }
+    }
+
+    toggleGameHelp() {
+        const modalManager = this.getModule('modals');
+        if (modalManager) {
+            modalManager.toggle('gameHelp');
+            console.log('🪟 Game help modal toggled via ModalManager');
+        } else {
+            console.warn('⚠️ ModalManager not available for game help modal');
+        }
+    }
+
+    /**
+     * Show assistance modal (if available)
+     */
+    showAssistanceModal() {
+        const modalManager = this.getModule('modals');
+        if (modalManager) {
+            modalManager.show('assistance');
+            console.log('🪟 Assistance modal shown via ModalManager');
+        } else {
+            console.warn('⚠️ ModalManager not available for assistance modal');
+        }
+    }
+
+    /**
+     * Enhanced error handling with ModalManager
+     */
+    showError(title, message) {
+        const modalManager = this.getModule('modals');
+        if (modalManager) {
+            modalManager.showError(title, message);
+        } else {
+            // Fallback to message system
+            this.showMessage(`Error: ${message}`, 'error');
         }
     }
 
@@ -571,14 +673,26 @@ export class GomokuUINew extends BaseGameUI {
     }
 
     /**
-     * Override newGame to use module system
+     * Override newGame to use module system with enhanced feedback
      */
     newGame() {
         if (this.game && typeof this.game.resetGame === 'function') {
             this.game.resetGame();
         }
-        this.showMessage('Neues Spiel gestartet', 'info');
-        console.log('🆕 New game started');
+        
+        // Reset cursor to center
+        this.cursor.row = 7;
+        this.cursor.col = 7;
+        this.cursor.active = true;
+        
+        // Reset selection state
+        this.resetSelectionState();
+        
+        // Update visual feedback
+        this.updateCrosshairPosition();
+        
+        this.showMessage('Neues Spiel gestartet', 'success');
+        console.log('🆕 New game started with cursor reset');
     }
 
     /**
