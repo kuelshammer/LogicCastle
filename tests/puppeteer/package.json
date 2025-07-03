@@ -1,0 +1,24 @@
+{
+  "name": "gomoku-puppeteer-tests",
+  "version": "1.0.0",
+  "description": "Puppeteer validation tests for Gomoku Goldstandard verification",
+  "main": "index.js",
+  "scripts": {
+    "test": "node gomoku-validation.js",
+    "test:basic": "node tests/phase1-basic-validation.js",
+    "test:modules": "node tests/phase2-modules-integration.js",
+    "test:placement": "node tests/phase3-stone-placement.js",
+    "test:logic": "node tests/phase4-game-logic.js",
+    "test:visual": "node tests/phase5-visual-regression.js",
+    "server": "uv run python -m http.server 8000",
+    "test:all": "npm run server & sleep 2 && npm test && kill $!"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0"
+  },
+  "keywords": ["puppeteer", "testing", "gomoku", "validation"],
+  "author": "LogicCastle Team",
+  "license": "MIT"
+}
