@@ -634,7 +634,7 @@ export class GomokuUINew extends BaseGameUI {
     }
 
     /**
-     * Add stone preview to intersection
+     * Add stone preview to intersection - Phase 2.4.3: Enhanced
      */
     addStonePreview(intersection) {
         // Remove existing preview
@@ -643,9 +643,14 @@ export class GomokuUINew extends BaseGameUI {
             existingPreview.remove();
         }
         
-        // Create preview stone
+        // Create preview stone with current player color
         const preview = document.createElement('div');
-        preview.className = `stone-preview ${this.game ? this.game.getPlayerColorClass(this.game.currentPlayer) : 'black'}`;
+        const playerClass = this.game ? this.game.getPlayerColorClass(this.game.currentPlayer) : 'black';
+        preview.className = `stone stone-preview ${playerClass}`;
+        
+        // Add positioning for board-relative placement
+        this.positionStoneRelativeToBoard(intersection, preview);
+        
         intersection.appendChild(preview);
     }
 
@@ -732,25 +737,49 @@ export class GomokuUINew extends BaseGameUI {
     // ==================== WORKING PLACEHOLDER METHODS ====================
     // These are simplified implementations for Phase 2.2
 
+    /**
+     * Update column highlight display - Phase 2.4.1: Advanced implementation
+     */
     updateColumnHighlight() {
-        // Simplified implementation - full version in Phase 2.4
         const board = this.elements.gameBoard;
         
         if (this.cursor.active && board) {
+            // Calculate cursor position using standardized coordinate mapping
+            const [leftPosition, _] = CoordUtils.gomokuGridToPixel(
+                0, this.cursor.col, 390, 20, this.game.BOARD_SIZE
+            );
+            
+            // Update CSS custom property for column position
+            board.style.setProperty('--highlight-column-left', `${leftPosition}px`);
             board.classList.add('column-highlighted');
+            
+            console.log(`🎯 Column highlight at: ${leftPosition}px (col ${this.cursor.col})`);
         } else if (board) {
             board.classList.remove('column-highlighted');
+            board.style.removeProperty('--highlight-column-left');
         }
     }
 
+    /**
+     * Update row highlight display - Phase 2.4.1: Advanced implementation
+     */
     updateRowHighlight() {
-        // Simplified implementation - full version in Phase 2.4
         const board = this.elements.gameBoard;
         
         if (this.cursor.active && board) {
+            // Calculate cursor position using standardized coordinate mapping
+            const [_, topPosition] = CoordUtils.gomokuGridToPixel(
+                this.cursor.row, 0, 390, 20, this.game.BOARD_SIZE
+            );
+            
+            // Update CSS custom property for row position
+            board.style.setProperty('--highlight-row-top', `${topPosition}px`);
             board.classList.add('row-highlighted');
+            
+            console.log(`🎯 Row highlight at: ${topPosition}px (row ${this.cursor.row})`);
         } else if (board) {
             board.classList.remove('row-highlighted');
+            board.style.removeProperty('--highlight-row-top');
         }
     }
 
@@ -784,11 +813,16 @@ export class GomokuUINew extends BaseGameUI {
         }
     }
 
+    /**
+     * Remove cursor display - Phase 2.4.1: Enhanced implementation
+     */
     removeCursorDisplay() {
-        // Phase 2.2: Basic implementation
         const board = this.elements.gameBoard;
         if (board) {
+            // Remove CSS classes and custom properties
             board.classList.remove('column-highlighted', 'row-highlighted');
+            board.style.removeProperty('--highlight-column-left');
+            board.style.removeProperty('--highlight-row-top');
         }
         
         // Remove cursor highlights from intersections
@@ -796,89 +830,311 @@ export class GomokuUINew extends BaseGameUI {
         allIntersections.forEach(intersection => {
             intersection.classList.remove('cursor-active');
         });
+        
+        console.log('🎯 Cursor display removed');
     }
 
+    /**
+     * Get current crosshair position in chess notation - Phase 2.4.3
+     */
     getCurrentCrosshairPosition() {
         const columnLetter = String.fromCharCode(65 + this.cursor.col);
-        const rowNumber = this.cursor.row + 1;
+        const rowNumber = this.game.BOARD_SIZE - this.cursor.row; // 15-1 for display
         return `${columnLetter}${rowNumber}`;
     }
+    
+    /**
+     * Position stone relative to board for responsive design - Phase 2.4.3
+     */
+    positionStoneRelativeToBoard(intersection, stone) {
+        // Use intersection positioning as stones are positioned within intersections
+        // No additional positioning needed as stones inherit intersection position
+        stone.style.position = 'absolute';
+        stone.style.top = '10%';
+        stone.style.left = '10%';
+        stone.style.width = '80%';
+        stone.style.height = '80%';
+    }
 
+    /**
+     * Add selection preview at specified position - Phase 2.4.5: Enhanced
+     */
     addSelectionPreview(row, col) {
-        // Phase 2.2: Working implementation
         this.removeSelectionPreview();
         const intersection = this.getIntersection(row, col);
         if (intersection && !intersection.classList.contains('occupied')) {
+            // Add visual feedback classes
             intersection.classList.add('feedback-selected');
+            
+            // Create enhanced stone preview
             this.addStonePreview(intersection);
             this.selectionState.hasPreview = true;
+            
+            console.log(`🎯 Selection preview at ${this.getCurrentCrosshairPosition()}`);
         }
     }
 
+    /**
+     * Remove selection preview and feedback - Phase 2.4.5: Enhanced
+     */
     removeSelectionPreview() {
-        // Phase 2.2: Working implementation
         const selected = this.elements.gameBoard.querySelector('.intersection.feedback-selected');
         if (selected) {
-            selected.classList.remove('feedback-selected');
-            const preview = selected.querySelector('.stone-preview');
-            if (preview) {
-                preview.remove();
-            }
+            // Remove all feedback classes
+            selected.classList.remove('feedback-selected', 'feedback-hover', 'feedback-preview');
+            
+            // Remove preview stones
+            const previews = selected.querySelectorAll('.stone-preview');
+            previews.forEach(preview => preview.remove());
+            
+            console.log('🎯 Selection preview removed');
         }
         this.selectionState.hasPreview = false;
     }
 
+    /**
+     * Reset selection state to phase 0 (navigation) - Phase 2.4.5: Enhanced
+     */
     resetSelectionState() {
         this.selectionState.phase = 0;
         this.selectionState.previewRow = null;
         this.selectionState.previewCol = null;
         this.selectionState.hasPreview = false;
+        
+        // Clear all visual feedback
         this.removeSelectionPreview();
+        this.clearAllIntersectionFeedback();
+        
+        console.log('🔄 Selection state reset to navigation phase');
+    }
+    
+    /**
+     * Clear all intersection feedback states - Phase 2.4.5
+     */
+    clearAllIntersectionFeedback() {
+        const feedbackElements = this.elements.gameBoard.querySelectorAll('[class*="feedback-"]');
+        feedbackElements.forEach(element => {
+            element.classList.remove('feedback-selected', 'feedback-hover', 'feedback-preview');
+        });
+        
+        // Remove all preview stones
+        const previews = this.elements.gameBoard.querySelectorAll('.stone-preview');
+        previews.forEach(preview => preview.remove());
     }
 
+    /**
+     * Handle intersection click with module integration - Phase 2.4.2
+     */
     onIntersectionClick(row, col) {
-        // TODO: Implement in Phase 2.4
-        console.log(`⚠️ onIntersectionClick(${row}, ${col}) - TODO in Phase 2.4`);
+        if (this.isProcessingMove || (this.game && this.game.gameOver)) {
+            return;
+        }
+
+        // Check if position is valid (not occupied)
+        if (this.game && !this.game.isEmpty(row, col)) return;
+
+        // Update cursor position
+        this.cursor.row = row;
+        this.cursor.col = col; 
+        this.cursor.active = true;
+        
+        // Update visual feedback
+        this.updateCrosshairPosition();
+        
+        console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
+
+        // Use the same two-stage logic as keyboard
+        this.placeCursorStone();
     }
 
+    /**
+     * Handle intersection hover - Phase 2.4.2
+     */
     onIntersectionHover(row, col) {
-        // TODO: Implement in Phase 2.4
-        console.log(`⚠️ onIntersectionHover(${row}, ${col}) - TODO in Phase 2.4`);
+        if (this.isProcessingMove || (this.game && this.game.gameOver)) {
+            return;
+        }
+
+        const intersection = this.getIntersection(row, col);
+        if (intersection && !intersection.classList.contains('occupied') && 
+            !intersection.classList.contains('feedback-selected')) {
+            
+            // Add hover feedback
+            intersection.classList.add('feedback-hover');
+            
+            // Add temporary stone preview for hover
+            this.addStonePreview(intersection);
+            
+            console.log(`🖱️ Hover at ${String.fromCharCode(65 + col)}${row + 1}`);
+        }
     }
 
+    /**
+     * Handle intersection leave - Phase 2.4.2
+     */
     onIntersectionLeave(row, col) {
-        // TODO: Implement in Phase 2.4
-        console.log(`⚠️ onIntersectionLeave(${row}, ${col}) - TODO in Phase 2.4`);
+        const intersection = this.getIntersection(row, col);
+        
+        if (intersection) {
+            // Remove hover feedback
+            intersection.classList.remove('feedback-hover');
+            
+            // Remove preview stones (but keep selected state)
+            const previewStone = intersection.querySelector('.stone-preview');
+            if (previewStone && !intersection.classList.contains('feedback-selected')) {
+                previewStone.remove();
+            }
+            
+            console.log(`🖱️ Left ${String.fromCharCode(65 + col)}${row + 1}`);
+        }
     }
 
+    /**
+     * Make a move with module integration - Phase 2.4.3
+     */
     makeMove(row, col) {
-        // TODO: Implement in Phase 2.4
-        console.log(`⚠️ makeMove(${row}, ${col}) - TODO in Phase 2.4`);
+        if (this.isProcessingMove) {
+            return;
+        }
+
+        this.isProcessingMove = true;
+
+        try {
+            const result = this.game.makeMove(row, col);
+            console.log('Move result:', result);
+            // If we get here, the move was successful
+        } catch (error) {
+            this.isProcessingMove = false;
+            this.showMessage(error.message, 'error');
+            return;
+        }
+
+        // Animation will complete and set isProcessingMove to false in onMoveMade
     }
 
+    /**
+     * Update display using module system - Phase 2.4.4: Complete implementation
+     */
     updateDisplay() {
-        // TODO: Implement in Phase 2.4
-        console.log('⚠️ updateDisplay - TODO in Phase 2.4');
+        this.updateCurrentPlayer();
+        this.updateScores();
+        this.updateGameStatus();
+        this.updateControls();
+        this.updateMoveCounter();
+        
+        // Update WASM move analysis dashboard if available
+        if (this.wasmIntegration) {
+            try {
+                this.wasmIntegration.updateAnalysisDashboard();
+            } catch (error) {
+                console.log('⚠️ WASM dashboard update failed:', error.message);
+            }
+        }
+        
+        console.log('📊 Display updated - all components refreshed');
     }
 
+    /**
+     * Update game mode display and configuration - Phase 2.4.4
+     */
     updateGameMode() {
-        // TODO: Implement in Phase 2.5
-        console.log('⚠️ updateGameMode - TODO in Phase 2.5');
+        const gameModeSelect = this.elements.gameMode;
+        if (!gameModeSelect) {
+            console.log('⚠️ Game mode selector not found');
+            return;
+        }
+        
+        const selectedMode = gameModeSelect.value;
+        
+        // Update internal game mode
+        if (selectedMode !== this.gameMode) {
+            this.gameMode = selectedMode;
+            console.log(`🎮 Game mode changed to: ${selectedMode}`);
+            
+            // Update configuration for new mode
+            this.config = createGomokuConfig(selectedMode);
+            
+            // Show mode change message
+            this.showMessage(`Spielmodus: ${this.getModeDisplayName(selectedMode)}`, 'info');
+        }
+    }
+    
+    /**
+     * Get display name for game mode - Phase 2.4.4
+     */
+    getModeDisplayName(mode) {
+        const modeNames = {
+            'two-player': 'Zwei Spieler',
+            'vs-bot-wasm': 'vs WASM Bot',
+            'vs-bot-expert': 'vs Experten Bot'
+        };
+        return modeNames[mode] || mode;
     }
 
+    /**
+     * Initialize helpers system - Phase 2.4.6: Working implementation
+     */
     initializeHelpers() {
-        // TODO: Implement in Phase 2.5
-        console.log('⚠️ initializeHelpers - TODO in Phase 2.5');
+        // Helper checkboxes integration
+        const helperElements = [
+            'helpPlayer1Level0', 'helpPlayer1Level1', 'helpPlayer1Level2',
+            'helpPlayer2Level0', 'helpPlayer2Level1', 'helpPlayer2Level2'
+        ];
+        
+        helperElements.forEach(elementId => {
+            const element = this.elements[elementId];
+            if (element) {
+                element.addEventListener('change', (e) => {
+                    this.onHelperCheckboxChange(elementId, e.target.checked);
+                });
+            }
+        });
+        
+        console.log('⚙️ Helpers system initialized with', helperElements.length, 'checkboxes');
+    }
+    
+    /**
+     * Handle helper checkbox changes
+     */
+    onHelperCheckboxChange(elementId, checked) {
+        console.log(`📊 Helper ${elementId}: ${checked ? 'enabled' : 'disabled'}`);
+        // Helper logic will be implemented when WASM integration is working
     }
 
+    /**
+     * Initialize WASM Integration - Phase 2.4.6: Working implementation
+     */
     initializeWasmIntegration() {
-        // TODO: Implement in Phase 2.5
-        console.log('⚠️ initializeWasmIntegration - TODO in Phase 2.5');
+        if (typeof window.WasmGobangIntegration !== 'undefined') {
+            try {
+                this.wasmIntegration = new window.WasmGobangIntegration(this);
+                console.log('✅ WASM Integration initialized successfully');
+            } catch (error) {
+                console.log('⚠️ WASM Integration initialization failed:', error.message);
+                this.wasmIntegration = null;
+            }
+        } else {
+            console.log('⚠️ WASM Integration not available - running without WASM features');
+            this.wasmIntegration = null;
+        }
     }
 
+    /**
+     * Initialize Assistance System - Phase 2.4.6: Working implementation
+     */
     initializeAssistanceSystem() {
-        // TODO: Implement in Phase 2.5
-        console.log('⚠️ initializeAssistanceSystem - TODO in Phase 2.5');
+        if (typeof window.GomokuAssistanceSystem !== 'undefined') {
+            try {
+                this.assistanceSystem = new window.GomokuAssistanceSystem(this);
+                console.log('✅ Assistance System initialized successfully');
+            } catch (error) {
+                console.log('⚠️ Assistance System initialization failed:', error.message);
+                this.assistanceSystem = null;
+            }
+        } else {
+            console.log('⚠️ Assistance System not available - running without assistance features');
+            this.assistanceSystem = null;
+        }
     }
 
     // ==================== GAME EVENT HANDLERS ====================
