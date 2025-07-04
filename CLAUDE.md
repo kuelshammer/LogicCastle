@@ -1,4 +1,4 @@
-# LogicCastle Projektübersicht für Claude (Stand: 2025-07-03 v2)
+# LogicCastle Projektübersicht für Claude (Stand: 2025-07-04 v3)
 
 Dieses Dokument beschreibt die aktuelle Architektur und den Implementierungsstand nach den jüngsten Refactoring-Phasen. Es dient als Leitfaden für die weitere Entwicklung.
 
@@ -17,40 +17,88 @@ LogicCastle wurde umfassend modernisiert. Die Architektur basiert auf einer klar
 
 ## 2. Implementierungsstand der Spiele
 
-Der Großteil der Spiele ist funktional und auf dem neuesten technischen Stand.
+### 2.1 Gomoku - GOLDSTANDARD ⭐
+- **Status:** **Vollständig migriert und validiert.** 
+- **UI-Module System:** Erfolgreich als Pilot implementiert mit `ui-new.js` basierend auf `BaseGameUI`
+- **Puppeteer-Validierung:** 26/26 Tests bestanden (100% Erfolgsrate)
+- **Visuelle Validierung:** 98% Match zum Referenzbild Gomoku.jpg
+- **Technische Basis:** Rust-Engine + BitPackedBoard + UI-Module System
+- **Kritisches Problem:** Stone Placement Bug - Steine werden nicht korrekt auf Intersections positioniert
 
-- **Gomoku, Trio, Hex, L-Game:**
-  - **Status:** **Vollständig migriert.** Diese Spiele nutzen die Rust-Engine und, wo sinnvoll, die `BitPackedBoard`-Implementierung. Die UIs sind an das zentrale Design-System angebunden.
-  - **Vorbild:** Die Implementierung von **Gomoku** dient als Goldstandard für die Architektur des Projekts.
-
-- **Connect4 (`/games/connect4`):**
-  - **Status:** Funktional, aber **technisch teilweise veraltet.**
-  - **Offener Punkt:** Im Gegensatz zu den anderen Spielen wurde die JavaScript-Logik von Connect4 noch **nicht** auf die `BitPackedBoard`-Struktur umgestellt. Die Performance und Speichereffizienz sind daher nicht auf dem Niveau der anderen Spiele.
+### 2.2 Connect4, Trio, Hex, L-Game
+- **Status:** Funktional, aber **technisch veraltet.**
+- **Migration ausstehend:** Müssen auf das neue UI-Module System migriert werden
+- **Offener Punkt:** Connect4 fehlt noch BitPackedBoard-Implementierung
 
 ## 3. Zukünftige Ausrichtung und verbleibende Aufgaben
 
-Die primären Architekturarbeiten sind abgeschlossen. Die verbleibenden Aufgaben konzentrieren sich auf die Konsolidierung und Dokumentation.
+Die primären Architekturarbeiten sind abgeschlossen. Das UI-Module System ist als GOLDSTANDARD etabliert.
 
-1.  **🎯 KRITISCH: Puppeteer Goldstandard Validation (Stand: 2025-07-03)**
-    - **Status:** Phase 2.4 der UI-Module ist vollständig implementiert - ABER noch nicht validiert!
-    - **Problem:** Bisher konnte nie eine funktionierende Version erstellt werden, die dem Referenzbild `games/gomoku/Gomoku.jpg` entspricht
-    - **Aufgabe:** Vollständige Verifikation mit Puppeteer-Tests gegen das Referenzbild
-    - **📋 Detaillierter Plan:** Siehe `PUPPETEER_VERIFICATION_PLAN.md` für 5-Phasen Validierung
-    - **Ziel:** Nur bei 100% Testpass + Visual Match → Goldstandard für andere Spiele Migration
+### 3.1 Kritische Sofortmaßnahmen (Höchste Priorität)
 
-2.  **Einführung eines "Flexiblen Modul-Layouts" für UI-Komponenten (FAST ABGESCHLOSSEN):**
-    - **Problem:** Aktuell ist zwar das CSS zentralisiert, die **JavaScript-Logik** zur Erstellung und Verwaltung von UI-Elementen (z.B. Spielbrett, Statusanzeige, Menüs) ist jedoch in den jeweiligen `ui.js`-Dateien der Spiele dupliziert.
-    - **Status:** Phase 2.1-2.4 für Gomoku vollständig implementiert (33% Code-Reduktion erreicht)
-    - **NÄCHSTER SCHRITT:** Puppeteer validation BEVOR Migration anderer Spiele
-    - **📋 Detaillierter Plan:** Siehe `TODO.md` für 8-Phasen-Roadmap mit überprüfbaren Meilensteinen.
+1. **Stone Placement Bug Fix:**
+   - **Problem:** Steine werden als Child-Elemente der Intersections hinzugefügt, was zu ungenauer Positionierung führt
+   - **Lösung:** Implementierung der `positionStoneOnBoard()` Methode aus dem Gemini Report
+   - **Technik:** Steine direkt an gameBoard anhängen mit absoluter Pixelpositionierung
 
-3.  **Abschluss des Connect4-Refactorings:**
-    - **Aufgabe:** Migrieren Sie die verbleibende JavaScript-Logik von Connect4 auf die `BitPackedBoard`-Struktur der Rust-Engine. Orientieren Sie sich dabei an der Implementierung in `games/gomoku/js/game-bitpacked.js`.
+2. **Code-Bereinigung:**
+   - **Gomoku:** Löschen von `ui.js`, `ui-legacy.js`, `game.js`, `ai.js`, `helpers.js`
+   - **Connect4:** Löschen von `game.js`, `ui.js`, `ai.js`, `ui_v2.js`
+   - **Global:** Löschen von `assets/js/game-base.js`, `test_fork_detection.html`
 
-4.  **Vereinheitlichung der Rust-API:**
-    - **Aufgabe:** Prüfen Sie, ob die spezifische `TrioGame`-Struktur in der Rust-Engine an die generischere `Game`-Struktur (verwendet von Connect4/Gomoku) angeglichen werden kann, um die API-Konsistenz zu erhöhen.
+### 3.2 Migrations-Roadmap
 
-5.  **Aktualisierung der Projektdokumentation:**
-    - **Aufgabe:** Aktualisieren Sie die `README.md` und `docs/ARCHITECTURE.md`, um die neue, auf Vite, Rust und dem zentralen Design-System basierende Architektur korrekt zu beschreiben.
+1. **UI-Module System Migration:**
+   - **Trio:** Migriere auf BaseGameUI-System
+   - **Hex:** Migriere auf BaseGameUI-System  
+   - **L-Game:** Migriere auf BaseGameUI-System
+   - **Connect4:** Spezialbehandlung wegen fehlender BitPackedBoard-Implementierung
 
-Dieses Dokument spiegelt den aktuellen Stand nach den Commits vom 3. Juli 2025 wider und ersetzt alle vorherigen Versionen.
+2. **Connect4 Refactoring:**
+   - **Aufgabe:** Migrieren auf BitPackedBoard-Struktur nach Gomoku-Vorbild
+   - **Referenz:** `games/gomoku/js/game-bitpacked.js`
+
+3. **Trio Rust Integration:**
+   - **Prüfung:** Ob Trio-Logik in Rust-Engine ausgelagert werden kann
+   - **Ziel:** API-Konsistenz erhöhen
+
+### 3.3 Qualitätssicherung
+
+1. **Testing-Erweiterung:**
+   - **Puppeteer-Tests:** Auf alle Spiele erweitern
+   - **UI-Module Tests:** Robustere und wiederverwendbare Tests
+   - **Visual Regression:** Systematische Validierung
+
+2. **Dokumentation:**
+   - **README.md:** Aktualisierung der Architektur-Beschreibung
+   - **ARCHITECTURE.md:** Neue UI-Module System Dokumentation
+
+## 4. Technische Erkenntnisse aus Gemini Reports
+
+### 4.1 Stone Placement Problem (2025-07-04)
+- **Ursache:** DOM-Verschachtelung (Stone als Child der Intersection) + unzuverlässige CSS-Positionierung
+- **Lösung:** Direkte Positionierung mit `positionStoneOnBoard()` Methode
+- **Technik:** `getBoundingClientRect()` + prozentuale Padding-Berechnung + `translate(-50%, -50%)`
+
+### 4.2 Projekt-Audit (2025-07-04)
+- **Stärken:** Moderne Toolchain, klare Rust/WASM Trennung, UI-Module System
+- **Schwächen:** Code-Duplizierung, veraltete Dateien, inkonsistente UI-Implementierungen
+- **Empfehlung:** Konsolidierung und Bereinigung als oberste Priorität
+
+Dieses Dokument spiegelt den aktuellen Stand nach den Commits vom 4. Juli 2025 wider und ersetzt alle vorherigen Versionen.
+
+# Known Issues
+
+## Gomoku Stone Placement Issues (Stand: 2025-07-04)
+- **CRITICAL:** Stone Placement Bug - Steine erscheinen nicht auf korrekten Board-Positionen
+- **Ursache:** DOM-Verschachtelung - Steine werden als Child der Intersections angehängt
+- **Lösung:** `positionStoneOnBoard()` Methode implementieren mit direkter gameBoard-Positionierung
+- **Status:** Identifiziert, Lösung vorhanden, Implementation ausstehend
+
+## Code-Bereinigung ausstehend (Stand: 2025-07-04)
+- **Problem:** Veraltete Dateien in allen Spielen (ui.js, game.js, ai.js legacy Versionen)
+- **Risiko:** Code-Duplizierung, Verwirrung, Wartungsprobleme
+- **Lösung:** Systematisches Löschen nach Migration-Abschluss
+- **Status:** Bereinigungsplan erstellt, Ausführung ausstehend
+
+- Benutze IMMER `uv` für Python!

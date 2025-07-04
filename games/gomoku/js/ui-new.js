@@ -1142,6 +1142,52 @@ export class GomokuUINew extends BaseGameUI {
         }
     }
 
+    // ==================== STONE POSITIONING SYSTEM ====================
+    // Phase 2.4.7: Pixel-perfect stone positioning (Gemini Report Implementation)
+
+    /**
+     * Position stone directly on game board with pixel-perfect accuracy.
+     * Solves the stone placement bug by bypassing intersection DOM nesting.
+     * 
+     * @param {number} row - Target row (0-14)
+     * @param {number} col - Target column (0-14)
+     * @param {HTMLElement} stoneElement - Stone DOM element to position
+     */
+    positionStoneOnBoard(row, col, stoneElement) {
+        const board = this.elements.gameBoard;
+        
+        // 1. Get actual rendered board dimensions at runtime
+        const boardRect = board.getBoundingClientRect();
+        const boardWidth = boardRect.width;
+        
+        // 2. Calculate padding in pixels (CSS uses 5.13%)
+        const padding = boardWidth * 0.0513;
+        
+        // 3. Calculate pure grid size (without padding)
+        const gridWidth = boardWidth - (2 * padding);
+        const gridSize = this.game.BOARD_SIZE || 15;
+        
+        // 4. Calculate step size between lines
+        // For 15x15 grid, there are 14 intervals between 15 lines
+        const step = gridWidth / (gridSize - 1);
+        
+        // 5. Calculate final pixel coordinates
+        // Start at padding offset, then add steps for row/column
+        const pixelX = padding + (col * step);
+        const pixelY = padding + (row * step);
+        
+        // 6. Apply absolute positioning to stone
+        stoneElement.style.position = 'absolute';
+        stoneElement.style.left = `${pixelX}px`;
+        stoneElement.style.top = `${pixelY}px`;
+        
+        // 7. Center stone exactly on coordinate point
+        // Most robust approach - works regardless of stone size
+        stoneElement.style.transform = 'translate(-50%, -50%)';
+        
+        console.log(`🎯 Stone positioned: ${row},${col} -> ${pixelX.toFixed(1)}px, ${pixelY.toFixed(1)}px`);
+    }
+
     // ==================== GAME EVENT HANDLERS ====================
     // Phase 2.2: Working implementations using module system
 
@@ -1170,10 +1216,16 @@ export class GomokuUINew extends BaseGameUI {
         const playerClass = this.game.getPlayerColorClass(move.player);
         stone.className = `stone ${playerClass} stone-place last-move`;
 
-        // Position stone in intersection
-        intersection.appendChild(stone);
+        // === NEW POSITIONING LOGIC (Gemini Report Implementation) ===
+        // 1. Attach stone directly to game board (not intersection)
+        this.elements.gameBoard.appendChild(stone);
+        
+        // 2. Position stone with pixel-perfect accuracy
+        this.positionStoneOnBoard(move.row, move.col, stone);
+        
+        // 3. Mark intersection as occupied (for game logic only)
         intersection.classList.add('occupied');
-        console.log('✅ Stone placed! Total stones:', document.querySelectorAll('.stone').length);
+        console.log('✅ Stone placed with new positioning! Total stones:', document.querySelectorAll('.stone').length);
 
         // Add move indicator for notation
         const moveIndicator = document.createElement('div');
