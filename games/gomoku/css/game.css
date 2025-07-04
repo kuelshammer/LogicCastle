@@ -248,7 +248,7 @@
   z-index: 2;
 }
 
-/* Traditional Go board grid lines - fully responsive with percentage */
+/* Traditional Go board grid lines - authentic 15x15 with all border lines */
 .game-board::before {
   content: '';
   position: absolute;
@@ -257,19 +257,43 @@
   right: 5.13%; /* Responsive padding offset */
   bottom: 5.13%; /* Responsive padding offset */
   background-image:
-    repeating-linear-gradient(
+    /* Vertical lines - 15 lines total (0% to 100% in 14 steps) */
+    linear-gradient(
       to right,
-      #8b4513 0%,
-      #8b4513 0.2%, /* ~1px at typical sizes */
-      transparent 0.2%,
-      transparent 7.143% /* 100%/14 = 7.143% per grid step */
+      #8b4513 0%, #8b4513 0.2%, transparent 0.2%, transparent 7.142857%,
+      #8b4513 7.142857%, #8b4513 7.342857%, transparent 7.342857%, transparent 14.285714%,
+      #8b4513 14.285714%, #8b4513 14.485714%, transparent 14.485714%, transparent 21.428571%,
+      #8b4513 21.428571%, #8b4513 21.628571%, transparent 21.628571%, transparent 28.571428%,
+      #8b4513 28.571428%, #8b4513 28.771428%, transparent 28.771428%, transparent 35.714285%,
+      #8b4513 35.714285%, #8b4513 35.914285%, transparent 35.914285%, transparent 42.857142%,
+      #8b4513 42.857142%, #8b4513 43.057142%, transparent 43.057142%, transparent 49.999999%,
+      #8b4513 49.999999%, #8b4513 50.199999%, transparent 50.199999%, transparent 57.142856%,
+      #8b4513 57.142856%, #8b4513 57.342856%, transparent 57.342856%, transparent 64.285713%,
+      #8b4513 64.285713%, #8b4513 64.485713%, transparent 64.485713%, transparent 71.42857%,
+      #8b4513 71.42857%, #8b4513 71.62857%, transparent 71.62857%, transparent 78.571427%,
+      #8b4513 78.571427%, #8b4513 78.771427%, transparent 78.771427%, transparent 85.714284%,
+      #8b4513 85.714284%, #8b4513 85.914284%, transparent 85.914284%, transparent 92.857141%,
+      #8b4513 92.857141%, #8b4513 93.057141%, transparent 93.057141%, transparent 99.8%,
+      #8b4513 99.8%, #8b4513 100%
     ),
-    repeating-linear-gradient(
+    /* Horizontal lines - 15 lines total (0% to 100% in 14 steps) */
+    linear-gradient(
       to bottom,
-      #8b4513 0%,
-      #8b4513 0.2%, /* ~1px at typical sizes */
-      transparent 0.2%,
-      transparent 7.143% /* 100%/14 = 7.143% per grid step */
+      #8b4513 0%, #8b4513 0.2%, transparent 0.2%, transparent 7.142857%,
+      #8b4513 7.142857%, #8b4513 7.342857%, transparent 7.342857%, transparent 14.285714%,
+      #8b4513 14.285714%, #8b4513 14.485714%, transparent 14.485714%, transparent 21.428571%,
+      #8b4513 21.428571%, #8b4513 21.628571%, transparent 21.628571%, transparent 28.571428%,
+      #8b4513 28.571428%, #8b4513 28.771428%, transparent 28.771428%, transparent 35.714285%,
+      #8b4513 35.714285%, #8b4513 35.914285%, transparent 35.914285%, transparent 42.857142%,
+      #8b4513 42.857142%, #8b4513 43.057142%, transparent 43.057142%, transparent 49.999999%,
+      #8b4513 49.999999%, #8b4513 50.199999%, transparent 50.199999%, transparent 57.142856%,
+      #8b4513 57.142856%, #8b4513 57.342856%, transparent 57.342856%, transparent 64.285713%,
+      #8b4513 64.285713%, #8b4513 64.485713%, transparent 64.485713%, transparent 71.42857%,
+      #8b4513 71.42857%, #8b4513 71.62857%, transparent 71.62857%, transparent 78.571427%,
+      #8b4513 78.571427%, #8b4513 78.771427%, transparent 78.771427%, transparent 85.714284%,
+      #8b4513 85.714284%, #8b4513 85.914284%, transparent 85.914284%, transparent 92.857141%,
+      #8b4513 92.857141%, #8b4513 93.057141%, transparent 93.057141%, transparent 99.8%,
+      #8b4513 99.8%, #8b4513 100%
     );
   pointer-events: none;
   z-index: 1;
