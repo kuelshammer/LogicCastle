@@ -510,30 +510,10 @@ export class GomokuUINew extends BaseGameUI {
         // Check if position is valid (not occupied)
         if (!this.game.isEmpty(cursorRow, cursorCol)) return;
         
-        if (this.selectionState.phase === 0) {
-            // First interaction: Select and preview
-            this.selectionState.phase = 1;
-            this.selectionState.previewRow = cursorRow;
-            this.selectionState.previewCol = cursorCol;
-            this.selectionState.hasPreview = true;
-            this.addSelectionPreview(cursorRow, cursorCol);
-            console.log(`🎯 Phase 1: Preview at ${this.getCurrentCrosshairPosition()}`);
-        } else if (this.selectionState.phase === 1) {
-            if (this.selectionState.previewRow === cursorRow && 
-                this.selectionState.previewCol === cursorCol) {
-                // Second interaction on same position: Place stone
-                this.makeMove(cursorRow, cursorCol);
-                this.resetSelectionState();
-                console.log(`🎯 Phase 2: Stone placed at ${this.getCurrentCrosshairPosition()}`);
-            } else {
-                // Cursor moved to different position: Reset to phase 1 at new position
-                this.removeSelectionPreview();
-                this.selectionState.previewRow = cursorRow;
-                this.selectionState.previewCol = cursorCol;
-                this.addSelectionPreview(cursorRow, cursorCol);
-                console.log(`🎯 Phase 1: Moved preview to ${this.getCurrentCrosshairPosition()}`);
-            }
-        }
+        // SIMPLIFIED: Direct single-click placement (no two-stage system)
+        console.log(`🎯 DIRECT PLACEMENT: Stone at (${cursorRow}, ${cursorCol})`);
+        this.makeMove(cursorRow, cursorCol);
+        this.resetSelectionState();
     }
 
     // ==================== CORE UI MODULE INTEGRATION ====================
@@ -636,24 +616,32 @@ export class GomokuUINew extends BaseGameUI {
      * Handle intersection click with module integration
      */
     onIntersectionClick(row, col) {
+        console.log(`🖱️ CLICK DEBUG: onIntersectionClick called with (${row}, ${col})`);
+        
         if (this.isProcessingMove || (this.game && this.game.gameOver)) {
+            console.log(`🚫 CLICK BLOCKED: Processing=${this.isProcessingMove}, GameOver=${this.game?.gameOver}`);
             return;
         }
 
         // Check if position is valid (not occupied)
-        if (this.game && !this.game.isEmpty(row, col)) return;
+        if (this.game && !this.game.isEmpty(row, col)) {
+            console.log(`🚫 CLICK BLOCKED: Position (${row}, ${col}) already occupied`);
+            return;
+        }
 
         // Update cursor position
         this.cursor.row = row;
         this.cursor.col = col; 
         this.cursor.active = true;
         
+        console.log(`🎯 CURSOR UPDATED: Position set to (${this.cursor.row}, ${this.cursor.col})`);
+        
         // Update visual feedback
         this.updateCrosshairPosition();
         
         console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
 
-        // Use the same two-stage logic as keyboard
+        // Use the simplified single-click logic
         this.placeCursorStone();
     }
 
@@ -716,28 +704,7 @@ export class GomokuUINew extends BaseGameUI {
         intersection.appendChild(preview);
     }
 
-    /**
-     * Make a move with module integration
-     */
-    makeMove(row, col) {
-        if (this.isProcessingMove) {
-            return;
-        }
-
-        this.isProcessingMove = true;
-
-        try {
-            const result = this.game.makeMove(row, col);
-            console.log('Move result:', result);
-            // If we get here, the move was successful
-        } catch (error) {
-            this.isProcessingMove = false;
-            this.showMessage(error.message, 'error');
-            return;
-        }
-
-        // Animation will complete and set isProcessingMove to false
-    }
+    // NOTE: This makeMove function was removed - using the more detailed version below (line ~1053)
 
     /**
      * Override newGame to use module system with enhanced feedback
@@ -988,24 +955,32 @@ export class GomokuUINew extends BaseGameUI {
      * Handle intersection click with module integration - Phase 2.4.2
      */
     onIntersectionClick(row, col) {
+        console.log(`🖱️ CLICK DEBUG: onIntersectionClick called with (${row}, ${col})`);
+        
         if (this.isProcessingMove || (this.game && this.game.gameOver)) {
+            console.log(`🚫 CLICK BLOCKED: Processing=${this.isProcessingMove}, GameOver=${this.game?.gameOver}`);
             return;
         }
 
         // Check if position is valid (not occupied)
-        if (this.game && !this.game.isEmpty(row, col)) return;
+        if (this.game && !this.game.isEmpty(row, col)) {
+            console.log(`🚫 CLICK BLOCKED: Position (${row}, ${col}) already occupied`);
+            return;
+        }
 
         // Update cursor position
         this.cursor.row = row;
         this.cursor.col = col; 
         this.cursor.active = true;
         
+        console.log(`🎯 CURSOR UPDATED: Position set to (${this.cursor.row}, ${this.cursor.col})`);
+        
         // Update visual feedback
         this.updateCrosshairPosition();
         
         console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
 
-        // Use the same two-stage logic as keyboard
+        // Use the simplified single-click logic
         this.placeCursorStone();
     }
 
@@ -1275,6 +1250,7 @@ export class GomokuUINew extends BaseGameUI {
         const boardHeight = board.offsetHeight;
         
         console.log(`📐 RESPONSIVE Board dimensions: ${boardWidth}x${boardHeight}`);
+        console.log(`🎯 POSITIONING DEBUG: Placing stone at logical position (${row}, ${col})`);
         
         // Calculate responsive padding (percentage-based)
         // This maintains responsive behavior across different screen sizes
@@ -1295,6 +1271,11 @@ export class GomokuUINew extends BaseGameUI {
         const pixelX = padding + (col * stepX);
         const pixelY = padding + (row * stepY);
         
+        console.log(`🔍 COORDINATE DEBUG:`);
+        console.log(`   Padding: ${padding.toFixed(2)}px`);
+        console.log(`   Step: ${stepX.toFixed(2)}x${stepY.toFixed(2)}px`);
+        console.log(`   Calculated: (${pixelX.toFixed(2)}, ${pixelY.toFixed(2)})`);
+        
         // === RESPONSIVE STONE SIZING ===
         // Stone size scales with board size for responsive design
         const stoneSize = Math.min(stepX, stepY) * 0.8; // 80% of intersection size
@@ -1310,6 +1291,8 @@ export class GomokuUINew extends BaseGameUI {
         stoneElement.style.height = `${responsiveStoneSize}px`;
         stoneElement.style.transform = 'translate(-50%, -50%)';
         stoneElement.style.zIndex = '10';
+        
+        console.log(`✅ STONE POSITIONED: (${row}, ${col}) → (${pixelX.toFixed(1)}, ${pixelY.toFixed(1)})px`);
         
         // Add responsive behavior via CSS custom properties
         stoneElement.style.setProperty('--stone-size', `${responsiveStoneSize}px`);
