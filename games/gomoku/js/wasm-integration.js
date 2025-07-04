@@ -176,25 +176,25 @@ export class WasmGomokuIntegration {
         try {
             console.log('🦀 Initializing WASM engine...');
             
-            // Check if GobangGame with WASM capabilities is available
-            if (typeof window.GobangGame === 'undefined') {
-                throw new Error('GobangGame not available');
+            // Check if WasmGame with WASM capabilities is available
+            if (typeof window.WasmGame === 'undefined') {
+                throw new Error('WasmGame not available');
             }
 
             // Try to create WASM-enabled game instance
-            this.wasmGame = new window.GobangGame();
+            this.wasmGame = new window.WasmGame();
             
             // Check if init method exists (WASM version)
             if (typeof this.wasmGame.init === 'function') {
                 await this.wasmGame.init();
                 this.isInitialized = true;
+                this.isWasmEnabled = true; // AUTO-ENABLE WASM when available
                 console.log('✅ WASM engine initialized successfully');
                 
                 // Enable WASM checkbox if available
                 const enableWasm = document.getElementById('enableWasmEngine');
                 if (enableWasm && !enableWasm.checked) {
                     enableWasm.checked = true;
-                    this.isWasmEnabled = true;
                 }
                 
                 this.updatePerformanceIndicator();
