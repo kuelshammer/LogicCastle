@@ -14,6 +14,7 @@
     "test:ui-integration": "vitest run tests/game-ui-integration.test.js",
     "test:gomoku-chain": "vitest run tests/gomoku-import-chain.test.js",
     "test:gomoku-lite": "vitest run tests/gomoku-import-chain-lite.test.js",
+    "test:gomoku-stones": "vitest run tests/gomoku-stone-placement.test.js",
     "lint": "eslint games/**/*.js tests/**/*.js --fix",
     "lint:check": "eslint games/**/*.js tests/**/*.js",
     "format": "prettier --write games/**/*.{js,html,css} tests/**/*.js",

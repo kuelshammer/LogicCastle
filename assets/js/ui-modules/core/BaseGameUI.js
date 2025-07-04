@@ -196,13 +196,13 @@ export class BaseGameUI {
             console.log('📢 Message System loaded');
         }
 
-        // Game Controls
-        if (this.config.controls) {
-            const { GameControls } = await import('../components/GameControls.js');
-            const gameControls = new GameControls(this.config.controls, this.elements);
-            this.modules.set('controls', gameControls);
-            console.log('🎮 Game Controls loaded');
-        }
+        // Game Controls - TODO: Implement GameControls component
+        // if (this.config.controls) {
+        //     const { GameControls } = await import('../components/GameControls.js');
+        //     const gameControls = new GameControls(this.config.controls, this.elements);
+        //     this.modules.set('controls', gameControls);
+        //     console.log('🎮 Game Controls loaded');
+        // }
     }
 
     /**

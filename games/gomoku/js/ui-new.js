@@ -72,6 +72,18 @@ export class GomokuUINew extends BaseGameUI {
     }
 
     /**
+     * Override afterInit to complete Gomoku-specific setup
+     */
+    afterInit() {
+        console.log('🎮 Completing Gomoku UI initialization...');
+        
+        // Initialize responsive handling after all UI elements are ready
+        this.initResponsiveHandling();
+        
+        console.log('✅ Gomoku UI fully initialized with responsive support');
+    }
+
+    /**
      * Override setupGameEventListeners for Gomoku-specific game events
      */
     setupGameEventListeners() {
@@ -1010,21 +1022,25 @@ export class GomokuUINew extends BaseGameUI {
      */
     makeMove(row, col) {
         if (this.isProcessingMove) {
+            console.log('🚫 makeMove blocked: processing in progress');
             return;
         }
 
+        console.log(`🎯 makeMove START: attempting move at (${row}, ${col})`);
         this.isProcessingMove = true;
 
         try {
             const result = this.game.makeMove(row, col);
-            console.log('Move result:', result);
+            console.log('✅ makeMove SUCCESS: game.makeMove returned:', result);
             // If we get here, the move was successful
         } catch (error) {
+            console.error('❌ makeMove FAILED:', error);
             this.isProcessingMove = false;
             this.showMessage(error.message, 'error');
             return;
         }
 
+        console.log('⏳ makeMove WAITING: for onMoveMade event...');
         // Animation will complete and set isProcessingMove to false in onMoveMade
     }
 
@@ -1167,16 +1183,19 @@ export class GomokuUINew extends BaseGameUI {
     positionStoneOnBoard(row, col, stoneElement) {
         const board = this.elements.gameBoard;
         
-        // 1. Get actual rendered board dimensions at runtime
-        const boardRect = board.getBoundingClientRect();
-        const boardWidth = boardRect.width;
+        // CRITICAL FIX: Use offsetWidth/offsetHeight instead of getBoundingClientRect
+        // for positioning calculations to match the coordinate system of position: absolute
+        const boardWidth = board.offsetWidth;
+        const boardHeight = board.offsetHeight;
+        
+        console.log(`🔧 Board dimensions: ${boardWidth}x${boardHeight}`);
         
         // 2. Calculate padding in pixels (CSS uses 5.13%)
         const padding = boardWidth * 0.0513;
         
         // 3. Calculate pure grid size (without padding)
         const gridWidth = boardWidth - (2 * padding);
-        const gridSize = this.game.BOARD_SIZE || 15;
+        const gridSize = this.game?.BOARD_SIZE || 15;
         
         // 4. Calculate step size between lines
         // For 15x15 grid, there are 14 intervals between 15 lines
@@ -1196,30 +1215,162 @@ export class GomokuUINew extends BaseGameUI {
         // Most robust approach - works regardless of stone size
         stoneElement.style.transform = 'translate(-50%, -50%)';
         
-        console.log(`🎯 Stone positioned: ${row},${col} -> ${pixelX.toFixed(1)}px, ${pixelY.toFixed(1)}px`);
+        console.log(`🎯 FIXED Stone positioned: (${row},${col}) -> ${pixelX.toFixed(1)}px, ${pixelY.toFixed(1)}px`);
+        console.log(`   Padding: ${padding.toFixed(1)}px, Step: ${step.toFixed(1)}px`);
         
         // Performance note: getBoundingClientRect() is called for each stone
         // If performance becomes an issue, consider caching board dimensions
         // and only recalculating on window resize events
     }
 
+    /**
+     * Position stone on board with responsive coordinate system
+     * RESPONSIVE SOLUTION: Corrects container offset issues while maintaining responsive design
+     * 
+     * @param {number} row - Target row (0-14)  
+     * @param {number} col - Target column (0-14)
+     * @param {HTMLElement} stoneElement - Stone DOM element to position
+     */
+    positionStoneOnBoardResponsive(row, col, stoneElement) {
+        const board = this.elements.gameBoard;
+        
+        // === RESPONSIVE COORDINATE SYSTEM ===
+        // Use offsetWidth/offsetHeight for layout dimensions (matching CSS)
+        // These values automatically scale with responsive design
+        const boardWidth = board.offsetWidth;
+        const boardHeight = board.offsetHeight;
+        
+        console.log(`📐 RESPONSIVE Board dimensions: ${boardWidth}x${boardHeight}`);
+        
+        // Calculate responsive padding (percentage-based)
+        // This maintains responsive behavior across different screen sizes
+        const paddingPercentage = 0.0513; // 5.13% as defined in CSS
+        const padding = boardWidth * paddingPercentage;
+        
+        // Grid calculation for responsive layout
+        const gridSize = this.game?.BOARD_SIZE || 15;
+        const gridWidth = boardWidth - (2 * padding);
+        const gridHeight = boardHeight - (2 * padding);
+        
+        // Step calculation (responsive to board size changes)
+        const stepX = gridWidth / (gridSize - 1);
+        const stepY = gridHeight / (gridSize - 1);
+        
+        // === CORRECTED COORDINATE CALCULATION ===
+        // Calculate position relative to board's positioning context
+        const pixelX = padding + (col * stepX);
+        const pixelY = padding + (row * stepY);
+        
+        // === RESPONSIVE STONE SIZING ===
+        // Stone size scales with board size for responsive design
+        const stoneSize = Math.min(stepX, stepY) * 0.8; // 80% of intersection size
+        const minStoneSize = 12; // Minimum size for usability
+        const maxStoneSize = 40; // Maximum size for aesthetics
+        const responsiveStoneSize = Math.max(minStoneSize, Math.min(maxStoneSize, stoneSize));
+        
+        // === APPLY RESPONSIVE POSITIONING ===
+        stoneElement.style.position = 'absolute';
+        stoneElement.style.left = `${pixelX}px`;
+        stoneElement.style.top = `${pixelY}px`;
+        stoneElement.style.width = `${responsiveStoneSize}px`;
+        stoneElement.style.height = `${responsiveStoneSize}px`;
+        stoneElement.style.transform = 'translate(-50%, -50%)';
+        stoneElement.style.zIndex = '10';
+        
+        // Add responsive behavior via CSS custom properties
+        stoneElement.style.setProperty('--stone-size', `${responsiveStoneSize}px`);
+        stoneElement.style.setProperty('--stone-scale', `${responsiveStoneSize / 24}`); // 24px base size
+        
+        console.log(`🎯 RESPONSIVE Stone positioned: (${row},${col}) -> ${pixelX.toFixed(1)}px, ${pixelY.toFixed(1)}px`);
+        console.log(`   📏 Responsive size: ${responsiveStoneSize.toFixed(1)}px (step: ${stepX.toFixed(1)}px)`);
+        console.log(`   📐 Grid: ${gridWidth.toFixed(1)}x${gridHeight.toFixed(1)}px, Padding: ${padding.toFixed(1)}px`);
+        
+        // === RESPONSIVE RESIZE HANDLING ===
+        // Store position data for potential resize recalculation
+        stoneElement.dataset.stoneRow = row;
+        stoneElement.dataset.stoneCol = col;
+        stoneElement.dataset.responsiveStone = 'true';
+    }
+
+    /**
+     * Recalculate all stone positions for responsive design
+     * Called on window resize, zoom, or device orientation change
+     */
+    recalculateResponsiveStones() {
+        const responsiveStones = document.querySelectorAll('[data-responsive-stone="true"]');
+        
+        if (responsiveStones.length === 0) {
+            console.log('📐 No responsive stones to recalculate');
+            return;
+        }
+        
+        console.log(`📐 RESPONSIVE RESIZE: Recalculating ${responsiveStones.length} stones`);
+        
+        responsiveStones.forEach(stone => {
+            const row = parseInt(stone.dataset.stoneRow);
+            const col = parseInt(stone.dataset.stoneCol);
+            
+            if (!isNaN(row) && !isNaN(col)) {
+                this.positionStoneOnBoardResponsive(row, col, stone);
+            }
+        });
+        
+        console.log('✅ RESPONSIVE RESIZE: All stones recalculated');
+    }
+
+    /**
+     * Initialize responsive resize handling
+     * Called during UI initialization
+     */
+    initResponsiveHandling() {
+        // Debounced resize handler to avoid performance issues
+        let resizeTimeout;
+        const handleResize = () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.recalculateResponsiveStones();
+            }, 150); // 150ms debounce
+        };
+        
+        // Listen for window resize events
+        window.addEventListener('resize', handleResize);
+        
+        // Listen for zoom changes (via media queries)
+        const mediaQuery = window.matchMedia('(min-resolution: 1dpi)');
+        if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handleResize);
+        }
+        
+        console.log('📐 RESPONSIVE: Resize handling initialized');
+        
+        // Store cleanup function for potential later use
+        this.cleanupResponsiveHandling = () => {
+            window.removeEventListener('resize', handleResize);
+            if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener('change', handleResize);
+            }
+        };
+    }
+
     // ==================== GAME EVENT HANDLERS ====================
     // Phase 2.2: Working implementations using module system
 
     onMoveMade(move) {
-        console.log('🔍 onMoveMade called:', move);
+        console.log('🎬 onMoveMade EVENT TRIGGERED:', move);
         
         // Get intersection for cleanup and state management
         const intersection = this.getIntersection(move.row, move.col);
         if (!intersection) {
-            console.error('❌ No intersection found for move!', move);
+            console.error('❌ CRITICAL: No intersection found for move!', move);
             return;
         }
+        console.log('✅ onMoveMade: intersection found at', move.row, move.col);
 
         // Remove any preview stones from intersection
         const previewStone = intersection.querySelector('.stone-preview');
         if (previewStone) {
             previewStone.remove();
+            console.log('🧹 onMoveMade: removed preview stone');
         }
 
         // Clear hints and last move indicators
@@ -1230,20 +1381,23 @@ export class GomokuUINew extends BaseGameUI {
         const stone = document.createElement('div');
         const playerClass = this.game.getPlayerColorClass(move.player);
         stone.className = `stone ${playerClass} stone-place last-move`;
+        console.log(`🎨 onMoveMade: created stone element with class "${stone.className}"`);
 
-        // === NEW POSITIONING LOGIC (Gemini Report Implementation) ===
-        // CRITICAL FIX: Solves DOM-Verschachtelung stone placement bug
+        // === RESPONSIVE POSITIONING LOGIC (Corrected Coordinate System) ===
+        // CRITICAL FIX: Corrected coordinate calculation for responsive design
         
-        // 1. Attach stone directly to game board (not intersection)
-        // OLD BUGGY WAY: intersection.appendChild(stone) - caused positioning issues
+        // 1. Attach stone directly to game board for absolute positioning
         this.elements.gameBoard.appendChild(stone);
+        console.log('📍 onMoveMade: stone added to game board DOM');
         
-        // 2. Position stone with pixel-perfect accuracy using new method
-        this.positionStoneOnBoard(move.row, move.col, stone);
+        // 2. Position stone with corrected responsive coordinate calculation
+        this.positionStoneOnBoardResponsive(move.row, move.col, stone);
+        console.log('🎯 onMoveMade: stone positioned via responsive coordinate system');
         
-        // 3. Mark intersection as occupied (for game logic only, not DOM positioning)
+        // 3. Mark intersection as occupied (for game logic)
         intersection.classList.add('occupied');
-        console.log('✅ Stone placed with new positioning! Total stones:', document.querySelectorAll('.stone').length);
+        const totalStones = document.querySelectorAll('.stone').length;
+        console.log(`✅ STONE PLACEMENT COMPLETE! Total stones on board: ${totalStones}`);
 
         // Add move indicator for notation
         const moveIndicator = document.createElement('div');
@@ -1256,6 +1410,7 @@ export class GomokuUINew extends BaseGameUI {
             stone.classList.remove('stone-place');
             this.isProcessingMove = false;
             this.updateDisplay();
+            console.log('🎭 onMoveMade: animation completed, processing unlocked');
         }, this.animationDuration);
     }
 

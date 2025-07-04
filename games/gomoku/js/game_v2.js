@@ -84,6 +84,10 @@ export class GomokuGame {
       // Detect environment (local vs GitHub Pages)
       const isGitHubPages = window.location.hostname === 'www.maxkuelshammer.de';
       const cacheBuster = '?v=gomoku_' + Date.now();
+      console.log('🔍 WASM Environment Debug:');
+      console.log('  hostname:', window.location.hostname);
+      console.log('  isGitHubPages:', isGitHubPages);
+      console.log('  cacheBuster:', cacheBuster);
       
       // Choose appropriate paths based on environment
       const wasmPaths = isGitHubPages ? [
@@ -98,9 +102,13 @@ export class GomokuGame {
       console.log('📦 Importing WASM JavaScript wrapper...');
       console.log('📍 Environment detection: isGitHubPages =', isGitHubPages);
       
-      const wasmModule = isGitHubPages ? 
-        await import('/LogicCastle/game_engine/pkg/game_engine.js') :
-        await import('../../../game_engine/pkg/game_engine.js');
+      console.log('🔧 Importing WASM JavaScript wrapper...');
+      const importPath = isGitHubPages ? 
+        '/LogicCastle/game_engine/pkg/game_engine.js' :
+        '../../../game_engine/pkg/game_engine.js';
+      console.log('  Import path selected:', importPath);
+      
+      const wasmModule = await import(importPath);
       
       console.log('✅ WASM module imported:', Object.keys(wasmModule));
       console.log('✅ WASM JavaScript wrapper loaded');
