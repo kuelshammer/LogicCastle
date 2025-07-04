@@ -303,8 +303,7 @@ export class GomokuUINew extends BaseGameUI {
                 // Use standardized coordinate mapping
                 CoordUtils.coordsToElement(intersection, row, col);
                 
-                // DEEP DEBUG: Verify data attributes were set correctly
-                console.log(`🔍 BOARD DEBUG: Created intersection (${row}, ${col}) with data-row="${intersection.dataset.row}" data-col="${intersection.dataset.col}"`);
+                // Data attributes set via CoordUtils.coordsToElement()
 
                 // Position intersection using RESPONSIVE pixel calculation
                 const [pixelX, pixelY] = CoordUtils.gomokuGridToPixel(
@@ -318,45 +317,23 @@ export class GomokuUINew extends BaseGameUI {
                     intersection.classList.add('star-point');
                 }
 
-                // DEEP DEBUG: Extensive logging for coordinate extraction
+                // PRODUCTION: Clean event handlers with robust coordinate extraction
                 intersection.addEventListener('click', (event) => {
-                    console.log('🔍 CLICK EVENT DEBUG:', {
-                        target: event.target,
-                        tagName: event.target.tagName,
-                        className: event.target.className,
-                        dataRow: event.target.dataset.row,
-                        dataCol: event.target.dataset.col,
-                        originalRow: row,
-                        originalCol: col
-                    });
-                    
                     const coords = CoordUtils.elementToCoords(event.target);
-                    console.log('🔍 elementToCoords returned:', coords);
-                    
                     if (coords && coords[0] !== null && coords[1] !== null) {
                         const [r, c] = coords;
-                        console.log(`✅ CLICK: Extracted coordinates (${r}, ${c})`);
                         this.onIntersectionClick(r, c);
                     } else {
-                        console.error('❌ CLICK: Failed to extract coordinates, using original:', row, col);
+                        // Fallback to loop coordinates if extraction fails
                         this.onIntersectionClick(row, col);
                     }
                 });
                 intersection.addEventListener('mouseenter', (event) => {
-                    console.log('🔍 HOVER EVENT DEBUG:', {
-                        target: event.target,
-                        dataRow: event.target.dataset.row,
-                        dataCol: event.target.dataset.col,
-                        originalRow: row,
-                        originalCol: col
-                    });
-                    
                     const coords = CoordUtils.elementToCoords(event.target);
                     if (coords && coords[0] !== null && coords[1] !== null) {
                         const [r, c] = coords;
                         this.onIntersectionHover(r, c);
                     } else {
-                        console.warn('⚠️ HOVER: Using original coordinates:', row, col);
                         this.onIntersectionHover(row, col);
                     }
                 });
@@ -549,8 +526,7 @@ export class GomokuUINew extends BaseGameUI {
         // Check if position is valid (not occupied)
         if (!this.game.isEmpty(cursorRow, cursorCol)) return;
         
-        // SIMPLIFIED: Direct single-click placement (no two-stage system)
-        console.log(`🎯 DIRECT PLACEMENT: Stone at (${cursorRow}, ${cursorCol})`);
+        // Direct single-click placement
         this.makeMove(cursorRow, cursorCol);
         this.resetSelectionState();
     }
@@ -655,30 +631,20 @@ export class GomokuUINew extends BaseGameUI {
      * Handle intersection click with module integration
      */
     onIntersectionClick(row, col) {
-        console.log(`🖱️ CLICK DEBUG: onIntersectionClick called with (${row}, ${col})`);
-        
         if (this.isProcessingMove || (this.game && this.game.gameOver)) {
-            console.log(`🚫 CLICK BLOCKED: Processing=${this.isProcessingMove}, GameOver=${this.game?.gameOver}`);
             return;
         }
 
         // Check if position is valid (not occupied)
-        if (this.game && !this.game.isEmpty(row, col)) {
-            console.log(`🚫 CLICK BLOCKED: Position (${row}, ${col}) already occupied`);
-            return;
-        }
+        if (this.game && !this.game.isEmpty(row, col)) return;
 
         // Update cursor position
         this.cursor.row = row;
         this.cursor.col = col; 
         this.cursor.active = true;
         
-        console.log(`🎯 CURSOR UPDATED: Position set to (${this.cursor.row}, ${this.cursor.col})`);
-        
         // Update visual feedback
         this.updateCrosshairPosition();
-        
-        console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
 
         // Use the simplified single-click logic
         this.placeCursorStone();
@@ -994,30 +960,20 @@ export class GomokuUINew extends BaseGameUI {
      * Handle intersection click with module integration - Phase 2.4.2
      */
     onIntersectionClick(row, col) {
-        console.log(`🖱️ CLICK DEBUG: onIntersectionClick called with (${row}, ${col})`);
-        
         if (this.isProcessingMove || (this.game && this.game.gameOver)) {
-            console.log(`🚫 CLICK BLOCKED: Processing=${this.isProcessingMove}, GameOver=${this.game?.gameOver}`);
             return;
         }
 
         // Check if position is valid (not occupied)
-        if (this.game && !this.game.isEmpty(row, col)) {
-            console.log(`🚫 CLICK BLOCKED: Position (${row}, ${col}) already occupied`);
-            return;
-        }
+        if (this.game && !this.game.isEmpty(row, col)) return;
 
         // Update cursor position
         this.cursor.row = row;
         this.cursor.col = col; 
         this.cursor.active = true;
         
-        console.log(`🎯 CURSOR UPDATED: Position set to (${this.cursor.row}, ${this.cursor.col})`);
-        
         // Update visual feedback
         this.updateCrosshairPosition();
-        
-        console.log(`🖱️ Mouse click: moved cursor to ${this.getCurrentCrosshairPosition()}`);
 
         // Use the simplified single-click logic
         this.placeCursorStone();
@@ -1288,11 +1244,7 @@ export class GomokuUINew extends BaseGameUI {
         const boardWidth = board.offsetWidth;
         const boardHeight = board.offsetHeight;
         
-        console.log(`📐 RESPONSIVE Board dimensions: ${boardWidth}x${boardHeight}`);
-        console.log(`🎯 POSITIONING DEBUG: Placing stone at logical position (${row}, ${col})`);
-        
         // Calculate responsive padding (percentage-based)
-        // This maintains responsive behavior across different screen sizes
         const paddingPercentage = 0.0513; // 5.13% as defined in CSS
         const padding = boardWidth * paddingPercentage;
         
@@ -1305,24 +1257,17 @@ export class GomokuUINew extends BaseGameUI {
         const stepX = gridWidth / (gridSize - 1);
         const stepY = gridHeight / (gridSize - 1);
         
-        // === CORRECTED COORDINATE CALCULATION ===
         // Calculate position relative to board's positioning context
         const pixelX = padding + (col * stepX);
         const pixelY = padding + (row * stepY);
         
-        console.log(`🔍 COORDINATE DEBUG:`);
-        console.log(`   Padding: ${padding.toFixed(2)}px`);
-        console.log(`   Step: ${stepX.toFixed(2)}x${stepY.toFixed(2)}px`);
-        console.log(`   Calculated: (${pixelX.toFixed(2)}, ${pixelY.toFixed(2)})`);
-        
-        // === RESPONSIVE STONE SIZING ===
-        // Stone size scales with board size for responsive design
+        // Responsive stone sizing
         const stoneSize = Math.min(stepX, stepY) * 0.8; // 80% of intersection size
         const minStoneSize = 12; // Minimum size for usability
         const maxStoneSize = 40; // Maximum size for aesthetics
         const responsiveStoneSize = Math.max(minStoneSize, Math.min(maxStoneSize, stoneSize));
         
-        // === APPLY RESPONSIVE POSITIONING ===
+        // Apply responsive positioning
         stoneElement.style.position = 'absolute';
         stoneElement.style.left = `${pixelX}px`;
         stoneElement.style.top = `${pixelY}px`;
@@ -1330,8 +1275,6 @@ export class GomokuUINew extends BaseGameUI {
         stoneElement.style.height = `${responsiveStoneSize}px`;
         stoneElement.style.transform = 'translate(-50%, -50%)';
         stoneElement.style.zIndex = '10';
-        
-        console.log(`✅ STONE POSITIONED: (${row}, ${col}) → (${pixelX.toFixed(1)}, ${pixelY.toFixed(1)})px`);
         
         // Add responsive behavior via CSS custom properties
         stoneElement.style.setProperty('--stone-size', `${responsiveStoneSize}px`);
