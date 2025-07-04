@@ -162,7 +162,19 @@ export class WasmGomokuIntegration {
         const indicator = document.createElement('div');
         indicator.className = 'performance-indicator';
         indicator.id = 'performanceIndicator';
-        document.querySelector('.game-container').appendChild(indicator);
+        
+        // FIXED: Null-safe container selection for minimal UI compatibility
+        const container = document.querySelector('.game-container') || 
+                         document.querySelector('.game-board') || 
+                         document.body;
+        
+        if (container) {
+            container.appendChild(indicator);
+            console.log('📊 Performance indicator attached to:', container.className || container.tagName);
+        } else {
+            console.warn('⚠️ No suitable container found for performance indicator');
+            return;
+        }
         
         this.updatePerformanceIndicator();
     }

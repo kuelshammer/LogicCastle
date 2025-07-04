@@ -302,6 +302,9 @@ export class GomokuUINew extends BaseGameUI {
                 
                 // Use standardized coordinate mapping
                 CoordUtils.coordsToElement(intersection, row, col);
+                
+                // DEEP DEBUG: Verify data attributes were set correctly
+                console.log(`🔍 BOARD DEBUG: Created intersection (${row}, ${col}) with data-row="${intersection.dataset.row}" data-col="${intersection.dataset.col}"`);
 
                 // Position intersection using RESPONSIVE pixel calculation
                 const [pixelX, pixelY] = CoordUtils.gomokuGridToPixel(
@@ -315,23 +318,55 @@ export class GomokuUINew extends BaseGameUI {
                     intersection.classList.add('star-point');
                 }
 
-                // FIX: Use data attributes to avoid closure variable capture bug
+                // DEEP DEBUG: Extensive logging for coordinate extraction
                 intersection.addEventListener('click', (event) => {
-                    const [r, c] = CoordUtils.elementToCoords(event.target);
-                    if (r !== null && c !== null) {
+                    console.log('🔍 CLICK EVENT DEBUG:', {
+                        target: event.target,
+                        tagName: event.target.tagName,
+                        className: event.target.className,
+                        dataRow: event.target.dataset.row,
+                        dataCol: event.target.dataset.col,
+                        originalRow: row,
+                        originalCol: col
+                    });
+                    
+                    const coords = CoordUtils.elementToCoords(event.target);
+                    console.log('🔍 elementToCoords returned:', coords);
+                    
+                    if (coords && coords[0] !== null && coords[1] !== null) {
+                        const [r, c] = coords;
+                        console.log(`✅ CLICK: Extracted coordinates (${r}, ${c})`);
                         this.onIntersectionClick(r, c);
+                    } else {
+                        console.error('❌ CLICK: Failed to extract coordinates, using original:', row, col);
+                        this.onIntersectionClick(row, col);
                     }
                 });
                 intersection.addEventListener('mouseenter', (event) => {
-                    const [r, c] = CoordUtils.elementToCoords(event.target);
-                    if (r !== null && c !== null) {
+                    console.log('🔍 HOVER EVENT DEBUG:', {
+                        target: event.target,
+                        dataRow: event.target.dataset.row,
+                        dataCol: event.target.dataset.col,
+                        originalRow: row,
+                        originalCol: col
+                    });
+                    
+                    const coords = CoordUtils.elementToCoords(event.target);
+                    if (coords && coords[0] !== null && coords[1] !== null) {
+                        const [r, c] = coords;
                         this.onIntersectionHover(r, c);
+                    } else {
+                        console.warn('⚠️ HOVER: Using original coordinates:', row, col);
+                        this.onIntersectionHover(row, col);
                     }
                 });
                 intersection.addEventListener('mouseleave', (event) => {
-                    const [r, c] = CoordUtils.elementToCoords(event.target);
-                    if (r !== null && c !== null) {
+                    const coords = CoordUtils.elementToCoords(event.target);
+                    if (coords && coords[0] !== null && coords[1] !== null) {
+                        const [r, c] = coords;
                         this.onIntersectionLeave(r, c);
+                    } else {
+                        this.onIntersectionLeave(row, col);
                     }
                 });
 
