@@ -101,36 +101,42 @@ Dieses Dokument spiegelt den aktuellen Stand nach den Commits vom 4. Juli 2025 w
 - **Bereinigt:** Gomoku (5 Dateien), Connect4 (3 Dateien), Global (2 Dateien)
 - **Status:** ✅ **VOLLSTÄNDIG ABGESCHLOSSEN** - Codebase ist sauber
 
-## 🎯 AKTUELLER STATUS (Stand: 2025-07-04)
+## 🎯 AKTUELLER STATUS (Stand: 2025-07-04 Abend)
 
 ### ✅ **ERFOLGREICH ABGESCHLOSSEN:**
 1. **UI-Module System:** BaseGameUI, ElementBinder, KeyboardController, ModalManager implementiert
-2. **Gomoku GOLDSTANDARD:** 33% Code-Reduktion, 100% Puppeteer-Validation bestanden
-3. **Stone Placement Fix:** Kritischer DOM-Bug vollständig behoben
-4. **Code Cleanup:** 10 obsolete Dateien entfernt, Codebase bereinigt  
-5. **Dokumentation:** README.md, ARCHITECTURE.md, TODO.md aktualisiert
+2. **Import-Pipeline Repair:** WASM + UI-Module Imports funktionieren
+3. **Board Creation:** 225 Intersections erstellt, Crosshair-System funktioniert
+4. **Mouse-Event System:** Click-Detection + Two-Stage Cursor funktioniert
+5. **Code Cleanup:** 10 obsolete Dateien entfernt, Codebase bereinigt  
+6. **Dokumentation:** README.md, ARCHITECTURE.md, TODO.md aktualisiert
+
+### 🔧 **AKTUELL IN ARBEIT:**
+1. **Final Stone Placement Bug:** makeMove() → onMoveMade() Kette unterbrochen
+2. **Gomoku GOLDSTANDARD:** 90% funktional, letzte 10% Stone-Creation fehlen
 
 ### 🎯 **STRATEGISCHE OPTIONEN:**
 
-**Option A: UI-Module System Migration (Empfohlen)**
-- Trio, Hex, L-Game auf BaseGameUI migrieren
-- Goldstandard auf alle Spiele ausweiten
-- Einheitliche Architektur erreichen
+**Option A: Gomoku Stone Placement Fix (HÖCHSTE PRIORITÄT)**
+- Debug finale makeMove() → onMoveMade() Kette
+- Repariere letzte 10% für vollständige Mouse-Stone-Placement
+- Etabliere Gomoku als echten GOLDSTANDARD
 
 **Option B: Connect4 BitPackedBoard Migration**
 - Connect4 auf BitPackedBoard umstellen
 - Performance-Parität mit Gomoku erreichen
 - API-Konsistenz verbessern
 
-**Option C: Advanced Features**
-- Testing-Erweiterung, Production-Hardening
-- Neue Spiele-Features
+**Option C: UI-Module System Migration**
+- Trio, Hex, L-Game auf BaseGameUI migrieren
+- Goldstandard auf alle Spiele ausweiten (NACH Option A)
 
 ### 📋 **NÄCHSTE SCHRITTE:**
-1. Strategische Entscheidung treffen (Option A/B/C)
-2. Gewählte Option systematisch umsetzen
-3. Vollständige Architektur-Modernisierung abschließen
+1. **SOFORT:** Option A - Final Stone Placement Debug
+2. **makeMove() → onMoveMade() → positionStoneOnBoard() Kette reparieren**
+3. **Gomoku GOLDSTANDARD zertifizieren**
+4. **Danach:** Migration auf andere Spiele
 
-**STATUS:** 🚀 **Bereit für nächste Entwicklungsphase**
+**STATUS:** 🔧 **KRITISCHE PHASE** - 90% geschafft, letzte 10% für echten GOLDSTANDARD
 
 - Benutze IMMER `uv` für Python!
