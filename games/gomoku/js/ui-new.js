@@ -346,42 +346,76 @@ export class GomokuUINew extends BaseGameUI {
     }
 
     /**
-     * Create coordinate labels
+     * Create coordinate labels - NULL-SAFE for minimal UI
+     * CRITICAL FIX: Graceful degradation for missing coordinate elements
      */
     createCoordinates() {
-        // Top and bottom coordinates (A-O)
-        this.elements.topCoords.innerHTML = '';
-        this.elements.bottomCoords.innerHTML = '';
+        console.log('📐 Creating coordinates...');
+        
+        // Check if coordinate elements exist (they're optional in minimal UI)
+        const hasTopCoords = this.elements.topCoords;
+        const hasBottomCoords = this.elements.bottomCoords;
+        const hasLeftCoords = this.elements.leftCoords;
+        const hasRightCoords = this.elements.rightCoords;
+        
+        if (!hasTopCoords && !hasBottomCoords && !hasLeftCoords && !hasRightCoords) {
+            console.log('📐 No coordinate elements found - minimal UI mode, skipping coordinates');
+            return;
+        }
+        
+        // Top and bottom coordinates (A-O) - null-safe
+        if (hasTopCoords) {
+            this.elements.topCoords.innerHTML = '';
+        }
+        if (hasBottomCoords) {
+            this.elements.bottomCoords.innerHTML = '';
+        }
+        
         for (let col = 0; col < this.game.BOARD_SIZE; col++) {
             const letter = String.fromCharCode(65 + col); // A-O
 
-            const topCoord = document.createElement('div');
-            topCoord.className = 'coord-cell';
-            topCoord.textContent = letter;
-            this.elements.topCoords.appendChild(topCoord);
+            if (hasTopCoords) {
+                const topCoord = document.createElement('div');
+                topCoord.className = 'coord-cell';
+                topCoord.textContent = letter;
+                this.elements.topCoords.appendChild(topCoord);
+            }
 
-            const bottomCoord = document.createElement('div');
-            bottomCoord.className = 'coord-cell';
-            bottomCoord.textContent = letter;
-            this.elements.bottomCoords.appendChild(bottomCoord);
+            if (hasBottomCoords) {
+                const bottomCoord = document.createElement('div');
+                bottomCoord.className = 'coord-cell';
+                bottomCoord.textContent = letter;
+                this.elements.bottomCoords.appendChild(bottomCoord);
+            }
         }
 
-        // Left and right coordinates (15-1)
-        this.elements.leftCoords.innerHTML = '';
-        this.elements.rightCoords.innerHTML = '';
+        // Left and right coordinates (15-1) - null-safe
+        if (hasLeftCoords) {
+            this.elements.leftCoords.innerHTML = '';
+        }
+        if (hasRightCoords) {
+            this.elements.rightCoords.innerHTML = '';
+        }
+        
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             const number = this.game.BOARD_SIZE - row; // 15-1
 
-            const leftCoord = document.createElement('div');
-            leftCoord.className = 'coord-cell';
-            leftCoord.textContent = number;
-            this.elements.leftCoords.appendChild(leftCoord);
+            if (hasLeftCoords) {
+                const leftCoord = document.createElement('div');
+                leftCoord.className = 'coord-cell';
+                leftCoord.textContent = number;
+                this.elements.leftCoords.appendChild(leftCoord);
+            }
 
-            const rightCoord = document.createElement('div');
-            rightCoord.className = 'coord-cell';
-            rightCoord.textContent = number;
-            this.elements.rightCoords.appendChild(rightCoord);
+            if (hasRightCoords) {
+                const rightCoord = document.createElement('div');
+                rightCoord.className = 'coord-cell';
+                rightCoord.textContent = number;
+                this.elements.rightCoords.appendChild(rightCoord);
+            }
         }
+        
+        console.log('✅ Coordinates created successfully');
     }
 
     /**

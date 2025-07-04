@@ -94,24 +94,24 @@ export const GOMOKU_UI_CONFIG = {
         'r': 'resetScore',
         'R': 'resetScore',
         
-        // Cursor navigation (WASD)
-        'w': 'moveCursorUp',
-        'W': 'moveCursorUp',
-        's': 'moveCursorDown', 
-        'S': 'moveCursorDown',
-        'a': 'moveCursorLeft',
-        'A': 'moveCursorLeft',
-        'd': 'moveCursorRight',
-        'D': 'moveCursorRight',
+        // TEMPORARILY DISABLED: Cursor navigation (WASD) - not implemented yet
+        // 'w': 'moveCursorUp',
+        // 'W': 'moveCursorUp', 
+        // 's': 'moveCursorDown',
+        // 'S': 'moveCursorDown',
+        // 'a': 'moveCursorLeft',
+        // 'A': 'moveCursorLeft',
+        // 'd': 'moveCursorRight',
+        // 'D': 'moveCursorRight',
         
-        // Stone placement
-        'x': 'placeCursorStone',
-        'X': 'placeCursorStone',
-        ' ': 'showCursor', // Spacebar to activate cursor
+        // TEMPORARILY DISABLED: Stone placement actions - not implemented yet
+        // 'x': 'placeCursorStone',
+        // 'X': 'placeCursorStone',
+        // ' ': 'showCursor', // Spacebar to activate cursor
         
-        // Navigation controls
-        'Tab': 'toggleCursor',
-        'Escape': 'closeModalOrHideCursor',
+        // TEMPORARILY DISABLED: Navigation controls - not implemented yet
+        // 'Tab': 'toggleCursor',
+        // 'Escape': 'closeModalOrHideCursor',
         
         // Ctrl combinations
         'Ctrl+z': 'undoMove',
