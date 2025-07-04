@@ -9,7 +9,7 @@
       body {
         margin: 0;
         padding: 20px;
-        background: #667eea;
+        background: linear-gradient(135deg, #F5F5DC, #FFEFD5);
         font-family: Arial, sans-serif;
       }
       
@@ -18,11 +18,11 @@
       }
       
       .minimal-header {
-        color: white;
+        color: #8B4513;
         margin-bottom: 20px;
       }
       
-      /* BOARD STYLES - Vereinfacht */
+      /* BOARD STYLES - Authentisches Go-Brett */
       .game-board-container {
         display: flex;
         flex-direction: column;
@@ -34,28 +34,72 @@
         position: relative;
         width: 400px;
         height: 400px;
-        background: #DEB887;
+        background: linear-gradient(145deg, #DEB887, #CD853F);
         border: 3px solid #8B4513;
         border-radius: 8px;
         margin: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
       }
       
-      /* INTERSECTION STYLES - Einfach */
+      /* GO-BRETT LINIEN - Horizontal und Vertikal */
+      .game-board::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+          repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent calc(360px / 14 - 1px),
+            #8B4513 calc(360px / 14 - 1px),
+            #8B4513 calc(360px / 14)
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent calc(360px / 14 - 1px),
+            #8B4513 calc(360px / 14 - 1px),
+            #8B4513 calc(360px / 14)
+          );
+        z-index: 1;
+        pointer-events: none;
+      }
+      
+      /* INTERSECTION STYLES - Unsichtbar aber klickbar */
       .intersection {
         position: absolute;
-        width: 20px;
-        height: 20px;
+        width: 24px;
+        height: 24px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 2;
+        background: transparent;
+        border: none;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(139, 69, 19, 0.3);
+        /* DEBUG: Uncomment to see intersection areas */
+        /* background: rgba(255, 0, 0, 0.1); */
       }
       
       .intersection:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+      
+      /* STAR POINTS - Traditional Go markings */
+      .intersection.star-point::after {
+        content: '';
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: #8B4513;
+        border-radius: 50%;
+        z-index: 3;
       }
       
       /* STONE STYLES - Einfach */
@@ -90,7 +134,7 @@
   <body>
     <div class="minimal-container">
       <div class="minimal-header">
-        <h1>🧹 MINIMAL GOMOKU - STONE PLACEMENT TEST</h1>
+        <h1>🌸 AUTHENTIC GO BOARD - Gomoku Reference Pattern</h1>
         <div class="debug-info" id="debugInfo">Board: Loading...</div>
       </div>
       
@@ -108,20 +152,24 @@
     </div>
 
     <script type="module">
-      // MINIMAL BOARD CREATION - Kein UI-System, nur Pure JS
+      // GO-BRETT CREATION - Authentisches Board mit Star Points
       function createMinimalBoard() {
         const gameBoard = document.getElementById('gameBoard');
         const debugInfo = document.getElementById('debugInfo');
         
         gameBoard.innerHTML = '';
         
-        // Board-Größe: 400px, Padding: 20px = 360px nutzbar
-        const boardSize = 400;
-        const padding = 20;
+        // Board-Größe: 400px mit 20px CSS-Padding = 360px nutzbar
+        const boardSize = 360; // Innenbereich nach CSS-Padding
         const gridSize = 15;
-        const cellSize = (boardSize - 2 * padding) / (gridSize - 1);
+        const cellSize = boardSize / (gridSize - 1);
         
-        debugInfo.textContent = `Board: ${boardSize}px, Cell: ${cellSize.toFixed(1)}px, Padding: ${padding}px`;
+        debugInfo.textContent = `Go-Brett: ${boardSize}px, Cell: ${cellSize.toFixed(1)}px`;
+        
+        // Star Points für traditionelles Go-Brett (15x15)
+        const starPoints = [
+          [3, 3], [3, 11], [7, 7], [11, 3], [11, 11]
+        ];
         
         let intersectionCount = 0;
         
@@ -132,9 +180,14 @@
             intersection.dataset.row = row;
             intersection.dataset.col = col;
             
-            // SIMPLE POSITIONING - Keine komplexen Berechnungen
-            const x = padding + (col * cellSize);
-            const y = padding + (row * cellSize);
+            // Check if this is a star point
+            if (starPoints.some(([r, c]) => r === row && c === col)) {
+              intersection.classList.add('star-point');
+            }
+            
+            // POSITIONING für Go-Brett - Kein Padding in JS (CSS macht das)
+            const x = col * cellSize;
+            const y = row * cellSize;
             
             intersection.style.left = `${x}px`;
             intersection.style.top = `${y}px`;
@@ -149,7 +202,7 @@
           }
         }
         
-        console.log(`✅ Created ${intersectionCount} intersections`);
+        console.log(`✅ Created ${intersectionCount} intersections with ${starPoints.length} star points`);
         return intersectionCount;
       }
       
