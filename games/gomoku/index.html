@@ -69,36 +69,55 @@
           async function initializeGameUI() {
             console.log('🎮 Starting minimal game UI initialization...');
             
-            const game = new GomokuGame();
-            await game.init(); // Initialize WASM
-            const ui = new GomokuUINew(game);
-            await ui.init();
-            
-            // Make objects globally available for debugging and integration
-            window.game = game;
-            window.ui = ui;
-            
-            // Crosshair system testing functions
-            window.testCrosshair = () => ui.testCrosshairPositions();
-            window.validateLines = () => ui.validateLineAlignment();
-            
-            // Initialize WASM integration for move analysis dashboard
             try {
-              const wasmIntegration = new WasmGomokuIntegration(ui);
-              ui.wasmIntegration = wasmIntegration;
+              console.log('🎯 Creating GomokuGame...');
+              const game = new GomokuGame();
               
-              // CRITICAL: Initialize the WASM engine
-              await wasmIntegration.initializeWasmEngine();
+              console.log('🦀 Initializing game WASM...');
+              await game.init(); // Initialize WASM
               
-              console.log('✅ WASM Integration enabled');
+              console.log('🎨 Creating GomokuUINew...');
+              const ui = new GomokuUINew(game);
               
-              // Initialize BitPackedBoard integration for performance optimization
-              const bitPackedIntegration = new BitPackedGomokuIntegration(ui);
-              ui.bitPackedIntegration = bitPackedIntegration;
+              console.log('🔧 Initializing UI...');
+              await ui.init();
               
-              console.log('⚡ BitPackedBoard Integration enabled');
+              // Make objects globally available for debugging and integration
+              console.log('🌐 Making objects globally available...');
+              window.game = game;
+              window.ui = ui;
+              
+              console.log('✅ Game and UI initialization complete!');
+              
+              // Crosshair system testing functions
+              window.testCrosshair = () => ui.testCrosshairPositions();
+              window.validateLines = () => ui.validateLineAlignment();
+              
+              // Initialize WASM integration for move analysis dashboard
+              try {
+                console.log('🔧 Initializing WASM Integration...');
+                const wasmIntegration = new WasmGomokuIntegration(ui);
+                ui.wasmIntegration = wasmIntegration;
+                
+                // CRITICAL: Initialize the WASM engine
+                await wasmIntegration.initializeWasmEngine();
+                
+                console.log('✅ WASM Integration enabled');
+                
+                // Initialize BitPackedBoard integration for performance optimization
+                console.log('⚡ Initializing BitPackedBoard Integration...');
+                const bitPackedIntegration = new BitPackedGomokuIntegration(ui);
+                ui.bitPackedIntegration = bitPackedIntegration;
+                
+                console.log('⚡ BitPackedBoard Integration enabled');
+              } catch (integrationError) {
+                console.warn('⚠️ WASM Integration disabled due to conflicts:', integrationError.message);
+              }
+              
             } catch (error) {
-              console.warn('⚠️ WASM Integration disabled due to conflicts:', error.message);
+              console.error('❌ Game/UI initialization failed:', error);
+              console.error('Error stack:', error.stack);
+              throw error;
             }
             
             console.log('🎮 Minimal Gomoku initialized with ES6 modules + WASM integration');
