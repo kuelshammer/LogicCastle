@@ -271,9 +271,14 @@ export class GomokuUINew extends BaseGameUI {
     createBoard() {
         this.elements.gameBoard.innerHTML = '';
 
-        // Board dimensions: 390px total with 20px padding = 350px inner area
-        const boardTotalSize = 390;
-        const boardPadding = 20;
+        // RESPONSIVE FIX: Get actual board dimensions at runtime
+        const boardRect = this.elements.gameBoard.getBoundingClientRect();
+        const boardTotalSize = Math.min(boardRect.width, boardRect.height);
+        
+        // Calculate responsive padding (5.13% of board size, matching CSS)
+        const boardPadding = boardTotalSize * 0.0513; // 5.13% responsive padding
+        
+        console.log(`🎯 Board dimensions: ${boardTotalSize}px, Padding: ${boardPadding}px`);
 
         for (let row = 0; row < this.game.BOARD_SIZE; row++) {
             for (let col = 0; col < this.game.BOARD_SIZE; col++) {
@@ -283,7 +288,7 @@ export class GomokuUINew extends BaseGameUI {
                 // Use standardized coordinate mapping
                 CoordUtils.coordsToElement(intersection, row, col);
 
-                // Position intersection using standardized pixel calculation
+                // Position intersection using RESPONSIVE pixel calculation
                 const [pixelX, pixelY] = CoordUtils.gomokuGridToPixel(
                     row, col, boardTotalSize, boardPadding, this.game.BOARD_SIZE
                 );
