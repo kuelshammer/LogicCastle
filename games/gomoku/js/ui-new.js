@@ -112,11 +112,20 @@ export class GomokuUINew extends BaseGameUI {
      * Override bindKeyboardActions to add Gomoku-specific keyboard actions
      */
     bindKeyboardActions(keyboardController) {
-        // Call parent to bind standard actions
-        super.bindKeyboardActions(keyboardController);
+        // FIXED: Don't call super to avoid duplicate registrations
+        // Parent actions will be handled by our comprehensive action map below
         
-        // Add Gomoku-specific cursor actions
-        const gomokuActions = {
+        // Complete action map including both standard and Gomoku-specific actions
+        const allActions = {
+            // Standard game actions (inherited functionality)
+            'toggleHelp': () => this.toggleModal('help'),
+            'toggleGameHelp': () => this.toggleModal('gameHelp'),
+            'closeModal': () => this.closeAllModals(),
+            'newGame': () => this.newGame(),
+            'undoMove': () => this.undoMove(),
+            'resetScore': () => this.resetScore(),
+            
+            // Gomoku-specific cursor actions
             'moveCursorUp': () => this.moveCursor('up'),
             'moveCursorDown': () => this.moveCursor('down'),
             'moveCursorLeft': () => this.moveCursor('left'),
@@ -127,7 +136,7 @@ export class GomokuUINew extends BaseGameUI {
             'closeModalOrHideCursor': () => this.handleEscapeKey()
         };
 
-        for (const [action, handler] of Object.entries(gomokuActions)) {
+        for (const [action, handler] of Object.entries(allActions)) {
             // Find the keyboard shortcut(s) for this action
             for (const [key, configAction] of Object.entries(this.config.keyboard)) {
                 if (configAction === action) {
@@ -136,33 +145,16 @@ export class GomokuUINew extends BaseGameUI {
             }
         }
         
-        console.log(`⌨️ Registered ${Object.keys(gomokuActions).length} Gomoku-specific keyboard actions`);
+        console.log(`⌨️ Registered ${Object.keys(allActions).length} keyboard actions (standard + Gomoku-specific)`);
     }
 
     /**
      * Enhanced keyboard action binding that handles all Gomoku shortcuts
      */
     setupAdvancedKeyboardActions() {
-        const keyboardController = this.getModule('keyboard');
-        if (!keyboardController) {
-            console.warn('⚠️ KeyboardController not available');
-            return;
-        }
-
-        // Register advanced Gomoku shortcuts that aren't in BaseGameUI
-        const advancedActions = {
-            'F3': () => this.resetScore(),
-            'Ctrl+z': () => this.undoMove(),
-            'Ctrl+Z': () => this.undoMove(),
-            'Ctrl+r': () => this.newGame(),
-            'Ctrl+R': () => this.newGame()
-        };
-
-        for (const [key, handler] of Object.entries(advancedActions)) {
-            keyboardController.register(key, `advanced_${key.replace(/\+/g, '_')}`, handler);
-        }
-
-        console.log(`⌨️ Registered ${Object.keys(advancedActions).length} advanced keyboard shortcuts`);
+        // REMOVED: All keyboard actions now handled in bindKeyboardActions() 
+        // to avoid conflicts and duplicate registrations
+        console.log('⌨️ Advanced keyboard actions integrated into main binding system');
     }
 
     /**
@@ -323,13 +315,25 @@ export class GomokuUINew extends BaseGameUI {
                     intersection.classList.add('star-point');
                 }
 
-                intersection.addEventListener('click', () => this.onIntersectionClick(row, col));
-                intersection.addEventListener('mouseenter', () =>
-                    this.onIntersectionHover(row, col)
-                );
-                intersection.addEventListener('mouseleave', () =>
-                    this.onIntersectionLeave(row, col)
-                );
+                // FIX: Use data attributes to avoid closure variable capture bug
+                intersection.addEventListener('click', (event) => {
+                    const [r, c] = CoordUtils.elementToCoords(event.target);
+                    if (r !== null && c !== null) {
+                        this.onIntersectionClick(r, c);
+                    }
+                });
+                intersection.addEventListener('mouseenter', (event) => {
+                    const [r, c] = CoordUtils.elementToCoords(event.target);
+                    if (r !== null && c !== null) {
+                        this.onIntersectionHover(r, c);
+                    }
+                });
+                intersection.addEventListener('mouseleave', (event) => {
+                    const [r, c] = CoordUtils.elementToCoords(event.target);
+                    if (r !== null && c !== null) {
+                        this.onIntersectionLeave(r, c);
+                    }
+                });
 
                 this.elements.gameBoard.appendChild(intersection);
             }
