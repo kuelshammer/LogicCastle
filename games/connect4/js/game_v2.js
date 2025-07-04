@@ -72,9 +72,9 @@ class Connect4Game {
         'https://www.maxkuelshammer.de/LogicCastle/game_engine/pkg/game_engine_bg.wasm' + cacheBuster // Full URL
       ];
       
-      // Import the WASM module with GitHub Pages path
+      // Import the WASM module with correct relative path
       console.log('📦 Importing WASM JavaScript wrapper...');
-      const wasmModule = await import('/LogicCastle/game_engine/pkg/game_engine.js');
+      const wasmModule = await import('../../../game_engine/pkg/game_engine.js');
       console.log('✅ WASM JavaScript wrapper loaded');
       
       const { default: init, Game, Player } = wasmModule;

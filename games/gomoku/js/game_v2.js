@@ -100,7 +100,7 @@ export class GomokuGame {
       
       const wasmModule = isGitHubPages ? 
         await import('/LogicCastle/game_engine/pkg/game_engine.js') :
-        await import('/game_engine/pkg/game_engine.js');
+        await import('../../../game_engine/pkg/game_engine.js');
       
       console.log('✅ WASM module imported:', Object.keys(wasmModule));
       console.log('✅ WASM JavaScript wrapper loaded');

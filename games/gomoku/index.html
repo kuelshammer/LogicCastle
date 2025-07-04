@@ -12,6 +12,15 @@
   <body>
     <div class="minimal-game-container">
       <div class="game-board-container">
+        <!-- Add required UI elements for UI-Module System -->
+        <div id="gameStatus" style="display: none;">Ready</div>
+        <div id="currentPlayerIndicator" style="display: none;">
+          <span class="player-indicator">
+            <span class="player-stone black"></span>
+            Black to move
+          </span>
+        </div>
+        
         <div class="game-board" id="gameBoard">
           <!-- 15x15 grid = 225 intersections -->
           <!-- Generated dynamically by JavaScript -->
