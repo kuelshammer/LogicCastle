@@ -93,7 +93,7 @@ export class ModalManager {
         const element = document.getElementById(config.id);
         
         if (!element) {
-            console.warn(`⚠️ Modal element not found: ${config.id}`);
+            // Silent degradation for minimal UI - don't register missing modals
             return false;
         }
 
@@ -196,7 +196,7 @@ export class ModalManager {
         const modal = this.modals.get(modalType);
         
         if (!modal) {
-            console.error(`❌ Modal not found: ${modalType}`);
+            // Silent degradation for missing modals
             return false;
         }
 
@@ -235,7 +235,7 @@ export class ModalManager {
         const modal = this.modals.get(modalType);
         
         if (!modal) {
-            console.error(`❌ Modal not found: ${modalType}`);
+            // Silent degradation for missing modals
             return false;
         }
 
@@ -267,7 +267,7 @@ export class ModalManager {
         const modal = this.modals.get(modalType);
         
         if (!modal) {
-            console.error(`❌ Modal not found: ${modalType}`);
+            // Silent degradation for missing modals
             return false;
         }
 

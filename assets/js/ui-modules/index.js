@@ -15,6 +15,9 @@ export { ModalManager } from './components/ModalManager.js';
 export { KeyboardController } from './components/KeyboardController.js';
 export { MessageSystem } from './components/MessageSystem.js';
 
+// Utility modules
+export { DOMUtils } from './utils/DOMUtils.js';
+
 // Version and metadata
 export const VERSION = '1.0.0';
 export const BUILD_DATE = '2025-07-03';
