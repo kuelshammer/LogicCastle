@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gomoku - MINIMAL TEST</title>
+    <style>
+      /* MINIMAL CSS - Nur das Board */
+      body {
+        margin: 0;
+        padding: 20px;
+        background: #667eea;
+        font-family: Arial, sans-serif;
+      }
+      
+      .minimal-container {
+        text-align: center;
+      }
+      
+      .minimal-header {
+        color: white;
+        margin-bottom: 20px;
+      }
+      
+      /* BOARD STYLES - Vereinfacht */
+      .game-board-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px auto;
+      }
+      
+      .game-board {
+        position: relative;
+        width: 400px;
+        height: 400px;
+        background: #DEB887;
+        border: 3px solid #8B4513;
+        border-radius: 8px;
+        margin: 20px;
+      }
+      
+      /* INTERSECTION STYLES - Einfach */
+      .intersection {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(139, 69, 19, 0.3);
+      }
+      
+      .intersection:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      
+      /* STONE STYLES - Einfach */
+      .stone {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid #333;
+        z-index: 10;
+        left: -9px;
+        top: -9px;
+        pointer-events: none;
+      }
+      
+      .stone.black {
+        background: radial-gradient(circle at 30% 30%, #555, #1a1a1a);
+      }
+      
+      .stone.white {
+        background: radial-gradient(circle at 30% 30%, #fff, #e0e0e0);
+      }
+      
+      /* DEBUG HELPER */
+      .debug-info {
+        color: white;
+        margin: 10px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="minimal-container">
+      <div class="minimal-header">
+        <h1>🧹 MINIMAL GOMOKU - STONE PLACEMENT TEST</h1>
+        <div class="debug-info" id="debugInfo">Board: Loading...</div>
+      </div>
+      
+      <div class="game-board-container">
+        <div class="game-board" id="gameBoard">
+          <!-- Board wird dynamisch erstellt -->
+        </div>
+      </div>
+      
+      <div class="debug-info">
+        <button onclick="testStone()">🎯 Test Stone Placement</button>
+        <button onclick="clearStones()">🧹 Clear All Stones</button>
+        <button onclick="recreatePattern()">📋 Recreate Gomoku.jpg</button>
+      </div>
+    </div>
+
+    <script type="module">
+      // MINIMAL BOARD CREATION - Kein UI-System, nur Pure JS
+      function createMinimalBoard() {
+        const gameBoard = document.getElementById('gameBoard');
+        const debugInfo = document.getElementById('debugInfo');
+        
+        gameBoard.innerHTML = '';
+        
+        // Board-Größe: 400px, Padding: 20px = 360px nutzbar
+        const boardSize = 400;
+        const padding = 20;
+        const gridSize = 15;
+        const cellSize = (boardSize - 2 * padding) / (gridSize - 1);
+        
+        debugInfo.textContent = `Board: ${boardSize}px, Cell: ${cellSize.toFixed(1)}px, Padding: ${padding}px`;
+        
+        let intersectionCount = 0;
+        
+        for (let row = 0; row < gridSize; row++) {
+          for (let col = 0; col < gridSize; col++) {
+            const intersection = document.createElement('div');
+            intersection.className = 'intersection';
+            intersection.dataset.row = row;
+            intersection.dataset.col = col;
+            
+            // SIMPLE POSITIONING - Keine komplexen Berechnungen
+            const x = padding + (col * cellSize);
+            const y = padding + (row * cellSize);
+            
+            intersection.style.left = `${x}px`;
+            intersection.style.top = `${y}px`;
+            
+            // Click handler für Stone-Placement
+            intersection.addEventListener('click', () => {
+              placeStone(row, col, intersectionCount % 2 === 0 ? 'black' : 'white');
+            });
+            
+            gameBoard.appendChild(intersection);
+            intersectionCount++;
+          }
+        }
+        
+        console.log(`✅ Created ${intersectionCount} intersections`);
+        return intersectionCount;
+      }
+      
+      // MINIMAL STONE PLACEMENT
+      function placeStone(row, col, color) {
+        const intersection = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (!intersection) {
+          console.error(`❌ No intersection at ${row},${col}`);
+          return false;
+        }
+        
+        // Remove existing stone
+        const existingStone = intersection.querySelector('.stone');
+        if (existingStone) {
+          existingStone.remove();
+        }
+        
+        // Create new stone
+        const stone = document.createElement('div');
+        stone.className = `stone ${color}`;
+        
+        intersection.appendChild(stone);
+        console.log(`✅ Placed ${color} stone at ${row},${col}`);
+        
+        // Update debug info
+        const stoneCount = document.querySelectorAll('.stone').length;
+        document.getElementById('debugInfo').textContent = `Stones: ${stoneCount}, Last: ${color} at ${row},${col}`;
+        
+        return true;
+      }
+      
+      // TEST FUNCTIONS
+      window.testStone = () => {
+        placeStone(7, 7, 'black'); // Center
+        placeStone(6, 7, 'white'); // Above center
+      };
+      
+      window.clearStones = () => {
+        document.querySelectorAll('.stone').forEach(stone => stone.remove());
+        document.getElementById('debugInfo').textContent = 'All stones cleared';
+      };
+      
+      window.recreatePattern = () => {
+        clearStones();
+        
+        // Gomoku.jpg pattern
+        const pattern = [
+          [2, 8, 'black'], [2, 9, 'white'], [2, 10, 'black'],
+          [4, 7, 'black'], [4, 8, 'black'], [4, 9, 'black'], [4, 10, 'white'],
+          [5, 7, 'white'], [5, 9, 'black'],
+          [6, 8, 'white'], [6, 9, 'white'],
+          [7, 8, 'black'],
+          [8, 7, 'black'],
+          [9, 6, 'black'],
+          [11, 2, 'white'],
+          [13, 2, 'white']
+        ];
+        
+        pattern.forEach(([row, col, color]) => {
+          setTimeout(() => placeStone(row, col, color), pattern.indexOf([row, col, color]) * 100);
+        });
+      };
+      
+      // INITIALIZE
+      document.addEventListener('DOMContentLoaded', () => {
+        const count = createMinimalBoard();
+        console.log(`🎮 Minimal Gomoku initialized with ${count} intersections`);
+      });
+    </script>
+  </body>
+</html>
