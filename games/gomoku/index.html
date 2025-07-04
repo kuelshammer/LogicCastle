@@ -470,6 +470,10 @@
             try {
               const wasmIntegration = new WasmGomokuIntegration(ui);
               ui.wasmIntegration = wasmIntegration;
+              
+              // CRITICAL: Initialize the WASM engine
+              await wasmIntegration.initializeWasmEngine();
+              
               console.log('✅ WASM Integration enabled');
               
               // Initialize BitPackedBoard integration for performance optimization
