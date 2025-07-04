@@ -1186,6 +1186,10 @@ export class GomokuUINew extends BaseGameUI {
         stoneElement.style.transform = 'translate(-50%, -50%)';
         
         console.log(`🎯 Stone positioned: ${row},${col} -> ${pixelX.toFixed(1)}px, ${pixelY.toFixed(1)}px`);
+        
+        // Performance note: getBoundingClientRect() is called for each stone
+        // If performance becomes an issue, consider caching board dimensions
+        // and only recalculating on window resize events
     }
 
     // ==================== GAME EVENT HANDLERS ====================
@@ -1217,13 +1221,16 @@ export class GomokuUINew extends BaseGameUI {
         stone.className = `stone ${playerClass} stone-place last-move`;
 
         // === NEW POSITIONING LOGIC (Gemini Report Implementation) ===
+        // CRITICAL FIX: Solves DOM-Verschachtelung stone placement bug
+        
         // 1. Attach stone directly to game board (not intersection)
+        // OLD BUGGY WAY: intersection.appendChild(stone) - caused positioning issues
         this.elements.gameBoard.appendChild(stone);
         
-        // 2. Position stone with pixel-perfect accuracy
+        // 2. Position stone with pixel-perfect accuracy using new method
         this.positionStoneOnBoard(move.row, move.col, stone);
         
-        // 3. Mark intersection as occupied (for game logic only)
+        // 3. Mark intersection as occupied (for game logic only, not DOM positioning)
         intersection.classList.add('occupied');
         console.log('✅ Stone placed with new positioning! Total stones:', document.querySelectorAll('.stone').length);
 
