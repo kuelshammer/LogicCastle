@@ -88,25 +88,70 @@ export class BaseGameUI {
             return;
         }
 
+        const startTime = performance.now();
+        console.group(`🎮 Initializing ${this.constructor.name}...`);
+        
         try {
-            console.log(`🎮 Initializing ${this.constructor.name}...`);
-            
             // Template Method Pattern - fixed order of operations
+            console.log('📋 Step 1: beforeInit()');
+            console.time('beforeInit');
             await this.beforeInit();
+            console.timeEnd('beforeInit');
+            console.log('✅ beforeInit() completed');
+            
+            console.log('📋 Step 2: initializeCoreModules()');
+            console.time('initializeCoreModules');
             this.initializeCoreModules();
+            console.timeEnd('initializeCoreModules');
+            console.log('✅ initializeCoreModules() completed');
+            
+            console.log('📋 Step 3: bindElements()');
+            console.time('bindElements');
             await this.bindElements();
+            console.timeEnd('bindElements');
+            console.log('✅ bindElements() completed');
+            
+            console.log('📋 Step 4: setupModules()');
+            console.time('setupModules');
             await this.setupModules();
+            console.timeEnd('setupModules');
+            console.log('✅ setupModules() completed');
+            
+            console.log('📋 Step 5: setupEvents()');
+            console.time('setupEvents');
             await this.setupEvents();
+            console.timeEnd('setupEvents');
+            console.log('✅ setupEvents() completed');
+            
+            console.log('📋 Step 6: setupKeyboard()');
+            console.time('setupKeyboard');
             await this.setupKeyboard();
+            console.timeEnd('setupKeyboard');
+            console.log('✅ setupKeyboard() completed');
+            
+            console.log('📋 Step 7: afterInit()');
+            console.time('afterInit');
             await this.afterInit();
+            console.timeEnd('afterInit');
+            console.log('✅ afterInit() completed');
             
             this.initialized = true;
-            console.log(`✅ ${this.constructor.name} initialized successfully`);
+            const totalTime = performance.now() - startTime;
+            console.log(`✅ ${this.constructor.name} initialized successfully in ${totalTime.toFixed(2)}ms`);
             
         } catch (error) {
-            console.error(`❌ ${this.constructor.name} initialization failed:`, error);
+            const totalTime = performance.now() - startTime;
+            console.error(`❌ ${this.constructor.name} initialization failed after ${totalTime.toFixed(2)}ms:`, error);
+            console.error('Error stack:', error.stack);
+            console.error('Error details:', {
+                name: error.name,
+                message: error.message,
+                cause: error.cause
+            });
             this.handleInitializationError(error);
             throw error;
+        } finally {
+            console.groupEnd();
         }
     }
 

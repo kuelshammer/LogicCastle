@@ -157,23 +157,34 @@ export class GomokuUINew extends BaseGameUI {
      * Override afterInit to complete Gomoku-specific initialization
      */
     async afterInit() {
+        console.log('🔧 afterInit() starting...');
+        
         // Create Gomoku board and coordinates
+        console.log('🎯 Creating board...');
         this.createBoard();
+        console.log('📐 Creating coordinates...');
         this.createCoordinates();
         
         // Setup advanced keyboard shortcuts not covered by BaseGameUI
+        console.log('⌨️ Setting up keyboard actions...');
         this.setupAdvancedKeyboardActions();
         
         // Test modal system integration
+        console.log('🪟 Testing modal integration...');
         this.testModalIntegration();
         
         // Initialize Gomoku-specific systems
+        console.log('🔧 Initializing helpers...');
         this.initializeHelpers();
+        console.log('🦀 Initializing WASM integration...');
         this.initializeWasmIntegration();
+        console.log('🤖 Initializing assistance system...');
         this.initializeAssistanceSystem();
         
         // Update initial display
+        console.log('🎨 Updating display...');
         this.updateDisplay();
+        console.log('🎮 Updating game mode...');
         this.updateGameMode();
         
         console.log('✅ Gomoku UI initialization complete');

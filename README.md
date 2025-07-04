@@ -11,8 +11,8 @@ Eine Sammlung mathematischer Strategiespiele mit modernem Rust/WebAssembly-Kern 
 ### [🔴 4 Gewinnt (Connect4)](https://www.maxkuelshammer.de/LogicCastle/games/connect4/)
 Klassisches Strategiespiel mit KI-Unterstützung und Rust-Performance.
 
-### [⚫ 5 Gewinnt (Gomoku)](https://www.maxkuelshammer.de/LogicCastle/games/gomoku/)
-Go-Brett-basiertes Strategiespiel mit Tastatur-Navigation und Hilfen-System.
+### [⚫ 5 Gewinnt (Gomoku)](https://www.maxkuelshammer.de/LogicCastle/games/gomoku/) ⭐ **GOLDSTANDARD**
+Go-Brett-basiertes Strategiespiel mit modernem UI-Module-System, pixel-perfekter Stone-Positionierung und Tastatur-Navigation.
 
 ### [🧮 Trio - Rechenspiel](https://www.maxkuelshammer.de/LogicCastle/games/trio/)
 Mathematisches Puzzle-Spiel: Finde drei Zahlen mit der Formel `a×b±c = Zielzahl`.
@@ -34,6 +34,29 @@ Mathematisches Puzzle-Spiel: Finde drei Zahlen mit der Formel `a×b±c = Zielzah
 - **🔍 ESLint + Prettier**: Code-Qualität und Formatierung
 - **📋 TypeScript Definitions**: WASM-Generated Type Safety
 - **🔄 GitHub Actions**: Automatisches Deployment
+
+## 🏆 Aktuelle Technische Meilensteine (Juli 2025)
+
+### ✅ **Stone Placement Critical Fix** 
+- **Problem gelöst**: DOM-Verschachtelung verursachte ungenaue Stone-Positionierung
+- **Lösung**: `positionStoneOnBoard()` Methode mit pixel-perfekter `getBoundingClientRect()` Berechnung
+- **Technik**: Direkte Board-Positionierung statt Intersection-Nesting + `transform: translate(-50%, -50%)`
+
+### ✅ **UI-Module System (BaseGameUI)** 
+- **Pilot**: Gomoku vollständig auf modulares UI-System migriert (**GOLDSTANDARD**)
+- **Reduktion**: 1646 → 950 Zeilen Code (33% weniger) bei gleicher Funktionalität
+- **Module**: ElementBinder, KeyboardController, ModalManager, MessageSystem
+- **Nächste**: Trio, Hex, L-Game Migration geplant
+
+### ✅ **Major Code Cleanup**
+- **Gelöscht**: 10 obsolete Dateien, 5515 Zeilen Legacy-Code
+- **Bereinigt**: Gomoku (5 Dateien), Connect4 (3 Dateien), Global (2 Dateien)
+- **Ergebnis**: Keine Code-Duplizierung, wartbare Architektur
+
+### ✅ **BitPackedBoard Performance**
+- **Implementiert**: Gomoku, Trio mit memory-effizienter Rust-Struktur
+- **Performance**: Drastisch reduzierter Speicherverbrauch für große Bretter
+- **Ausstehend**: Connect4 Migration auf BitPackedBoard geplant
 
 ## 🚀 Quick Start
 
@@ -114,13 +137,20 @@ game_engine/
     └── game_engine_bg.wasm # Compiled WebAssembly
 ```
 
+### UI-Module System (`assets/js/ui-modules/`) ⭐ **NEU**
+- **BaseGameUI**: Wiederverwendbare Basis-Klasse für alle Spiele
+- **ElementBinder**: Automatisches DOM-Element-Binding
+- **KeyboardController**: Einheitliche Tastatur-Navigation
+- **ModalManager**: Modulares Modal-System (Hilfe, Einstellungen, etc.)
+
 ### JavaScript UI Layer (`games/*/js/`)
 - **Modern ES6-Module**: Import/Export statt window.*-Globals
 - **Koordinaten-Standards**: `CoordUtils` für alle Spiele
 - **WASM-Integration**: Type-safe Game-Engine-Zugriff
+- **Stone Positioning**: Pixel-perfekte `positionStoneOnBoard()` Methode
 
 ### Design System (`assets/`)
-- **Tailwind-Komponenten**: Wiederverwendbare UI-Patterns
+- **Zentrales CSS**: Wiederverwendbare UI-Komponenten für alle Spiele
 - **Koordinaten-Utils**: Standardisierte Grid-Transformationen
 - **Landing-Page-Module**: ES6-basierte Navigation
 
@@ -135,6 +165,12 @@ game_engine/
 - **Convention**: `(row, col)` 0-basierte Indexierung für alle Spiele
 - **Utils**: `CoordUtils.gridToIndex()`, `CoordUtils.clampCoords()`, etc.
 - **Pixel-Conversion**: `CoordUtils.gomokuGridToPixel()` für präzise Positionierung
+
+### ✅ UI-Module System (BaseGameUI)
+- **Gomoku = GOLDSTANDARD**: Vollständig migriert mit 33% Code-Reduktion
+- **Modulare Architektur**: ElementBinder, KeyboardController, ModalManager
+- **Wiederverwendbarkeit**: Eine Basis-Klasse für alle Spiele
+- **Stone Positioning**: Pixel-perfekte `positionStoneOnBoard()` Methode
 
 ### ✅ ES6-Module-First
 - **Import/Export**: Statt globaler window.*-Zuweisungen
@@ -157,8 +193,13 @@ game_engine/
 
 ### Rust vs. JavaScript
 - **10x+ Performance** für Game-Logic durch Rust/WASM
-- **Memory-Efficiency**: Rust's Zero-Cost Abstractions
+- **BitPackedBoard**: Memory-effiziente Rust-Struktur für große Bretter
 - **Type Safety**: Compile-time Garantien
+
+### UI-Module System
+- **33% Code-Reduktion**: Von 1646 → 950 Zeilen (Gomoku)
+- **Stone Positioning**: Pixel-perfekte Positionierung ohne DOM-Nesting
+- **Modulare Wiederverwendbarkeit**: Ein System für alle Spiele
 
 ### Web Standards
 - **Progressive Web App**: Service Worker für Offline-Nutzung

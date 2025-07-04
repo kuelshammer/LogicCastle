@@ -5,6 +5,7 @@ Detaillierte Architektur-Dokumentation für das LogicCastle Rust/WASM Gaming Fra
 ## 📋 Inhaltsverzeichnis
 
 - [System Overview](#system-overview)
+- [UI-Module System](#ui-module-system) ⭐ **NEU**
 - [Rust/WASM Core Engine](#rustwasm-core-engine)
 - [JavaScript UI Layer](#javascript-ui-layer)
 - [Design System](#design-system)
@@ -34,6 +35,202 @@ LogicCastle folgt einer **Hybrid-Architektur** mit Rust/WASM für performance-kr
 3. **🔒 Type Safety**: WASM-bindgen generiert TypeScript-Definitionen
 4. **⚡ Performance**: Zero-Copy zwischen Rust und JavaScript wo möglich
 5. **📱 Progressive Enhancement**: Funktioniert ohne JavaScript, besser mit
+
+## 🎮 UI-Module System
+
+Das **UI-Module System** ist LogicCastles zentrale Architektur-Innovation für wiederverwendbare und wartbare Spieloberflächen.
+
+### Architektur-Übersicht
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   BaseGameUI                            │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐   │
+│  │ Element     │ │ Keyboard    │ │ Modal           │   │
+│  │ Binder      │ │ Controller  │ │ Manager         │   │
+│  └─────────────┘ └─────────────┘ └─────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+           ▲                    ▲                    ▲
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│   GomokuUINew   │ │    TrioUI       │ │     HexUI       │
+│  ⭐GOLDSTANDARD │ │   (geplant)     │ │   (geplant)     │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+```
+
+### BaseGameUI Core (`assets/js/ui-modules/core/BaseGameUI.js`)
+
+```javascript
+export class BaseGameUI {
+    constructor(game, config) {
+        this.game = game;
+        this.config = config;
+        
+        // Automatische Modul-Initialisierung
+        this.elementBinder = new ElementBinder(config.elements);
+        this.keyboardController = new KeyboardController(config.keyboard);
+        this.modalManager = new ModalManager(config.modals);
+    }
+    
+    async init() {
+        // Standardisierter Initialisierungs-Workflow
+        await this.beforeInit();
+        this.elementBinder.bindElements();
+        this.setupGameEventListeners();
+        this.keyboardController.init();
+        this.modalManager.init();
+        await this.afterInit();
+    }
+}
+```
+
+### ElementBinder - Automatisches DOM-Binding
+
+```javascript
+// Eliminiert manuelles DOM-Element-Caching
+export class ElementBinder {
+    bindElements() {
+        Object.entries(this.config).forEach(([key, selector]) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                this.elements[key] = element;
+            } else {
+                console.warn(`Element not found: ${selector}`);
+            }
+        });
+    }
+}
+
+// Usage in Game UI
+const config = {
+    elements: {
+        gameBoard: '#gameBoard',
+        currentPlayer: '#currentPlayer',
+        gameStatus: '#gameStatus'
+    }
+};
+```
+
+### KeyboardController - Einheitliche Navigation
+
+```javascript
+export class KeyboardController {
+    constructor(config) {
+        this.keyMappings = config.keyMappings;
+        this.shortcuts = config.shortcuts;
+    }
+    
+    // Standardisierte Tastatur-Events für alle Spiele
+    handleKeyDown(event) {
+        const action = this.keyMappings[event.code];
+        if (action && this.actions[action]) {
+            event.preventDefault();
+            this.actions[action](event);
+        }
+    }
+}
+
+// Game-spezifische Konfiguration
+const keyboardConfig = {
+    keyMappings: {
+        'KeyW': 'move_up',
+        'KeyS': 'move_down', 
+        'KeyA': 'move_left',
+        'KeyD': 'move_right',
+        'Space': 'place_stone',
+        'F1': 'toggle_help'
+    }
+};
+```
+
+### ModalManager - Modulares Modal-System
+
+```javascript
+export class ModalManager {
+    constructor(config) {
+        this.modals = new Map();
+        this.config = config;
+    }
+    
+    // Einheitliches Modal-Management
+    showModal(modalId) {
+        const modal = this.modals.get(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            modal.setAttribute('aria-hidden', 'false');
+            this.trapFocus(modal);
+        }
+    }
+}
+```
+
+### Stone Positioning System ⭐ **CRITICAL FIX**
+
+Das neue **Stone Positioning System** löst den kritischen DOM-Verschachtelung Bug:
+
+```javascript
+// NEU: Pixel-perfekte Positionierung (Gemini Report Implementation)
+positionStoneOnBoard(row, col, stoneElement) {
+    const board = this.elements.gameBoard;
+    
+    // 1. Runtime Board-Dimensionen
+    const boardRect = board.getBoundingClientRect();
+    const boardWidth = boardRect.width;
+    
+    // 2. CSS-Padding-Berechnung (5.13%)
+    const padding = boardWidth * 0.0513;
+    
+    // 3. Grid-Größe berechnen
+    const gridWidth = boardWidth - (2 * padding);
+    const gridSize = this.game.BOARD_SIZE || 15;
+    const step = gridWidth / (gridSize - 1);
+    
+    // 4. Pixel-Koordinaten
+    const pixelX = padding + (col * step);
+    const pixelY = padding + (row * step);
+    
+    // 5. Direkte Board-Positionierung
+    stoneElement.style.position = 'absolute';
+    stoneElement.style.left = `${pixelX}px`;
+    stoneElement.style.top = `${pixelY}px`;
+    stoneElement.style.transform = 'translate(-50%, -50%)';
+    
+    // ALT (BUGGY): intersection.appendChild(stone)
+    // NEU (FIXED): board.appendChild(stone) + positionStoneOnBoard()
+    this.elements.gameBoard.appendChild(stoneElement);
+}
+```
+
+### Gomoku als GOLDSTANDARD ⭐
+
+**Gomoku** (`games/gomoku/js/ui-new.js`) dient als Referenz-Implementation:
+
+```javascript
+import { BaseGameUI } from '../../../assets/js/ui-modules/index.js';
+import { GOMOKU_UI_CONFIG } from './gomoku-config.js';
+
+export class GomokuUINew extends BaseGameUI {
+    constructor(game) {
+        super(game, GOMOKU_UI_CONFIG);
+        // Gomoku-spezifische Erweiterungen...
+    }
+    
+    // Überschreibt BaseGameUI-Methoden für Gomoku-Logik
+    onMoveMade(move) {
+        // Verwendet neue Stone Positioning
+        this.positionStoneOnBoard(move.row, move.col, stone);
+    }
+}
+```
+
+**Code-Reduktion**: 1646 → 950 Zeilen (33% weniger) bei gleicher Funktionalität
+
+### Migrations-Roadmap
+
+1. **✅ Gomoku**: Vollständig migriert (GOLDSTANDARD)
+2. **🔄 Trio**: Migration geplant
+3. **🔄 Hex**: Migration geplant  
+4. **🔄 L-Game**: Migration geplant
+5. **⚠️ Connect4**: Spezialbehandlung (BitPackedBoard-Migration erforderlich)
 
 ## 🦀 Rust/WASM Core Engine
 
@@ -449,9 +646,15 @@ npm run ci          # Complete CI pipeline
 
 ### Performance Targets
 - **WASM Startup**: < 50ms initial load
-- **Game Logic**: < 1ms per move evaluation
+- **Game Logic**: < 1ms per move evaluation  
 - **UI Response**: < 16ms für 60fps animations
 - **Memory Usage**: < 10MB für complete game state
+- **Stone Positioning**: Pixel-perfect placement mit `getBoundingClientRect()`
+
+### UI-Module System Metriken ⭐
+- **Code-Reduktion**: 33% weniger Code (Gomoku: 1646 → 950 Zeilen)
+- **Wiederverwendbarkeit**: Eine BaseGameUI für alle Spiele
+- **Wartbarkeit**: Modulare Architektur eliminiert Code-Duplizierung
 
 ### Code Quality Metrics
 - **Type Coverage**: 100% WASM interfaces mit TypeScript

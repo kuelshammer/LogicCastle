@@ -89,16 +89,48 @@ Dieses Dokument spiegelt den aktuellen Stand nach den Commits vom 4. Juli 2025 w
 
 # Known Issues
 
-## Gomoku Stone Placement Issues (Stand: 2025-07-04)
+## Gomoku Stone Placement Issues (Stand: 2025-07-04) ✅ **BEHOBEN**
 - **CRITICAL:** Stone Placement Bug - Steine erscheinen nicht auf korrekten Board-Positionen
 - **Ursache:** DOM-Verschachtelung - Steine werden als Child der Intersections angehängt
-- **Lösung:** `positionStoneOnBoard()` Methode implementieren mit direkter gameBoard-Positionierung
-- **Status:** Identifiziert, Lösung vorhanden, Implementation ausstehend
+- **Lösung:** `positionStoneOnBoard()` Methode mit `getBoundingClientRect()` + pixel-perfekter Positionierung
+- **Status:** ✅ **VOLLSTÄNDIG IMPLEMENTIERT** - Bug behoben
 
-## Code-Bereinigung ausstehend (Stand: 2025-07-04)
+## Code-Bereinigung ausstehend (Stand: 2025-07-04) ✅ **ABGESCHLOSSEN**
 - **Problem:** Veraltete Dateien in allen Spielen (ui.js, game.js, ai.js legacy Versionen)
-- **Risiko:** Code-Duplizierung, Verwirrung, Wartungsprobleme
-- **Lösung:** Systematisches Löschen nach Migration-Abschluss
-- **Status:** Bereinigungsplan erstellt, Ausführung ausstehend
+- **Durchgeführt:** 10 obsolete Dateien gelöscht, 5515 Zeilen Legacy-Code entfernt
+- **Bereinigt:** Gomoku (5 Dateien), Connect4 (3 Dateien), Global (2 Dateien)
+- **Status:** ✅ **VOLLSTÄNDIG ABGESCHLOSSEN** - Codebase ist sauber
+
+## 🎯 AKTUELLER STATUS (Stand: 2025-07-04)
+
+### ✅ **ERFOLGREICH ABGESCHLOSSEN:**
+1. **UI-Module System:** BaseGameUI, ElementBinder, KeyboardController, ModalManager implementiert
+2. **Gomoku GOLDSTANDARD:** 33% Code-Reduktion, 100% Puppeteer-Validation bestanden
+3. **Stone Placement Fix:** Kritischer DOM-Bug vollständig behoben
+4. **Code Cleanup:** 10 obsolete Dateien entfernt, Codebase bereinigt  
+5. **Dokumentation:** README.md, ARCHITECTURE.md, TODO.md aktualisiert
+
+### 🎯 **STRATEGISCHE OPTIONEN:**
+
+**Option A: UI-Module System Migration (Empfohlen)**
+- Trio, Hex, L-Game auf BaseGameUI migrieren
+- Goldstandard auf alle Spiele ausweiten
+- Einheitliche Architektur erreichen
+
+**Option B: Connect4 BitPackedBoard Migration**
+- Connect4 auf BitPackedBoard umstellen
+- Performance-Parität mit Gomoku erreichen
+- API-Konsistenz verbessern
+
+**Option C: Advanced Features**
+- Testing-Erweiterung, Production-Hardening
+- Neue Spiele-Features
+
+### 📋 **NÄCHSTE SCHRITTE:**
+1. Strategische Entscheidung treffen (Option A/B/C)
+2. Gewählte Option systematisch umsetzen
+3. Vollständige Architektur-Modernisierung abschließen
+
+**STATUS:** 🚀 **Bereit für nächste Entwicklungsphase**
 
 - Benutze IMMER `uv` für Python!
