@@ -3,6 +3,17 @@
  * Note: Core styles imported from central design system (assets/css/main.css):
  * - Button styles, Modal styles, Loading states, Form elements
  */
+/* Minimal Game Container for clean board-only layout */
+.minimal-game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #F5F5DC, #FFEFD5);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .game-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -177,6 +188,13 @@
   z-index: 1;
   min-height: 500px;
   justify-content: center;
+}
+
+/* Simplified board container for minimal layout */
+.minimal-game-container .game-board-container {
+  gap: 0;
+  padding: 0;
+  min-height: auto;
 }
 
 .board-coords {
