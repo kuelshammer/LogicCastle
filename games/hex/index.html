@@ -77,6 +77,9 @@
                     
                     <!-- Game Controls -->
                     <div class="game-controls">
+                        <button id="reset-game" class="game-button-secondary">
+                            🔄 Spiel zurücksetzen
+                        </button>
                         <button id="new-game" class="game-button">
                             🎮 Neues Spiel
                         </button>
@@ -86,8 +89,14 @@
                         <button id="show-analysis" class="game-button-outline">
                             🔍 Pfad-Analyse
                         </button>
+                        <button id="show-paths" class="game-button-outline">
+                            🛤️ Pfade zeigen
+                        </button>
                         <button id="help" class="btn-info">
                             ❓ Hilfe
+                        </button>
+                        <button id="helpBtn" class="btn-info" style="display:none;">
+                            ❓ Hilfe Alt
                         </button>
                     </div>
                 </div>
@@ -219,11 +228,11 @@
     </div>
 
     <!-- Help Modal -->
-    <div id="help-modal" class="game-modal">
+    <div id="helpModal" class="game-modal">
         <div class="game-modal-content">
             <div class="game-modal-header">
                 <h2 class="game-modal-title">⬡ Hex - Spielanleitung</h2>
-                <span class="game-modal-close" id="close-help">&times;</span>
+                <span class="game-modal-close" id="closeHelpBtn">&times;</span>
             </div>
             <div class="game-modal-body">
                 <div class="help-section">
@@ -273,27 +282,91 @@
         </div>
     </div>
 
+    <!-- Error Modal -->
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md mx-4">
+            <h2 class="text-xl font-bold text-red-600 mb-4">❌ Fehler beim Laden</h2>
+            <p id="error-message" class="text-gray-600 mb-4"></p>
+            <div class="flex justify-end space-x-3">
+                <button id="retry-button" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors">
+                    🔄 Erneut versuchen
+                </button>
+                <button id="close-error" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors">
+                    Schließen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Display Container -->
+    <div id="error-display" class="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50 hidden">
+        <strong class="font-bold">Fehler!</strong>
+        <span id="error-message" class="block sm:inline"></span>
+    </div>
+
     <!-- JavaScript Modules -->
     <script type="module">
+        import init, { HexGame } from '../../game_engine/pkg/game_engine.js';
         import { HexUINew } from './js/ui-new.js';
-        import HexGame from './js/hex-game.js';
         
-        // Initialize with UI-Module System
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🎮 Initializing Hex Game with UI Module System...');
-            
-            // Create game instance
-            const game = new HexGame();
-            
-            // Initialize UI with new system
-            const ui = new HexUINew(game);
-            await ui.init();
-            
-            // Initialize game
-            await game.init();
-            
-            console.log('✅ Hex Game with UI Module System ready!');
-        });
+        async function initializeHexGame() {
+            try {
+                console.log('⬡ Starting Hex Game with UI Module System...');
+                
+                // Initialize WASM module
+                await init();
+                
+                // Create mock game for now (until proper game integration)
+                const mockGame = {
+                    isInitialized: true,
+                    getCurrentPlayer: () => 'red',
+                    switchPlayer: () => console.log('Switching player'),
+                    resetGame: () => console.log('Resetting game'),
+                    on: () => {},
+                    emit: () => {},
+                    undoMove: () => false,
+                    makeMove: () => false,
+                    getValidMoves: () => [],
+                    getBoardState: () => ({}),
+                    findPath: () => [],
+                    checkWinCondition: () => null,
+                    getBoardSize: () => 11,
+                    isValidPosition: (row, col) => row >= 0 && row < 11 && col >= 0 && col < 11,
+                    getCellState: () => 'empty'
+                };
+                
+                // Initialize UI with UI Module System
+                const ui = new HexUINew(mockGame);
+                await ui.init();
+                
+                // Make objects globally available for debugging
+                window.game = mockGame;
+                window.ui = ui;
+                window.HexGame = HexGame;
+                
+                console.log('✅ Hex Game initialization complete with UI Module System!');
+                
+            } catch (error) {
+                console.error('❌ Hex Game initialization failed:', error);
+                
+                // Show error to user
+                const errorDisplay = document.getElementById('error-display');
+                if (errorDisplay) {
+                    errorDisplay.style.display = 'block';
+                    const errorMessage = errorDisplay.querySelector('#error-message');
+                    if (errorMessage) {
+                        errorMessage.textContent = `Initialisierung fehlgeschlagen: ${error.message}`;
+                    }
+                }
+            }
+        }
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeHexGame);
+        } else {
+            initializeHexGame();
+        }
     </script>
 </body>
 </html>
