@@ -18,9 +18,9 @@ export const LGAME_UI_CONFIG = {
     elements: {
         // Core game elements (required)
         required: [
-            'gameBoard',
-            'currentPlayer',
-            'gameStatus'
+            'game-board',
+            'current-player', 
+            'game-status'
         ],
         
         // UI control elements (optional but expected)
@@ -31,15 +31,19 @@ export const LGAME_UI_CONFIG = {
             
             // Game info
             'current-player',
-            'move-counter',
-            'game-phase',
+            'move-count',
+            'legal-moves-count',
+            'game-status',
+            'move-history',
+            'wasm-status',
+            'game-engine-status',
+            'loading-progress',
             
-            // Control buttons
-            'newGameBtn',
-            'resetGameBtn',
-            'showMovesBtn',
-            'debugInfoBtn',
-            'undoMoveBtn',
+            // Control buttons  
+            'reset-game',
+            'show-moves', 
+            'debug-info',
+            'undo-move',
             
             // Debug and info
             'debug-panel',

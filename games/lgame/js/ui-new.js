@@ -132,10 +132,10 @@ export class LGameUINew extends BaseGameUI {
         
         // L-Game specific UI event listeners
         const lgameButtonMap = {
-            'resetGameBtn': this.handleResetGame,
-            'showMovesBtn': this.handleShowMoves,
-            'debugInfoBtn': this.handleDebugInfo,
-            'undoMoveBtn': this.handleUndoMove,
+            'reset-game': this.handleResetGame,
+            'show-moves': this.handleShowMoves,
+            'debug-info': this.handleDebugInfo,
+            'undo-move': this.handleUndoMove,
             'move-submit': this.handleSubmitMove,
             'move-cancel': this.handleCancelMove
         };
@@ -182,18 +182,20 @@ export class LGameUINew extends BaseGameUI {
      * Create the 4x4 game board
      */
     createBoard() {
-        if (!this.elements.gameBoard) {
+        const gameBoard = this.elements['game-board'] || this.elements.gameBoard;
+        if (!gameBoard) {
             console.error('❌ Game board container not found');
+            console.log('Available elements:', Object.keys(this.elements));
             return;
         }
 
         // Clear existing board
-        this.elements.gameBoard.innerHTML = '';
+        gameBoard.innerHTML = '';
         this.cells = [];
         
         // Set board container styles
-        this.elements.gameBoard.className = 'game-board';
-        this.elements.gameBoard.style.cssText = `
+        gameBoard.className = 'lgame-board';
+        gameBoard.style.cssText = `
             display: grid;
             grid-template-columns: repeat(4, ${this.cellSize}px);
             grid-template-rows: repeat(4, ${this.cellSize}px);
@@ -211,7 +213,7 @@ export class LGameUINew extends BaseGameUI {
             this.cells[row] = [];
             for (let col = 0; col < 4; col++) {
                 const cell = this.createCell(row, col);
-                this.elements.gameBoard.appendChild(cell);
+                gameBoard.appendChild(cell);
                 this.cells[row][col] = cell;
             }
         }
