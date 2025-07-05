@@ -151,7 +151,7 @@
     <script type="module">
       import init, { Game, TrioGame as WasmTrioGame, TrioBoardBitPacked } from '../../game_engine/pkg/game_engine.js';
       import { TrioGame, initTrioWasm } from './js/game.js';
-      import { TrioUI } from './js/ui.js';
+      import { TrioUINew } from './js/ui-new.js';
       import { TrioAI } from './js/ai.js';
       import { TrioBitPackedIntegration } from './js/bitpacked-integration.js';
 
@@ -169,9 +169,17 @@
         
         // Initialize the game when page loads
         document.addEventListener('DOMContentLoaded', async () => {
+          console.log('🧮 Starting Trio with UI Module System...');
+          
           const game = new TrioGame();
-          const ui = new TrioUI(game);
-          ui.init();
+          const ui = new TrioUINew(game);
+          await ui.init();
+          
+          // Make objects globally available for debugging
+          window.game = game;
+          window.ui = ui;
+          
+          console.log('✅ Trio initialization complete with UI Module System!');
           
           // Initialize BitPackedBoard integration for performance optimization
           try {
