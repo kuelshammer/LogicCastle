@@ -166,86 +166,231 @@ export class MessageSystem {
             }
 
             .message-toast {
-                background: rgba(0, 0, 0, 0.9);
-                color: white;
-                padding: 12px 16px;
-                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                color: #1f2937;
+                padding: 16px 20px;
+                border-radius: 16px;
                 margin-bottom: ${this.config.spacing}px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
                 pointer-events: auto;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 12px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 font-size: 14px;
-                line-height: 1.4;
+                line-height: 1.5;
+                font-weight: 500;
                 max-width: 100%;
                 word-wrap: break-word;
-                transition: all ${this.config.animationDuration}ms ease;
+                transition: all ${this.config.animationDuration}ms cubic-bezier(0.4, 0.0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .message-toast::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
             }
 
             .message-toast.message-entering {
                 opacity: 0;
-                transform: translateX(100%);
+                transform: translateX(120%) scale(0.9);
             }
 
             .message-toast.message-entered {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateX(0) scale(1);
             }
 
             .message-toast.message-exiting {
                 opacity: 0;
-                transform: translateX(100%);
+                transform: translateX(120%) scale(0.9);
                 margin-bottom: 0;
                 padding-top: 0;
                 padding-bottom: 0;
+                max-height: 0;
+            }
+
+            .message-toast:hover {
+                transform: translateY(-2px) scale(1.02);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 6px 12px rgba(0, 0, 0, 0.15);
             }
 
             .message-toast.message-info {
-                background: rgba(59, 130, 246, 0.9);
+                background: rgba(59, 130, 246, 0.95);
+                color: white;
+                border: 1px solid rgba(59, 130, 246, 0.3);
+            }
+
+            .message-toast.message-info::before {
+                background: linear-gradient(90deg, #93c5fd, #3b82f6, #1d4ed8);
             }
 
             .message-toast.message-success {
-                background: rgba(34, 197, 94, 0.9);
+                background: rgba(34, 197, 94, 0.95);
+                color: white;
+                border: 1px solid rgba(34, 197, 94, 0.3);
+            }
+
+            .message-toast.message-success::before {
+                background: linear-gradient(90deg, #86efac, #22c55e, #15803d);
             }
 
             .message-toast.message-error {
-                background: rgba(239, 68, 68, 0.9);
+                background: rgba(239, 68, 68, 0.95);
+                color: white;
+                border: 1px solid rgba(239, 68, 68, 0.3);
+            }
+
+            .message-toast.message-error::before {
+                background: linear-gradient(90deg, #fca5a5, #ef4444, #dc2626);
             }
 
             .message-toast.message-warning {
-                background: rgba(245, 158, 11, 0.9);
+                background: rgba(245, 158, 11, 0.95);
+                color: white;
+                border: 1px solid rgba(245, 158, 11, 0.3);
+            }
+
+            .message-toast.message-warning::before {
+                background: linear-gradient(90deg, #fcd34d, #f59e0b, #d97706);
             }
 
             .message-toast.message-win {
-                background: linear-gradient(45deg, rgba(34, 197, 94, 0.9), rgba(59, 130, 246, 0.9));
+                background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(59, 130, 246, 0.95));
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                animation: winPulse 2s ease-in-out infinite;
+            }
+
+            .message-toast.message-win::before {
+                background: linear-gradient(90deg, #fbbf24, #f59e0b, #d97706, #fbbf24);
+                background-size: 200% 100%;
+                animation: gradientShift 3s ease-in-out infinite;
+            }
+
+            @keyframes winPulse {
+                0%, 100% { 
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+                }
+                50% { 
+                    box-shadow: 0 15px 35px rgba(34, 197, 94, 0.4), 0 8px 16px rgba(59, 130, 246, 0.3);
+                }
+            }
+
+            @keyframes gradientShift {
+                0%, 100% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
             }
 
             .message-icon {
                 flex-shrink: 0;
-                font-size: 16px;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                height: 32px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                transition: all 0.3s ease;
             }
 
             .message-content {
                 flex: 1;
+                font-weight: 500;
+                letter-spacing: 0.01em;
             }
 
             .message-close {
-                background: none;
+                background: rgba(255, 255, 255, 0.2);
                 border: none;
                 color: inherit;
                 cursor: pointer;
-                padding: 0;
+                padding: 6px;
                 margin-left: 8px;
-                opacity: 0.7;
-                font-size: 18px;
+                opacity: 0.8;
+                font-size: 16px;
                 line-height: 1;
                 flex-shrink: 0;
+                border-radius: 50%;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
             }
 
             .message-close:hover {
                 opacity: 1;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.1);
+            }
+
+            .message-close:active {
+                transform: scale(0.95);
+            }
+
+            /* Dark mode support */
+            @media (prefers-color-scheme: dark) {
+                .message-toast {
+                    background: rgba(31, 41, 55, 0.95);
+                    color: white;
+                    border: 1px solid rgba(75, 85, 99, 0.3);
+                }
+                
+                .message-icon {
+                    background: rgba(255, 255, 255, 0.15);
+                }
+                
+                .message-close {
+                    background: rgba(255, 255, 255, 0.15);
+                }
+                
+                .message-close:hover {
+                    background: rgba(255, 255, 255, 0.25);
+                }
+            }
+
+            /* Mobile responsiveness */
+            @media (max-width: 640px) {
+                .message-container {
+                    left: 10px !important;
+                    right: 10px !important;
+                    top: 10px !important;
+                    max-width: none;
+                    transform: none !important;
+                }
+                
+                .message-toast {
+                    padding: 14px 16px;
+                    border-radius: 12px;
+                    font-size: 13px;
+                    margin-bottom: 8px;
+                }
+                
+                .message-icon {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 16px;
+                }
+                
+                .message-close {
+                    width: 24px;
+                    height: 24px;
+                    font-size: 14px;
+                }
             }
         `;
         

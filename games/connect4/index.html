@@ -281,10 +281,10 @@
     </div>
 
     <script type="module">
-      // Production-ready Connect4 initialization
+      // UI-Module System Connect4 initialization
       import { Connect4Game } from './js/game_v2.js?v=production';
       import { Connect4AI } from './js/ai_v2.js?v=production';
-      import { Connect4UI } from './js/ui-production.js?v=production';
+      import { Connect4UINew } from './js/ui-new.js?v=production';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
@@ -296,7 +296,7 @@
           }
           
           const game = new Connect4Game();
-          const ui = new Connect4UI(game);
+          const ui = new Connect4UINew(game);
           const ai = new Connect4AI();
           
           ui.setAI(ai);

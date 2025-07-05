@@ -50,54 +50,161 @@
    * INTERACTIVE ELEMENTS (Enhanced from legacy games)
    * ========================================== */
   
-  /* Unified Button System - replaces .btn from individual games */
+  /* Unified Button System - Modern glassmorphism design for all games */
   .game-button, .btn { 
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
-           bg-blue-600 hover:bg-blue-700 active:bg-blue-800 
-           text-white shadow-lg hover:shadow-xl border-none cursor-pointer
-           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 
+           text-white border-none cursor-pointer relative overflow-hidden
+           focus:outline-none focus:ring-2 focus:ring-opacity-50;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    position: relative;
+    transform: translateY(0);
+  }
+
+  .game-button::before, .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .game-button:hover, .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4), 0 6px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  }
+
+  .game-button:hover::before, .btn:hover::before {
+    opacity: 1;
+  }
+
+  .game-button:active, .btn:active {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
   }
   
   .game-button:disabled, .btn:disabled {
-    @apply bg-gray-400 text-gray-200 cursor-not-allowed shadow-none opacity-60;
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%) !important;
+    color: #e5e7eb !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    opacity: 0.6 !important;
     transform: none !important;
+  }
+
+  .game-button:disabled::before, .btn:disabled::before {
+    display: none;
   }
   
   .game-button-secondary, .btn-secondary { 
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
-           bg-gray-600 hover:bg-gray-700 active:bg-gray-800 
-           text-white shadow-lg hover:shadow-xl
-           focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 
+           text-white border-none cursor-pointer relative overflow-hidden
+           focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50;
+    background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+    box-shadow: 0 8px 16px rgba(107, 114, 128, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    transform: translateY(0);
+  }
+
+  .game-button-secondary:hover, .btn-secondary:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #4b5563 0%, #1f2937 100%);
+    box-shadow: 0 12px 24px rgba(107, 114, 128, 0.4), 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   .game-button-outline, .btn-outline { 
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
-           bg-transparent border-2 border-blue-600 text-blue-600 
-           hover:bg-blue-600 hover:text-white shadow-md hover:shadow-lg
-           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 
+           cursor-pointer relative overflow-hidden
+           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 2px solid #3b82f6;
+    color: #3b82f6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    transform: translateY(0);
+  }
+
+  .game-button-outline:hover, .btn-outline:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.4), 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   .game-button-danger, .btn-primary { 
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
-           bg-red-600 hover:bg-red-700 active:bg-red-800 
-           text-white shadow-lg hover:shadow-xl
-           focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 
+           text-white border-none cursor-pointer relative overflow-hidden
+           focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-50;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    transform: translateY(0);
+  }
+
+  .game-button-danger:hover, .btn-primary:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.4), 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   .btn-info {
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
-           bg-cyan-600 hover:bg-cyan-700 active:bg-cyan-800 
-           text-white shadow-lg hover:shadow-xl
-           focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-75;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 
+           text-white border-none cursor-pointer relative overflow-hidden
+           focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-opacity-50;
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    box-shadow: 0 8px 16px rgba(6, 182, 212, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    transform: translateY(0);
+  }
+
+  .btn-info:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #0e7490 0%, #164e63 100%);
+    box-shadow: 0 12px 24px rgba(6, 182, 212, 0.4), 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   .btn-success {
-    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 
-           bg-green-600 hover:bg-green-700 active:bg-green-800 
-           text-white shadow-lg hover:shadow-xl
-           focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 
+           text-white border-none cursor-pointer relative overflow-hidden
+           focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    box-shadow: 0 8px 16px rgba(34, 197, 94, 0.3), 0 4px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.875rem;
+    transform: translateY(0);
+  }
+
+  .btn-success:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+    box-shadow: 0 12px 24px rgba(34, 197, 94, 0.4), 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   /* Button Loading States */
@@ -121,12 +228,15 @@
   }
   
   /* ==========================================
-   * MODAL SYSTEM (Unified from legacy games)
+   * MODAL SYSTEM (Modern glassmorphism design for all games)
    * ========================================== */
   
   .game-modal, .modal-overlay { 
-    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50
-           backdrop-blur-sm opacity-0 invisible transition-all duration-300;
+    @apply fixed inset-0 flex items-center justify-center z-50
+           opacity-0 invisible transition-all duration-400;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   
   .game-modal.active, .modal-overlay.active, .modal-overlay.show {
@@ -134,11 +244,24 @@
   }
   
   .game-modal-content, .modal { 
-    @apply bg-white rounded-lg p-6 max-w-md mx-4 shadow-2xl
-           transform transition-all duration-300 scale-95
-           dark:bg-gray-800 dark:text-white;
-    max-height: 80vh;
+    @apply rounded-2xl p-8 max-w-lg mx-4 relative
+           transform transition-all duration-400 scale-90
+           dark:text-white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.1);
+    max-height: 90vh;
     overflow-y: auto;
+  }
+
+  /* Dark mode modal styling */
+  @media (prefers-color-scheme: dark) {
+    .game-modal-content, .modal {
+      background: rgba(31, 41, 55, 0.95);
+      border: 1px solid rgba(75, 85, 99, 0.3);
+    }
   }
   
   .game-modal.active .game-modal-content,
@@ -148,18 +271,39 @@
   }
   
   .game-modal-header {
-    @apply flex justify-between items-center mb-4 pb-2 border-b border-gray-200
-           dark:border-gray-600;
+    @apply flex justify-between items-center mb-6 pb-4;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   .game-modal-title, .modal h2 {
-    @apply text-xl font-bold text-gray-900 dark:text-white text-center;
+    @apply text-2xl font-bold text-gray-900 dark:text-white;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
   }
   
   .game-modal-close {
-    @apply text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer
-           transition-colors duration-200
-           dark:text-gray-300 dark:hover:text-gray-100;
+    @apply cursor-pointer transition-all duration-300;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .game-modal-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    transform: scale(1.1);
   }
   
   .game-modal-body, .modal p {
