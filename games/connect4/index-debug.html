@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4 Gewinnt - LogicCastle</title>
-    <link rel="stylesheet" href="../../assets/css/main.css" />
     <link rel="stylesheet" href="css/game.css" />
     <link rel="stylesheet" href="css/ui.css" />
     <link rel="stylesheet" href="css/ui-module-enhancements.css" />
@@ -225,8 +224,9 @@
                 <li><strong>N:</strong> Neues Spiel</li>
                 <li><strong>U:</strong> Zug rückgängig</li>
                 <li><strong>F1:</strong> Spielanleitung öffnen/schließen</li>
-                <li><strong>F2:</strong> Spielerhilfen öffnen/schließen</li>
                 <li><strong>F3:</strong> Score zurücksetzen</li>
+                <li><strong>Strg+R:</strong> Neues Spiel (Alternative)</li>
+                <li><strong>Strg+Z:</strong> Zug rückgängig (Alternative)</li>
               </ul>
             </div>
           </div>
@@ -238,16 +238,6 @@
               <li><strong>vs Einfache KI:</strong> Perfekt für Anfänger</li>
               <li><strong>vs Mittlere KI:</strong> Ausbalancierte Herausforderung</li>
               <li><strong>vs Schwere KI:</strong> Maximale Herausforderung mit Minimax-Algorithmus</li>
-            </ul>
-          </div>
-
-          <div class="help-section">
-            <h3>🎛️ Spielerhilfen</h3>
-            <ul>
-              <li><strong>Gewinnzüge:</strong> Grün leuchtende Spalten führen zum sofortigen Sieg</li>
-              <li><strong>Bedrohungen:</strong> Orange markierte Spalten blockieren gegnerische Gewinne</li>
-              <li><strong>Gesperrte Spalten:</strong> Rot markierte Spalten sollten vermieden werden</li>
-              <li><strong>Rückgängig:</strong> Erlaubt das Zurücknehmen von Zügen</li>
             </ul>
           </div>
 
@@ -281,24 +271,32 @@
     </div>
 
     <script type="module">
-      // Production-ready Connect4 initialization
-      import { Connect4Game } from './js/game_v2.js?v=production';
-      import { Connect4AI } from './js/ai_v2.js?v=production';
-      import { Connect4UI } from './js/ui-production.js?v=production';
+      // Import modules with cache-busting timestamp (UX improvement)
+      import { Connect4Game } from './js/game_v2.js?v=20250629-10';
+      import { Connect4AI } from './js/ai_v2.js?v=20250629-10';
+      import { Connect4UIDebug } from './js/ui-debug.js?v=20250704-debug';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
         try {
+          console.log('🎮 Initializing Connect4 game...');
+          console.log('📍 Document ready, starting initialization');
+          
           // Check if required DOM elements exist
           const gameBoard = document.getElementById('gameBoard');
           if (!gameBoard) {
             throw new Error('Game board element not found in DOM');
           }
+          console.log('✅ Game board element found');
           
           const game = new Connect4Game();
-          const ui = new Connect4UI(game);
-          const ai = new Connect4AI();
+          console.log('✅ Connect4Game instance created');
           
+          const ui = new Connect4UIDebug(game);
+          console.log('✅ Connect4UIDebug instance created');
+          
+          // Initialize AI if needed
+          const ai = new Connect4AI();
           ui.setAI(ai);
           
           // Make instances globally available for debugging
@@ -316,59 +314,73 @@
           
           // Initialize UI first
           await ui.init();
+          console.log('✅ Connect4 UI initialized successfully!');
           
-          // ROBUST TIMING: Multiple initialization attempts with exponential backoff
+          // ROBUST TIMING FIX: Multiple initialization attempts with exponential backoff
           let gameInitialized = false;
           let initAttempts = 0;
           const maxAttempts = 5;
           
           while (!gameInitialized && initAttempts < maxAttempts) {
             initAttempts++;
+            console.log(`🔄 Game initialization attempt ${initAttempts}/${maxAttempts}...`);
             
             try {
               gameInitialized = await game.init();
               
               if (gameInitialized) {
-                // Verify game is truly ready with timeout
+                console.log('✅ Connect4 game engine initialized successfully!');
+                
+                // CRITICAL: Verify game is truly ready with timeout
                 const verificationStart = Date.now();
-                const maxVerificationTime = 3000;
+                const maxVerificationTime = 3000; // 3 seconds max
                 
                 while (!game.isInitialized && (Date.now() - verificationStart) < maxVerificationTime) {
+                  console.log('⏳ Waiting for game to be fully initialized...');
                   await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 
                 if (game.isInitialized) {
-                  ui.showMessage('Connect4 bereit! 🎯', 'success');
+                  console.log('🎯 Game is fully initialized and ready!');
+                  ui.showMessage('Spiel geladen und bereit!', 'success');
                   break;
                 } else {
+                  console.warn('⚠️ Game init returned true but isInitialized is still false');
                   gameInitialized = false;
                 }
               }
               
             } catch (initError) {
-              // Silent failure, will retry
+              console.warn(`⚠️ Initialization attempt ${initAttempts} failed:`, initError);
             }
             
             if (!gameInitialized && initAttempts < maxAttempts) {
               const backoffDelay = Math.min(1000 * Math.pow(2, initAttempts - 1), 5000);
+              console.log(`⏳ Waiting ${backoffDelay}ms before retry...`);
               await new Promise(resolve => setTimeout(resolve, backoffDelay));
             }
           }
           
           if (!gameInitialized) {
+            console.error('❌ Game initialization failed after all attempts');
             ui.showMessage('WASM Engine konnte nicht geladen werden. Browser-Reload versuchen.', 'error');
           }
           
+          // Verify board was created
+          const slots = gameBoard.querySelectorAll('.game-slot');
+          console.log(`🎯 Found ${slots.length} game slots in DOM`);
+          
         } catch (error) {
           console.error('❌ Failed to initialize Connect4 game:', error);
+          console.error('❌ Error stack:', error.stack);
           
-          // Show user-friendly error
+          // Show detailed error to user
           const errorDiv = document.createElement('div');
           errorDiv.innerHTML = `
             <div style="position: fixed; top: 20px; left: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 8px; z-index: 1000; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
               <h3 style="margin: 0 0 10px 0;">❌ Spielfehler</h3>
               <p style="margin: 0 0 10px 0;"><strong>Fehler:</strong> ${error.message}</p>
-              <p style="margin: 0; font-size: 12px; opacity: 0.9;">Bitte laden Sie die Seite neu (F5).</p>
+              <p style="margin: 0; font-size: 12px; opacity: 0.9;">Bitte öffnen Sie die Browser-Konsole (F12) für weitere Details.</p>
             </div>
           `;
           document.body.appendChild(errorDiv);
