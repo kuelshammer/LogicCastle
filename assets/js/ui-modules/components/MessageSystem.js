@@ -64,7 +64,9 @@ export class MessageSystem {
             }
         };
 
-        return this.deepMerge(defaultConfig, userConfig);
+        const merged = this.deepMerge(defaultConfig, userConfig);
+        console.log('MessageSystem config merged:', merged);
+        return merged;
     }
 
     /**
@@ -259,7 +261,9 @@ export class MessageSystem {
      */
     show(content, type = 'info', options = {}) {
         const messageId = this.generateMessageId();
-        const typeConfig = this.config.types[type] || this.config.types.info;
+        const typeConfig = (this.config.types && this.config.types[type]) || 
+                          (this.config.types && this.config.types.info) || 
+                          { duration: 3000, className: 'message-info', icon: 'ℹ️' };
         
         const message = {
             id: messageId,

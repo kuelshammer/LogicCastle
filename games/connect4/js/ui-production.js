@@ -6,36 +6,11 @@
  */
 
 import { BaseGameUI } from '../../../assets/js/ui-modules/index.js';
+import { CONNECT4_UI_CONFIG } from './connect4-config.js';
 
 export class Connect4UI extends BaseGameUI {
     constructor(game) {
-        const config = {
-            elements: {
-                required: ['gameBoard', 'currentPlayerIndicator', 'gameStatus'],
-                optional: ['yellowScore', 'redScore', 'moveCounter']
-            },
-            modals: {
-                help: 'helpModal',
-                assistance: 'assistanceModal'
-            },
-            keyboard: {
-                'F1': 'toggleHelp',
-                'F2': 'toggleAssistance',
-                'n': 'newGame',
-                'u': 'undoMove',
-                '1': 'dropColumn1',
-                '2': 'dropColumn2',
-                '3': 'dropColumn3',
-                '4': 'dropColumn4',
-                '5': 'dropColumn5',
-                '6': 'dropColumn6',
-                '7': 'dropColumn7'
-            },
-            messages: {
-                position: 'top-right',
-                duration: 3000
-            }
-        };
+        const config = CONNECT4_UI_CONFIG;
         
         super(game, config);
         
@@ -155,12 +130,12 @@ export class Connect4UI extends BaseGameUI {
         if (this.isProcessingMove) return;
         
         if (!this.game) {
-            this.showMessage('Spiel nicht verfügbar', 'error');
+            console.log('Game not available');
             return;
         }
         
         if (!this.game.isInitialized) {
-            this.showMessage('Spiel noch nicht initialisiert - warte kurz...', 'warning');
+            console.log('Game not initialized, retrying...');
             this.retryMoveWithBackoff(col, 1);
             return;
         }
@@ -174,14 +149,14 @@ export class Connect4UI extends BaseGameUI {
             this.animateDiscDrop(col, moveResult.player);
             
         } catch (error) {
-            this.showMessage(`Ungültiger Zug: ${error.message}`, 'error');
+            console.log(`Invalid move: ${error.message}`);
             this.isProcessingMove = false;
         }
     }
 
     retryMoveWithBackoff(col, attempt, maxAttempts = 5) {
         if (attempt > maxAttempts) {
-            this.showMessage('Spiel konnte nicht initialisiert werden. Bitte Seite neu laden.', 'error');
+            console.log('Game could not be initialized. Please reload page.');
             return;
         }
 
