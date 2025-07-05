@@ -1246,20 +1246,21 @@ export class GomokuUINew extends BaseGameUI {
         
         // Calculate responsive padding (percentage-based)
         const paddingPercentage = 0.0513; // 5.13% as defined in CSS
-        const padding = boardWidth * paddingPercentage;
+        const paddingX = boardWidth * paddingPercentage;
+        const paddingY = boardHeight * paddingPercentage;
         
         // Grid calculation for responsive layout
         const gridSize = this.game?.BOARD_SIZE || 15;
-        const gridWidth = boardWidth - (2 * padding);
-        const gridHeight = boardHeight - (2 * padding);
+        const gridWidth = boardWidth - (2 * paddingX);
+        const gridHeight = boardHeight - (2 * paddingY);
         
         // Step calculation (responsive to board size changes)
         const stepX = gridWidth / (gridSize - 1);
         const stepY = gridHeight / (gridSize - 1);
         
         // Calculate position relative to board's positioning context
-        const pixelX = padding + (col * stepX);
-        const pixelY = padding + (row * stepY);
+        const pixelX = paddingX + (col * stepX);
+        const pixelY = paddingY + (row * stepY);
         
         // Responsive stone sizing
         const stoneSize = Math.min(stepX, stepY) * 0.8; // 80% of intersection size

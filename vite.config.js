@@ -24,6 +24,8 @@ export default defineConfig({
         connect4: resolve(__dirname, 'games/connect4/index.html'),
         gomoku: resolve(__dirname, 'games/gomoku/index.html'),
         trio: resolve(__dirname, 'games/trio/index.html'),
+        hex: resolve(__dirname, 'games/hex/index.html'),
+        lgame: resolve(__dirname, 'games/lgame/index.html'),
         'design-system': resolve(__dirname, 'assets/demo-design-system.html')
       },
       
