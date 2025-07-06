@@ -38,6 +38,19 @@ export class GomokuUINew extends BaseGameUI {
             player2: { level0: false, level1: false, level2: false }
         };
         
+        // MISSING PROPERTIES FOR UNIT TEST COMPATIBILITY
+        this.lastMoveHighlight = null;
+        this.playerColors = {
+            1: 'black',
+            2: 'white'
+        };
+        this.assistanceSettings = {
+            showLastMove: true,
+            showLegalMoves: false,
+            showThreats: false
+        };
+        this.crosshairElements = {};
+        
         // WASM Integration (unchanged)
         this.wasmIntegration = null;
         this.bitPackedIntegration = null;
@@ -1506,6 +1519,275 @@ export class GomokuUINew extends BaseGameUI {
         document.querySelectorAll('.stone.last-move').forEach(stone => {
             stone.classList.remove('last-move');
         });
+    }
+
+    // ==================== MISSING METHODS FOR UNIT TEST COMPATIBILITY ====================
+    // These methods are expected by unit tests but were missing from the implementation
+
+    /**
+     * Handle intersection click events
+     * @param {Event} event - The click event
+     */
+    handleIntersectionClick(event) {
+        if (this.isProcessingMove) {
+            console.log('⏸️ Move already processing, ignoring click');
+            return;
+        }
+
+        const target = event.target.closest('.intersection');
+        if (!target) {
+            console.log('❌ Click target is not an intersection');
+            return;
+        }
+
+        const row = parseInt(target.dataset.row);
+        const col = parseInt(target.dataset.col);
+
+        if (isNaN(row) || isNaN(col)) {
+            console.warn('⚠️ Invalid intersection coordinates');
+            return;
+        }
+
+        console.log(`🎯 Intersection clicked: (${row}, ${col})`);
+        this.game.makeMove(row, col);
+    }
+
+    /**
+     * Handle mouse move events over the board
+     * @param {Event} event - The mouse move event
+     */
+    handleMouseMove(event) {
+        if (!this.cursor.active) return;
+
+        const target = event.target.closest('.intersection');
+        if (!target) return;
+
+        const row = parseInt(target.dataset.row);
+        const col = parseInt(target.dataset.col);
+
+        if (isNaN(row) || isNaN(col)) return;
+
+        // Update cursor position
+        this.cursor.row = row;
+        this.cursor.col = col;
+
+        // Update crosshair visual feedback if enabled
+        this.updateCrosshairPosition(row, col);
+    }
+
+    /**
+     * Update move history display
+     * @param {Array} moves - Array of move objects
+     */
+    updateMoveHistory(moves) {
+        if (!Array.isArray(moves)) {
+            console.warn('⚠️ updateMoveHistory: moves must be an array');
+            return;
+        }
+
+        console.log(`📝 Updating move history with ${moves.length} moves`);
+        
+        // Store moves for potential undo functionality
+        this.moveHistory = moves;
+        
+        // Update any move history UI elements if they exist
+        const historyElement = document.getElementById('moveHistory');
+        if (historyElement) {
+            historyElement.innerHTML = moves.map((move, index) => 
+                `<div class="move-entry">${index + 1}. ${this.moveToNotation(move)}</div>`
+            ).join('');
+        }
+    }
+
+    /**
+     * Toggle assistance setting
+     * @param {string} setting - Setting to toggle
+     * @param {boolean} value - Value to set
+     */
+    toggleAssistanceSetting(setting, value) {
+        if (!this.assistanceSettings) {
+            console.warn('⚠️ Assistance settings not initialized');
+            return;
+        }
+
+        if (this.assistanceSettings.hasOwnProperty(setting)) {
+            this.assistanceSettings[setting] = value;
+            console.log(`🎯 Assistance setting '${setting}' set to: ${value}`);
+            
+            // Apply visual changes based on setting
+            if (setting === 'showLastMove') {
+                this.updateLastMoveHighlight();
+            } else if (setting === 'showLegalMoves') {
+                this.updateLegalMovesDisplay();
+            } else if (setting === 'showThreats') {
+                this.updateThreatDisplay();
+            }
+        } else {
+            console.warn(`⚠️ Unknown assistance setting: ${setting}`);
+        }
+    }
+
+    /**
+     * Get assistance setting value
+     * @param {string} setting - Setting to get
+     * @returns {boolean} Setting value
+     */
+    getAssistanceSetting(setting) {
+        if (!this.assistanceSettings) {
+            console.warn('⚠️ Assistance settings not initialized');
+            return false;
+        }
+
+        return this.assistanceSettings[setting] || false;
+    }
+
+    /**
+     * Recalculate stone positions for responsive design
+     * Called on window resize or zoom changes
+     */
+    recalculateStonePositions() {
+        console.log('📐 Recalculating stone positions for responsive design');
+        this.recalculateResponsiveStones();
+    }
+
+    // ==================== HELPER METHODS FOR ASSISTANCE FEATURES ====================
+
+    /**
+     * Convert move to chess-like notation
+     * @param {Object} move - Move object with row, col properties
+     * @returns {string} Move notation
+     */
+    moveToNotation(move) {
+        if (!move || typeof move.row !== 'number' || typeof move.col !== 'number') {
+            return '??';
+        }
+        
+        const colLetter = String.fromCharCode(65 + move.col); // A-O
+        const rowNumber = 15 - move.row; // 1-15 (inverted)
+        return `${colLetter}${rowNumber}`;
+    }
+
+    /**
+     * Update last move highlight
+     */
+    updateLastMoveHighlight() {
+        // Clear existing highlights
+        if (this.lastMoveHighlight) {
+            this.lastMoveHighlight.classList.remove('last-move-highlight');
+        }
+
+        if (!this.assistanceSettings.showLastMove) return;
+
+        // Highlight last move if available
+        const lastMove = this.game.getLastMove && this.game.getLastMove();
+        if (lastMove) {
+            const intersection = this.getIntersection(lastMove.row, lastMove.col);
+            const stone = intersection?.querySelector('.stone');
+            if (stone) {
+                stone.classList.add('last-move-highlight');
+                this.lastMoveHighlight = stone;
+            }
+        }
+    }
+
+    /**
+     * Update legal moves display
+     */
+    updateLegalMovesDisplay() {
+        // Clear existing legal move indicators
+        document.querySelectorAll('.legal-move-indicator').forEach(el => el.remove());
+
+        if (!this.assistanceSettings.showLegalMoves) return;
+
+        // Add legal move indicators (simplified implementation)
+        const emptyIntersections = document.querySelectorAll('.intersection:not(.occupied)');
+        emptyIntersections.forEach(intersection => {
+            const indicator = document.createElement('div');
+            indicator.className = 'legal-move-indicator';
+            intersection.appendChild(indicator);
+        });
+    }
+
+    /**
+     * Update threat display
+     */
+    updateThreatDisplay() {
+        // Clear existing threat indicators
+        document.querySelectorAll('.threat-indicator').forEach(el => el.remove());
+
+        if (!this.assistanceSettings.showThreats) return;
+
+        // This would require game logic to identify threats
+        console.log('🎯 Threat display update (implementation needed)');
+    }
+
+    /**
+     * Update crosshair position for visual feedback
+     * @param {number} row - Row position
+     * @param {number} col - Column position
+     */
+    updateCrosshairPosition(row, col) {
+        // Remove existing crosshair highlights
+        document.querySelectorAll('.crosshair-highlight').forEach(el => {
+            el.classList.remove('crosshair-highlight');
+        });
+
+        // Add crosshair to current position
+        const intersection = this.getIntersection(row, col);
+        if (intersection && !intersection.classList.contains('occupied')) {
+            intersection.classList.add('crosshair-highlight');
+        }
+    }
+
+    /**
+     * Clear crosshair display
+     */
+    clearCrosshair() {
+        // Remove crosshair highlights
+        document.querySelectorAll('.crosshair-highlight').forEach(el => {
+            el.classList.remove('crosshair-highlight');
+        });
+
+        // Clear crosshair elements if they exist
+        document.querySelectorAll('.crosshair-row, .crosshair-col').forEach(el => {
+            el.remove();
+        });
+
+        console.log('🎯 Crosshair cleared');
+    }
+
+    /**
+     * Highlight last move at specific position
+     * @param {number} row - Row position
+     * @param {number} col - Column position
+     */
+    highlightLastMove(row, col) {
+        if (!this.assistanceSettings.showLastMove) {
+            console.log('🎯 Last move highlighting disabled');
+            return;
+        }
+
+        // Clear existing highlights
+        this.clearLastMoveIndicators();
+
+        // Get intersection and add highlight
+        const intersection = this.getIntersection(row, col);
+        const stone = intersection?.querySelector('.stone');
+        if (stone) {
+            stone.classList.add('last-move-highlight');
+            this.lastMoveHighlight = stone;
+            console.log(`🎯 Last move highlighted at (${row}, ${col})`);
+        }
+    }
+
+    /**
+     * Get current player display
+     * @returns {string} Current player display name
+     */
+    getCurrentPlayerDisplay() {
+        const currentPlayer = this.game?.getCurrentPlayer ? this.game.getCurrentPlayer() : 1;
+        const playerName = this.playerColors[currentPlayer] || 'black';
+        return playerName.charAt(0).toUpperCase() + playerName.slice(1);
     }
 }
 
