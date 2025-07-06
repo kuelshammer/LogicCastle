@@ -162,7 +162,7 @@ class Connect4AI {
     }
   }
   
-  // Evaluate board position
+  // Enhanced board evaluation with strategic patterns
   static evaluateBoard(board) {
     let score = 0;
     
@@ -219,14 +219,268 @@ class Connect4AI {
       }
     }
     
-    // Bonus for center column control
+    // Enhanced center column control with positional bonuses
+    score += this.evaluateCenterControl(board);
+    
+    // Strategic pattern recognition
+    score += this.evaluateStrategicPatterns(board);
+    
+    // Fork and multiple threat detection
+    score += this.evaluateForkOpportunities(board);
+    
+    // Positional advantages
+    score += this.evaluatePositionalAdvantages(board);
+    
+    return score;
+  }
+  
+  // Enhanced center control evaluation
+  static evaluateCenterControl(board) {
+    let score = 0;
     const centerCol = 3;
+    
+    // Higher value for center pieces based on position
     for (let row = 0; row < 6; row++) {
-      if (board[CoordUtils.gridToIndex(row, centerCol, 7)] === Player.Red) {
+      const cellValue = board[CoordUtils.gridToIndex(row, centerCol, 7)];
+      if (cellValue === Player.Red) {
+        // Lower pieces in center are more valuable
+        score += (6 - row) * 2;
+      } else if (cellValue === Player.Yellow) {
+        score -= (6 - row) * 2;
+      }
+    }
+    
+    // Bonus for center columns (2, 3, 4)
+    for (let col = 2; col <= 4; col++) {
+      for (let row = 0; row < 6; row++) {
+        const cellValue = board[CoordUtils.gridToIndex(row, col, 7)];
+        if (cellValue === Player.Red) {
+          score += 1;
+        } else if (cellValue === Player.Yellow) {
+          score -= 1;
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // Evaluate strategic patterns (traps, setups)
+  static evaluateStrategicPatterns(board) {
+    let score = 0;
+    
+    // Look for potential trap setups
+    score += this.evaluateTrapSetups(board);
+    
+    // Evaluate connection opportunities
+    score += this.evaluateConnections(board);
+    
+    // Penalize isolated pieces
+    score += this.evaluateIsolation(board);
+    
+    return score;
+  }
+  
+  // Evaluate trap setups (creating multiple threats)
+  static evaluateTrapSetups(board) {
+    let score = 0;
+    
+    // Look for positions where AI can create multiple winning threats
+    for (let col = 0; col < 7; col++) {
+      const dropRow = this.getDropRowForBoard(board, col);
+      if (dropRow === -1) continue;
+      
+      // Simulate AI move
+      const tempBoard = [...board];
+      tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = Player.Red;
+      
+      // Count threats created by this move
+      const threats = this.countThreats(tempBoard, Player.Red);
+      if (threats >= 2) {
+        score += threats * 25; // High value for multiple threats
+      }
+      
+      // Also check if this prevents opponent traps
+      tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = Player.Yellow;
+      const opponentThreats = this.countThreats(tempBoard, Player.Yellow);
+      if (opponentThreats >= 2) {
+        score += 20; // Blocking opponent traps is valuable
+      }
+    }
+    
+    return score;
+  }
+  
+  // Count immediate threats for a player
+  static countThreats(board, player) {
+    let threats = 0;
+    
+    // Check each column for potential winning moves
+    for (let col = 0; col < 7; col++) {
+      const dropRow = this.getDropRowForBoard(board, col);
+      if (dropRow === -1) continue;
+      
+      const tempBoard = [...board];
+      tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = player;
+      
+      if (this.checkWinForBoard(tempBoard, dropRow, col, player) === player) {
+        threats++;
+      }
+    }
+    
+    return threats;
+  }
+  
+  // Evaluate connections between pieces
+  static evaluateConnections(board) {
+    let score = 0;
+    
+    // Look for pieces that support each other
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 7; col++) {
+        const piece = board[CoordUtils.gridToIndex(row, col, 7)];
+        if (piece === 0) continue;
+        
+        const connections = this.countConnections(board, row, col, piece);
+        if (piece === Player.Red) {
+          score += connections;
+        } else {
+          score -= connections;
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // Count adjacent connections for a piece
+  static countConnections(board, row, col, player) {
+    let connections = 0;
+    const directions = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [0, -1],           [0, 1],
+      [1, -1],  [1, 0],  [1, 1]
+    ];
+    
+    for (const [dr, dc] of directions) {
+      const newRow = row + dr;
+      const newCol = col + dc;
+      
+      if (newRow >= 0 && newRow < 6 && newCol >= 0 && newCol < 7) {
+        if (board[CoordUtils.gridToIndex(newRow, newCol, 7)] === player) {
+          connections++;
+        }
+      }
+    }
+    
+    return connections;
+  }
+  
+  // Penalize isolated pieces
+  static evaluateIsolation(board) {
+    let score = 0;
+    
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 7; col++) {
+        const piece = board[CoordUtils.gridToIndex(row, col, 7)];
+        if (piece === 0) continue;
+        
+        const connections = this.countConnections(board, row, col, piece);
+        if (connections === 0) {
+          // Isolated piece penalty
+          if (piece === Player.Red) {
+            score -= 2;
+          } else {
+            score += 2; // Opponent isolation is good
+          }
+        }
+      }
+    }
+    
+    return score;
+  }
+  
+  // Evaluate fork opportunities (multiple winning paths)
+  static evaluateForkOpportunities(board) {
+    let score = 0;
+    
+    // Look for positions where a player can create multiple winning threats
+    for (let col = 0; col < 7; col++) {
+      const dropRow = this.getDropRowForBoard(board, col);
+      if (dropRow === -1) continue;
+      
+      // Test AI move
+      const aiBoard = [...board];
+      aiBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = Player.Red;
+      const aiThreats = this.countImmediateThreats(aiBoard, Player.Red);
+      
+      if (aiThreats >= 2) {
+        score += 50; // Fork opportunity for AI
+      }
+      
+      // Test opponent move prevention
+      const humanBoard = [...board];
+      humanBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = Player.Yellow;
+      const humanThreats = this.countImmediateThreats(humanBoard, Player.Yellow);
+      
+      if (humanThreats >= 2) {
+        score += 40; // Prevent opponent fork
+      }
+    }
+    
+    return score;
+  }
+  
+  // Count immediate winning threats
+  static countImmediateThreats(board, player) {
+    let threats = 0;
+    
+    for (let col = 0; col < 7; col++) {
+      const dropRow = this.getDropRowForBoard(board, col);
+      if (dropRow === -1) continue;
+      
+      const tempBoard = [...board];
+      tempBoard[CoordUtils.gridToIndex(dropRow, col, 7)] = player;
+      
+      if (this.checkWinForBoard(tempBoard, dropRow, col, player) === player) {
+        threats++;
+      }
+    }
+    
+    return threats;
+  }
+  
+  // Evaluate positional advantages
+  static evaluatePositionalAdvantages(board) {
+    let score = 0;
+    
+    // Bonus for controlling bottom rows (foundation)
+    for (let col = 0; col < 7; col++) {
+      if (board[CoordUtils.gridToIndex(5, col, 7)] === Player.Red) {
         score += 3;
-      } else if (board[CoordUtils.gridToIndex(row, centerCol, 7)] === Player.Yellow) {
+      } else if (board[CoordUtils.gridToIndex(5, col, 7)] === Player.Yellow) {
         score -= 3;
       }
+    }
+    
+    // Bonus for even/odd column strategy in early game
+    const piecesOnBoard = board.filter(cell => cell !== 0).length;
+    if (piecesOnBoard < 14) { // Early game
+      for (let col = 1; col < 7; col += 2) { // Odd columns
+        for (let row = 4; row < 6; row++) {
+          if (board[CoordUtils.gridToIndex(row, col, 7)] === Player.Red) {
+            score += 1;
+          }
+        }
+      }
+    }
+    
+    // Penalize edge column overuse
+    const leftEdgeCount = board.slice(0, 6).filter(cell => cell === Player.Red).length;
+    const rightEdgeCount = board.slice(36, 42).filter(cell => cell === Player.Red).length;
+    
+    if (leftEdgeCount > 3 || rightEdgeCount > 3) {
+      score -= 5;
     }
     
     return score;
