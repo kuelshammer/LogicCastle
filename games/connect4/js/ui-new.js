@@ -94,6 +94,7 @@ export class Connect4UINew extends BaseGameUI {
         // Connect4-specific game events
         const connect4Events = {
             'move': (move) => this.onMoveMade(move),
+            'moveMade': (move) => this.onMoveMade(move), // Alias for test compatibility
             'gameOver': (data) => this.onGameOver(data),
             'newGame': () => this.onGameReset(),
             'undo': (data) => this.onMoveUndone(data),
@@ -148,36 +149,70 @@ export class Connect4UINew extends BaseGameUI {
         gameBoard.innerHTML = '';
         gameBoard.className = 'game-board connect4-board';
 
-        // Create 6x7 grid (42 slots total)
+        // Create 6x7 grid (42 cells total)
         for (let row = 0; row < 6; row++) {
             for (let col = 0; col < 7; col++) {
-                const slot = document.createElement('div');
-                slot.className = 'game-slot';
-                slot.dataset.row = row;
-                slot.dataset.col = col;
-                slot.dataset.index = row * 7 + col;
+                const cell = document.createElement('div');
+                cell.className = 'cell game-slot'; // Both 'cell' for tests and 'game-slot' for functionality
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                cell.dataset.index = row * 7 + col;
                 
                 // Add empty disc placeholder
                 const disc = document.createElement('div');
                 disc.className = 'disc empty';
-                slot.appendChild(disc);
+                cell.appendChild(disc);
                 
-                gameBoard.appendChild(slot);
+                gameBoard.appendChild(cell);
             }
         }
 
         // Create coordinate displays
         this.createCoordinateLabels();
         
-        console.log('🔴 Connect4 board initialized (6x7 grid)');
+        // Create drop zones after board is ready
+        this.createDropZones();
+        
+        console.log('🔴 Connect4 board initialized (6x7 grid, 42 cells)');
     }
 
     /**
      * Create coordinate labels for columns
      */
     createCoordinateLabels() {
-        const topCoords = this.elements.topCoords;
-        const bottomCoords = this.elements.bottomCoords;
+        let topCoords = this.elements.topCoords;
+        let bottomCoords = this.elements.bottomCoords;
+        
+        // Create coordinate containers if they don't exist
+        if (!topCoords) {
+            topCoords = document.createElement('div');
+            topCoords.id = 'topCoords';
+            topCoords.className = 'coord-display top-coords';
+            topCoords.style.display = 'flex';
+            topCoords.style.justifyContent = 'space-around';
+            topCoords.style.marginBottom = '10px';
+            
+            const gameBoard = this.elements.gameBoard;
+            if (gameBoard && gameBoard.parentElement) {
+                gameBoard.parentElement.insertBefore(topCoords, gameBoard);
+                this.elements.topCoords = topCoords; // Update element reference
+            }
+        }
+        
+        if (!bottomCoords) {
+            bottomCoords = document.createElement('div');
+            bottomCoords.id = 'bottomCoords';
+            bottomCoords.className = 'coord-display bottom-coords';
+            bottomCoords.style.display = 'flex';
+            bottomCoords.style.justifyContent = 'space-around';
+            bottomCoords.style.marginTop = '10px';
+            
+            const gameBoard = this.elements.gameBoard;
+            if (gameBoard && gameBoard.parentElement) {
+                gameBoard.parentElement.appendChild(bottomCoords);
+                this.elements.bottomCoords = bottomCoords; // Update element reference
+            }
+        }
         
         if (topCoords) {
             topCoords.innerHTML = '';
@@ -185,6 +220,11 @@ export class Connect4UINew extends BaseGameUI {
                 const coord = document.createElement('div');
                 coord.className = 'coord-label';
                 coord.textContent = col;
+                coord.style.textAlign = 'center';
+                coord.style.width = `${100/7}%`;
+                coord.style.color = 'rgba(255, 255, 255, 0.8)';
+                coord.style.fontSize = '14px';
+                coord.style.fontWeight = 'bold';
                 topCoords.appendChild(coord);
             }
         }
@@ -195,6 +235,11 @@ export class Connect4UINew extends BaseGameUI {
                 const coord = document.createElement('div');
                 coord.className = 'coord-label';
                 coord.textContent = col;
+                coord.style.textAlign = 'center';
+                coord.style.width = `${100/7}%`;
+                coord.style.color = 'rgba(255, 255, 255, 0.8)';
+                coord.style.fontSize = '14px';
+                coord.style.fontWeight = 'bold';
                 bottomCoords.appendChild(coord);
             }
         }
@@ -277,15 +322,15 @@ export class Connect4UINew extends BaseGameUI {
     /**
      * Drop disc in specified column
      */
-    dropDiscInColumn(col) {
+    async dropDiscInColumn(col) {
         if (col < 0 || col >= 7) {
             console.warn(`Invalid column: ${col}`);
-            return;
+            return Promise.resolve();
         }
 
         if (this.isProcessingMove) {
             console.log('Move already in progress, ignoring input');
-            return;
+            return Promise.resolve();
         }
 
         try {
@@ -296,12 +341,15 @@ export class Connect4UINew extends BaseGameUI {
             this.hideDropPreview();
             
             // Make move through game engine
-            const moveResult = this.game.makeMove(col);
+            const moveResult = await this.game.makeMove(col);
             console.log('✅ Move successful:', moveResult);
+            
+            return Promise.resolve(moveResult);
             
         } catch (error) {
             console.error('❌ Failed to make move:', error);
             this.showMessage(`Ungültiger Zug: ${error.message}`, 'error');
+            return Promise.resolve(); // Don't throw, just resolve to handle gracefully
         } finally {
             this.isProcessingMove = false;
         }
@@ -784,6 +832,260 @@ export class Connect4UINew extends BaseGameUI {
                     checkbox.checked = this.assistanceSettings[player][feature];
                 }
             }
+        }
+    }
+
+    // === MISSING METHODS FOR UNIT TEST COMPATIBILITY ===
+
+    /**
+     * Check if current game mode is AI mode
+     */
+    isAIMode() {
+        // Check current DOM value first (for test compatibility)
+        const gameModeElement = document.getElementById('gameMode');
+        const currentMode = gameModeElement ? gameModeElement.value : this.gameMode;
+        
+        return currentMode && (currentMode.includes('vs-bot') || currentMode.includes('ai-'));
+    }
+
+    /**
+     * Get AI difficulty from current game mode
+     */
+    getAIDifficulty() {
+        // Check current DOM value first (for test compatibility)
+        const gameModeElement = document.getElementById('gameMode');
+        const currentMode = gameModeElement ? gameModeElement.value : this.gameMode;
+        
+        if (!this.isAIMode()) {
+            // Return default for unknown modes as requested by tests
+            return 'easy';
+        }
+        
+        if (currentMode.includes('easy')) return 'easy';
+        if (currentMode.includes('medium')) return 'medium';
+        if (currentMode.includes('hard')) return 'hard';
+        
+        return 'medium'; // Default
+    }
+
+    /**
+     * Toggle assistance setting for specific player and type
+     */
+    toggleAssistance(player, type) {
+        if (!this.assistanceSettings[player] || this.assistanceSettings[player][type] === undefined) {
+            return false;
+        }
+        
+        this.assistanceSettings[player][type] = !this.assistanceSettings[player][type];
+        this.updateAssistanceCheckboxes();
+        this.updateAssistanceHighlights();
+        
+        console.log(`🎛️ Toggled ${player} ${type}: ${this.assistanceSettings[player][type]}`);
+        return this.assistanceSettings[player][type];
+    }
+
+    /**
+     * Get current assistance setting for player and type
+     */
+    getAssistanceSetting(player, type) {
+        return this.assistanceSettings[player] && this.assistanceSettings[player][type];
+    }
+
+    /**
+     * Highlight specific column
+     */
+    highlightColumn(col, className = 'highlight') {
+        if (col < 0 || col >= 7) return;
+        
+        const gameBoard = this.elements.gameBoard;
+        if (!gameBoard) return;
+        
+        // First clear all highlights
+        this.clearColumnHighlights(className);
+        
+        // Add highlight to all cells in this column (using both selectors for compatibility)
+        const cellSelectors = [
+            `.cell[data-col="${col}"]`,
+            `.game-slot[data-col="${col}"]`
+        ];
+        
+        cellSelectors.forEach(selector => {
+            gameBoard.querySelectorAll(selector).forEach(cell => {
+                cell.classList.add(className);
+            });
+        });
+        
+        console.log(`🎯 Highlighted column ${col} with class ${className}`);
+    }
+
+    /**
+     * Clear all column highlights
+     */
+    clearColumnHighlights(className = 'highlight') {
+        const gameBoard = this.elements.gameBoard;
+        if (!gameBoard) return;
+        
+        // Clear highlights from both cell types for compatibility
+        const selectors = [`.cell.${className}`, `.game-slot.${className}`];
+        
+        selectors.forEach(selector => {
+            gameBoard.querySelectorAll(selector).forEach(cell => {
+                cell.classList.remove(className);
+            });
+        });
+    }
+
+    /**
+     * Update scores display
+     */
+    updateScoresDisplay() {
+        const yellowScoreElement = this.elements.yellowScore || document.getElementById('yellowScore');
+        const redScoreElement = this.elements.redScore || document.getElementById('redScore');
+        
+        if (yellowScoreElement) {
+            yellowScoreElement.textContent = this.scores.yellow || 0;
+        }
+        
+        if (redScoreElement) {
+            redScoreElement.textContent = this.scores.red || 0;
+        }
+        
+        console.log(`📊 Scores updated: Yellow ${this.scores.yellow}, Red ${this.scores.red}`);
+    }
+
+    /**
+     * Create drop zone elements for each column
+     */
+    createDropZones() {
+        const gameBoard = this.elements.gameBoard;
+        if (!gameBoard) return;
+        
+        // Remove existing drop zones from gameBoard
+        gameBoard.querySelectorAll('.drop-zone').forEach(zone => zone.remove());
+        
+        // Create drop zones directly in gameBoard for test compatibility
+        for (let col = 0; col < 7; col++) {
+            const dropZone = document.createElement('div');
+            dropZone.className = 'drop-zone';
+            dropZone.dataset.col = col;
+            dropZone.dataset.dropCol = col; // For test compatibility
+            dropZone.style.position = 'absolute';
+            dropZone.style.left = `${(col / 7) * 100}%`;
+            dropZone.style.width = `${100 / 7}%`;
+            dropZone.style.height = '30px';
+            dropZone.style.top = '-35px';
+            dropZone.style.border = '2px dashed rgba(255, 255, 255, 0.3)';
+            dropZone.style.borderRadius = '8px';
+            dropZone.style.background = 'rgba(255, 255, 255, 0.1)';
+            dropZone.style.cursor = 'pointer';
+            dropZone.style.display = 'flex';
+            dropZone.style.alignItems = 'center';
+            dropZone.style.justifyContent = 'center';
+            dropZone.style.fontSize = '12px';
+            dropZone.style.color = 'rgba(255, 255, 255, 0.7)';
+            dropZone.style.zIndex = '10';
+            dropZone.textContent = col + 1; // Show column number
+            
+            // Add hover effects
+            dropZone.addEventListener('mouseenter', () => {
+                dropZone.style.background = 'rgba(255, 255, 255, 0.2)';
+                dropZone.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+                this.onColumnHover(col);
+            });
+            
+            dropZone.addEventListener('mouseleave', () => {
+                dropZone.style.background = 'rgba(255, 255, 255, 0.1)';
+                dropZone.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                this.onColumnHoverLeave();
+            });
+            
+            // Add click handler
+            dropZone.addEventListener('click', () => this.dropDiscInColumn(col));
+            
+            gameBoard.appendChild(dropZone);
+        }
+        
+        console.log('🎯 Drop zones created for all 7 columns in gameBoard');
+    }
+
+    /**
+     * Handle game initialization complete
+     */
+    onGameInitialized() {
+        console.log('🎮 Game initialized successfully');
+        this.updateUI();
+        this.createDropZones();
+    }
+
+    /**
+     * Handle move made event
+     */
+    onMoveMade(moveData) {
+        console.log('✅ Move made:', moveData);
+        
+        if (moveData && typeof moveData === 'object') {
+            const { row, col, player } = moveData;
+            this.updateBoardVisual(row, col, player);
+        }
+        
+        this.updateUI();
+        this.hideDropPreview();
+        
+        // Check for AI turn if in AI mode
+        if (this.isAIMode() && this.game.getCurrentPlayer() === this.aiPlayer) {
+            setTimeout(() => this.makeAIMove(), this.aiThinkingDelay);
+        }
+    }
+
+    /**
+     * Update board visual representation after move
+     */
+    updateBoardVisual(row, col, player) {
+        const gameBoard = this.elements.gameBoard;
+        if (!gameBoard) return;
+        
+        const slot = gameBoard.querySelector(
+            `.game-slot[data-row="${row}"][data-col="${col}"]`
+        );
+        
+        if (slot) {
+            const disc = slot.querySelector('.disc');
+            if (disc) {
+                disc.classList.remove('empty', 'preview');
+                disc.classList.add(player === 1 ? 'yellow' : 'red');
+                
+                console.log(`🔴 Disc placed at (${row}, ${col}) for player ${player}`);
+            }
+        }
+    }
+
+    /**
+     * Make AI move
+     */
+    async makeAIMove() {
+        if (!this.ai || !this.isAIMode()) return;
+        
+        try {
+            this.isProcessingMove = true;
+            this.showMessage('🤖 KI denkt nach...', 'info');
+            
+            const difficulty = this.getAIDifficulty();
+            const difficultyMap = { easy: 1, medium: 3, hard: 4 };
+            const aiDifficulty = difficultyMap[difficulty] || 3;
+            
+            const bestMove = this.ai.getBestMove(this.game, aiDifficulty);
+            
+            if (bestMove >= 0 && bestMove < 7) {
+                await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause
+                this.dropDiscInColumn(bestMove);
+                this.hideMessage();
+            }
+            
+        } catch (error) {
+            console.error('❌ AI move failed:', error);
+            this.showMessage('KI-Fehler aufgetreten', 'error');
+        } finally {
+            this.isProcessingMove = false;
         }
     }
 }

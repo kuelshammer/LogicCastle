@@ -1283,7 +1283,7 @@ export class GomokuUINew extends BaseGameUI {
         
         console.log(`🎯 RESPONSIVE Stone positioned: (${row},${col}) -> ${pixelX.toFixed(1)}px, ${pixelY.toFixed(1)}px`);
         console.log(`   📏 Responsive size: ${responsiveStoneSize.toFixed(1)}px (step: ${stepX.toFixed(1)}px)`);
-        console.log(`   📐 Grid: ${gridWidth.toFixed(1)}x${gridHeight.toFixed(1)}px, Padding: ${padding.toFixed(1)}px`);
+        console.log(`   📐 Grid: ${gridWidth.toFixed(1)}x${gridHeight.toFixed(1)}px, Padding: X=${paddingX.toFixed(1)}px, Y=${paddingY.toFixed(1)}px`);
         
         // === RESPONSIVE RESIZE HANDLING ===
         // Store position data for potential resize recalculation
