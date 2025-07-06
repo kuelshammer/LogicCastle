@@ -136,72 +136,7 @@
 }
 
 /* ==================== ENHANCED GAME BOARD ==================== */
-
-.game-board.connect4-board {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    gap: 8px;
-    background: #1976d2;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
-    max-width: 490px;
-    aspect-ratio: 7/6;
-}
-
-.game-slot {
-    position: relative;
-    background: #fff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    aspect-ratio: 1;
-}
-
-.game-slot:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.disc {
-    width: 85%;
-    height: 85%;
-    border-radius: 50%;
-    transition: all 0.4s ease;
-    position: relative;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.disc.empty {
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.disc.yellow {
-    background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
-    border: 2px solid #f57f17;
-}
-
-.disc.red {
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-    border: 2px solid #c62828;
-}
-
-/* Drop animation */
-.disc.dropping {
-    animation: dropDisc 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-@keyframes dropDisc {
-    0% { transform: translateY(-400px) scale(0.8); }
-    60% { transform: translateY(10px) scale(1.1); }
-    80% { transform: translateY(-5px) scale(0.95); }
-    100% { transform: translateY(0) scale(1); }
-}
+/* Board styles moved to main game.css - keeping only enhancements here */
 
 /* ENHANCED COLUMN HOVER EFFECTS */
 
@@ -254,12 +189,6 @@
         padding: 1rem;
     }
     
-    .game-board.connect4-board {
-        max-width: 350px;
-        padding: 15px;
-        gap: 6px;
-    }
-    
     .game-slot::before {
         font-size: 0.9rem;
         top: -20px;
@@ -267,12 +196,6 @@
 }
 
 @media (max-width: 480px) {
-    .game-board.connect4-board {
-        max-width: 280px;
-        padding: 10px;
-        gap: 4px;
-    }
-    
     .column-hover-zone {
         height: calc(100% + 40px);
         top: -20px;

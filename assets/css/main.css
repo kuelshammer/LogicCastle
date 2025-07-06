@@ -743,11 +743,309 @@
   --z-game-cursor: 3;
   --z-game-modal: 50;
   --z-game-tooltip: 60;
+  
+  /* Round Element Standards */
+  --round-element-transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --round-element-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --round-element-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================
+ * GLOBAL ROUND ELEMENT STANDARDS
+ * ========================================== */
+
+@layer components {
+  /* Base round element - foundation for all circular game pieces */
+  .round-element {
+    @apply rounded-full relative;
+    aspect-ratio: 1;
+    transition: var(--round-element-transition);
+    box-shadow: var(--round-element-shadow);
+  }
+  
+  .round-element:hover {
+    transform: scale(1.05);
+    box-shadow: var(--round-element-shadow-hover);
+  }
+  
+  .round-element:focus {
+    @apply outline-none ring-2 ring-blue-400 ring-opacity-75;
+  }
+  
+  /* Round game pieces (Connect4 discs, Gomoku stones, etc.) */
+  .round-game-piece {
+    @apply round-element cursor-pointer;
+    transition: var(--round-element-transition);
+  }
+  
+  .round-game-piece.placed {
+    animation: piecePlace 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .round-game-piece.winning {
+    animation: winPulse 1s infinite alternate;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+  }
+  
+  /* Round slots/containers (Connect4 slots, etc.) */
+  .round-slot {
+    @apply round-element bg-white cursor-pointer;
+    border: 2px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .round-slot:hover {
+    @apply bg-gray-50;
+  }
+  
+  .round-slot.disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+  
+  .round-slot.disabled:hover {
+    transform: none;
+    @apply bg-white;
+  }
+  
+  /* Round UI elements (buttons, indicators, etc.) */
+  .round-ui-element {
+    @apply round-element inline-flex items-center justify-center;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+  
+  /* Responsive round element sizing */
+  .round-xs {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .round-sm {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  
+  .round-md {
+    width: 2rem;
+    height: 2rem;
+  }
+  
+  .round-lg {
+    width: 3rem;
+    height: 3rem;
+  }
+  
+  .round-xl {
+    width: 4rem;
+    height: 4rem;
+  }
+  
+  /* Round element colors - game piece variants */
+  .round-red {
+    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    border-color: #c62828;
+  }
+  
+  .round-yellow {
+    background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+    border-color: #f57f17;
+  }
+  
+  .round-black {
+    background: radial-gradient(circle at 30% 30%, #555, #000);
+    border-color: #222;
+  }
+  
+  .round-white {
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+    border-color: #ccc;
+  }
+  
+  .round-blue {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    border-color: #1565c0;
+  }
+}
+
+/* ==========================================
+ * ROUND ELEMENT ANIMATIONS
+ * ========================================== */
+
+@keyframes piecePlace {
+  0% {
+    transform: scale(0);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes winPulse {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes dropAnimation {
+  0% {
+    transform: translateY(-100px) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10px) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-5px) scale(0.95);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.round-game-piece.dropping {
+  animation: dropAnimation 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ==========================================
+ * ROUND ELEMENT RESPONSIVE UTILITIES
+ * ========================================== */
+
+/* Flexible round sizing using CSS custom properties */
+.round-responsive {
+  width: var(--round-size, 2rem);
+  height: var(--round-size, 2rem);
+}
+
+.round-board-percentage {
+  width: var(--round-board-percentage, 85%);
+  height: var(--round-board-percentage, 85%);
+}
+
+/* ==========================================
+ * ROUND ELEMENT INTERACTION STATES
+ * ========================================== */
+
+.round-element.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+}
+
+.round-element.disabled:hover {
+  transform: none;
+  box-shadow: var(--round-element-shadow);
+}
+
+.round-element.active {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  border: 2px solid #3b82f6;
+}
+
+.round-element.selected {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+  border: 2px solid #10b981;
+}
+
+/* ==========================================
+ * ROUND ELEMENT GAME-SPECIFIC PATTERNS
+ * ========================================== */
+
+/* Connect4 specific round elements */
+.round-connect4-slot {
+  @apply round-slot;
+  border-color: #1976d2;
+  background: white;
+}
+
+.round-connect4-piece {
+  @apply round-game-piece round-board-percentage;
+  border-width: 3px;
+}
+
+/* Gomoku specific round elements */
+.round-gomoku-stone {
+  @apply round-game-piece;
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  pointer-events: none;
+}
+
+.round-gomoku-intersection {
+  @apply round-element cursor-pointer;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.round-gomoku-intersection:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.2);
+}
+
+/* ==========================================
+ * ROUND ELEMENT CONTAINER PATTERNS
+ * ========================================== */
+
+/* Perfect centering container for round elements */
+.round-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Grid container for round elements (Connect4, etc.) */
+.round-grid {
+  display: grid;
+  gap: var(--round-grid-gap, 8px);
+  place-items: center;
+}
+
+/* Board container with round elements */
+.round-board-container {
+  @apply round-container;
+  aspect-ratio: var(--board-aspect-ratio, 1);
+  max-width: var(--board-max-width, 500px);
+  margin: 0 auto;
+  padding: var(--board-padding, 20px);
 }
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
+    --round-element-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    --round-element-shadow-hover: 0 4px 12px rgba(255, 255, 255, 0.2);
+  }
+  
+  .round-white {
+    background: radial-gradient(circle at 30% 30%, #f5f5f5, #e0e0e0);
+    border-color: #bbb;
+  }
+  
+  .round-slot {
+    background: #374151;
+    border-color: #6b7280;
   }
 }
