@@ -1184,22 +1184,54 @@ export class Connect4UINew extends BaseGameUI {
             this.isProcessingMove = true;
             this.showMessage('🤖 KI denkt nach...', 'info');
             
+            // Verify game state before AI move
+            if (!this.game || this.game.isGameOver()) {
+                console.warn('⚠️ AI move aborted - game over or invalid game state');
+                return;
+            }
+            
             const difficulty = this.getAIDifficulty();
             const difficultyMap = { easy: 1, medium: 3, hard: 4 };
             const aiDifficulty = difficultyMap[difficulty] || 3;
             
-            // Use static method from imported AI class
+            console.log(`🤖 AI attempting move with difficulty: ${difficulty} (${aiDifficulty})`);
+            
+            // Verify AI class is available
+            if (typeof Connect4AI === 'undefined') {
+                throw new Error('Connect4AI class not available');
+            }
+            
+            // Use static method from imported AI class with error handling
             const bestMove = Connect4AI.getBestMove(this.game, aiDifficulty);
             
+            console.log(`🤖 AI suggests move: ${bestMove}`);
+            
             if (bestMove >= 0 && bestMove < 7) {
+                // Verify move is valid before executing
+                if (this.game.isValidMove && !this.game.isValidMove(bestMove)) {
+                    console.warn(`⚠️ AI suggested invalid move: ${bestMove}`);
+                    this.showMessage('KI-Fehler: Ungültiger Zug', 'error');
+                    return;
+                }
+                
                 await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause
                 this.dropDiscInColumn(bestMove);
                 this.hideMessage();
+                console.log(`✅ AI move executed successfully: ${bestMove}`);
+            } else {
+                console.warn(`⚠️ AI returned invalid move: ${bestMove}`);
+                this.showMessage('KI konnte keinen gültigen Zug finden', 'error');
             }
             
         } catch (error) {
             console.error('❌ AI move failed:', error);
-            this.showMessage('KI-Fehler aufgetreten', 'error');
+            console.error('❌ Error details:', {
+                errorMessage: error.message,
+                errorStack: error.stack,
+                gameState: this.game ? 'available' : 'missing',
+                gameOver: this.game ? this.game.isGameOver() : 'unknown'
+            });
+            this.showMessage(`KI-Fehler: ${error.message}`, 'error');
         } finally {
             this.isProcessingMove = false;
         }
