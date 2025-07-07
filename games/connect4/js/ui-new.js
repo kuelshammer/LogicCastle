@@ -194,12 +194,10 @@ export class Connect4UINew extends BaseGameUI {
                 const disc = document.createElement('div');
                 disc.className = 'disc empty';
                 
-                // Apply disc styles directly
+                // Apply only essential layout styles, let CSS handle colors
                 disc.style.width = '85%';
                 disc.style.height = '85%';
                 disc.style.borderRadius = '50%';
-                disc.style.background = '#BBDEFB';
-                disc.style.border = '2px solid #1976D2';
                 disc.style.transition = 'all 0.3s ease';
                 disc.style.position = 'relative';
                 disc.style.aspectRatio = '1';

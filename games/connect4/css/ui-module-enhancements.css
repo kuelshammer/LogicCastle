@@ -28,6 +28,27 @@
     border-radius: 8px;
 }
 
+/* ==================== DISC STYLES ==================== */
+
+/* Placed disc styles */
+.disc.yellow {
+    background: #FFD700 !important;
+    border: 3px solid #FFA000 !important;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6) !important;
+}
+
+.disc.red {
+    background: #F44336 !important;
+    border: 3px solid #C62828 !important;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.6) !important;
+}
+
+.disc.empty {
+    background: #BBDEFB !important;
+    border: 2px solid #1976D2 !important;
+    box-shadow: none !important;
+}
+
 /* ==================== DISC PREVIEW SYSTEM ==================== */
 
 .disc.preview {

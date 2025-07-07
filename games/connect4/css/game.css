@@ -60,7 +60,8 @@
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 2rem;
-  align-items: start;
+  align-items: center;
+  min-height: 60vh;
 }
 
 /* Game Info Panel */
@@ -183,6 +184,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  /* Better positioning within the grid layout */
+  margin: auto;
 }
 
 .board-coords {
@@ -190,7 +194,7 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
   width: 100%;
-  max-width: 490px;
+  /* Remove fixed max-width to match responsive board sizing */
   padding: 0 20px; /* Match board padding */
   margin: 0.25rem 0;
 }
