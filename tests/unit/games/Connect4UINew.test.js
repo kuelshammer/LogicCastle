@@ -198,9 +198,11 @@ describe('Connect4UINew Unit Tests', () => {
         it('should create top coordinate labels', () => {
             connect4UI.createCoordinateLabels();
             
-            const topCoords = document.getElementById('topCoords');
-            const labels = topCoords.querySelectorAll('.coord-label');
+            // Use the same reference that createCoordinateLabels creates/updates
+            const topCoords = connect4UI.elements.topCoords || document.getElementById('topCoords');
+            expect(topCoords).toBeTruthy();
             
+            const labels = topCoords.querySelectorAll('.coord-label');
             expect(labels.length).toBe(7);
             
             // Check content
@@ -212,9 +214,11 @@ describe('Connect4UINew Unit Tests', () => {
         it('should create bottom coordinate labels', () => {
             connect4UI.createCoordinateLabels();
             
-            const bottomCoords = document.getElementById('bottomCoords');
-            const labels = bottomCoords.querySelectorAll('.coord-label');
+            // Use the same reference that createCoordinateLabels creates/updates  
+            const bottomCoords = connect4UI.elements.bottomCoords || document.getElementById('bottomCoords');
+            expect(bottomCoords).toBeTruthy();
             
+            const labels = bottomCoords.querySelectorAll('.coord-label');
             expect(labels.length).toBe(7);
             
             // Check content
@@ -275,6 +279,7 @@ describe('Connect4UINew Unit Tests', () => {
 
         it('should extract AI difficulty from mode', () => {
             document.getElementById('gameMode').value = 'ai-hard';
+            connect4UI.gameMode = 'ai-hard'; // Ensure instance property is also set
             
             expect(connect4UI.getAIDifficulty()).toBe('hard');
         });

@@ -147,16 +147,16 @@ export class Connect4UINew extends BaseGameUI {
 
         // Clear existing board
         gameBoard.innerHTML = '';
-        gameBoard.className = 'game-board connect4-board';
         
-        // Force CSS Grid styles directly to ensure they are applied
+        // Use UI-Module System with Tailwind classes - container handles sizing
+        gameBoard.className = 'game-board connect4-board game-board-cells';
+        
+        // Apply only Connect4-specific styles that aren't in the CSS system
         gameBoard.style.display = 'grid';
         gameBoard.style.gridTemplateColumns = 'repeat(7, 1fr)';
         gameBoard.style.gridTemplateRows = 'repeat(6, 1fr)';
         gameBoard.style.gap = '8px';
-        gameBoard.style.maxWidth = '490px';
         gameBoard.style.aspectRatio = '7/6';
-        gameBoard.style.margin = '0 auto';
         gameBoard.style.background = '#1976d2';
         gameBoard.style.borderRadius = '16px';
         gameBoard.style.padding = '20px';
@@ -261,16 +261,11 @@ export class Connect4UINew extends BaseGameUI {
             topCoords.innerHTML = '';
             for (let col = 1; col <= 7; col++) {
                 const coord = document.createElement('div');
-                coord.className = 'coord-label';
+                coord.className = 'coord-label text-center text-white text-opacity-80 text-sm font-bold';
                 coord.textContent = col;
-                coord.style.textAlign = 'center';
-                coord.style.width = `${100/7}%`;
-                coord.style.color = 'rgba(255, 255, 255, 0.8)';
-                coord.style.fontSize = '14px';
-                coord.style.fontWeight = 'bold';
                 topCoords.appendChild(coord);
             }
-            console.log('🔢 Created', topCoords.children.length, 'top coord labels');
+            console.log('🔢 Created', topCoords.children.length, 'top coord labels with Tailwind Grid');
         } else {
             console.log('❌ No topCoords container found');
         }
@@ -279,13 +274,8 @@ export class Connect4UINew extends BaseGameUI {
             bottomCoords.innerHTML = '';
             for (let col = 1; col <= 7; col++) {
                 const coord = document.createElement('div');
-                coord.className = 'coord-label';
+                coord.className = 'coord-label text-center text-white text-opacity-80 text-sm font-bold';
                 coord.textContent = col;
-                coord.style.textAlign = 'center';
-                coord.style.width = `${100/7}%`;
-                coord.style.color = 'rgba(255, 255, 255, 0.8)';
-                coord.style.fontSize = '14px';
-                coord.style.fontWeight = 'bold';
                 bottomCoords.appendChild(coord);
             }
         }
