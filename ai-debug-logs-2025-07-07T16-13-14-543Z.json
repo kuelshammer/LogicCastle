@@ -1,0 +1,698 @@
+[
+  {
+    "type": "debug",
+    "text": "[vite] connecting...",
+    "timestamp": "2025-07-07T16:13:13.912Z"
+  },
+  {
+    "type": "log",
+    "text": "🤖 AI instance set",
+    "timestamp": "2025-07-07T16:13:13.940Z"
+  },
+  {
+    "type": "startGroup",
+    "text": "🎮 Initializing Connect4UINew...",
+    "timestamp": "2025-07-07T16:13:13.940Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 1: beforeInit()",
+    "timestamp": "2025-07-07T16:13:13.942Z"
+  },
+  {
+    "type": "log",
+    "text": "🔴 Starting Connect4 UI initialization...",
+    "timestamp": "2025-07-07T16:13:13.942Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "beforeInit_Connect4UINew_1751904793839: 0.0810546875 ms",
+    "timestamp": "2025-07-07T16:13:13.943Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ beforeInit() completed",
+    "timestamp": "2025-07-07T16:13:13.943Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 2: initializeCoreModules()",
+    "timestamp": "2025-07-07T16:13:13.943Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "initializeCoreModules_Connect4UINew_1751904793839: 0.0419921875 ms",
+    "timestamp": "2025-07-07T16:13:13.944Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ initializeCoreModules() completed",
+    "timestamp": "2025-07-07T16:13:13.953Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 3: bindElements()",
+    "timestamp": "2025-07-07T16:13:13.953Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: gameBoard",
+    "timestamp": "2025-07-07T16:13:13.953Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: currentPlayerIndicator",
+    "timestamp": "2025-07-07T16:13:13.954Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: gameStatus",
+    "timestamp": "2025-07-07T16:13:13.954Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: yellowScore",
+    "timestamp": "2025-07-07T16:13:13.954Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: redScore",
+    "timestamp": "2025-07-07T16:13:13.955Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: moveCounter",
+    "timestamp": "2025-07-07T16:13:13.957Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: newGameBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: undoBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: resetScoreBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: helpBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: assistanceBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: helpModal",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: assistanceModal",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: closeHelpBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: closeAssistanceBtn",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: gameMode",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: topCoords",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: bottomCoords",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player1-undo",
+    "timestamp": "2025-07-07T16:13:13.959Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player2-undo",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player1-threats",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player2-threats",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player1-winning-moves",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player2-winning-moves",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player1-blocked-columns",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "debug",
+    "text": "📎 Bound element: player2-blocked-columns",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "log",
+    "text": "📊 Element Binding Results:",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "log",
+    "text": "   ✅ Bound: 26/26 elements",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "log",
+    "text": "📎 Bound 26 DOM elements",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "bindElements_Connect4UINew_1751904793839: 1.1650390625 ms",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ bindElements() completed",
+    "timestamp": "2025-07-07T16:13:13.960Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 4: setupModules()",
+    "timestamp": "2025-07-07T16:13:13.966Z"
+  },
+  {
+    "type": "log",
+    "text": "🪟 Modal Manager loaded with 2 modals",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "debug",
+    "text": "[vite] connected.",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "debug",
+    "text": "📋 Registered modal: help (helpModal)",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "debug",
+    "text": "📋 Registered modal: assistance (assistanceModal)",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "🪟 ModalManager initialized with 2 modals",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "MessageSystem config merged: JSHandle@object",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "📢 Message System loaded",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "setupModules_Connect4UINew_1751904793839: 9.35498046875 ms",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ setupModules() completed",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 5: setupEvents()",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "📡 Event listeners configured",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "setupEvents_Connect4UINew_1751904793839: 0.1611328125 ms",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ setupEvents() completed",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 6: setupKeyboard()",
+    "timestamp": "2025-07-07T16:13:13.967Z"
+  },
+  {
+    "type": "log",
+    "text": "⌨️ KeyboardController initialized with 21 shortcuts",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn1",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn2",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn3",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn4",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn5",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn6",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: dropColumn7",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: F1 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Unknown keyboard action: toggleAssistance",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: F3 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: n already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: N already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: u already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: U already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: r already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: R already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: Ctrl+z already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: Ctrl+Z already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: Ctrl+r already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: Ctrl+R already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: Escape already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 1 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 2 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 3 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 4 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 5 already registered",
+    "timestamp": "2025-07-07T16:13:13.968Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 6 already registered",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: 7 already registered",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Keyboard shortcut conflict: F2 already registered",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "⌨️ Keyboard shortcuts configured: 1, 2, 3, 4, 5, 6, 7, F1, F2, F3, n, N, u, U, r, R, Ctrl+z, Ctrl+Z, Ctrl+r, Ctrl+R, Escape",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "setupKeyboard_Connect4UINew_1751904793839: 3.513916015625 ms",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ setupKeyboard() completed",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "📋 Step 7: afterInit()",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔴 Completing Connect4 UI initialization...",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🎨 Applied CSS Grid styles directly to ensure proper layout",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🎯 Forced CSS Grid alignment for topCoords: JSHandle@object",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🎯 Forced CSS Grid alignment for bottomCoords: JSHandle@object",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔢 Created 7 top coord labels with FORCED CSS Grid alignment",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔢 Created 7 bottom coord labels with FORCED CSS Grid alignment",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔴 Connect4 board initialized (6x7 grid, 42 cells)",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔍 DEBUG: Created 42 cells and 42 discs",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔍 DEBUG: GameBoard innerHTML length: 18680",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔍 DEBUG: First cell structure: <div class=\"cell game-slot\" data-row=\"0\" data-col=\"0\" data-index=\"0\" style=\"background: rgb(33, 150, 243); border-radius: 50%; border: 3px solid rgb(25, 118, 210); display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; aspect-ratio: 1 / 1;\"><div class=\"disc empty\" style=\"width: 85%; height: 85%; border-radius: 50%; transition: 0.3s; position: relative; aspect-ratio: 1 / 1; z-index: 1;\"></div></div>",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🎯 Created CSS Grid-aligned hover zones for perfect column alignment",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ Connect4 UI fully initialized",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "timeEnd",
+    "text": "afterInit_Connect4UINew_1751904793839: 1.85986328125 ms",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ afterInit() completed",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ Connect4UINew initialized successfully in 16.90ms",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "endGroup",
+    "text": "console.groupEnd",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔧 Loading Rust/WASM game engine...",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "🔧 Loading WASM module...",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "📍 Current location: http://localhost:8081/games/connect4/",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "log",
+    "text": "📦 Importing WASM JavaScript wrapper...",
+    "timestamp": "2025-07-07T16:13:13.969Z"
+  },
+  {
+    "type": "error",
+    "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "timestamp": "2025-07-07T16:13:13.976Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ WASM JavaScript wrapper loaded",
+    "timestamp": "2025-07-07T16:13:13.997Z"
+  },
+  {
+    "type": "log",
+    "text": "🔧 Trying WASM path: /LogicCastle/game_engine/pkg/game_engine_bg.wasm?v=ade48fa_fork_detection",
+    "timestamp": "2025-07-07T16:13:13.998Z"
+  },
+  {
+    "type": "warn",
+    "text": "using deprecated parameters for the initialization function; pass a single object instead",
+    "timestamp": "2025-07-07T16:13:13.998Z"
+  },
+  {
+    "type": "warn",
+    "text": "`WebAssembly.instantiateStreaming` failed because your server does not serve Wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\n JSHandle@error",
+    "timestamp": "2025-07-07T16:13:14.010Z"
+  },
+  {
+    "type": "warn",
+    "text": "⚠️ Failed to load WASM from /LogicCastle/game_engine/pkg/game_engine_bg.wasm?v=ade48fa_fork_detection: WebAssembly.instantiate(): expected magic word 00 61 73 6d, found 3c 21 44 4f @+0",
+    "timestamp": "2025-07-07T16:13:14.010Z"
+  },
+  {
+    "type": "log",
+    "text": "🔧 Trying WASM path: ../../../game_engine/pkg/game_engine_bg.wasm?v=ade48fa_fork_detection",
+    "timestamp": "2025-07-07T16:13:14.011Z"
+  },
+  {
+    "type": "warn",
+    "text": "using deprecated parameters for the initialization function; pass a single object instead",
+    "timestamp": "2025-07-07T16:13:14.011Z"
+  },
+  {
+    "type": "log",
+    "text": "🦀 WASM Game Engine initialized with debug support!",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ WASM binary initialized with path: ../../../game_engine/pkg/game_engine_bg.wasm?v=ade48fa_fork_detection",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "🎮 Creating WASM game instance...",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ WASM game engine fully initialized - VERSION 2025-06-29 16:30",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ All critical WASM functions available",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ Rust/WASM engine initialized successfully",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "🎮 Game initialized successfully",
+    "timestamp": "2025-07-07T16:13:14.018Z"
+  },
+  {
+    "type": "log",
+    "text": "📢 MessageSystem initialized at top-right",
+    "timestamp": "2025-07-07T16:13:14.019Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🚀 Initializing Native Modal System... ",
+    "timestamp": "2025-07-07T16:13:14.030Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] ⌨️ Keyboard handlers registered (F1, F2, Escape) ",
+    "timestamp": "2025-07-07T16:13:14.032Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🔘 Help button handler registered ",
+    "timestamp": "2025-07-07T16:13:14.032Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🔘 Assistance button handler registered ",
+    "timestamp": "2025-07-07T16:13:14.032Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🔘 Close Help button handler registered ",
+    "timestamp": "2025-07-07T16:13:14.032Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🔘 Close Assistance button handler registered ",
+    "timestamp": "2025-07-07T16:13:14.032Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🖱️ Click-outside handlers registered ",
+    "timestamp": "2025-07-07T16:13:14.033Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] 🔍 Modal Elements Check: JSHandle@object",
+    "timestamp": "2025-07-07T16:13:14.033Z"
+  },
+  {
+    "type": "log",
+    "text": "[NativeModal] ✅ Native Modal System initialized successfully ",
+    "timestamp": "2025-07-07T16:13:14.033Z"
+  },
+  {
+    "type": "log",
+    "text": "🎨 Native Modal System loaded and initialized",
+    "timestamp": "2025-07-07T16:13:14.033Z"
+  },
+  {
+    "type": "log",
+    "text": "✅ Native Modal System imported and auto-initialized",
+    "timestamp": "2025-07-07T16:13:14.033Z"
+  },
+  {
+    "type": "debug-error",
+    "text": "page.waitForTimeout is not a function",
+    "stack": "TypeError: page.waitForTimeout is not a function\n    at debugConnect4AI (file:///Users/max/LogicCastle/debug-ai-logs.js:57:20)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at listOnTimeout (node:internal/timers:569:9)\n    at process.processTimers (node:internal/timers:543:7)",
+    "timestamp": "2025-07-07T16:13:14.542Z"
+  }
+]

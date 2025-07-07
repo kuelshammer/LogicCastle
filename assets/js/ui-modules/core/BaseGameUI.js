@@ -419,6 +419,21 @@ export class BaseGameUI {
     }
 
     /**
+     * Hide messages using the message system
+     */
+    hideMessage(messageId = null) {
+        const messageSystem = this.getModule('messages');
+        if (messageSystem) {
+            if (messageId) {
+                messageSystem.hide(messageId);
+            } else {
+                // Hide all messages if no specific ID provided
+                messageSystem.hideAll();
+            }
+        }
+    }
+
+    /**
      * Toggle a modal
      */
     toggleModal(modalType) {

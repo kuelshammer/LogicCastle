@@ -435,12 +435,22 @@ export class Connect4UINew extends BaseGameUI {
 
         try {
             this.isProcessingMove = true;
-            console.log(`🔴 Dropping disc in column ${col + 1}`);
+            console.log(`🔴 Dropping disc in column ${col + 1} (0-indexed: ${col})`);
+            
+            // Debug game state before move
+            console.log('🔍 Game state before move:', {
+                currentPlayer: this.game.getCurrentPlayer(),
+                gameOver: this.game.isGameOver(),
+                moveCount: this.game.getMoveCount ? this.game.getMoveCount() : 'unknown',
+                gameExists: !!this.game,
+                makeMoveFn: typeof this.game.makeMove
+            });
             
             // Hide preview
             this.hideDropPreview();
             
             // Make move through game engine
+            console.log(`🎮 Calling game.makeMove(${col})...`);
             const moveResult = await this.game.makeMove(col);
             console.log('✅ Move successful:', moveResult);
             
@@ -448,8 +458,14 @@ export class Connect4UINew extends BaseGameUI {
             
         } catch (error) {
             console.error('❌ Failed to make move:', error);
+            console.error('❌ Error details:', {
+                message: error.message,
+                stack: error.stack,
+                column: col,
+                gameState: this.game ? 'exists' : 'missing'
+            });
             this.showMessage(`Ungültiger Zug: ${error.message}`, 'error');
-            return Promise.resolve(); // Don't throw, just resolve to handle gracefully
+            throw error; // Re-throw for AI debugging
         } finally {
             this.isProcessingMove = false;
         }
@@ -1215,9 +1231,16 @@ export class Connect4UINew extends BaseGameUI {
                 }
                 
                 await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause
-                this.dropDiscInColumn(bestMove);
-                this.hideMessage();
-                console.log(`✅ AI move executed successfully: ${bestMove}`);
+                
+                console.log(`🤖 Attempting to drop disc in column: ${bestMove}`);
+                try {
+                    await this.dropDiscInColumn(bestMove);
+                    this.hideMessage();
+                    console.log(`✅ AI move executed successfully: ${bestMove}`);
+                } catch (dropError) {
+                    console.error(`❌ dropDiscInColumn failed for column ${bestMove}:`, dropError);
+                    throw dropError;
+                }
             } else {
                 console.warn(`⚠️ AI returned invalid move: ${bestMove}`);
                 this.showMessage('KI konnte keinen gültigen Zug finden', 'error');
