@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/game.css" />
     <link rel="stylesheet" href="css/ui.css" />
     <link rel="stylesheet" href="css/ui-module-enhancements.css" />
+    <link rel="stylesheet" href="css/modal-native.css" />
   </head>
   <body>
     <div class="game-container">
@@ -385,89 +386,44 @@
           document.body.appendChild(errorDiv);
         }
         
-        // TEMPORARY MODAL FIX: Direct modal control until ModalManager is fixed
-        function setupTemporaryModalSystem() {
-          const helpBtn = document.getElementById('helpBtn');
-          const assistanceBtn = document.getElementById('assistanceBtn');
-          const helpModal = document.getElementById('helpModal');
-          const assistanceModal = document.getElementById('assistanceModal');
-          const closeHelpBtn = document.getElementById('closeHelpBtn');
-          const closeAssistanceBtn = document.getElementById('closeAssistanceBtn');
+        // NATIVE MODAL SYSTEM: Complete rebuild to fix visibility issues
+        import('./js/modal-system-native.js').then(module => {
+          console.log('✅ Native Modal System imported and auto-initialized');
+        }).catch(error => {
+          console.error('❌ Failed to load Native Modal System:', error);
           
-          // Helper function to show modal
-          function showModal(modal) {
+          // Fallback: Basic modal functionality
+          console.log('🔄 Falling back to basic modal system...');
+          setupFallbackModalSystem();
+        });
+        
+        // Fallback modal system (minimal implementation)
+        function setupFallbackModalSystem() {
+          const showModal = (modalId) => {
+            const modal = document.getElementById(modalId);
             if (modal) {
-              modal.classList.remove('hidden');
-              modal.classList.add('active');
-              document.body.style.overflow = 'hidden'; // Prevent background scrolling
+              modal.style.cssText = 'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:center!important;background:rgba(0,0,0,0.7)!important;opacity:1!important;visibility:visible!important;';
+              console.log(`Fallback: Showing ${modalId}`);
             }
-          }
+          };
           
-          // Helper function to hide modal
-          function hideModal(modal) {
+          const hideModal = (modalId) => {
+            const modal = document.getElementById(modalId);
             if (modal) {
-              modal.classList.add('hidden');
-              modal.classList.remove('active');
-              document.body.style.overflow = ''; // Restore scrolling
+              modal.style.display = 'none';
+              console.log(`Fallback: Hiding ${modalId}`);
             }
-          }
+          };
           
-          // Show Help Modal
-          if (helpBtn && helpModal) {
-            helpBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              showModal(helpModal);
-            });
-          }
+          // Basic event handlers
+          document.getElementById('helpBtn')?.addEventListener('click', () => showModal('helpModal'));
+          document.getElementById('assistanceBtn')?.addEventListener('click', () => showModal('assistanceModal'));
+          document.getElementById('closeHelpBtn')?.addEventListener('click', () => hideModal('helpModal'));
+          document.getElementById('closeAssistanceBtn')?.addEventListener('click', () => hideModal('assistanceModal'));
           
-          // Show Assistance Modal
-          if (assistanceBtn && assistanceModal) {
-            assistanceBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              showModal(assistanceModal);
-            });
-          }
-          
-          // Close Help Modal
-          if (closeHelpBtn && helpModal) {
-            closeHelpBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              hideModal(helpModal);
-            });
-          }
-          
-          // Close Assistance Modal
-          if (closeAssistanceBtn && assistanceModal) {
-            closeAssistanceBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              hideModal(assistanceModal);
-            });
-          }
-          
-          // Close modals on escape key
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-              hideModal(helpModal);
-              hideModal(assistanceModal);
-            }
-          });
-          
-          // Close modals when clicking outside
-          [helpModal, assistanceModal].forEach(modal => {
-            if (modal) {
-              modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                  hideModal(modal);
-                }
-              });
-            }
-          });
-          
-          console.log('✅ Temporary modal system initialized');
+          console.log('✅ Fallback modal system initialized');
         }
         
-        // Initialize temporary modal system
-        setupTemporaryModalSystem();
       });
     </script>
   </body>

@@ -1,0 +1,301 @@
+/* 
+ * Native Modal System CSS - Maximum Specificity
+ * 
+ * This CSS is designed to override ALL existing modal styles
+ * Uses !important declarations to ensure visibility
+ * 
+ * Created: 2025-07-07
+ * Purpose: Fix invisible modal bug with guaranteed visibility
+ */
+
+/* ==================== NATIVE MODAL OVERLAY ==================== */
+
+/* Base overlay styling with maximum specificity */
+.native-modal-active,
+#helpModal.native-modal-active,
+#assistanceModal.native-modal-active,
+div[id="helpModal"].native-modal-active,
+div[id="assistanceModal"].native-modal-active {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+}
+
+/* Override any hidden classes */
+.native-modal-active.hidden,
+#helpModal.native-modal-active.hidden,
+#assistanceModal.native-modal-active.hidden {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+
+/* ==================== MODAL CONTENT ==================== */
+
+/* Modal content with guaranteed visibility */
+.native-modal-active .modal,
+.native-modal-active .game-modal-content,
+#helpModal.native-modal-active .modal,
+#assistanceModal.native-modal-active .modal,
+#helpModal.native-modal-active .game-modal-content,
+#assistanceModal.native-modal-active .game-modal-content {
+    background: white !important;
+    border-radius: 12px !important;
+    padding: 2rem !important;
+    max-width: 600px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+    position: relative !important;
+    z-index: 10000 !important;
+    transform: scale(1) !important;
+    margin: 1rem !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    color: #333 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    line-height: 1.5 !important;
+}
+
+/* ==================== DARK MODE SUPPORT ==================== */
+
+@media (prefers-color-scheme: dark) {
+    .native-modal-active .modal,
+    .native-modal-active .game-modal-content,
+    #helpModal.native-modal-active .modal,
+    #assistanceModal.native-modal-active .modal {
+        background: #1f2937 !important;
+        color: #f9fafb !important;
+        border: 1px solid #374151 !important;
+    }
+}
+
+/* ==================== MODAL HEADERS ==================== */
+
+.native-modal-active h2,
+.native-modal-active h3 {
+    color: inherit !important;
+    margin-top: 0 !important;
+    margin-bottom: 1rem !important;
+    font-weight: 600 !important;
+}
+
+/* ==================== BUTTONS ==================== */
+
+.native-modal-active .btn,
+.native-modal-active button {
+    display: inline-block !important;
+    padding: 0.75rem 1.5rem !important;
+    background: #3b82f6 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s ease !important;
+    text-decoration: none !important;
+}
+
+.native-modal-active .btn:hover,
+.native-modal-active button:hover {
+    background: #2563eb !important;
+}
+
+.native-modal-active .btn-primary {
+    background: #3b82f6 !important;
+}
+
+.native-modal-active .btn-primary:hover {
+    background: #2563eb !important;
+}
+
+/* ==================== ASSISTANCE TABLE ==================== */
+
+.native-modal-active .assistance-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 1rem 0 !important;
+}
+
+.native-modal-active .assistance-table th,
+.native-modal-active .assistance-table td {
+    padding: 12px !important;
+    text-align: left !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    color: inherit !important;
+}
+
+.native-modal-active .assistance-table th {
+    background: #f3f4f6 !important;
+    font-weight: 600 !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .native-modal-active .assistance-table th {
+        background: #374151 !important;
+    }
+    
+    .native-modal-active .assistance-table th,
+    .native-modal-active .assistance-table td {
+        border-bottom-color: #4b5563 !important;
+    }
+}
+
+/* ==================== CHECKBOXES ==================== */
+
+.native-modal-active .assistance-checkbox {
+    transform: scale(1.3) !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+}
+
+.native-modal-active .assistance-checkbox:checked {
+    accent-color: #3b82f6 !important;
+}
+
+/* ==================== HELP CONTENT ==================== */
+
+.native-modal-active .help-content ul {
+    padding-left: 1.5rem !important;
+    margin: 1rem 0 !important;
+}
+
+.native-modal-active .help-content li {
+    margin: 0.5rem 0 !important;
+    color: inherit !important;
+}
+
+.native-modal-active .help-section {
+    margin: 1.5rem 0 !important;
+}
+
+.native-modal-active .help-section h3 {
+    margin-bottom: 0.75rem !important;
+    color: inherit !important;
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+.native-modal-active {
+    animation: nativeModalFadeIn 0.3s ease-out !important;
+}
+
+.native-modal-active .modal,
+.native-modal-active .game-modal-content {
+    animation: nativeModalScaleIn 0.3s ease-out !important;
+}
+
+@keyframes nativeModalFadeIn {
+    from {
+        opacity: 0 !important;
+    }
+    to {
+        opacity: 1 !important;
+    }
+}
+
+@keyframes nativeModalScaleIn {
+    from {
+        transform: scale(0.9) !important;
+        opacity: 0 !important;
+    }
+    to {
+        transform: scale(1) !important;
+        opacity: 1 !important;
+    }
+}
+
+/* ==================== MOBILE RESPONSIVENESS ==================== */
+
+@media (max-width: 768px) {
+    .native-modal-active .modal,
+    .native-modal-active .game-modal-content {
+        margin: 0.5rem !important;
+        padding: 1.5rem !important;
+        max-width: calc(100vw - 1rem) !important;
+        max-height: calc(100vh - 1rem) !important;
+    }
+    
+    .native-modal-active .assistance-table {
+        font-size: 0.875rem !important;
+    }
+    
+    .native-modal-active .assistance-table th,
+    .native-modal-active .assistance-table td {
+        padding: 8px !important;
+    }
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+
+.native-modal-active:focus-within {
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: 2px !important;
+}
+
+.native-modal-active .btn:focus,
+.native-modal-active button:focus {
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: 2px !important;
+}
+
+/* ==================== FALLBACK STYLES ==================== */
+
+/* In case inline styles fail, these provide backup visibility */
+.modal-force-visible {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+.modal-content-force-visible {
+    background: white !important;
+    padding: 2rem !important;
+    border-radius: 12px !important;
+    max-width: 600px !important;
+    margin: auto !important;
+}
+
+/* ==================== DEBUG HELPERS ==================== */
+
+.native-modal-debug {
+    border: 3px solid red !important;
+    background: yellow !important;
+}
+
+.native-modal-debug::before {
+    content: "DEBUG: Modal Visible" !important;
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    background: red !important;
+    color: white !important;
+    padding: 5px !important;
+    z-index: 10001 !important;
+}
