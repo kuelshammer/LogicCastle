@@ -12,40 +12,51 @@
   <body>
     <div class="game-container">
       <header class="game-header">
-        <a href="../../index.html" class="back-button">← Zurück</a>
-        <h1>🔴 4 Gewinnt</h1>
-        <div class="game-mode-selector">
-          <label for="gameMode">Spielmodus:</label>
-          <select id="gameMode">
-            <option value="two-player">2 Spieler</option>
-            <option value="vs-bot-easy">vs Einfache KI</option>
-            <option value="vs-bot-medium">vs Mittlere KI</option>
-            <option value="vs-bot-hard">vs Schwere KI</option>
-          </select>
+        <div class="header-left">
+          <a href="../../index.html" class="back-button">← Zurück</a>
+          <h1>🔴 4 Gewinnt</h1>
+          <div class="game-mode-selector">
+            <label for="gameMode">Spielmodus:</label>
+            <select id="gameMode">
+              <option value="two-player">2 Spieler</option>
+              <option value="vs-bot-easy">vs Einfache KI</option>
+              <option value="vs-bot-medium">vs Mittlere KI</option>
+              <option value="vs-bot-hard">vs Schwere KI</option>
+            </select>
+          </div>
+        </div>
+        <div class="header-controls">
+          <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
+          <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
+          <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
+          <button class="btn btn-success" id="assistanceBtn">Spielerhilfen (F2)</button>
+          <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
         </div>
       </header>
 
       <main class="game-main">
-        <div class="game-info">
-          <div class="current-player">
-            <span class="player-indicator" id="currentPlayerIndicator">
-              <span class="player-disc yellow"></span>
-              <span class="player-name">Spieler 1</span>
-            </span>
-          </div>
-          <div class="game-status" id="gameStatus">Spiel läuft...</div>
-          <div class="score-board">
-            <div class="score yellow">
-              <span class="score-label">Gelb:</span>
-              <span class="score-value" id="yellowScore">0</span>
+        <div class="game-info-compact">
+          <div class="info-row">
+            <div class="current-player">
+              <span class="player-indicator" id="currentPlayerIndicator">
+                <span class="player-disc yellow"></span>
+                <span class="player-name">Spieler 1</span>
+              </span>
             </div>
-            <div class="score red">
-              <span class="score-label">Rot:</span>
-              <span class="score-value" id="redScore">0</span>
-            </div>
+            <div class="game-status" id="gameStatus">Spiel läuft...</div>
           </div>
-          <div class="move-info">
-            <div class="move-counter">
+          <div class="info-row">
+            <div class="score-compact">
+              <div class="score yellow">
+                <span class="score-label">Gelb:</span>
+                <span class="score-value" id="yellowScore">0</span>
+              </div>
+              <div class="score red">
+                <span class="score-label">Rot:</span>
+                <span class="score-value" id="redScore">0</span>
+              </div>
+            </div>
+            <div class="move-info">
               <span class="move-label">Züge:</span>
               <span class="move-value" id="moveCounter">0</span>
             </div>
@@ -67,13 +78,6 @@
           </div>
         </div>
 
-        <div class="game-controls">
-          <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
-          <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
-          <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
-          <button class="btn btn-success" id="assistanceBtn">Spielerhilfen (F2)</button>
-          <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
-        </div>
       </main>
     </div>
 

@@ -20,8 +20,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   color: white;
+  gap: 2rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex: 1;
+}
+
+.header-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .game-header h1 {
@@ -57,26 +71,44 @@
 }
 
 .game-main {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   align-items: center;
   min-height: 60vh;
 }
 
-/* Game Info Panel */
-.game-info {
+/* Compact Game Info Panel */
+.game-info-compact {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 1rem;
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
   border: 1px solid rgba(255, 255, 255, 0.18);
+  max-width: 800px;
+  width: 100%;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.score-compact {
+  display: flex;
+  gap: 1rem;
 }
 
 .current-player {
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin-bottom: 0;
+  text-align: left;
 }
 
 .player-indicator {
@@ -108,11 +140,11 @@
 }
 
 .game-status {
-  text-align: center;
-  font-size: 1.1rem;
+  text-align: right;
+  font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 1.5rem;
-  padding: 0.75rem;
+  margin-bottom: 0;
+  padding: 0.5rem;
   background: rgba(0, 0, 0, 0.05);
   border-radius: 8px;
 }
@@ -153,7 +185,10 @@
 }
 
 .move-info {
-  text-align: center;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .move-counter {
