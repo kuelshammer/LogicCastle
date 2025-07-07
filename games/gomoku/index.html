@@ -11,10 +11,20 @@
   </head>
   <body>
     <div class="minimal-game-container">
+      <div class="game-header">
+        <h1>⚫ Gomoku</h1>
+        <div class="game-controls">
+          <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
+          <button class="btn btn-secondary" id="undoBtn">Rückgängig (U)</button>
+          <button class="btn btn-success" id="assistanceBtn">Spielerhilfen (F2)</button>
+          <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
+        </div>
+      </div>
+
       <div class="game-board-container">
         <!-- Add required UI elements for UI-Module System -->
-        <div id="gameStatus" style="display: none;">Ready</div>
-        <div id="currentPlayerIndicator" style="display: none;">
+        <div id="gameStatus">Ready</div>
+        <div id="currentPlayerIndicator">
           <span class="player-indicator">
             <span class="player-stone black"></span>
             Black to move
@@ -24,6 +34,80 @@
         <div class="game-board" id="gameBoard">
           <!-- 15x15 grid = 225 intersections -->
           <!-- Generated dynamically by JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal help-modal">
+        <h2>⚫ Gomoku - Spielanleitung</h2>
+
+        <div class="help-content">
+          <div class="help-section">
+            <h3>🎯 Spielziel</h3>
+            <p>
+              Platziere fünf deiner Steine in einer geraden Linie (horizontal, vertikal oder diagonal) 
+              auf dem 15x15 Spielfeld!
+            </p>
+          </div>
+
+          <div class="help-section">
+            <h3>🎮 Spielablauf</h3>
+            <ul>
+              <li>Schwarz beginnt und setzt den ersten Stein</li>
+              <li>Spieler setzen abwechselnd ihre Steine auf freie Kreuzungspunkte</li>
+              <li>Der erste Spieler mit 5 Steinen in einer Reihe gewinnt</li>
+              <li>Strategisches Platzieren und Blockieren ist entscheidend</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>⌨️ Steuerung</h3>
+            <ul>
+              <li><strong>Maus-Klick:</strong> Stein auf Kreuzungspunkt setzen</li>
+              <li><strong>N:</strong> Neues Spiel starten</li>
+              <li><strong>U:</strong> Letzten Zug rückgängig machen</li>
+              <li><strong>F1:</strong> Diese Hilfe anzeigen</li>
+              <li><strong>F2:</strong> Spielerhilfen konfigurieren</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn btn-primary" id="closeHelpBtn">Verstanden</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assistance Modal -->
+    <div class="modal-overlay" id="assistanceModal">
+      <div class="modal assistance-modal">
+        <h2>🎛️ Gomoku Spielerhilfen</h2>
+
+        <div class="help-content">
+          <div class="help-section">
+            <h3>🔧 Verfügbare Hilfen</h3>
+            <ul>
+              <li><strong>Zug rückgängig:</strong> Letzte Züge rückgängig machen</li>
+              <li><strong>Bedrohungen anzeigen:</strong> Gegnerische 4er-Reihen hervorheben</li>
+              <li><strong>Gewinnzüge markieren:</strong> Direkte Gewinnmöglichkeiten zeigen</li>
+              <li><strong>Strategische Hinweise:</strong> Empfohlene Züge anzeigen</li>
+            </ul>
+          </div>
+
+          <div class="help-section">
+            <h3>ℹ️ Hinweise</h3>
+            <ul>
+              <li>Spielerhilfen sind optional und können jederzeit aktiviert werden</li>
+              <li>Hilfen beeinflussen nur die Anzeige, nicht die Spiellogik</li>
+              <li>Ideal für Lernende und Strategieentwicklung</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button class="btn btn-primary" id="closeAssistanceBtn">Schließen</button>
         </div>
       </div>
     </div>
