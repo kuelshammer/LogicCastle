@@ -852,11 +852,21 @@ export class Connect4UINew extends BaseGameUI {
      * Override newGame for Connect4-specific logic
      */
     newGame() {
+        // Reset the game engine
         if (this.game) {
             this.game.newGame();
         }
+        
+        // CRITICAL FIX: Reinitialize the visual board after game reset
+        this.initializeBoard();
+        
+        // Clear UI state
         this.clearAssistanceHighlights();
         this.hideDropPreview();
+        
+        // Update UI to reflect new game state
+        this.updateUI();
+        
         this.showMessage('Neues Spiel gestartet!', 'info');
     }
 

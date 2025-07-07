@@ -89,7 +89,7 @@
     </div>
 
     <!-- Player Assistance Modal -->
-    <div class="modal-overlay" id="assistanceModal">
+    <div class="modal-overlay hidden" id="assistanceModal">
       <div class="modal assistance-modal">
         <h2>🎛️ Spielerhilfen</h2>
 
@@ -195,7 +195,7 @@
     </div>
 
     <!-- Help Modal -->
-    <div class="modal-overlay" id="helpModal">
+    <div class="modal-overlay hidden" id="helpModal">
       <div class="modal help-modal">
         <h2>🔴 4 Gewinnt - Spielanleitung</h2>
 
@@ -384,6 +384,90 @@
           `;
           document.body.appendChild(errorDiv);
         }
+        
+        // TEMPORARY MODAL FIX: Direct modal control until ModalManager is fixed
+        function setupTemporaryModalSystem() {
+          const helpBtn = document.getElementById('helpBtn');
+          const assistanceBtn = document.getElementById('assistanceBtn');
+          const helpModal = document.getElementById('helpModal');
+          const assistanceModal = document.getElementById('assistanceModal');
+          const closeHelpBtn = document.getElementById('closeHelpBtn');
+          const closeAssistanceBtn = document.getElementById('closeAssistanceBtn');
+          
+          // Helper function to show modal
+          function showModal(modal) {
+            if (modal) {
+              modal.classList.remove('hidden');
+              modal.classList.add('active');
+              document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+          }
+          
+          // Helper function to hide modal
+          function hideModal(modal) {
+            if (modal) {
+              modal.classList.add('hidden');
+              modal.classList.remove('active');
+              document.body.style.overflow = ''; // Restore scrolling
+            }
+          }
+          
+          // Show Help Modal
+          if (helpBtn && helpModal) {
+            helpBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              showModal(helpModal);
+            });
+          }
+          
+          // Show Assistance Modal
+          if (assistanceBtn && assistanceModal) {
+            assistanceBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              showModal(assistanceModal);
+            });
+          }
+          
+          // Close Help Modal
+          if (closeHelpBtn && helpModal) {
+            closeHelpBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              hideModal(helpModal);
+            });
+          }
+          
+          // Close Assistance Modal
+          if (closeAssistanceBtn && assistanceModal) {
+            closeAssistanceBtn.addEventListener('click', (e) => {
+              e.preventDefault();
+              hideModal(assistanceModal);
+            });
+          }
+          
+          // Close modals on escape key
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              hideModal(helpModal);
+              hideModal(assistanceModal);
+            }
+          });
+          
+          // Close modals when clicking outside
+          [helpModal, assistanceModal].forEach(modal => {
+            if (modal) {
+              modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                  hideModal(modal);
+                }
+              });
+            }
+          });
+          
+          console.log('✅ Temporary modal system initialized');
+        }
+        
+        // Initialize temporary modal system
+        setupTemporaryModalSystem();
       });
     </script>
   </body>

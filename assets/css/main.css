@@ -240,15 +240,34 @@
    * ========================================== */
   
   .game-modal, .modal-overlay { 
-    @apply fixed inset-0 flex items-center justify-center z-50
-           opacity-0 invisible transition-all duration-400;
-    background: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
   
+  /* Hidden state for modals */
+  .modal-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  
   .game-modal.active, .modal-overlay.active, .modal-overlay.show {
-    @apply opacity-100 visible;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
   
   .game-modal-content, .modal { 
