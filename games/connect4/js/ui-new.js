@@ -338,25 +338,49 @@ export class Connect4UINew extends BaseGameUI {
 
     /**
      * Create hover zones above each column for better UX
+     * Uses CSS Grid positioning to match board column alignment
      */
     createColumnHoverZones() {
         const gameBoard = this.elements.gameBoard;
         if (!gameBoard) return;
 
+        // Create a grid-based hover zone container that matches board dimensions
+        const hoverContainer = document.createElement('div');
+        hoverContainer.className = 'hover-zone-container';
+        hoverContainer.style.position = 'absolute';
+        hoverContainer.style.top = '-40px';
+        hoverContainer.style.left = '0';
+        hoverContainer.style.right = '0';
+        hoverContainer.style.height = '40px';
+        hoverContainer.style.display = 'grid';
+        hoverContainer.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        hoverContainer.style.gap = '8px';
+        hoverContainer.style.padding = '20px'; // Match board padding
+        hoverContainer.style.boxSizing = 'border-box';
+        hoverContainer.style.zIndex = '10';
+
         for (let col = 0; col < 7; col++) {
             const hoverZone = document.createElement('div');
             hoverZone.className = 'column-hover-zone';
             hoverZone.dataset.col = col;
-            hoverZone.style.left = `${(col / 7) * 100}%`;
-            hoverZone.style.width = `${100 / 7}%`;
+            hoverZone.style.cursor = 'pointer';
+            hoverZone.style.background = 'transparent';
+            hoverZone.style.transition = 'background-color 0.2s ease';
+            hoverZone.style.borderRadius = '8px';
             
             // Hover events for preview
             hoverZone.addEventListener('mouseenter', () => this.onColumnHover(col));
             hoverZone.addEventListener('mouseleave', () => this.onColumnHoverLeave());
             hoverZone.addEventListener('click', () => this.onColumnClick(col));
             
-            gameBoard.parentElement.appendChild(hoverZone);
+            hoverContainer.appendChild(hoverZone);
         }
+        
+        // Position relative to the game board container
+        gameBoard.parentElement.style.position = 'relative';
+        gameBoard.parentElement.appendChild(hoverContainer);
+        
+        console.log('🎯 Created CSS Grid-aligned hover zones for perfect column alignment');
     }
 
     /**
