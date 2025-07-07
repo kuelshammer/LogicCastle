@@ -224,16 +224,23 @@ export class Connect4UINew extends BaseGameUI {
         let topCoords = this.elements.topCoords;
         let bottomCoords = this.elements.bottomCoords;
         
+        // FORCE CSS GRID alignment by applying board dimensions to coordinate containers
+        const gameBoard = this.elements.gameBoard;
+        const boardStyles = {
+            width: '100%',
+            maxWidth: 'min(80vw, calc(70vh * 7 / 6))',
+            maxHeight: 'min(70vh, calc(80vw * 6 / 7))',
+            padding: '0 20px',
+            margin: '0.25rem auto',
+            boxSizing: 'border-box'
+        };
+        
         // Create coordinate containers if they don't exist
         if (!topCoords) {
             topCoords = document.createElement('div');
             topCoords.id = 'topCoords';
-            topCoords.className = 'coord-display top-coords';
-            topCoords.style.display = 'flex';
-            topCoords.style.justifyContent = 'space-around';
-            topCoords.style.marginBottom = '10px';
+            topCoords.className = 'board-coords top';
             
-            const gameBoard = this.elements.gameBoard;
             if (gameBoard && gameBoard.parentElement) {
                 gameBoard.parentElement.insertBefore(topCoords, gameBoard);
             } else if (gameBoard) {
@@ -246,12 +253,8 @@ export class Connect4UINew extends BaseGameUI {
         if (!bottomCoords) {
             bottomCoords = document.createElement('div');
             bottomCoords.id = 'bottomCoords';
-            bottomCoords.className = 'coord-display bottom-coords';
-            bottomCoords.style.display = 'flex';
-            bottomCoords.style.justifyContent = 'space-around';
-            bottomCoords.style.marginTop = '10px';
+            bottomCoords.className = 'board-coords bottom';
             
-            const gameBoard = this.elements.gameBoard;
             if (gameBoard && gameBoard.parentElement) {
                 gameBoard.parentElement.appendChild(bottomCoords);
             } else if (gameBoard) {
@@ -261,27 +264,55 @@ export class Connect4UINew extends BaseGameUI {
             this.elements.bottomCoords = bottomCoords; // Update element reference
         }
         
+        // Force CSS Grid styling directly to override any conflicting styles
+        [topCoords, bottomCoords].forEach(container => {
+            if (container) {
+                // Apply CSS Grid with same dimensions as game board
+                container.style.setProperty('display', 'grid', 'important');
+                container.style.setProperty('grid-template-columns', 'repeat(7, 1fr)', 'important');
+                container.style.setProperty('gap', '8px', 'important');
+                
+                // Apply same sizing constraints as game board
+                Object.assign(container.style, boardStyles);
+                
+                console.log(`🎯 Forced CSS Grid alignment for ${container.id}:`, {
+                    display: container.style.display,
+                    gridTemplateColumns: container.style.gridTemplateColumns,
+                    maxWidth: container.style.maxWidth
+                });
+            }
+        });
+        
         if (topCoords) {
             topCoords.innerHTML = '';
             for (let col = 1; col <= 7; col++) {
                 const coord = document.createElement('div');
-                coord.className = 'coord-label text-center text-white text-opacity-80 text-sm font-bold';
+                coord.className = 'coord text-center font-bold text-sm';
+                coord.style.color = '#666';
+                coord.style.transition = 'all 0.3s ease';
+                coord.style.padding = '0.25rem';
+                coord.style.cursor = 'pointer';
                 coord.textContent = col;
+                coord.addEventListener('click', () => this.dropDiscInColumn(col - 1));
                 topCoords.appendChild(coord);
             }
-            console.log('🔢 Created', topCoords.children.length, 'top coord labels with Tailwind Grid');
-        } else {
-            console.log('❌ No topCoords container found');
+            console.log('🔢 Created', topCoords.children.length, 'top coord labels with FORCED CSS Grid alignment');
         }
         
         if (bottomCoords) {
             bottomCoords.innerHTML = '';
             for (let col = 1; col <= 7; col++) {
                 const coord = document.createElement('div');
-                coord.className = 'coord-label text-center text-white text-opacity-80 text-sm font-bold';
+                coord.className = 'coord text-center font-bold text-sm';
+                coord.style.color = '#666';
+                coord.style.transition = 'all 0.3s ease';
+                coord.style.padding = '0.25rem';
+                coord.style.cursor = 'pointer';
                 coord.textContent = col;
+                coord.addEventListener('click', () => this.dropDiscInColumn(col - 1));
                 bottomCoords.appendChild(coord);
             }
+            console.log('🔢 Created', bottomCoords.children.length, 'bottom coord labels with FORCED CSS Grid alignment');
         }
     }
 
