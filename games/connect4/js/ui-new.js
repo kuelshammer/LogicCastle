@@ -14,6 +14,7 @@
 
 import { BaseGameUI } from '../../../assets/js/ui-modules/index.js';
 import { CONNECT4_UI_CONFIG, createConnect4Config } from './connect4-config.js';
+import { Connect4AI } from './ai_v2.js';
 
 export class Connect4UINew extends BaseGameUI {
     constructor(game) {
@@ -190,13 +191,14 @@ export class Connect4UINew extends BaseGameUI {
                 const disc = document.createElement('div');
                 disc.className = 'disc empty';
                 
-                // Apply only essential layout styles, let CSS handle colors
+                // Apply only essential layout styles, let CSS handle colors and visibility
                 disc.style.width = '85%';
                 disc.style.height = '85%';
                 disc.style.borderRadius = '50%';
                 disc.style.transition = 'all 0.3s ease';
                 disc.style.position = 'relative';
                 disc.style.aspectRatio = '1';
+                disc.style.zIndex = '1';
                 
                 cell.appendChild(disc);
                 
@@ -211,6 +213,13 @@ export class Connect4UINew extends BaseGameUI {
         // Drop zones caused misalignment (percentage positioning vs CSS Grid)
         
         console.log('🔴 Connect4 board initialized (6x7 grid, 42 cells)');
+        
+        // DEBUG: Verify board creation
+        const createdCells = gameBoard.querySelectorAll('.game-slot');
+        const createdDiscs = gameBoard.querySelectorAll('.disc');
+        console.log(`🔍 DEBUG: Created ${createdCells.length} cells and ${createdDiscs.length} discs`);
+        console.log('🔍 DEBUG: GameBoard innerHTML length:', gameBoard.innerHTML.length);
+        console.log('🔍 DEBUG: First cell structure:', createdCells[0]?.outerHTML || 'No cells found');
     }
 
     /**
@@ -747,7 +756,7 @@ export class Connect4UINew extends BaseGameUI {
         if (this.gameMode !== 'two-player' && !this.game.isGameOver()) {
             const currentPlayer = this.game.getCurrentPlayer();
             if (currentPlayer === this.aiPlayer) {
-                setTimeout(() => this.makeAiMove(), this.aiThinkingDelay);
+                setTimeout(() => this.makeAIMove(), this.aiThinkingDelay);
             }
         }
     }
@@ -822,29 +831,7 @@ export class Connect4UINew extends BaseGameUI {
 
     // ==================== AI INTEGRATION ====================
 
-    /**
-     * Make AI move (placeholder - integrate with Connect4AI)
-     */
-    async makeAiMove() {
-        if (!this.ai || this.game.isGameOver()) return;
-        
-        try {
-            this.isAiThinking = true;
-            this.updateGameStatus();
-            
-            // Get AI move (integrate with existing Connect4AI)
-            const aiMove = await this.ai.getBestMove(this.game.getBoard());
-            
-            if (aiMove !== null && aiMove >= 0 && aiMove < 7) {
-                this.dropDiscInColumn(aiMove);
-            }
-        } catch (error) {
-            console.error('❌ AI move failed:', error);
-        } finally {
-            this.isAiThinking = false;
-            this.updateGameStatus();
-        }
-    }
+    // Legacy makeAiMove() method removed - replaced by makeAIMove() with better error handling
 
     // ==================== GAME ACTION OVERRIDES ====================
 
@@ -1191,7 +1178,7 @@ export class Connect4UINew extends BaseGameUI {
      * Make AI move
      */
     async makeAIMove() {
-        if (!this.ai || !this.isAIMode()) return;
+        if (!this.isAIMode()) return;
         
         try {
             this.isProcessingMove = true;
@@ -1201,7 +1188,8 @@ export class Connect4UINew extends BaseGameUI {
             const difficultyMap = { easy: 1, medium: 3, hard: 4 };
             const aiDifficulty = difficultyMap[difficulty] || 3;
             
-            const bestMove = this.ai.getBestMove(this.game, aiDifficulty);
+            // Use static method from imported AI class
+            const bestMove = Connect4AI.getBestMove(this.game, aiDifficulty);
             
             if (bestMove >= 0 && bestMove < 7) {
                 await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause

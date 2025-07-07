@@ -121,6 +121,26 @@ Dieses Dokument spiegelt den aktuellen Stand nach den Commits vom 4. Juli 2025 w
 
 # Known Issues
 
+## Connect4 Critical Issues (Stand: 2025-07-07) ❌ **AKTUELLE PROBLEME**
+
+### 1. Modal System komplett kaputt 🔴 **CRITICAL**
+- **Problem:** Help & Assistance Modals werden nicht sichtbar 
+- **Versucht:** ModalManager debugging, temporäre Lösung, CSS-Fixes, direkte DOM-Manipulation
+- **Status:** Weder UI-Module ModalManager noch native CSS-Implementierung funktioniert
+- **Symptom:** Modals bleiben unsichtbar trotz korrekter CSS-Klassen (opacity: 1, visibility: visible)
+- **Nächste Session:** Modal-System komplett neu implementieren
+
+### 2. New Game Button funktioniert nicht korrekt ⚠️ **TEILWEISE BEHOBEN**
+- **Problem:** Board zeigt nach "Neues Spiel" nur blaues Quadrat ohne 6x7 Grid-Struktur
+- **Behoben:** newGame() method erweitert um initializeBoard() + updateUI() calls
+- **Verbleibt:** Board initialization funktioniert nicht - WASM-Engine oder initializeBoard() Problem
+- **Status:** ⚠️ **TEILWEISE BEHOBEN** - UI-Reset OK, aber Board-Darstellung kaputt
+
+### 3. KI-System Verbindungsfehler 🔴 **USER-REPORTED**
+- **Problem:** KI kann nicht verbunden werden - Fehlermeldung beim Versuch KI-Modi zu spielen
+- **Status:** ❌ **NICHT BEHOBEN** - noch nicht untersucht
+- **Priority:** Hoch - beeinträchtigt vs-Bot Spielmodi
+
 ## Gomoku Stone Placement Issues (Stand: 2025-07-04) ✅ **BEHOBEN**
 - **CRITICAL:** Stone Placement Bug - Steine erscheinen nicht auf korrekten Board-Positionen
 - **Ursache:** DOM-Verschachtelung - Steine werden als Child der Intersections angehängt
