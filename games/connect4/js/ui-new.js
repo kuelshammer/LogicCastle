@@ -88,16 +88,12 @@ export class Connect4UINew extends BaseGameUI {
      * Override setupGameEventListeners for Connect4-specific game events
      */
     setupGameEventListeners() {
-        // Call parent implementation for common events
+        // Call parent implementation for common events (gameOver, newGame, move, undo)
         super.setupGameEventListeners();
         
-        // Connect4-specific game events
+        // Connect4-specific game events (excluding those already handled by parent)
         const connect4Events = {
-            'move': (move) => this.onMoveMade(move),
             'moveMade': (move) => this.onMoveMade(move), // Alias for test compatibility
-            'gameOver': (data) => this.onGameOver(data),
-            'newGame': () => this.onGameReset(),
-            'undo': (data) => this.onMoveUndone(data),
             'initialized': () => this.onGameInitialized(),
             'error': (error) => this.onGameError(error)
         };
@@ -797,6 +793,15 @@ export class Connect4UINew extends BaseGameUI {
     onMoveUndone(undoData) {
         console.log('↩️ Move undone:', undoData);
         this.updateUI();
+    }
+
+    /**
+     * Handle move event (BaseGameUI expects this method)
+     * Wrapper around onMoveMade for compatibility
+     */
+    onMove(moveData) {
+        // Delegate to the existing onMoveMade method
+        this.onMoveMade(moveData);
     }
 
     /**

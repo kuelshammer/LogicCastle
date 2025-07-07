@@ -35,34 +35,6 @@
       </header>
 
       <main class="game-main">
-        <div class="game-info-compact">
-          <div class="info-row">
-            <div class="current-player">
-              <span class="player-indicator" id="currentPlayerIndicator">
-                <span class="player-disc yellow"></span>
-                <span class="player-name">Spieler 1</span>
-              </span>
-            </div>
-            <div class="game-status" id="gameStatus">Spiel läuft...</div>
-          </div>
-          <div class="info-row">
-            <div class="score-compact">
-              <div class="score yellow">
-                <span class="score-label">Gelb:</span>
-                <span class="score-value" id="yellowScore">0</span>
-              </div>
-              <div class="score red">
-                <span class="score-label">Rot:</span>
-                <span class="score-value" id="redScore">0</span>
-              </div>
-            </div>
-            <div class="move-info">
-              <span class="move-label">Züge:</span>
-              <span class="move-value" id="moveCounter">0</span>
-            </div>
-          </div>
-        </div>
-
         <div class="game-board-container">
           <div class="board-coords top grid grid-cols-7 mb-2" id="topCoords" style="gap: 8px;">
             <!-- Column numbers 1-7 will be generated with grid alignment -->
@@ -75,6 +47,41 @@
           </div>
           <div class="board-coords bottom grid grid-cols-7 mt-2" id="bottomCoords" style="gap: 8px;">
             <!-- Column numbers 1-7 will be generated with grid alignment -->
+          </div>
+        </div>
+
+        <div class="game-info-compact">
+          <div class="info-section">
+            <h3>Aktueller Spieler</h3>
+            <div class="current-player">
+              <span class="player-indicator" id="currentPlayerIndicator">
+                <span class="player-disc yellow"></span>
+                <span class="player-name">Spieler 1</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Spielstand</h3>
+            <div class="score-compact">
+              <div class="score yellow">
+                <span class="score-label">Gelb:</span>
+                <span class="score-value" id="yellowScore">0</span>
+              </div>
+              <div class="score red">
+                <span class="score-label">Rot:</span>
+                <span class="score-value" id="redScore">0</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Spiel-Info</h3>
+            <div class="game-status" id="gameStatus">Spiel läuft...</div>
+            <div class="move-info">
+              <span class="move-label">Züge:</span>
+              <span class="move-value" id="moveCounter">0</span>
+            </div>
           </div>
         </div>
 

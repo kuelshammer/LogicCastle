@@ -71,39 +71,47 @@
 }
 
 .game-main {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 20%;
+  gap: 2rem;
+  align-items: start;
   min-height: 60vh;
 }
 
-/* Compact Game Info Panel */
+/* Sidebar Game Info Panel */
 .game-info-compact {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.5rem;
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  max-width: 800px;
   width: 100%;
+  position: sticky;
+  top: 1rem;
 }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+.info-section {
+  margin-bottom: 1.5rem;
 }
 
-.info-row:last-child {
+.info-section:last-child {
   margin-bottom: 0;
+}
+
+.info-section h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .score-compact {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .current-player {
@@ -531,12 +539,20 @@
     gap: 1.5rem;
   }
   
-  .game-info {
+  .game-info-compact {
     order: 2;
+    position: static;
+    max-width: 600px;
+    margin: 0 auto;
   }
   
   .game-board-container {
     order: 1;
+  }
+  
+  .score-compact {
+    flex-direction: row;
+    justify-content: space-around;
   }
 }
 
