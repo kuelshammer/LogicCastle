@@ -211,8 +211,8 @@ export class Connect4UINew extends BaseGameUI {
         // Create coordinate displays
         this.createCoordinateLabels();
         
-        // Create drop zones after board is ready
-        this.createDropZones();
+        // REMOVED: createDropZones() - redundant with coordinate labels + hover zones
+        // Drop zones caused misalignment (percentage positioning vs CSS Grid)
         
         console.log('🔴 Connect4 board initialized (6x7 grid, 42 cells)');
     }
@@ -1092,7 +1092,7 @@ export class Connect4UINew extends BaseGameUI {
     onGameInitialized() {
         console.log('🎮 Game initialized successfully');
         this.updateUI();
-        this.createDropZones();
+        // REMOVED: createDropZones() - redundant and causes misalignment
     }
 
     /**
