@@ -230,7 +230,7 @@ export class Connect4UINew extends BaseGameUI {
             width: '100%',
             maxWidth: 'min(80vw, calc(70vh * 7 / 6))',
             maxHeight: 'min(70vh, calc(80vw * 6 / 7))',
-            padding: '0 20px',
+            padding: '20px', // CRITICAL FIX: Match gameBoard padding exactly (all sides)
             margin: '0.25rem auto',
             boxSizing: 'border-box'
         };

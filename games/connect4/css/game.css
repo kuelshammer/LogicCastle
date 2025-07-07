@@ -190,16 +190,16 @@
 }
 
 .board-coords {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 8px !important;
   /* Match board sizing exactly */
-  width: 100%;
-  max-width: min(80vw, calc(70vh * 7 / 6));
-  max-height: min(70vh, calc(80vw * 6 / 7));
-  padding: 0 20px; /* Match board padding */
-  margin: 0.25rem auto; /* Center like board */
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: min(80vw, calc(70vh * 7 / 6)) !important;
+  max-height: min(70vh, calc(80vw * 6 / 7)) !important;
+  padding: 20px !important; /* CRITICAL FIX: Match gameBoard padding exactly (all sides) */
+  margin: 0.25rem auto !important; /* Center like board */
+  box-sizing: border-box !important;
 }
 
 .board-coords.top,
