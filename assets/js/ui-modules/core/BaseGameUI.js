@@ -339,10 +339,23 @@ export class BaseGameUI {
             'newGameBtn': () => this.newGame(),
             'undoBtn': () => this.undoMove(),
             'resetScoreBtn': () => this.resetScore(),
-            'helpBtn': () => this.toggleModal('help')
+            'helpBtn': () => this.toggleModal('help'),
+            'assistanceBtn': () => this.toggleModal('assistance')
         };
 
         for (const [elementKey, handler] of Object.entries(buttonMap)) {
+            if (this.elements[elementKey]) {
+                this.elements[elementKey].addEventListener('click', handler);
+            }
+        }
+
+        // Modal close buttons
+        const closeButtonMap = {
+            'closeHelpBtn': () => this.hideModal('help'),
+            'closeAssistanceBtn': () => this.hideModal('assistance')
+        };
+
+        for (const [elementKey, handler] of Object.entries(closeButtonMap)) {
             if (this.elements[elementKey]) {
                 this.elements[elementKey].addEventListener('click', handler);
             }
