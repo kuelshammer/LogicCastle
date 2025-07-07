@@ -193,10 +193,13 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
+  /* Match board sizing exactly */
   width: 100%;
-  /* Remove fixed max-width to match responsive board sizing */
+  max-width: min(80vw, calc(70vh * 7 / 6));
+  max-height: min(70vh, calc(80vw * 6 / 7));
   padding: 0 20px; /* Match board padding */
-  margin: 0.25rem 0;
+  margin: 0.25rem auto; /* Center like board */
+  box-sizing: border-box;
 }
 
 .board-coords.top,
