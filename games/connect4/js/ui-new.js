@@ -151,7 +151,7 @@ export class Connect4UINew extends BaseGameUI {
         // Use UI-Module System with Tailwind classes - container handles sizing
         gameBoard.className = 'game-board connect4-board game-board-cells';
         
-        // Apply only Connect4-specific styles that aren't in the CSS system
+        // Apply Connect4-specific styles with responsive constraints
         gameBoard.style.display = 'grid';
         gameBoard.style.gridTemplateColumns = 'repeat(7, 1fr)';
         gameBoard.style.gridTemplateRows = 'repeat(6, 1fr)';
@@ -161,6 +161,12 @@ export class Connect4UINew extends BaseGameUI {
         gameBoard.style.borderRadius = '16px';
         gameBoard.style.padding = '20px';
         gameBoard.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.2)';
+        
+        // Responsive sizing constraints to prevent oversized boards
+        gameBoard.style.width = '100%';
+        gameBoard.style.height = 'auto';
+        gameBoard.style.maxWidth = 'min(80vw, calc(70vh * 7 / 6))';
+        gameBoard.style.maxHeight = 'min(70vh, calc(80vw * 6 / 7))';
         
         console.log('🎨 Applied CSS Grid styles directly to ensure proper layout');
 

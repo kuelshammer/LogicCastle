@@ -21,12 +21,20 @@
   }
   
   .game-board-container {
-    @apply w-full max-w-xl mx-auto;
+    @apply w-full mx-auto;
+    /* Responsive sizing: fits both width and height constraints */
+    max-width: min(80vw, calc(70vh * 7 / 6));
+    max-height: min(70vh, calc(80vw * 6 / 7));
   }
   
   /* Cell-based games (Connect4, Trio) */
   .game-board-cells {
     @apply game-board-grid;
+    /* Responsive sizing within container constraints */
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
     /* Specific grid dimensions set via inline styles or additional classes */
   }
   
