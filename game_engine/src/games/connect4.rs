@@ -2,24 +2,7 @@ use wasm_bindgen::prelude::*;
 use crate::data::BitPackedBoard;
 use crate::geometry::{Connect4Grid, BoardGeometry, PatternProvider};
 use crate::ai::{Connect4AI, PatternEvaluator};
-use crate::{GamePhase, PositionAnalysis};
-
-/// Player enumeration for Connect4
-#[wasm_bindgen]
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum Player {
-    Yellow = 1,
-    Red = 2,
-}
-
-impl Player {
-    pub fn opponent(self) -> Player {
-        match self {
-            Player::Yellow => Player::Red,
-            Player::Red => Player::Yellow,
-        }
-    }
-}
+use crate::{GamePhase, PositionAnalysis, Player};
 
 /// Connect4 game implementation using the Three-Layer Architecture
 /// Composes geometry and data layers for clean separation of concerns

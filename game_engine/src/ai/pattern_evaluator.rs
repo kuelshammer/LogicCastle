@@ -1,6 +1,7 @@
 use crate::data::BitPackedBoard;
 use crate::geometry::{Connect4Grid, PatternProvider};
-use crate::games::connect4::{Connect4Game, Player};
+use crate::games::connect4::Connect4Game;
+use crate::Player;
 
 use std::cell::RefCell;
 use std::collections::HashMap;

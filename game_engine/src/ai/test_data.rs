@@ -1,7 +1,8 @@
 /// Gemini AI Test Infrastructure for Connect4
 /// Based on reports: 20250708-100500_Connect4_AI_Test_Cases.md and 20250708-101500_Connect4_AI_Test_Cases_Corrected.md
 
-use crate::games::connect4::{Connect4Game, Player};
+use crate::games::connect4::Connect4Game;
+use crate::Player;
 use crate::ai::Connect4AI;
 use crate::data::BitPackedBoard;
 

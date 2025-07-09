@@ -1,6 +1,15 @@
 /* tslint:disable */
 /* eslint-disable */
 export function main(): void;
+/**
+ * AI Difficulty levels with corresponding search depths
+ * Based on memory analysis: Easy=2, Medium=4, Hard=6
+ */
+export enum AIDifficulty {
+  Easy = 2,
+  Medium = 4,
+  Hard = 6,
+}
 export enum GameError {
   OutOfBounds = 0,
   PositionOccupied = 1,
@@ -64,6 +73,136 @@ export class Board {
    * Get the row where a piece would land in a column (for Connect4)
    */
   get_drop_row(col: number): number | undefined;
+}
+/**
+ * Connect4 AI implementation using Gemini's pattern-based evaluation
+ * Implements the "Stratege" layer of the Three-Layer Architecture
+ */
+export class Connect4AI {
+  free(): void;
+  constructor();
+  /**
+   * Create AI with specific difficulty level
+   */
+  static with_difficulty(difficulty: AIDifficulty): Connect4AI;
+  /**
+   * Set the AI player (default: Red)
+   */
+  set_ai_player(player: Player): void;
+  /**
+   * Set search depth (higher = stronger but slower)
+   */
+  set_difficulty(depth: number): void;
+  /**
+   * Set AI difficulty level (Easy/Medium/Hard)
+   * This is the preferred way to set AI strength
+   */
+  set_difficulty_level(difficulty: AIDifficulty): void;
+  /**
+   * Get current difficulty level
+   */
+  get_difficulty_level(): AIDifficulty;
+  /**
+   * Get the best move for the current position
+   */
+  get_best_move(game: Connect4Game): number | undefined;
+  /**
+   * Get the best move for a specific player (bidirectional AI)
+   * This allows the AI to predict moves for both players
+   * Unlike get_best_move, this works regardless of whose turn it is
+   */
+  get_best_move_for_player(game: Connect4Game, player: Player): number | undefined;
+  /**
+   * Get the evaluation score for the current position
+   */
+  evaluate_position(game: Connect4Game): number;
+  /**
+   * Get a quick move for time-constrained situations
+   */
+  get_quick_move(game: Connect4Game): number | undefined;
+}
+/**
+ * Connect4 game implementation using the Three-Layer Architecture
+ * Composes geometry and data layers for clean separation of concerns
+ */
+export class Connect4Game {
+  free(): void;
+  constructor();
+  /**
+   * Create a new Connect4 game with a specific starting player
+   * This is essential for game series where "loser starts next game"
+   */
+  static new_with_starting_player(starting_player: Player): Connect4Game;
+  /**
+   * Make a move in the specified column
+   */
+  make_move(column: number): boolean;
+  /**
+   * Get cell value at position (0 = empty, 1 = yellow, 2 = red)
+   */
+  get_cell(row: number, col: number): number;
+  /**
+   * Get current player
+   */
+  current_player(): Player;
+  /**
+   * Get winner (if any)
+   */
+  winner(): Player | undefined;
+  /**
+   * Get move count
+   */
+  move_count(): number;
+  /**
+   * Check if column is valid for next move
+   */
+  is_valid_move(column: number): boolean;
+  /**
+   * Get column height
+   */
+  get_column_height(column: number): number;
+  /**
+   * Reset game to initial state
+   */
+  reset(): void;
+  /**
+   * Reset game with a specific starting player
+   */
+  reset_with_starting_player(starting_player: Player): void;
+  /**
+   * Start a new game series with "loser starts" rule
+   * If loser_starts is true, the losing player from the previous game starts the next game
+   */
+  start_new_series(loser_starts: boolean): void;
+  /**
+   * Create a hypothetical game state for AI evaluation
+   * This allows the AI to evaluate positions regardless of whose turn it is
+   */
+  create_hypothetical_state(hypothetical_player: Player): Connect4Game;
+  /**
+   * Get board state as string for debugging
+   */
+  board_string(): string;
+  /**
+   * Check if game is draw (board full, no winner)
+   */
+  is_draw(): boolean;
+  /**
+   * Check if game is over (win or draw)
+   */
+  is_game_over(): boolean;
+  /**
+   * Get AI move suggestion
+   */
+  get_ai_move(): number | undefined;
+  /**
+   * Analyze current position comprehensively
+   */
+  analyze_position(): PositionAnalysis;
+  /**
+   * Get current game phase for AI strategy
+   */
+  get_game_phase(): GamePhase;
 }
 export class Game {
   free(): void;
@@ -204,94 +343,6 @@ export class Game {
    */
   get_blocking_moves_gobang(): Uint32Array;
 }
-export class GomokuBoard {
-  free(): void;
-  constructor();
-  get_cell(row: number, col: number): number;
-  make_move(row: number, col: number): boolean;
-  check_win(): boolean;
-  is_game_over(): boolean;
-  get_winner(): number | undefined;
-  get_current_player(): number;
-  get_move_count(): number;
-  clear(): void;
-  /**
-   * Get board state as Int8Array for JavaScript UI
-   */
-  get_board(): Int8Array;
-  memory_usage(): number;
-  is_valid_position(row: number, col: number): boolean;
-  count_stones(player: number): number;
-  /**
-   * Get legal moves for current player
-   */
-  get_legal_moves(): Uint32Array;
-}
-export class HexBoard {
-  free(): void;
-  constructor();
-  get_cell(row: number, col: number): number;
-  set_cell(row: number, col: number, value: number): void;
-  clear(): void;
-  memory_usage(): number;
-  dimensions(): Uint32Array;
-  is_valid_position(row: number, col: number): boolean;
-  count_stones(player: number): number;
-  /**
-   * Get board state as simple string for debugging
-   */
-  get_board_debug(): string;
-}
-/**
- * L-Game main struct - Edward de Bono's strategic blockade game
- */
-export class LGame {
-  free(): void;
-  /**
-   * Create new L-Game in standard starting position
-   */
-  constructor();
-  /**
-   * Get current board state as Int8Array for JavaScript
-   */
-  getBoard(): Int8Array;
-  /**
-   * Get current player
-   */
-  getCurrentPlayer(): Player;
-  /**
-   * Check if game is over
-   */
-  isGameOver(): boolean;
-  /**
-   * Get winner if game is over
-   */
-  getWinner(): Player | undefined;
-  /**
-   * Get legal moves for current player
-   */
-  getLegalMoves(): Array<any>;
-  /**
-   * Make a move (L-piece movement + optional neutral piece movement)
-   */
-  makeMove(l_anchor_row: number, l_anchor_col: number, l_orientation: number, neutral_id?: number | null, neutral_row?: number | null, neutral_col?: number | null): void;
-}
-/**
- * L-Game move representation
- */
-export class LGameMove {
-  private constructor();
-  free(): void;
-  l_piece_anchor_row: number;
-  l_piece_anchor_col: number;
-  l_piece_orientation: number;
-  get neutral_piece_id(): number | undefined;
-  set neutral_piece_id(value: number | null | undefined);
-  get neutral_new_row(): number | undefined;
-  set neutral_new_row(value: number | null | undefined);
-  get neutral_new_col(): number | undefined;
-  set neutral_new_col(value: number | null | undefined);
-}
 /**
  * Position analysis structure for AI decision making
  */
@@ -345,31 +396,6 @@ export class SolutionAnalysis {
   readonly get_subtract_operations: number;
   readonly get_difficulty_score: number;
 }
-export class TrioBoardBitPacked {
-  free(): void;
-  constructor(difficulty: number);
-  get_cell(row: number, col: number): number;
-  get_target_number(): number;
-  get_difficulty(): number;
-  /**
-   * Get board state as Int8Array for JavaScript UI
-   */
-  get_board(): Int8Array;
-  memory_usage(): number;
-  is_valid_position(row: number, col: number): boolean;
-  /**
-   * Check if three numbers at positions form a valid solution
-   */
-  check_combination(r1: number, c1: number, r2: number, c2: number, r3: number, c3: number): boolean;
-  /**
-   * Clear and regenerate the board
-   */
-  regenerate(difficulty: number): void;
-  /**
-   * Get performance statistics
-   */
-  get_performance_stats(): string;
-}
 export class TrioGame {
   free(): void;
   constructor(difficulty: number);
@@ -402,6 +428,37 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_connect4game_free: (a: number, b: number) => void;
+  readonly connect4game_new: () => number;
+  readonly connect4game_new_with_starting_player: (a: number) => number;
+  readonly connect4game_make_move: (a: number, b: number, c: number) => void;
+  readonly connect4game_get_cell: (a: number, b: number, c: number) => number;
+  readonly connect4game_current_player: (a: number) => number;
+  readonly connect4game_winner: (a: number) => number;
+  readonly connect4game_move_count: (a: number) => number;
+  readonly connect4game_is_valid_move: (a: number, b: number) => number;
+  readonly connect4game_get_column_height: (a: number, b: number) => number;
+  readonly connect4game_reset: (a: number) => void;
+  readonly connect4game_reset_with_starting_player: (a: number, b: number) => void;
+  readonly connect4game_start_new_series: (a: number, b: number) => void;
+  readonly connect4game_create_hypothetical_state: (a: number, b: number) => number;
+  readonly connect4game_board_string: (a: number, b: number) => void;
+  readonly connect4game_is_draw: (a: number) => number;
+  readonly connect4game_is_game_over: (a: number) => number;
+  readonly connect4game_get_ai_move: (a: number) => number;
+  readonly connect4game_analyze_position: (a: number) => number;
+  readonly connect4game_get_game_phase: (a: number) => number;
+  readonly __wbg_connect4ai_free: (a: number, b: number) => void;
+  readonly connect4ai_new: () => number;
+  readonly connect4ai_with_difficulty: (a: number) => number;
+  readonly connect4ai_set_ai_player: (a: number, b: number) => void;
+  readonly connect4ai_set_difficulty: (a: number, b: number) => void;
+  readonly connect4ai_set_difficulty_level: (a: number, b: number) => void;
+  readonly connect4ai_get_difficulty_level: (a: number) => number;
+  readonly connect4ai_get_best_move: (a: number, b: number) => number;
+  readonly connect4ai_get_best_move_for_player: (a: number, b: number, c: number) => number;
+  readonly connect4ai_evaluate_position: (a: number, b: number) => number;
+  readonly connect4ai_get_quick_move: (a: number, b: number) => number;
   readonly main: () => void;
   readonly __wbg_positionanalysis_free: (a: number, b: number) => void;
   readonly __wbg_get_positionanalysis_current_player_threats: (a: number) => number;
@@ -501,64 +558,7 @@ export interface InitOutput {
   readonly triogame_count_solutions_for_target_wasm: (a: number, b: number) => number;
   readonly triogame_categorize_target_difficulty_wasm: (a: number, b: number) => number;
   readonly triogame_comprehensive_gap_analysis: (a: number) => void;
-  readonly __wbg_lgamemove_free: (a: number, b: number) => void;
-  readonly __wbg_get_lgamemove_l_piece_anchor_row: (a: number) => number;
-  readonly __wbg_set_lgamemove_l_piece_anchor_row: (a: number, b: number) => void;
-  readonly __wbg_get_lgamemove_l_piece_anchor_col: (a: number) => number;
-  readonly __wbg_set_lgamemove_l_piece_anchor_col: (a: number, b: number) => void;
-  readonly __wbg_get_lgamemove_l_piece_orientation: (a: number) => number;
-  readonly __wbg_set_lgamemove_l_piece_orientation: (a: number, b: number) => void;
-  readonly __wbg_get_lgamemove_neutral_piece_id: (a: number) => number;
-  readonly __wbg_set_lgamemove_neutral_piece_id: (a: number, b: number) => void;
-  readonly __wbg_get_lgamemove_neutral_new_row: (a: number) => number;
-  readonly __wbg_set_lgamemove_neutral_new_row: (a: number, b: number) => void;
-  readonly __wbg_get_lgamemove_neutral_new_col: (a: number) => number;
-  readonly __wbg_set_lgamemove_neutral_new_col: (a: number, b: number) => void;
-  readonly __wbg_lgame_free: (a: number, b: number) => void;
-  readonly lgame_new: () => number;
-  readonly lgame_getBoard: (a: number) => number;
-  readonly lgame_getCurrentPlayer: (a: number) => number;
-  readonly lgame_isGameOver: (a: number) => number;
-  readonly lgame_getWinner: (a: number) => number;
-  readonly lgame_getLegalMoves: (a: number) => number;
-  readonly lgame_makeMove: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => void;
-  readonly __wbg_hexboard_free: (a: number, b: number) => void;
-  readonly hexboard_new: () => number;
-  readonly hexboard_get_cell: (a: number, b: number, c: number) => number;
-  readonly hexboard_set_cell: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly hexboard_clear: (a: number) => void;
-  readonly hexboard_memory_usage: (a: number) => number;
-  readonly hexboard_dimensions: (a: number, b: number) => void;
-  readonly hexboard_is_valid_position: (a: number, b: number, c: number) => number;
-  readonly hexboard_count_stones: (a: number, b: number) => number;
-  readonly hexboard_get_board_debug: (a: number, b: number) => void;
-  readonly __wbg_gomokuboard_free: (a: number, b: number) => void;
-  readonly gomokuboard_new: () => number;
-  readonly gomokuboard_get_cell: (a: number, b: number, c: number) => number;
-  readonly gomokuboard_make_move: (a: number, b: number, c: number, d: number) => void;
-  readonly gomokuboard_check_win: (a: number) => number;
-  readonly gomokuboard_is_game_over: (a: number) => number;
-  readonly gomokuboard_get_winner: (a: number) => number;
-  readonly gomokuboard_get_current_player: (a: number) => number;
-  readonly gomokuboard_get_move_count: (a: number) => number;
-  readonly gomokuboard_clear: (a: number) => void;
-  readonly gomokuboard_get_board: (a: number, b: number) => void;
-  readonly gomokuboard_memory_usage: (a: number) => number;
-  readonly gomokuboard_is_valid_position: (a: number, b: number, c: number) => number;
-  readonly gomokuboard_count_stones: (a: number, b: number) => number;
-  readonly gomokuboard_get_legal_moves: (a: number, b: number) => void;
-  readonly trioboardbitpacked_new: (a: number) => number;
-  readonly trioboardbitpacked_get_cell: (a: number, b: number, c: number) => number;
-  readonly trioboardbitpacked_get_target_number: (a: number) => number;
-  readonly trioboardbitpacked_get_difficulty: (a: number) => number;
-  readonly trioboardbitpacked_get_board: (a: number, b: number) => void;
-  readonly trioboardbitpacked_is_valid_position: (a: number, b: number, c: number) => number;
-  readonly trioboardbitpacked_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
-  readonly trioboardbitpacked_regenerate: (a: number, b: number) => void;
-  readonly trioboardbitpacked_get_performance_stats: (a: number, b: number) => void;
   readonly game_is_terminal: (a: number) => number;
-  readonly __wbg_trioboardbitpacked_free: (a: number, b: number) => void;
-  readonly trioboardbitpacked_memory_usage: (a: number) => number;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_2: (a: number, b: number) => number;

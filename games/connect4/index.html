@@ -388,6 +388,28 @@
         // NATIVE MODAL SYSTEM: Complete rebuild to fix visibility issues
         import('./js/modal-system-native.js').then(module => {
           console.log('✅ Native Modal System imported and auto-initialized');
+          
+          // Phase 2 Validation: Test modal system functionality
+          setTimeout(() => {
+            const modalSystem = window.nativeModalSystem;
+            if (modalSystem) {
+              const debugInfo = modalSystem.getDebugInfo();
+              console.log('🧪 Modal System Debug Info:', debugInfo);
+              
+              // Test if all required elements are present
+              const allElementsPresent = debugInfo.helpModalExists && 
+                                       debugInfo.assistanceModalExists && 
+                                       debugInfo.helpBtnExists && 
+                                       debugInfo.assistanceBtnExists;
+              
+              if (allElementsPresent) {
+                console.log('✅ Phase 2: Modal System validation passed');
+              } else {
+                console.warn('⚠️ Phase 2: Some modal elements missing');
+              }
+            }
+          }, 100);
+          
         }).catch(error => {
           console.error('❌ Failed to load Native Modal System:', error);
           

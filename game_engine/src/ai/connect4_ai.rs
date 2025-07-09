@@ -1,5 +1,6 @@
 use wasm_bindgen::prelude::*;
-use crate::games::connect4::{Connect4Game, Player};
+use crate::games::connect4::Connect4Game;
+use crate::Player;
 use crate::ai::pattern_evaluator::{PatternEvaluator, GamePhase};
 
 /// AI Difficulty levels with corresponding search depths

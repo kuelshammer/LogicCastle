@@ -124,69 +124,10 @@ function isLikeNone(x) {
     return x === undefined || x === null;
 }
 
-function debugString(val) {
-    // primitive types
-    const type = typeof val;
-    if (type == 'number' || type == 'boolean' || val == null) {
-        return  `${val}`;
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
     }
-    if (type == 'string') {
-        return `"${val}"`;
-    }
-    if (type == 'symbol') {
-        const description = val.description;
-        if (description == null) {
-            return 'Symbol';
-        } else {
-            return `Symbol(${description})`;
-        }
-    }
-    if (type == 'function') {
-        const name = val.name;
-        if (typeof name == 'string' && name.length > 0) {
-            return `Function(${name})`;
-        } else {
-            return 'Function';
-        }
-    }
-    // objects
-    if (Array.isArray(val)) {
-        const length = val.length;
-        let debug = '[';
-        if (length > 0) {
-            debug += debugString(val[0]);
-        }
-        for(let i = 1; i < length; i++) {
-            debug += ', ' + debugString(val[i]);
-        }
-        debug += ']';
-        return debug;
-    }
-    // Test for built-in
-    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
-    let className;
-    if (builtInMatches && builtInMatches.length > 1) {
-        className = builtInMatches[1];
-    } else {
-        // Failed to match the standard '[object ClassName]'
-        return toString.call(val);
-    }
-    if (className == 'Object') {
-        // we're a user defined class or Object
-        // JSON.stringify avoids problems with cycles, and is generally much
-        // easier than looping through ownProperties of `val`.
-        try {
-            return 'Object(' + JSON.stringify(val) + ')';
-        } catch (_) {
-            return 'Object';
-        }
-    }
-    // errors
-    if (val instanceof Error) {
-        return `${val.name}: ${val.message}\n${val.stack}`;
-    }
-    // TODO we could test for more things here, like `Set`s and `Map`s.
-    return className;
 }
 
 export function main() {
@@ -244,6 +185,16 @@ function getArrayJsValueFromWasm0(ptr, len) {
     }
     return result;
 }
+/**
+ * AI Difficulty levels with corresponding search depths
+ * Based on memory analysis: Easy=2, Medium=4, Hard=6
+ * @enum {2 | 4 | 6}
+ */
+export const AIDifficulty = Object.freeze({
+    Easy: 2, "2": "Easy",
+    Medium: 4, "4": "Medium",
+    Hard: 6, "6": "Hard",
+});
 /**
  * @enum {0 | 1 | 2 | 3 | 4 | 5}
  */
@@ -453,6 +404,333 @@ export class Board {
     get_drop_row(col) {
         const ret = wasm.board_get_drop_row(this.__wbg_ptr, col);
         return ret === 0x100000001 ? undefined : ret;
+    }
+}
+
+const Connect4AIFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_connect4ai_free(ptr >>> 0, 1));
+/**
+ * Connect4 AI implementation using Gemini's pattern-based evaluation
+ * Implements the "Stratege" layer of the Three-Layer Architecture
+ */
+export class Connect4AI {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Connect4AI.prototype);
+        obj.__wbg_ptr = ptr;
+        Connect4AIFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        Connect4AIFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_connect4ai_free(ptr, 0);
+    }
+    constructor() {
+        const ret = wasm.connect4ai_new();
+        this.__wbg_ptr = ret >>> 0;
+        Connect4AIFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Create AI with specific difficulty level
+     * @param {AIDifficulty} difficulty
+     * @returns {Connect4AI}
+     */
+    static with_difficulty(difficulty) {
+        const ret = wasm.connect4ai_with_difficulty(difficulty);
+        return Connect4AI.__wrap(ret);
+    }
+    /**
+     * Set the AI player (default: Red)
+     * @param {Player} player
+     */
+    set_ai_player(player) {
+        wasm.connect4ai_set_ai_player(this.__wbg_ptr, player);
+    }
+    /**
+     * Set search depth (higher = stronger but slower)
+     * @param {number} depth
+     */
+    set_difficulty(depth) {
+        wasm.connect4ai_set_difficulty(this.__wbg_ptr, depth);
+    }
+    /**
+     * Set AI difficulty level (Easy/Medium/Hard)
+     * This is the preferred way to set AI strength
+     * @param {AIDifficulty} difficulty
+     */
+    set_difficulty_level(difficulty) {
+        wasm.connect4ai_set_difficulty_level(this.__wbg_ptr, difficulty);
+    }
+    /**
+     * Get current difficulty level
+     * @returns {AIDifficulty}
+     */
+    get_difficulty_level() {
+        const ret = wasm.connect4ai_get_difficulty_level(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get the best move for the current position
+     * @param {Connect4Game} game
+     * @returns {number | undefined}
+     */
+    get_best_move(game) {
+        _assertClass(game, Connect4Game);
+        const ret = wasm.connect4ai_get_best_move(this.__wbg_ptr, game.__wbg_ptr);
+        return ret === 0x100000001 ? undefined : ret;
+    }
+    /**
+     * Get the best move for a specific player (bidirectional AI)
+     * This allows the AI to predict moves for both players
+     * Unlike get_best_move, this works regardless of whose turn it is
+     * @param {Connect4Game} game
+     * @param {Player} player
+     * @returns {number | undefined}
+     */
+    get_best_move_for_player(game, player) {
+        _assertClass(game, Connect4Game);
+        const ret = wasm.connect4ai_get_best_move_for_player(this.__wbg_ptr, game.__wbg_ptr, player);
+        return ret === 0x100000001 ? undefined : ret;
+    }
+    /**
+     * Get the evaluation score for the current position
+     * @param {Connect4Game} game
+     * @returns {number}
+     */
+    evaluate_position(game) {
+        _assertClass(game, Connect4Game);
+        const ret = wasm.connect4ai_evaluate_position(this.__wbg_ptr, game.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get a quick move for time-constrained situations
+     * @param {Connect4Game} game
+     * @returns {number | undefined}
+     */
+    get_quick_move(game) {
+        _assertClass(game, Connect4Game);
+        const ret = wasm.connect4ai_get_quick_move(this.__wbg_ptr, game.__wbg_ptr);
+        return ret === 0x100000001 ? undefined : ret;
+    }
+}
+
+const Connect4GameFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_connect4game_free(ptr >>> 0, 1));
+/**
+ * Connect4 game implementation using the Three-Layer Architecture
+ * Composes geometry and data layers for clean separation of concerns
+ */
+export class Connect4Game {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Connect4Game.prototype);
+        obj.__wbg_ptr = ptr;
+        Connect4GameFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        Connect4GameFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_connect4game_free(ptr, 0);
+    }
+    constructor() {
+        const ret = wasm.connect4game_new();
+        this.__wbg_ptr = ret >>> 0;
+        Connect4GameFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Create a new Connect4 game with a specific starting player
+     * This is essential for game series where "loser starts next game"
+     * @param {Player} starting_player
+     * @returns {Connect4Game}
+     */
+    static new_with_starting_player(starting_player) {
+        const ret = wasm.connect4game_new_with_starting_player(starting_player);
+        return Connect4Game.__wrap(ret);
+    }
+    /**
+     * Make a move in the specified column
+     * @param {number} column
+     * @returns {boolean}
+     */
+    make_move(column) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_make_move(retptr, this.__wbg_ptr, column);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 !== 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get cell value at position (0 = empty, 1 = yellow, 2 = red)
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_cell(row, col) {
+        const ret = wasm.connect4game_get_cell(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * Get current player
+     * @returns {Player}
+     */
+    current_player() {
+        const ret = wasm.connect4game_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get winner (if any)
+     * @returns {Player | undefined}
+     */
+    winner() {
+        const ret = wasm.connect4game_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Get move count
+     * @returns {number}
+     */
+    move_count() {
+        const ret = wasm.connect4game_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Check if column is valid for next move
+     * @param {number} column
+     * @returns {boolean}
+     */
+    is_valid_move(column) {
+        const ret = wasm.connect4game_is_valid_move(this.__wbg_ptr, column);
+        return ret !== 0;
+    }
+    /**
+     * Get column height
+     * @param {number} column
+     * @returns {number}
+     */
+    get_column_height(column) {
+        const ret = wasm.connect4game_get_column_height(this.__wbg_ptr, column);
+        return ret >>> 0;
+    }
+    /**
+     * Reset game to initial state
+     */
+    reset() {
+        wasm.connect4game_reset(this.__wbg_ptr);
+    }
+    /**
+     * Reset game with a specific starting player
+     * @param {Player} starting_player
+     */
+    reset_with_starting_player(starting_player) {
+        wasm.connect4game_reset_with_starting_player(this.__wbg_ptr, starting_player);
+    }
+    /**
+     * Start a new game series with "loser starts" rule
+     * If loser_starts is true, the losing player from the previous game starts the next game
+     * @param {boolean} loser_starts
+     */
+    start_new_series(loser_starts) {
+        wasm.connect4game_start_new_series(this.__wbg_ptr, loser_starts);
+    }
+    /**
+     * Create a hypothetical game state for AI evaluation
+     * This allows the AI to evaluate positions regardless of whose turn it is
+     * @param {Player} hypothetical_player
+     * @returns {Connect4Game}
+     */
+    create_hypothetical_state(hypothetical_player) {
+        const ret = wasm.connect4game_create_hypothetical_state(this.__wbg_ptr, hypothetical_player);
+        return Connect4Game.__wrap(ret);
+    }
+    /**
+     * Get board state as string for debugging
+     * @returns {string}
+     */
+    board_string() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_board_string(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Check if game is draw (board full, no winner)
+     * @returns {boolean}
+     */
+    is_draw() {
+        const ret = wasm.connect4game_is_draw(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Check if game is over (win or draw)
+     * @returns {boolean}
+     */
+    is_game_over() {
+        const ret = wasm.connect4game_is_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get AI move suggestion
+     * @returns {number | undefined}
+     */
+    get_ai_move() {
+        const ret = wasm.connect4game_get_ai_move(this.__wbg_ptr);
+        return ret === 0x100000001 ? undefined : ret;
+    }
+    /**
+     * Analyze current position comprehensively
+     * @returns {PositionAnalysis}
+     */
+    analyze_position() {
+        const ret = wasm.connect4game_analyze_position(this.__wbg_ptr);
+        return PositionAnalysis.__wrap(ret);
+    }
+    /**
+     * Get current game phase for AI strategy
+     * @returns {GamePhase}
+     */
+    get_game_phase() {
+        const ret = wasm.connect4game_get_game_phase(this.__wbg_ptr);
+        return ret;
     }
 }
 
@@ -930,462 +1208,6 @@ export class Game {
     }
 }
 
-const GomokuBoardFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_gomokuboard_free(ptr >>> 0, 1));
-
-export class GomokuBoard {
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        GomokuBoardFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_gomokuboard_free(ptr, 0);
-    }
-    constructor() {
-        const ret = wasm.gomokuboard_new();
-        this.__wbg_ptr = ret >>> 0;
-        GomokuBoardFinalization.register(this, this.__wbg_ptr, this);
-        return this;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {number}
-     */
-    get_cell(row, col) {
-        const ret = wasm.gomokuboard_get_cell(this.__wbg_ptr, row, col);
-        return ret;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {boolean}
-     */
-    make_move(row, col) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.gomokuboard_make_move(retptr, this.__wbg_ptr, row, col);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
-            if (r2) {
-                throw takeObject(r1);
-            }
-            return r0 !== 0;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @returns {boolean}
-     */
-    check_win() {
-        const ret = wasm.gomokuboard_check_win(this.__wbg_ptr);
-        return ret !== 0;
-    }
-    /**
-     * @returns {boolean}
-     */
-    is_game_over() {
-        const ret = wasm.gomokuboard_is_game_over(this.__wbg_ptr);
-        return ret !== 0;
-    }
-    /**
-     * @returns {number | undefined}
-     */
-    get_winner() {
-        const ret = wasm.gomokuboard_get_winner(this.__wbg_ptr);
-        return ret === 0xFFFFFF ? undefined : ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get_current_player() {
-        const ret = wasm.gomokuboard_get_current_player(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get_move_count() {
-        const ret = wasm.gomokuboard_get_move_count(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    clear() {
-        wasm.gomokuboard_clear(this.__wbg_ptr);
-    }
-    /**
-     * Get board state as Int8Array for JavaScript UI
-     * @returns {Int8Array}
-     */
-    get_board() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.gomokuboard_get_board(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayI8FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @returns {number}
-     */
-    memory_usage() {
-        const ret = wasm.gomokuboard_memory_usage(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {boolean}
-     */
-    is_valid_position(row, col) {
-        const ret = wasm.gomokuboard_is_valid_position(this.__wbg_ptr, row, col);
-        return ret !== 0;
-    }
-    /**
-     * @param {number} player
-     * @returns {number}
-     */
-    count_stones(player) {
-        const ret = wasm.gomokuboard_count_stones(this.__wbg_ptr, player);
-        return ret >>> 0;
-    }
-    /**
-     * Get legal moves for current player
-     * @returns {Uint32Array}
-     */
-    get_legal_moves() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.gomokuboard_get_legal_moves(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayU32FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-}
-
-const HexBoardFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_hexboard_free(ptr >>> 0, 1));
-
-export class HexBoard {
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        HexBoardFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_hexboard_free(ptr, 0);
-    }
-    constructor() {
-        const ret = wasm.hexboard_new();
-        this.__wbg_ptr = ret >>> 0;
-        HexBoardFinalization.register(this, this.__wbg_ptr, this);
-        return this;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {number}
-     */
-    get_cell(row, col) {
-        const ret = wasm.hexboard_get_cell(this.__wbg_ptr, row, col);
-        return ret;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @param {number} value
-     */
-    set_cell(row, col, value) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.hexboard_set_cell(retptr, this.__wbg_ptr, row, col, value);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            if (r1) {
-                throw takeObject(r0);
-            }
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    clear() {
-        wasm.hexboard_clear(this.__wbg_ptr);
-    }
-    /**
-     * @returns {number}
-     */
-    memory_usage() {
-        const ret = wasm.hexboard_memory_usage(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @returns {Uint32Array}
-     */
-    dimensions() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.hexboard_dimensions(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayU32FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {boolean}
-     */
-    is_valid_position(row, col) {
-        const ret = wasm.hexboard_is_valid_position(this.__wbg_ptr, row, col);
-        return ret !== 0;
-    }
-    /**
-     * @param {number} player
-     * @returns {number}
-     */
-    count_stones(player) {
-        const ret = wasm.hexboard_count_stones(this.__wbg_ptr, player);
-        return ret >>> 0;
-    }
-    /**
-     * Get board state as simple string for debugging
-     * @returns {string}
-     */
-    get_board_debug() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.hexboard_get_board_debug(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            deferred1_0 = r0;
-            deferred1_1 = r1;
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
-        }
-    }
-}
-
-const LGameFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_lgame_free(ptr >>> 0, 1));
-/**
- * L-Game main struct - Edward de Bono's strategic blockade game
- */
-export class LGame {
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        LGameFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_lgame_free(ptr, 0);
-    }
-    /**
-     * Create new L-Game in standard starting position
-     */
-    constructor() {
-        const ret = wasm.lgame_new();
-        this.__wbg_ptr = ret >>> 0;
-        LGameFinalization.register(this, this.__wbg_ptr, this);
-        return this;
-    }
-    /**
-     * Get current board state as Int8Array for JavaScript
-     * @returns {Int8Array}
-     */
-    getBoard() {
-        const ret = wasm.lgame_getBoard(this.__wbg_ptr);
-        return takeObject(ret);
-    }
-    /**
-     * Get current player
-     * @returns {Player}
-     */
-    getCurrentPlayer() {
-        const ret = wasm.lgame_getCurrentPlayer(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * Check if game is over
-     * @returns {boolean}
-     */
-    isGameOver() {
-        const ret = wasm.lgame_isGameOver(this.__wbg_ptr);
-        return ret !== 0;
-    }
-    /**
-     * Get winner if game is over
-     * @returns {Player | undefined}
-     */
-    getWinner() {
-        const ret = wasm.lgame_getWinner(this.__wbg_ptr);
-        return ret === 0 ? undefined : ret;
-    }
-    /**
-     * Get legal moves for current player
-     * @returns {Array<any>}
-     */
-    getLegalMoves() {
-        const ret = wasm.lgame_getLegalMoves(this.__wbg_ptr);
-        return takeObject(ret);
-    }
-    /**
-     * Make a move (L-piece movement + optional neutral piece movement)
-     * @param {number} l_anchor_row
-     * @param {number} l_anchor_col
-     * @param {number} l_orientation
-     * @param {number | null} [neutral_id]
-     * @param {number | null} [neutral_row]
-     * @param {number | null} [neutral_col]
-     */
-    makeMove(l_anchor_row, l_anchor_col, l_orientation, neutral_id, neutral_row, neutral_col) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.lgame_makeMove(retptr, this.__wbg_ptr, l_anchor_row, l_anchor_col, l_orientation, isLikeNone(neutral_id) ? 0xFFFFFF : neutral_id, isLikeNone(neutral_row) ? 0xFFFFFF : neutral_row, isLikeNone(neutral_col) ? 0xFFFFFF : neutral_col);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            if (r1) {
-                throw takeObject(r0);
-            }
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-}
-
-const LGameMoveFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_lgamemove_free(ptr >>> 0, 1));
-/**
- * L-Game move representation
- */
-export class LGameMove {
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        LGameMoveFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_lgamemove_free(ptr, 0);
-    }
-    /**
-     * @returns {number}
-     */
-    get l_piece_anchor_row() {
-        const ret = wasm.__wbg_get_lgamemove_l_piece_anchor_row(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @param {number} arg0
-     */
-    set l_piece_anchor_row(arg0) {
-        wasm.__wbg_set_lgamemove_l_piece_anchor_row(this.__wbg_ptr, arg0);
-    }
-    /**
-     * @returns {number}
-     */
-    get l_piece_anchor_col() {
-        const ret = wasm.__wbg_get_lgamemove_l_piece_anchor_col(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @param {number} arg0
-     */
-    set l_piece_anchor_col(arg0) {
-        wasm.__wbg_set_lgamemove_l_piece_anchor_col(this.__wbg_ptr, arg0);
-    }
-    /**
-     * @returns {number}
-     */
-    get l_piece_orientation() {
-        const ret = wasm.__wbg_get_lgamemove_l_piece_orientation(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @param {number} arg0
-     */
-    set l_piece_orientation(arg0) {
-        wasm.__wbg_set_lgamemove_l_piece_orientation(this.__wbg_ptr, arg0);
-    }
-    /**
-     * @returns {number | undefined}
-     */
-    get neutral_piece_id() {
-        const ret = wasm.__wbg_get_lgamemove_neutral_piece_id(this.__wbg_ptr);
-        return ret === 0xFFFFFF ? undefined : ret;
-    }
-    /**
-     * @param {number | null} [arg0]
-     */
-    set neutral_piece_id(arg0) {
-        wasm.__wbg_set_lgamemove_neutral_piece_id(this.__wbg_ptr, isLikeNone(arg0) ? 0xFFFFFF : arg0);
-    }
-    /**
-     * @returns {number | undefined}
-     */
-    get neutral_new_row() {
-        const ret = wasm.__wbg_get_lgamemove_neutral_new_row(this.__wbg_ptr);
-        return ret === 0xFFFFFF ? undefined : ret;
-    }
-    /**
-     * @param {number | null} [arg0]
-     */
-    set neutral_new_row(arg0) {
-        wasm.__wbg_set_lgamemove_neutral_new_row(this.__wbg_ptr, isLikeNone(arg0) ? 0xFFFFFF : arg0);
-    }
-    /**
-     * @returns {number | undefined}
-     */
-    get neutral_new_col() {
-        const ret = wasm.__wbg_get_lgamemove_neutral_new_col(this.__wbg_ptr);
-        return ret === 0xFFFFFF ? undefined : ret;
-    }
-    /**
-     * @param {number | null} [arg0]
-     */
-    set neutral_new_col(arg0) {
-        wasm.__wbg_set_lgamemove_neutral_new_col(this.__wbg_ptr, isLikeNone(arg0) ? 0xFFFFFF : arg0);
-    }
-}
-
 const PositionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_positionanalysis_free(ptr >>> 0, 1));
@@ -1774,131 +1596,6 @@ export class SolutionAnalysis {
     }
 }
 
-const TrioBoardBitPackedFinalization = (typeof FinalizationRegistry === 'undefined')
-    ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_trioboardbitpacked_free(ptr >>> 0, 1));
-
-export class TrioBoardBitPacked {
-
-    __destroy_into_raw() {
-        const ptr = this.__wbg_ptr;
-        this.__wbg_ptr = 0;
-        TrioBoardBitPackedFinalization.unregister(this);
-        return ptr;
-    }
-
-    free() {
-        const ptr = this.__destroy_into_raw();
-        wasm.__wbg_trioboardbitpacked_free(ptr, 0);
-    }
-    /**
-     * @param {number} difficulty
-     */
-    constructor(difficulty) {
-        const ret = wasm.trioboardbitpacked_new(difficulty);
-        this.__wbg_ptr = ret >>> 0;
-        TrioBoardBitPackedFinalization.register(this, this.__wbg_ptr, this);
-        return this;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {number}
-     */
-    get_cell(row, col) {
-        const ret = wasm.trioboardbitpacked_get_cell(this.__wbg_ptr, row, col);
-        return ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get_target_number() {
-        const ret = wasm.trioboardbitpacked_get_target_number(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * @returns {number}
-     */
-    get_difficulty() {
-        const ret = wasm.trioboardbitpacked_get_difficulty(this.__wbg_ptr);
-        return ret;
-    }
-    /**
-     * Get board state as Int8Array for JavaScript UI
-     * @returns {Int8Array}
-     */
-    get_board() {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.trioboardbitpacked_get_board(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            var v1 = getArrayI8FromWasm0(r0, r1).slice();
-            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
-            return v1;
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
-    }
-    /**
-     * @returns {number}
-     */
-    memory_usage() {
-        const ret = wasm.gomokuboard_memory_usage(this.__wbg_ptr);
-        return ret >>> 0;
-    }
-    /**
-     * @param {number} row
-     * @param {number} col
-     * @returns {boolean}
-     */
-    is_valid_position(row, col) {
-        const ret = wasm.trioboardbitpacked_is_valid_position(this.__wbg_ptr, row, col);
-        return ret !== 0;
-    }
-    /**
-     * Check if three numbers at positions form a valid solution
-     * @param {number} r1
-     * @param {number} c1
-     * @param {number} r2
-     * @param {number} c2
-     * @param {number} r3
-     * @param {number} c3
-     * @returns {boolean}
-     */
-    check_combination(r1, c1, r2, c2, r3, c3) {
-        const ret = wasm.trioboardbitpacked_check_combination(this.__wbg_ptr, r1, c1, r2, c2, r3, c3);
-        return ret !== 0;
-    }
-    /**
-     * Clear and regenerate the board
-     * @param {number} difficulty
-     */
-    regenerate(difficulty) {
-        wasm.trioboardbitpacked_regenerate(this.__wbg_ptr, difficulty);
-    }
-    /**
-     * Get performance statistics
-     * @returns {string}
-     */
-    get_performance_stats() {
-        let deferred1_0;
-        let deferred1_1;
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.trioboardbitpacked_get_performance_stats(retptr, this.__wbg_ptr);
-            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
-            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
-            deferred1_0 = r0;
-            deferred1_1 = r1;
-            return getStringFromWasm0(r0, r1);
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
-        }
-    }
-}
-
 const TrioGameFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_triogame_free(ptr >>> 0, 1));
@@ -2097,20 +1794,8 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).msCrypto;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_new_405e22f390576ce2 = function() {
-        const ret = new Object();
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_new_78feb108b6472713 = function() {
-        const ret = new Array();
-        return addHeapObject(ret);
-    };
     imports.wbg.__wbg_new_8a6f238a6ece86ea = function() {
         const ret = new Error();
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_new_8de0180919aeafa0 = function(arg0) {
-        const ret = new Int8Array(getObject(arg0));
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_new_a12002a7f91c75be = function(arg0) {
@@ -2119,10 +1804,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_newnoargs_105ed471475aaf50 = function(arg0, arg1) {
         const ret = new Function(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_newwithbyteoffsetandlength_840f3c038856d4e9 = function(arg0, arg1, arg2) {
-        const ret = new Int8Array(getObject(arg0), arg1 >>> 0, arg2 >>> 0);
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_newwithbyteoffsetandlength_d97e637ebe145a9a = function(arg0, arg1, arg2) {
@@ -2141,10 +1822,6 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).process;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_push_737cfc8c1432c2c6 = function(arg0, arg1) {
-        const ret = getObject(arg0).push(getObject(arg1));
-        return ret;
-    };
     imports.wbg.__wbg_randomFillSync_ac0988aba3254290 = function() { return handleError(function (arg0, arg1) {
         getObject(arg0).randomFillSync(takeObject(arg1));
     }, arguments) };
@@ -2155,10 +1832,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_set_65595bdd868b3009 = function(arg0, arg1, arg2) {
         getObject(arg0).set(getObject(arg1), arg2 >>> 0);
     };
-    imports.wbg.__wbg_set_bb8cecf6a62b9f46 = function() { return handleError(function (arg0, arg1, arg2) {
-        const ret = Reflect.set(getObject(arg0), getObject(arg1), getObject(arg2));
-        return ret;
-    }, arguments) };
     imports.wbg.__wbg_stack_0ed75d68575b0f3c = function(arg0, arg1) {
         const ret = getObject(arg1).stack;
         const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_2, wasm.__wbindgen_export_3);
@@ -2189,13 +1862,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_versions_c01dfd4722a88165 = function(arg0) {
         const ret = getObject(arg0).versions;
         return addHeapObject(ret);
-    };
-    imports.wbg.__wbindgen_debug_string = function(arg0, arg1) {
-        const ret = debugString(getObject(arg1));
-        const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_2, wasm.__wbindgen_export_3);
-        const len1 = WASM_VECTOR_LEN;
-        getDataViewMemory0().setInt32(arg0 + 4 * 1, len1, true);
-        getDataViewMemory0().setInt32(arg0 + 4 * 0, ptr1, true);
     };
     imports.wbg.__wbindgen_is_function = function(arg0) {
         const ret = typeof(getObject(arg0)) === 'function';
