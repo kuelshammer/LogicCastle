@@ -8,7 +8,7 @@
  * ULTRATHINK Refactoring: Performance parity with Gomoku goldstandard.
  */
 
-import init, { Connect4Board } from '../../../game_engine/pkg/game_engine.js';
+import init, { Connect4Game } from '../../../game_engine/pkg/game_engine.js';
 
 export class Connect4GameBitPacked {
     constructor() {
@@ -42,8 +42,8 @@ export class Connect4GameBitPacked {
             // Initialize WASM module
             await init();
             
-            // Create BitPackedBoard instance for Connect4
-            this.board = new Connect4Board();
+            // Create Connect4Game instance
+            this.board = new Connect4Game();
             this.initialized = true;
             
             console.log('✅ BitPackedBoard Connect4 initialized successfully');
