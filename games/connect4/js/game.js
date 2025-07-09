@@ -47,8 +47,20 @@ export class Connect4GameBitPacked {
             this.initialized = true;
             
             console.log('✅ BitPackedBoard Connect4 initialized successfully');
-            console.log(`📊 Memory usage: ${this.board.memory_usage()} bytes (vs 84 bytes naive implementation)`);
-            console.log(`🔢 Memory efficiency: ${((84 - this.board.memory_usage()) / 84 * 100).toFixed(1)}% savings`);
+            
+            const memoryUsage = this.board.memory_usage();
+            const naiveMemoryUsage = 84; // 6 * 7 * 2 bytes for naive implementation
+            
+            console.log(`📊 Memory usage: ${memoryUsage} bytes (vs ${naiveMemoryUsage} bytes naive implementation)`);
+            
+            if (memoryUsage <= naiveMemoryUsage) {
+                const efficiency = ((naiveMemoryUsage - memoryUsage) / naiveMemoryUsage * 100).toFixed(1);
+                console.log(`🔢 Memory efficiency: ${efficiency}% savings`);
+            } else {
+                const overhead = ((memoryUsage - naiveMemoryUsage) / naiveMemoryUsage * 100).toFixed(1);
+                console.log(`🔢 Memory overhead: ${overhead}% (optimized for performance, not size)`);
+            }
+            
             console.log(`⚡ Performance optimized for ${this.rows}x${this.cols} board`);
             
             this.emit('initialized', { memoryUsage: this.board.memory_usage() });
@@ -470,12 +482,25 @@ export class Connect4GameBitPacked {
      * Get performance statistics
      */
     getPerformanceStats() {
+        const memoryUsage = this.initialized ? this.board.memory_usage() : 0;
+        const naiveMemoryUsage = 84; // 6 * 7 * 2 bytes for naive implementation
+        
+        let memoryEfficiency = '0%';
+        if (this.initialized) {
+            if (memoryUsage <= naiveMemoryUsage) {
+                const efficiency = ((naiveMemoryUsage - memoryUsage) / naiveMemoryUsage * 100).toFixed(1);
+                memoryEfficiency = `${efficiency}% savings`;
+            } else {
+                const overhead = ((memoryUsage - naiveMemoryUsage) / naiveMemoryUsage * 100).toFixed(1);
+                memoryEfficiency = `${overhead}% overhead`;
+            }
+        }
+        
         return {
             totalMoves: this.totalMoves,
             averageMoveTime: this.averageMoveTime,
-            memoryUsage: this.initialized ? this.board.memory_usage() : 0,
-            memoryEfficiency: this.initialized ? 
-                `${((84 - this.board.memory_usage()) / 84 * 100).toFixed(1)}%` : '0%'
+            memoryUsage: memoryUsage,
+            memoryEfficiency: memoryEfficiency
         };
     }
     

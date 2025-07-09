@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Fixes Validation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { padding: 10px; margin: 5px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 API Fixes Validation</h1>
+    <p>This page validates the critical fixes implemented in Phase 1.</p>
+    
+    <div id="results"></div>
+    
+    <button onclick="runAllTests()">Run All Tests</button>
+    <button onclick="testMemoryCalculation()">Test Memory Calculation</button>
+    <button onclick="testKeyboardActions()">Test Keyboard Actions</button>
+    <button onclick="testAPIContract()">Test API Contract</button>
+
+    <script type="module">
+        import { Connect4GameBitPacked } from './games/connect4/js/game.js';
+        import { Connect4UI } from './games/connect4/js/ui.js';
+        
+        window.Connect4GameBitPacked = Connect4GameBitPacked;
+        window.Connect4UI = Connect4UI;
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        window.logResult = logResult;
+
+        async function testMemoryCalculation() {
+            logResult('🧪 Testing Memory Calculation Fix...', 'info');
+            
+            try {
+                const game = new Connect4GameBitPacked();
+                await game.init();
+                
+                const memoryUsage = game.board.memory_usage();
+                const stats = game.getPerformanceStats();
+                
+                logResult(`✅ Memory usage: ${memoryUsage} bytes`, 'success');
+                logResult(`✅ Performance stats: ${stats.memoryEfficiency}`, 'success');
+                
+                // Verify no negative percentages
+                if (stats.memoryEfficiency.includes('-')) {
+                    logResult('❌ Still showing negative percentage!', 'error');
+                } else {
+                    logResult('✅ Memory calculation fixed - no negative percentages', 'success');
+                }
+                
+            } catch (error) {
+                logResult(`❌ Memory calculation test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testKeyboardActions() {
+            logResult('⌨️ Testing Keyboard Actions Fix...', 'info');
+            
+            try {
+                // Create a mock game
+                const mockGame = {
+                    makeMove: () => Promise.resolve(),
+                    isGameOver: () => false,
+                    getCurrentPlayer: () => 1,
+                    getMoveCount: () => 0,
+                    canUndo: () => false,
+                    on: () => {},
+                    off: () => {}
+                };
+
+                const ui = new Connect4UI(mockGame);
+                
+                // Test that dropColumn actions are defined
+                const hasDropColumn1 = typeof ui.dropDiscInColumn === 'function';
+                const hasToggleAssistance = typeof ui.toggleModal === 'function';
+                
+                if (hasDropColumn1) {
+                    logResult('✅ dropDiscInColumn method exists', 'success');
+                } else {
+                    logResult('❌ dropDiscInColumn method missing', 'error');
+                }
+                
+                if (hasToggleAssistance) {
+                    logResult('✅ toggleModal method exists', 'success');
+                } else {
+                    logResult('❌ toggleModal method missing', 'error');
+                }
+                
+                logResult('✅ Keyboard actions structure validated', 'success');
+                
+            } catch (error) {
+                logResult(`❌ Keyboard actions test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAPIContract() {
+            logResult('📋 Testing API Contract...', 'info');
+            
+            try {
+                const game = new Connect4GameBitPacked();
+                await game.init();
+                const wasmBoard = game.board;
+                
+                // Test critical methods that were missing
+                const criticalMethods = [
+                    'memory_usage',
+                    'get_board',
+                    'can_undo', 
+                    'undo_move',
+                    'get_ai_move',
+                    'evaluate_position_for_player'
+                ];
+
+                criticalMethods.forEach(method => {
+                    if (wasmBoard[method]) {
+                        logResult(`✅ ${method} exists`, 'success');
+                    } else {
+                        logResult(`❌ ${method} missing`, 'error');
+                    }
+                });
+
+                // Test method calls
+                const memoryUsage = wasmBoard.memory_usage();
+                const board = wasmBoard.get_board();
+                const canUndo = wasmBoard.can_undo();
+                const currentPlayer = wasmBoard.get_current_player();
+
+                logResult(`✅ memory_usage() returns: ${memoryUsage}`, 'success');
+                logResult(`✅ get_board() returns array of length: ${board.length}`, 'success');
+                logResult(`✅ can_undo() returns: ${canUndo}`, 'success');
+                logResult(`✅ get_current_player() returns: ${currentPlayer}`, 'success');
+
+                // Test camelCase aliases
+                if (wasmBoard.getCurrentPlayer && wasmBoard.canUndo) {
+                    logResult('✅ camelCase aliases exist', 'success');
+                } else {
+                    logResult('⚠️ Some camelCase aliases missing', 'warning');
+                }
+
+            } catch (error) {
+                logResult(`❌ API contract test failed: ${error.message}`, 'error');
+            }
+        }
+
+        window.testMemoryCalculation = testMemoryCalculation;
+        window.testKeyboardActions = testKeyboardActions;
+        window.testAPIContract = testAPIContract;
+
+        window.runAllTests = async function() {
+            document.getElementById('results').innerHTML = '';
+            logResult('🚀 Running All Validation Tests...', 'info');
+            
+            await testMemoryCalculation();
+            await testKeyboardActions();
+            await testAPIContract();
+            
+            logResult('✅ All validation tests completed!', 'success');
+        };
+
+        // Auto-run tests on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>

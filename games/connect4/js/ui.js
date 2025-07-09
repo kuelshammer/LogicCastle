@@ -68,12 +68,20 @@ export class Connect4UI extends BaseGameUI {
         this.assistanceManager = null;
         this.memoryManager = null;
         this.optimizedElementBinder = null;
+        
+        // Initialization guard to prevent multiple initializations
+        this.isInitialized = false;
     }
 
     /**
      * Override beforeInit to set up Connect4-specific initialization
      */
     async beforeInit() {
+        if (this.isInitialized) {
+            console.warn('⚠️ Connect4UI already initialized, skipping beforeInit');
+            return;
+        }
+        
         console.log('🔴 Starting Connect4 UI initialization...');
         
         // Update configuration based on current game mode
@@ -86,6 +94,11 @@ export class Connect4UI extends BaseGameUI {
      * Override afterInit to complete Connect4-specific setup
      */
     afterInit() {
+        if (this.isInitialized) {
+            console.warn('⚠️ Connect4UI already initialized, skipping afterInit');
+            return;
+        }
+        
         console.log('🔴 Completing Connect4 UI initialization...');
         
         // Initialize ULTRATHINK MemoryManager (foundational)
@@ -105,6 +118,9 @@ export class Connect4UI extends BaseGameUI {
         
         // Update initial UI state
         this.updateUI();
+        
+        // Mark as initialized
+        this.isInitialized = true;
         
         console.log('✅ Connect4 UI fully initialized');
     }
@@ -149,6 +165,12 @@ export class Connect4UI extends BaseGameUI {
             'dropColumn7': () => this.dropDiscInColumn(6)
         };
 
+        // Register Connect4-specific actions first
+        for (const [actionName, actionHandler] of Object.entries(connect4ActionMap)) {
+            keyboardController.addAction(actionName, actionHandler);
+        }
+
+        // Then register keyboard shortcuts for these actions
         for (const [key, action] of Object.entries(this.config.keyboard)) {
             if (connect4ActionMap[action]) {
                 keyboardController.register(key, action, connect4ActionMap[action]);
