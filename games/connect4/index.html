@@ -344,11 +344,11 @@
                 const verificationStart = Date.now();
                 const maxVerificationTime = 3000;
                 
-                while (!game.isInitialized && (Date.now() - verificationStart) < maxVerificationTime) {
+                while (!ui.isInitialized && (Date.now() - verificationStart) < maxVerificationTime) {
                   await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 
-                if (game.isInitialized) {
+                if (ui.isInitialized) {
                   ui.showMessage('Connect4 bereit! 🎯', 'success');
                   break;
                 } else {

@@ -70,14 +70,15 @@ export class Connect4UI extends BaseGameUI {
         this.optimizedElementBinder = null;
         
         // Initialization guard to prevent multiple initializations
-        this.isInitialized = false;
+        // Note: Use 'initialized' to match BaseGameUI's getter pattern
+        this.initialized = false;
     }
 
     /**
      * Override beforeInit to set up Connect4-specific initialization
      */
     async beforeInit() {
-        if (this.isInitialized) {
+        if (this.initialized) {
             console.warn('⚠️ Connect4UI already initialized, skipping beforeInit');
             return;
         }
@@ -94,7 +95,7 @@ export class Connect4UI extends BaseGameUI {
      * Override afterInit to complete Connect4-specific setup
      */
     afterInit() {
-        if (this.isInitialized) {
+        if (this.initialized) {
             console.warn('⚠️ Connect4UI already initialized, skipping afterInit');
             return;
         }
@@ -119,10 +120,53 @@ export class Connect4UI extends BaseGameUI {
         // Update initial UI state
         this.updateUI();
         
+        // Debug Modal System
+        this.debugModalSystem();
+        
+        // Make testModalSystem available globally for debugging
+        window.testModalSystem = () => this.testModalSystem();
+        
         // Mark as initialized
-        this.isInitialized = true;
+        this.initialized = true;
         
         console.log('✅ Connect4 UI fully initialized');
+        console.log('🧪 PHASE 2A: Run window.testModalSystem() to test modals');
+    }
+
+    /**
+     * Debug Modal System after initialization
+     */
+    debugModalSystem() {
+        console.log('🔍 PHASE 2A: Modal System Debug Starting...');
+        
+        // Check if modalManager exists
+        const modalManager = this.getModule('modals');
+        if (modalManager) {
+            console.log('✅ ModalManager module found');
+            
+            // Get debug info
+            const debugInfo = modalManager.getDebugInfo();
+            console.log('📋 Modal System Debug Info:', debugInfo);
+            
+            // Test modal elements
+            const helpModal = document.getElementById('helpModal');
+            const assistanceModal = document.getElementById('assistanceModal');
+            
+            console.log('📋 Modal DOM Elements:', {
+                helpModal: helpModal ? 'exists' : 'missing',
+                assistanceModal: assistanceModal ? 'exists' : 'missing'
+            });
+            
+            // Test if modals are registered
+            console.log('📋 Registered Modals:', modalManager.getRegisteredModals());
+            
+            // Test toggleModal method exists
+            console.log('📋 toggleModal method:', typeof this.toggleModal);
+            
+        } else {
+            console.error('❌ ModalManager module not found');
+            console.log('🔍 Available modules:', Array.from(this.modules.keys()));
+        }
     }
 
     /**
@@ -155,7 +199,10 @@ export class Connect4UI extends BaseGameUI {
         
         // Connect4-specific keyboard actions
         const connect4ActionMap = {
-            'toggleAssistance': () => this.toggleModal('assistance'),
+            'toggleAssistance': () => {
+                console.log('🎯 toggleAssistance action called');
+                this.toggleModal('assistance');
+            },
             'dropColumn1': () => this.dropDiscInColumn(0),
             'dropColumn2': () => this.dropDiscInColumn(1),
             'dropColumn3': () => this.dropDiscInColumn(2),
@@ -1087,6 +1134,52 @@ export class Connect4UI extends BaseGameUI {
         }
         
         console.log('🎯 Drop zones created for all 7 columns in gameBoard');
+    }
+
+    /**
+     * Manual Modal Testing - PHASE 2A DEBUG
+     */
+    testModalSystem() {
+        console.log('🧪 PHASE 2A: Manual Modal Testing...');
+        
+        // Test Help Modal
+        console.log('🧪 Testing Help Modal...');
+        try {
+            this.toggleModal('help');
+            console.log('✅ Help Modal toggle successful');
+        } catch (error) {
+            console.error('❌ Help Modal toggle failed:', error);
+        }
+        
+        // Test Assistance Modal
+        setTimeout(() => {
+            console.log('🧪 Testing Assistance Modal...');
+            try {
+                this.toggleModal('assistance');
+                console.log('✅ Assistance Modal toggle successful');
+            } catch (error) {
+                console.error('❌ Assistance Modal toggle failed:', error);
+            }
+        }, 2000);
+        
+        // Test Direct ModalManager Access
+        setTimeout(() => {
+            console.log('🧪 Testing Direct ModalManager Access...');
+            const modalManager = this.getModule('modals');
+            if (modalManager) {
+                try {
+                    modalManager.show('help');
+                    console.log('✅ Direct ModalManager.show() successful');
+                    
+                    setTimeout(() => {
+                        modalManager.hide('help');
+                        console.log('✅ Direct ModalManager.hide() successful');
+                    }, 1000);
+                } catch (error) {
+                    console.error('❌ Direct ModalManager access failed:', error);
+                }
+            }
+        }, 4000);
     }
 
     /**
