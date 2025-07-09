@@ -296,6 +296,192 @@ impl Connect4Game {
             _ => GamePhase::Endgame,
         }
     }
+    
+    // === MISSING API METHODS FOR FRONTEND COMPATIBILITY ===
+    
+    /// Get memory usage of the game state (for performance monitoring)
+    #[wasm_bindgen]
+    pub fn memory_usage(&self) -> usize {
+        // Calculate approximate memory usage
+        let bitpacked_boards = std::mem::size_of::<BitPackedBoard<6, 7, 2>>() * 2; // yellow + red
+        let game_state = std::mem::size_of::<Connect4Game>() - bitpacked_boards;
+        let ai_state = std::mem::size_of::<Connect4AI>() + std::mem::size_of::<PatternEvaluator>();
+        
+        bitpacked_boards + game_state + ai_state
+    }
+    
+    /// Get current player (frontend naming convention)
+    #[wasm_bindgen]
+    pub fn get_current_player(&self) -> Player {
+        self.current_player()
+    }
+    
+    /// Get move count (frontend naming convention)
+    #[wasm_bindgen]
+    pub fn get_move_count(&self) -> usize {
+        self.move_count()
+    }
+    
+    /// Get winner (frontend naming convention)
+    #[wasm_bindgen]
+    pub fn get_winner(&self) -> Option<Player> {
+        self.winner()
+    }
+    
+    /// Get board state as flat array for frontend (6 rows × 7 cols = 42 elements)
+    #[wasm_bindgen]
+    pub fn get_board(&self) -> Vec<u8> {
+        let mut board = vec![0u8; 42];
+        for row in 0..6 {
+            for col in 0..7 {
+                board[row * 7 + col] = self.get_cell(row, col);
+            }
+        }
+        board
+    }
+    
+    /// Check if undo is possible
+    #[wasm_bindgen]
+    pub fn can_undo(&self) -> bool {
+        self.move_count > 0 && !self.is_game_over()
+    }
+    
+    /// Undo the last move
+    #[wasm_bindgen]
+    pub fn undo_move(&mut self) -> bool {
+        if !self.can_undo() {
+            return false;
+        }
+        
+        // Find the column with the highest piece (most recent move)
+        let mut highest_col = None;
+        let mut highest_row = 0;
+        
+        for col in 0..7 {
+            if self.column_heights[col] > 0 {
+                let row = self.column_heights[col] - 1;
+                if row >= highest_row {
+                    highest_row = row;
+                    highest_col = Some(col);
+                }
+            }
+        }
+        
+        if let Some(col) = highest_col {
+            let row = self.column_heights[col] - 1;
+            let cell_value = self.get_cell(row, col);
+            
+            if cell_value != 0 {
+                // Remove the piece from the appropriate board
+                if cell_value == 1 {
+                    self.yellow_board.clear_cell(row, col);
+                } else if cell_value == 2 {
+                    self.red_board.clear_cell(row, col);
+                }
+                
+                // Update game state
+                self.column_heights[col] -= 1;
+                self.move_count -= 1;
+                self.current_player = self.current_player.opponent();
+                self.winner = None; // Reset winner since we undid a move
+                
+                return true;
+            }
+        }
+        
+        false
+    }
+    
+    /// Get AI board representation (for assistance system)
+    #[wasm_bindgen]
+    pub fn get_ai_board(&self) -> Vec<u8> {
+        self.get_board()
+    }
+    
+    /// Get threatening moves for a player
+    #[wasm_bindgen]
+    pub fn get_threatening_moves(&self, player: Player) -> Vec<usize> {
+        let mut threats = Vec::new();
+        
+        for col in 0..7 {
+            if self.is_valid_move(col) {
+                // Simulate move
+                let mut test_game = self.clone();
+                if test_game.make_move(col).is_ok() {
+                    // Check if this move creates a threat (wins or sets up a win)
+                    if test_game.winner().is_some() || test_game.count_threats(player) > 0 {
+                        threats.push(col);
+                    }
+                }
+            }
+        }
+        
+        threats
+    }
+    
+    /// Get winning moves for a player
+    #[wasm_bindgen]
+    pub fn get_winning_moves(&self, player: Player) -> Vec<usize> {
+        let mut winning_moves = Vec::new();
+        
+        for col in 0..7 {
+            if self.is_valid_move(col) {
+                // Simulate move
+                let mut test_game = self.clone();
+                if test_game.make_move(col).is_ok() {
+                    if test_game.winner() == Some(player) {
+                        winning_moves.push(col);
+                    }
+                }
+            }
+        }
+        
+        winning_moves
+    }
+    
+    /// Get blocking moves (moves that prevent opponent from winning)
+    #[wasm_bindgen]
+    pub fn get_blocking_moves(&self, player: Player) -> Vec<usize> {
+        let opponent = player.opponent();
+        let mut blocking_moves = Vec::new();
+        
+        for col in 0..7 {
+            if self.is_valid_move(col) {
+                // Simulate opponent move
+                let mut test_game = self.create_hypothetical_state(opponent);
+                if test_game.make_move(col).is_ok() {
+                    if test_game.winner() == Some(opponent) {
+                        blocking_moves.push(col);
+                    }
+                }
+            }
+        }
+        
+        blocking_moves
+    }
+    
+    /// Evaluate position for a specific player
+    #[wasm_bindgen]
+    pub fn evaluate_position_for_player(&self, player: Player) -> i32 {
+        let hypothetical_game = self.create_hypothetical_state(player);
+        self.ai.evaluate_position(&hypothetical_game)
+    }
+    
+    /// Frontend-friendly method aliases
+    #[wasm_bindgen]
+    pub fn newGame(&mut self) {
+        self.reset();
+    }
+    
+    #[wasm_bindgen]
+    pub fn undoMove(&mut self) -> bool {
+        self.undo_move()
+    }
+    
+    #[wasm_bindgen]
+    pub fn getAIMove(&self) -> Option<usize> {
+        self.get_ai_move()
+    }
 }
 
 // Internal implementation for AI access

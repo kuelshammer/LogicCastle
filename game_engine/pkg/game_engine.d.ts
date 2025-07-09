@@ -203,6 +203,60 @@ export class Connect4Game {
    * Get current game phase for AI strategy
    */
   get_game_phase(): GamePhase;
+  /**
+   * Get memory usage of the game state (for performance monitoring)
+   */
+  memory_usage(): number;
+  /**
+   * Get current player (frontend naming convention)
+   */
+  get_current_player(): Player;
+  /**
+   * Get move count (frontend naming convention)
+   */
+  get_move_count(): number;
+  /**
+   * Get winner (frontend naming convention)
+   */
+  get_winner(): Player | undefined;
+  /**
+   * Get board state as flat array for frontend (6 rows × 7 cols = 42 elements)
+   */
+  get_board(): Uint8Array;
+  /**
+   * Check if undo is possible
+   */
+  can_undo(): boolean;
+  /**
+   * Undo the last move
+   */
+  undo_move(): boolean;
+  /**
+   * Get AI board representation (for assistance system)
+   */
+  get_ai_board(): Uint8Array;
+  /**
+   * Get threatening moves for a player
+   */
+  get_threatening_moves(player: Player): Uint32Array;
+  /**
+   * Get winning moves for a player
+   */
+  get_winning_moves(player: Player): Uint32Array;
+  /**
+   * Get blocking moves (moves that prevent opponent from winning)
+   */
+  get_blocking_moves(player: Player): Uint32Array;
+  /**
+   * Evaluate position for a specific player
+   */
+  evaluate_position_for_player(player: Player): number;
+  /**
+   * Frontend-friendly method aliases
+   */
+  newGame(): void;
+  undoMove(): boolean;
+  getAIMove(): number | undefined;
 }
 export class Game {
   free(): void;
@@ -434,20 +488,30 @@ export interface InitOutput {
   readonly connect4game_make_move: (a: number, b: number, c: number) => void;
   readonly connect4game_get_cell: (a: number, b: number, c: number) => number;
   readonly connect4game_current_player: (a: number) => number;
-  readonly connect4game_winner: (a: number) => number;
-  readonly connect4game_move_count: (a: number) => number;
   readonly connect4game_is_valid_move: (a: number, b: number) => number;
   readonly connect4game_get_column_height: (a: number, b: number) => number;
-  readonly connect4game_reset: (a: number) => void;
   readonly connect4game_reset_with_starting_player: (a: number, b: number) => void;
   readonly connect4game_start_new_series: (a: number, b: number) => void;
   readonly connect4game_create_hypothetical_state: (a: number, b: number) => number;
   readonly connect4game_board_string: (a: number, b: number) => void;
   readonly connect4game_is_draw: (a: number) => number;
   readonly connect4game_is_game_over: (a: number) => number;
-  readonly connect4game_get_ai_move: (a: number) => number;
   readonly connect4game_analyze_position: (a: number) => number;
   readonly connect4game_get_game_phase: (a: number) => number;
+  readonly connect4game_memory_usage: (a: number) => number;
+  readonly connect4game_get_move_count: (a: number) => number;
+  readonly connect4game_get_winner: (a: number) => number;
+  readonly connect4game_get_board: (a: number, b: number) => void;
+  readonly connect4game_can_undo: (a: number) => number;
+  readonly connect4game_undo_move: (a: number) => number;
+  readonly connect4game_get_ai_board: (a: number, b: number) => void;
+  readonly connect4game_get_threatening_moves: (a: number, b: number, c: number) => void;
+  readonly connect4game_get_winning_moves: (a: number, b: number, c: number) => void;
+  readonly connect4game_get_blocking_moves: (a: number, b: number, c: number) => void;
+  readonly connect4game_evaluate_position_for_player: (a: number, b: number) => number;
+  readonly connect4game_newGame: (a: number) => void;
+  readonly connect4game_undoMove: (a: number) => number;
+  readonly connect4game_getAIMove: (a: number) => number;
   readonly __wbg_connect4ai_free: (a: number, b: number) => void;
   readonly connect4ai_new: () => number;
   readonly connect4ai_with_difficulty: (a: number) => number;
@@ -559,6 +623,11 @@ export interface InitOutput {
   readonly triogame_categorize_target_difficulty_wasm: (a: number, b: number) => number;
   readonly triogame_comprehensive_gap_analysis: (a: number) => void;
   readonly game_is_terminal: (a: number) => number;
+  readonly connect4game_get_ai_move: (a: number) => number;
+  readonly connect4game_move_count: (a: number) => number;
+  readonly connect4game_get_current_player: (a: number) => number;
+  readonly connect4game_winner: (a: number) => number;
+  readonly connect4game_reset: (a: number) => void;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_2: (a: number, b: number) => number;

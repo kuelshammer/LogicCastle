@@ -124,6 +124,25 @@ function isLikeNone(x) {
     return x === undefined || x === null;
 }
 
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
+}
+
+let cachedUint32ArrayMemory0 = null;
+
+function getUint32ArrayMemory0() {
+    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
+        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
+    }
+    return cachedUint32ArrayMemory0;
+}
+
+function getArrayU32FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
+}
+
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
         throw new Error(`expected instance of ${klass.name}`);
@@ -146,20 +165,6 @@ function getInt8ArrayMemory0() {
 function getArrayI8FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getInt8ArrayMemory0().subarray(ptr / 1, ptr / 1 + len);
-}
-
-let cachedUint32ArrayMemory0 = null;
-
-function getUint32ArrayMemory0() {
-    if (cachedUint32ArrayMemory0 === null || cachedUint32ArrayMemory0.byteLength === 0) {
-        cachedUint32ArrayMemory0 = new Uint32Array(wasm.memory.buffer);
-    }
-    return cachedUint32ArrayMemory0;
-}
-
-function getArrayU32FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
 }
 
 let cachedInt16ArrayMemory0 = null;
@@ -612,7 +617,7 @@ export class Connect4Game {
      * @returns {Player | undefined}
      */
     winner() {
-        const ret = wasm.connect4game_winner(this.__wbg_ptr);
+        const ret = wasm.connect4game_get_winner(this.__wbg_ptr);
         return ret === 0 ? undefined : ret;
     }
     /**
@@ -620,7 +625,7 @@ export class Connect4Game {
      * @returns {number}
      */
     move_count() {
-        const ret = wasm.connect4game_move_count(this.__wbg_ptr);
+        const ret = wasm.connect4game_get_move_count(this.__wbg_ptr);
         return ret >>> 0;
     }
     /**
@@ -645,7 +650,7 @@ export class Connect4Game {
      * Reset game to initial state
      */
     reset() {
-        wasm.connect4game_reset(this.__wbg_ptr);
+        wasm.connect4game_newGame(this.__wbg_ptr);
     }
     /**
      * Reset game with a specific starting player
@@ -713,7 +718,7 @@ export class Connect4Game {
      * @returns {number | undefined}
      */
     get_ai_move() {
-        const ret = wasm.connect4game_get_ai_move(this.__wbg_ptr);
+        const ret = wasm.connect4game_getAIMove(this.__wbg_ptr);
         return ret === 0x100000001 ? undefined : ret;
     }
     /**
@@ -731,6 +736,171 @@ export class Connect4Game {
     get_game_phase() {
         const ret = wasm.connect4game_get_game_phase(this.__wbg_ptr);
         return ret;
+    }
+    /**
+     * Get memory usage of the game state (for performance monitoring)
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.connect4game_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get current player (frontend naming convention)
+     * @returns {Player}
+     */
+    get_current_player() {
+        const ret = wasm.connect4game_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get move count (frontend naming convention)
+     * @returns {number}
+     */
+    get_move_count() {
+        const ret = wasm.connect4game_get_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get winner (frontend naming convention)
+     * @returns {Player | undefined}
+     */
+    get_winner() {
+        const ret = wasm.connect4game_get_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Get board state as flat array for frontend (6 rows × 7 cols = 42 elements)
+     * @returns {Uint8Array}
+     */
+    get_board() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_get_board(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Check if undo is possible
+     * @returns {boolean}
+     */
+    can_undo() {
+        const ret = wasm.connect4game_can_undo(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Undo the last move
+     * @returns {boolean}
+     */
+    undo_move() {
+        const ret = wasm.connect4game_undo_move(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get AI board representation (for assistance system)
+     * @returns {Uint8Array}
+     */
+    get_ai_board() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_get_ai_board(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get threatening moves for a player
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    get_threatening_moves(player) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_get_threatening_moves(retptr, this.__wbg_ptr, player);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get winning moves for a player
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    get_winning_moves(player) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_get_winning_moves(retptr, this.__wbg_ptr, player);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get blocking moves (moves that prevent opponent from winning)
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    get_blocking_moves(player) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.connect4game_get_blocking_moves(retptr, this.__wbg_ptr, player);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Evaluate position for a specific player
+     * @param {Player} player
+     * @returns {number}
+     */
+    evaluate_position_for_player(player) {
+        const ret = wasm.connect4game_evaluate_position_for_player(this.__wbg_ptr, player);
+        return ret;
+    }
+    /**
+     * Frontend-friendly method aliases
+     */
+    newGame() {
+        wasm.connect4game_newGame(this.__wbg_ptr);
+    }
+    /**
+     * @returns {boolean}
+     */
+    undoMove() {
+        const ret = wasm.connect4game_undoMove(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @returns {number | undefined}
+     */
+    getAIMove() {
+        const ret = wasm.connect4game_getAIMove(this.__wbg_ptr);
+        return ret === 0x100000001 ? undefined : ret;
     }
 }
 

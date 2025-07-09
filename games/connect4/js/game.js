@@ -356,7 +356,7 @@ export class Connect4GameBitPacked {
         if (!this.initialized) return 0;
         
         try {
-            return this.board.evaluate_position(player);
+            return this.board.evaluate_position_for_player(player);
         } catch (error) {
             // Fallback to basic evaluation
             return 0;
