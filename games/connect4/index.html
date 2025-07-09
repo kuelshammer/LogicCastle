@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="../../assets/css/main.css" />
     <link rel="stylesheet" href="css/game.css" />
     <link rel="stylesheet" href="css/ui.css" />
-    <link rel="stylesheet" href="css/ui-module-enhancements.css" />
     <link rel="stylesheet" href="css/modal-native.css" />
   </head>
   <body>
@@ -294,9 +293,9 @@
 
     <script type="module">
       // UI-Module System Connect4 initialization
-      import { Connect4Game } from './js/game_v2.js?v=production';
-      import { Connect4AI } from './js/ai_v2.js?v=production';
-      import { Connect4UINew } from './js/ui-new.js?v=production';
+      import { Connect4GameBitPacked as Connect4Game } from './js/game.js?v=production';
+      // REMOVED: import { Connect4AI } from './js/ai.js?v=production'; - Using WASM AI instead
+      import { Connect4UI } from './js/ui.js?v=production';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
@@ -308,15 +307,15 @@
           }
           
           const game = new Connect4Game();
-          const ui = new Connect4UINew(game);
-          const ai = new Connect4AI();
+          const ui = new Connect4UI(game);
+          // REMOVED: const ai = new Connect4AI(); - Using WASM AI instead
           
-          ui.setAI(ai);
+          // REMOVED: ui.setAI(ai); - UI uses WASM AI directly from game.getAIMove()
           
           // Make instances globally available for debugging
           window.game = game;
           window.ui = ui;
-          window.ai = ai;
+          // REMOVED: window.ai = ai; - Using WASM AI instead
           
           // Setup game mode handling
           const gameModeSelect = document.getElementById('gameMode');

@@ -272,9 +272,9 @@
 
     <script type="module">
       // Import modules with cache-busting timestamp (UX improvement)
-      import { Connect4Game } from './js/game_v2.js?v=20250629-10';
-      import { Connect4AI } from './js/ai_v2.js?v=20250629-10';
-      import { Connect4UIDebug } from './js/ui-debug.js?v=20250704-debug';
+      import { Connect4GameBitPacked as Connect4Game } from './js/game.js?v=20250629-10';
+      // REMOVED: import { Connect4AI } from './js/ai.js?v=20250629-10'; - Using WASM AI instead
+      import { Connect4UI } from './js/ui.js?v=20250704-debug';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
@@ -292,17 +292,17 @@
           const game = new Connect4Game();
           console.log('✅ Connect4Game instance created');
           
-          const ui = new Connect4UIDebug(game);
-          console.log('✅ Connect4UIDebug instance created');
+          const ui = new Connect4UI(game);
+          console.log('✅ Connect4UI instance created');
           
-          // Initialize AI if needed
-          const ai = new Connect4AI();
-          ui.setAI(ai);
+          // REMOVED: AI initialization - Using WASM AI instead
+          // const ai = new Connect4AI();
+          // ui.setAI(ai);
           
           // Make instances globally available for debugging
           window.game = game;
           window.ui = ui;
-          window.ai = ai;
+          // REMOVED: window.ai = ai; - Using WASM AI instead
           
           // Setup game mode handling
           const gameModeSelect = document.getElementById('gameMode');
