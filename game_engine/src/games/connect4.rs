@@ -293,10 +293,35 @@ impl Connect4Game {
         self.winner.is_some() || self.is_draw()
     }
     
-    /// Get AI move suggestion
+    /// Get AI move suggestion using 4-stage hierarchical decision logic
+    /// Based on Gemini's analysis: Win -> Block -> Avoid Losing Moves -> Minimax
     #[wasm_bindgen]
     pub fn get_ai_move(&self) -> Option<usize> {
-        self.ai.get_best_move(self)
+        // Stage 1: Check for immediate winning moves
+        if let Some(winning_move) = self.ai.find_immediate_win(self) {
+            return Some(winning_move);
+        }
+        
+        // Stage 2: Check for moves that block opponent's immediate wins
+        let blocking_moves = self.ai.find_blocking_moves(self);
+        if !blocking_moves.is_empty() {
+            // If there's only one blocking move, take it
+            if blocking_moves.len() == 1 {
+                return Some(blocking_moves[0]);
+            }
+            // If multiple blocking moves, use minimax to choose the best one
+            return self.get_best_move_from_candidates(&blocking_moves);
+        }
+        
+        // Stage 3: Filter out moves that create immediate wins for opponent (losing moves)
+        let safe_moves = self.get_safe_moves();
+        if safe_moves.is_empty() {
+            // If no safe moves, we have to play something - use full minimax
+            return self.ai.get_best_move(self);
+        }
+        
+        // Stage 4: Use minimax on safe moves to find the best strategic move
+        self.get_best_move_from_candidates(&safe_moves)
     }
     
     /// Analyze current position comprehensively
@@ -819,6 +844,55 @@ impl Connect4Game {
         } else {
             None
         }
+    }
+    
+    /// Get safe moves that don't create immediate wins for opponent (Stage 3)
+    fn get_safe_moves(&self) -> Vec<usize> {
+        let mut safe_moves = Vec::new();
+        
+        for col in 0..7 {
+            if self.is_valid_move(col) {
+                // Create a copy with this move applied
+                if let Some(game_after_move) = self.make_move_copy(col) {
+                    // Check if opponent has an immediate win after this move
+                    let opponent_wins = game_after_move.ai.find_immediate_win(&game_after_move);
+                    
+                    if opponent_wins.is_none() {
+                        safe_moves.push(col);
+                    }
+                }
+            }
+        }
+        
+        safe_moves
+    }
+    
+    /// Get best move from a list of candidate moves using minimax (Stage 4)
+    fn get_best_move_from_candidates(&self, candidates: &[usize]) -> Option<usize> {
+        if candidates.is_empty() {
+            return None;
+        }
+        
+        if candidates.len() == 1 {
+            return Some(candidates[0]);
+        }
+        
+        let mut best_move = None;
+        let mut best_score = i32::MIN;
+        
+        for &col in candidates {
+            if let Some(game_copy) = self.make_move_copy(col) {
+                // Evaluate this position
+                let score = self.ai.evaluate_position(&game_copy);
+                
+                if score > best_score {
+                    best_score = score;
+                    best_move = Some(col);
+                }
+            }
+        }
+        
+        best_move
     }
 }
 
