@@ -293,34 +293,50 @@ impl Connect4Game {
         self.winner.is_some() || self.is_draw()
     }
     
-    /// Get AI move suggestion using 4-stage hierarchical decision logic
-    /// Based on Gemini's analysis: Win -> Block -> Avoid Losing Moves -> Minimax
+    /// Get AI move suggestion using BULLETPROOF 4-stage hierarchical decision logic
+    /// ABSOLUTE PRIORITY: Own win > Block opponent > Strategic play
     #[wasm_bindgen]
     pub fn get_ai_move(&self) -> Option<usize> {
-        // Stage 1: Check for immediate winning moves
+        // STAGE 1: ABSOLUTE PRIORITY - Check for immediate winning moves
+        // If we can win RIGHT NOW, do it - no matter what!
         if let Some(winning_move) = self.ai.find_immediate_win(self) {
             return Some(winning_move);
         }
         
-        // Stage 2: Check for moves that block opponent's immediate wins
-        let blocking_moves = self.ai.find_opponent_winning_moves(self);
-        if !blocking_moves.is_empty() {
-            // If there's only one blocking move, take it
-            if blocking_moves.len() == 1 {
-                return Some(blocking_moves[0]);
+        // STAGE 2: PFLICHTSTEIN-LOGIK - Block opponent's immediate wins
+        // Only if we can't win ourselves, check if opponent can win
+        let opponent_winning_moves = self.ai.find_opponent_winning_moves(self);
+        if !opponent_winning_moves.is_empty() {
+            // DOUBLE-CHECK: Make sure we're not missing our own win by blocking
+            // This should never happen due to Stage 1, but extra safety
+            for &blocking_col in &opponent_winning_moves {
+                if self.is_valid_move(blocking_col) {
+                    // Test if blocking this column gives us a win
+                    if let Some(test_game) = self.make_move_copy(blocking_col) {
+                        if test_game.winner() == Some(self.current_player) {
+                            // Blocking gives us the win! Take it!
+                            return Some(blocking_col);
+                        }
+                    }
+                }
             }
-            // If multiple blocking moves, use minimax to choose the best one
-            return self.get_best_move_from_candidates(&blocking_moves);
+            
+            // No blocking move gives us a win, so we must block
+            if opponent_winning_moves.len() == 1 {
+                return Some(opponent_winning_moves[0]);
+            }
+            // Multiple blocking options - choose strategically
+            return self.get_best_move_from_candidates(&opponent_winning_moves);
         }
         
-        // Stage 3: Filter out moves that create immediate wins for opponent (losing moves)
+        // STAGE 3: Filter out moves that create immediate wins for opponent
         let safe_moves = self.get_safe_moves();
         if safe_moves.is_empty() {
-            // If no safe moves, we have to play something - use full minimax
+            // Emergency: No safe moves exist, use full AI to find least bad option
             return self.ai.get_best_move(self);
         }
         
-        // Stage 4: Use minimax on safe moves to find the best strategic move
+        // STAGE 4: Strategic minimax on safe moves
         self.get_best_move_from_candidates(&safe_moves)
     }
     
@@ -994,6 +1010,218 @@ mod tests {
         // AI should block the horizontal win
         assert!(ai_move == Some(0) || ai_move == Some(4), 
                "AI should block horizontal win by playing in column 0 or 4, got {:?}", ai_move);
+    }
+    
+    #[test]
+    fn test_diagonal_threat_detection() {
+        let mut game = Connect4Game::new();
+        
+        // Create diagonal threat: Yellow pieces at (5,0), (4,1), (3,2)
+        // Yellow can win at (2,3) 
+        game.make_move_internal(0).unwrap(); // Yellow at (5,0)
+        game.make_move_internal(6).unwrap(); // Red filler
+        game.make_move_internal(1).unwrap(); // Yellow at (5,1)
+        game.make_move_internal(1).unwrap(); // Red at (4,1)  
+        game.make_move_internal(2).unwrap(); // Yellow at (5,2)
+        game.make_move_internal(2).unwrap(); // Red at (4,2)
+        game.make_move_internal(0).unwrap(); // Yellow at (4,0)
+        game.make_move_internal(2).unwrap(); // Red at (3,2)
+        game.make_move_internal(1).unwrap(); // Yellow at (3,1)
+        game.make_move_internal(3).unwrap(); // Red at (5,3)
+        game.make_move_internal(3).unwrap(); // Yellow at (4,3)
+        game.make_move_internal(3).unwrap(); // Red at (3,3)
+        game.make_move_internal(3).unwrap(); // Yellow at (2,3) - creates diagonal threat
+        
+        println!("Diagonal test board:");
+        for row in 0..6 {
+            for col in 0..7 {
+                let cell = game.get_cell(row, col);
+                let symbol = match cell {
+                    0 => ".",
+                    1 => "Y", 
+                    2 => "R",
+                    _ => "?",
+                };
+                print!("{}", symbol);
+            }
+            println!();
+        }
+        
+        // Test if AI detects diagonal threats
+        let diagonal_threats = game.ai.find_opponent_winning_moves(&game);
+        println!("Diagonal threats detected: {:?}", diagonal_threats);
+        
+        // This should detect diagonal winning opportunities
+        assert!(!diagonal_threats.is_empty(), "AI should detect diagonal threats");
+    }
+    
+    #[test]
+    fn test_strategic_choice_dilemma() {
+        let mut game = Connect4Game::new();
+        
+        // Set up dilemma: Both players have 3-in-a-row
+        // Yellow: 3 horizontal in bottom row (can win at col 0)
+        // Red: 3 horizontal in row 4 (can win at col 3)
+        
+        // Create Yellow threat: YYY. at bottom
+        game.make_move_internal(1).unwrap(); // Yellow 
+        game.make_move_internal(6).unwrap(); // Red filler
+        game.make_move_internal(2).unwrap(); // Yellow
+        game.make_move_internal(6).unwrap(); // Red filler  
+        game.make_move_internal(3).unwrap(); // Yellow
+        game.make_move_internal(4).unwrap(); // Red
+        
+        // Create Red counter-threat: .RRR at row 4
+        game.make_move_internal(5).unwrap(); // Yellow filler
+        game.make_move_internal(1).unwrap(); // Red (4,1)
+        game.make_move_internal(5).unwrap(); // Yellow filler
+        game.make_move_internal(2).unwrap(); // Red (4,2) 
+        game.make_move_internal(4).unwrap(); // Yellow filler
+        game.make_move_internal(3).unwrap(); // Red (4,3)
+        
+        println!("Strategic dilemma board:");
+        for row in 0..6 {
+            for col in 0..7 {
+                let cell = game.get_cell(row, col);
+                let symbol = match cell {
+                    0 => ".",
+                    1 => "Y",
+                    2 => "R", 
+                    _ => "?",
+                };
+                print!("{}", symbol);
+            }
+            println!();
+        }
+        
+        // Now it's Red's turn
+        // Red can win at (4,0) OR block Yellow at (5,0)
+        // Question: Does AI choose optimally?
+        
+        let red_winning_moves = game.ai.find_immediate_win(&game);
+        let yellow_threats = game.ai.find_opponent_winning_moves(&game);
+        let ai_choice = game.get_ai_move();
+        
+        println!("Red can win at: {:?}", red_winning_moves);
+        println!("Yellow threatens at: {:?}", yellow_threats);  
+        println!("AI chooses: {:?}", ai_choice);
+        
+        // If Red can win immediately, it should (Stage 1 priority)
+        if red_winning_moves.is_some() {
+            assert_eq!(ai_choice, red_winning_moves, "AI should choose immediate win over blocking");
+        }
+    }
+    
+    #[test]
+    fn test_bulletproof_priority_logic() {
+        let mut game = Connect4Game::new();
+        
+        // BULLETPROOF TEST: Create situation where both AI (Red) and human (Yellow) have wins
+        // Test that AI prioritizes its own immediate win over blocking opponent
+        
+        // Use direct internal state manipulation for precise control
+        // This avoids the complexity of move sequences that might create premature wins
+        
+        // Manually create board state - both players have separate winning threats:
+        // Row 5: Y Y Y . . . .  (Yellow can win at col 3)
+        // Row 4: . R R R . . .  (Red can win at col 0)
+        
+        // Set Yellow pieces at row 5: positions (5,0), (5,1), (5,2)
+        let yellow_index_50 = game.geometry.to_index((5, 0)).unwrap();
+        let yellow_index_51 = game.geometry.to_index((5, 1)).unwrap();
+        let yellow_index_52 = game.geometry.to_index((5, 2)).unwrap();
+        game.yellow_board.set_bit(yellow_index_50, true);
+        game.yellow_board.set_bit(yellow_index_51, true);
+        game.yellow_board.set_bit(yellow_index_52, true);
+        
+        // Set Red pieces at row 4: positions (4,1), (4,2), (4,3) - but NOT interfering with Yellow's win
+        let red_index_41 = game.geometry.to_index((4, 1)).unwrap();
+        let red_index_42 = game.geometry.to_index((4, 2)).unwrap();
+        let red_index_43 = game.geometry.to_index((4, 4)).unwrap(); // Changed to (4,4) to avoid blocking Yellow
+        game.red_board.set_bit(red_index_41, true);
+        game.red_board.set_bit(red_index_42, true);
+        game.red_board.set_bit(red_index_43, true);
+        
+        // Update column heights to reflect the pieces
+        game.column_heights[0] = 1; // Yellow at (5,0)
+        game.column_heights[1] = 2; // Yellow at (5,1), Red at (4,1)
+        game.column_heights[2] = 2; // Yellow at (5,2), Red at (4,2)
+        game.column_heights[3] = 1; // Empty column for Yellow's winning move
+        game.column_heights[4] = 1; // Red at (4,4)
+        
+        // Set move count and current player
+        game.move_count = 6;
+        game.current_player = Player::Red; // AI's turn
+        
+        println!("BULLETPROOF test board:");
+        for row in 0..6 {
+            for col in 0..7 {
+                let cell = game.get_cell(row, col);
+                let symbol = match cell {
+                    0 => ".",
+                    1 => "Y",
+                    2 => "R",
+                    _ => "?",
+                };
+                print!("{}", symbol);
+            }
+            println!();
+        }
+        
+        // Add Yellow threat to test bulletproof priority logic
+        // Add Yellow piece at (5,4) to create YYY.Y pattern - threat at col 3
+        let yellow_index_54 = game.geometry.to_index((5, 4)).unwrap();
+        game.yellow_board.set_bit(yellow_index_54, true);
+        game.column_heights[4] = 2; // Yellow at (5,4), Red at (4,4)
+        
+        // Now Yellow has YYY.Y (threat at col 3), Red has .RR.R (threat at col 0 or 3)
+        println!("Updated BULLETPROOF test board:");
+        for row in 0..6 {
+            for col in 0..7 {
+                let cell = game.get_cell(row, col);
+                let symbol = match cell {
+                    0 => ".",
+                    1 => "Y", 
+                    2 => "R",
+                    _ => "?",
+                };
+                print!("{}", symbol);
+            }
+            println!();
+        }
+        
+        // Test the bulletproof priority logic
+        let red_wins = game.ai.find_immediate_win(&game);
+        let yellow_threats = game.ai.find_opponent_winning_moves(&game);
+        let ai_choice = game.get_ai_move();
+        
+        println!("Red can win at: {:?}", red_wins);
+        println!("Yellow threatens at: {:?}", yellow_threats);
+        println!("AI chooses: {:?}", ai_choice);
+        
+        // BULLETPROOF ASSERTIONS: AI must prioritize own win over blocking
+        assert!(red_wins.is_some(), "Red should have immediate winning move");
+        assert!(ai_choice.is_some(), "AI should make a move");
+        
+        // If Yellow has threats AND Red has wins, Red must choose its own win
+        if !yellow_threats.is_empty() && red_wins.is_some() {
+            assert_eq!(ai_choice, red_wins, 
+                "BULLETPROOF FAIL: AI must choose own win {:?} over blocking {:?}", 
+                red_wins, yellow_threats);
+            println!("✅ BULLETPROOF LOGIC CONFIRMED: AI prioritizes own win over blocking");
+        } else {
+            // Just verify AI chooses its win when available
+            assert_eq!(ai_choice, red_wins, "AI should choose available winning move");
+            println!("✅ STANDARD WIN LOGIC: AI chooses available winning move");
+        }
+        
+        // BULLETPROOF: AI MUST prioritize own win
+        if red_wins.is_some() {
+            assert_eq!(ai_choice, red_wins, "AI MUST choose own win over blocking!");
+        } else {
+            // If no immediate win detected, that's the real bug
+            println!("❌ BUG: AI should detect immediate win!");
+        }
     }
     
     #[test]
