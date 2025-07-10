@@ -1,0 +1,458 @@
+/**
+ * Connect4 Glasmorphism UI Enhancements
+ * 
+ * Modern glasmorphism design with:
+ * - Semi-transparent backgrounds
+ * - Backdrop blur effects
+ * - Subtle gradients and shadows
+ * - Professional UI polish
+ * 
+ * Created: 2025-07-10
+ * Version: 1.0 - Connect4 Glasmorphism
+ */
+
+/* ==================== ROOT VARIABLES ==================== */
+:root {
+  /* Glasmorphism Colors */
+  --glass-primary: rgba(255, 255, 255, 0.15);
+  --glass-secondary: rgba(255, 255, 255, 0.1);
+  --glass-accent: rgba(59, 130, 246, 0.2);
+  --glass-hover: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  
+  /* Blur Effects */
+  --blur-light: blur(8px);
+  --blur-medium: blur(12px);
+  --blur-heavy: blur(20px);
+  
+  /* Shadows */
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  /* Gradients */
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+  --gradient-board: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%);
+  --gradient-yellow: linear-gradient(135deg, #ffd700 0%, #ffb300 50%, #ff8f00 100%);
+  --gradient-red: linear-gradient(135deg, #f44336 0%, #d32f2f 50%, #b71c1c 100%);
+}
+
+/* ==================== GAME CONTAINER GLASMORPHISM ==================== */
+.game-container {
+  background: linear-gradient(135deg, 
+    rgba(79, 172, 254, 0.1) 0%, 
+    rgba(0, 242, 254, 0.05) 50%, 
+    rgba(159, 122, 234, 0.1) 100%
+  ) !important;
+  backdrop-filter: var(--blur-light) !important;
+  position: relative !important;
+}
+
+.game-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ==================== HEADER GLASMORPHISM ==================== */
+.game-header {
+  background: var(--glass-primary) !important;
+  backdrop-filter: var(--blur-medium) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-glass), var(--shadow-inset) !important;
+  margin-bottom: 1.5rem !important;
+  position: relative !important;
+}
+
+.game-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+}
+
+/* Header Buttons Glasmorphism */
+.game-header .btn {
+  background: var(--glass-secondary) !important;
+  backdrop-filter: var(--blur-light) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  color: white !important;
+  font-weight: 500 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.game-header .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  transition: left 0.5s ease;
+}
+
+.game-header .btn:hover {
+  background: var(--glass-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+.game-header .btn:hover::before {
+  left: 100%;
+}
+
+.game-header .btn:active {
+  transform: translateY(0) !important;
+}
+
+/* Button Color Variations */
+.btn-primary {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.2) 100%) !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(22, 163, 74, 0.2) 100%) !important;
+}
+
+.btn-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(147, 197, 253, 0.2) 100%) !important;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, rgba(156, 163, 175, 0.3) 0%, rgba(107, 114, 128, 0.2) 100%) !important;
+}
+
+/* ==================== GAME BOARD GLASMORPHISM ==================== */
+.game-board-container {
+  background: var(--glass-primary) !important;
+  backdrop-filter: var(--blur-medium) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 24px !important;
+  padding: 2rem !important;
+  box-shadow: var(--shadow-glass) !important;
+  position: relative !important;
+}
+
+.game-board-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-glass);
+  border-radius: 24px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Enhanced Board Styling */
+.game-board {
+  background: var(--gradient-board) !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    var(--shadow-glass),
+    inset 0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.2) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.game-board::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Board Cells Enhanced */
+.game-slot {
+  background: rgba(33, 150, 243, 0.8) !important;
+  border: 2px solid rgba(25, 118, 210, 0.9) !important;
+  border-radius: 50% !important;
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.game-slot:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Disc Enhancements */
+.disc {
+  border-radius: 50% !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.disc.yellow {
+  background: var(--gradient-yellow) !important;
+  border: 3px solid #ff8f00 !important;
+  box-shadow: 
+    0 4px 12px rgba(255, 215, 0, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+}
+
+.disc.red {
+  background: var(--gradient-red) !important;
+  border: 3px solid #b71c1c !important;
+  box-shadow: 
+    0 4px 12px rgba(244, 67, 54, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+}
+
+.disc::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 30%;
+  height: 30%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 4;
+}
+
+/* ==================== GAME INFO GLASMORPHISM ==================== */
+.game-info-compact {
+  background: var(--glass-primary) !important;
+  backdrop-filter: var(--blur-medium) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 20px !important;
+  padding: 1.5rem !important;
+  box-shadow: var(--shadow-glass) !important;
+  position: relative !important;
+}
+
+.info-section {
+  background: var(--glass-secondary) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  margin-bottom: 1rem !important;
+  padding: 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.info-section:hover {
+  background: var(--glass-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+.info-section h3 {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Current Player Indicator Enhanced */
+.current-player .player-disc,
+.current-player .player-indicator span:first-child {
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    0 0 40px rgba(255, 215, 0, 0.6),
+    0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  animation: glow 2s ease-in-out infinite alternate !important;
+  border: 3px solid rgba(255, 215, 0, 0.8) !important;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.8),
+      0 0 40px rgba(255, 215, 0, 0.6),
+      0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1);
+  }
+  to {
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 1),
+      0 0 60px rgba(255, 215, 0, 0.8),
+      0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.05);
+  }
+}
+
+/* Score Display */
+.score-compact {
+  display: flex !important;
+  gap: 1rem !important;
+}
+
+.score {
+  background: var(--glass-secondary) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  padding: 0.5rem !important;
+  flex: 1 !important;
+  text-align: center !important;
+}
+
+.score-value {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ==================== COORDINATE LABELS GLASMORPHISM ==================== */
+.board-coords .coord {
+  background: var(--glass-secondary) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.board-coords .coord:hover {
+  background: var(--glass-hover) !important;
+  transform: translateY(-2px) scale(1.1) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+/* ==================== MODAL GLASMORPHISM ==================== */
+.modal-overlay {
+  backdrop-filter: var(--blur-heavy) !important;
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.modal {
+  background: var(--glass-primary) !important;
+  backdrop-filter: var(--blur-medium) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--shadow-glass) !important;
+  position: relative !important;
+}
+
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-glass);
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.modal h2 {
+  color: rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.modal .btn {
+  background: var(--glass-accent) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: white !important;
+  backdrop-filter: var(--blur-light) !important;
+}
+
+.modal .btn:hover {
+  background: var(--glass-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes glassmorphismEntry {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    backdrop-filter: var(--blur-medium);
+  }
+}
+
+.game-container > * {
+  animation: glassmorphismEntry 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* ==================== RESPONSIVE GLASMORPHISM ==================== */
+@media (max-width: 768px) {
+  .game-container {
+    backdrop-filter: var(--blur-light) !important;
+  }
+  
+  .game-board-container {
+    padding: 1rem !important;
+    backdrop-filter: var(--blur-light) !important;
+  }
+  
+  .game-header {
+    backdrop-filter: var(--blur-light) !important;
+  }
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-primary: rgba(255, 255, 255, 0.1);
+    --glass-secondary: rgba(255, 255, 255, 0.05);
+    --glass-hover: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* ==================== PERFORMANCE OPTIMIZATIONS ==================== */
+.game-board,
+.game-board-container,
+.game-header,
+.game-info-compact {
+  will-change: transform, backdrop-filter !important;
+  transform: translateZ(0) !important;
+}
+
+/* Force hardware acceleration */
+.disc,
+.game-slot,
+.btn {
+  transform: translateZ(0) !important;
+}

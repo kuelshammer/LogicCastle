@@ -144,20 +144,25 @@ function setupBoardFix() {
     if (gameBoard.children.length <= 1) {
         console.log('🎯 Fixing empty board...');
         
-        // Apply board styles
+        // Apply GLASMORPHISM board styles
         gameBoard.style.cssText = `
             display: grid !important;
             grid-template-columns: repeat(7, 1fr) !important;
             grid-template-rows: repeat(6, 1fr) !important;
             gap: 8px !important;
-            background: #1976d2 !important;
-            border-radius: 16px !important;
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #0d47a1 100%) !important;
+            border-radius: 20px !important;
             padding: 20px !important;
             width: 100% !important;
             aspect-ratio: 7/6 !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 4px 8px rgba(0, 0, 0, 0.3),
+                inset 0 0 20px rgba(0, 0, 0, 0.2) !important;
             max-width: min(80vw, calc(70vh * 7 / 6)) !important;
             max-height: min(70vh, calc(80vw * 6 / 7)) !important;
+            position: relative !important;
+            overflow: hidden !important;
         `;
         
         // Clear and create 42 cells (6x7)
@@ -171,15 +176,20 @@ function setupBoardFix() {
                 cell.dataset.index = row * 7 + col;
                 
                 cell.style.cssText = `
-                    background: #2196F3 !important;
+                    background: rgba(33, 150, 243, 0.8) !important;
                     border-radius: 50% !important;
-                    border: 3px solid #1976D2 !important;
+                    border: 2px solid rgba(25, 118, 210, 0.9) !important;
                     display: flex !important;
                     align-items: center !important;
                     justify-content: center !important;
                     position: relative !important;
                     cursor: pointer !important;
                     aspect-ratio: 1 !important;
+                    box-shadow: 
+                        0 4px 8px rgba(0, 0, 0, 0.3),
+                        inset 0 2px 4px rgba(255, 255, 255, 0.2) !important;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                    z-index: 2 !important;
                 `;
                 
                 // Add disc placeholder
@@ -199,6 +209,23 @@ function setupBoardFix() {
                 cell.appendChild(disc);
                 gameBoard.appendChild(cell);
                 
+                // Add glasmorphism hover effects
+                cell.addEventListener('mouseenter', () => {
+                    cell.style.transform = 'scale(1.05)';
+                    cell.style.boxShadow = `
+                        0 6px 12px rgba(0, 0, 0, 0.4),
+                        inset 0 2px 4px rgba(255, 255, 255, 0.3)
+                    `;
+                });
+                
+                cell.addEventListener('mouseleave', () => {
+                    cell.style.transform = 'scale(1)';
+                    cell.style.boxShadow = `
+                        0 4px 8px rgba(0, 0, 0, 0.3),
+                        inset 0 2px 4px rgba(255, 255, 255, 0.2)
+                    `;
+                });
+                
                 // Add click handler
                 cell.addEventListener('click', () => {
                     console.log(`🎯 Cell clicked: row ${row}, col ${col}`);
@@ -208,10 +235,27 @@ function setupBoardFix() {
                         disc.classList.remove('empty');
                         disc.classList.add('yellow');
                         disc.style.cssText += `
-                            background: #FFD700 !important;
-                            border: 3px solid #FFA000 !important;
-                            box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6) !important;
+                            background: linear-gradient(135deg, #ffd700 0%, #ffb300 50%, #ff8f00 100%) !important;
+                            border: 3px solid #ff8f00 !important;
+                            box-shadow: 
+                                0 4px 12px rgba(255, 215, 0, 0.6),
+                                inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
                         `;
+                        
+                        // Add glasmorphism highlight
+                        const highlight = document.createElement('div');
+                        highlight.style.cssText = `
+                            position: absolute !important;
+                            top: 10% !important;
+                            left: 10% !important;
+                            width: 30% !important;
+                            height: 30% !important;
+                            background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%) !important;
+                            border-radius: 50% !important;
+                            z-index: 4 !important;
+                            pointer-events: none !important;
+                        `;
+                        disc.appendChild(highlight);
                     }
                 });
             }
