@@ -33,36 +33,36 @@ export class InteractionHandler {
 
     /**
      * Setup all column interactions (click, hover)
-     * Extracted from Connect4UINew.setupColumnInteractions()
+     * Now uses coordinate labels instead of redundant hover zones
      */
     setupColumnInteractions() {
         if (!this.gameBoard) return;
 
-        // Add column hover zones
-        this.createColumnHoverZones();
+        // Setup coordinate click handlers (replaces hover zones)
+        this.setupCoordinateInteractions();
         
-        // Handle board clicks for column selection
+        // Handle board clicks for column selection (fallback)
         this._setupBoardClickHandler();
         
-        console.log('🎯 Column interactions set up (click, hover, keyboard)');
+        console.log('🎯 Column interactions set up (coordinate labels + board clicks)');
     }
 
     /**
-     * Create hover zones above each column for better UX
-     * Extracted from Connect4UINew.createColumnHoverZones()
+     * Setup coordinate label interactions
+     * Replaces redundant hover zones with coordinate-based interaction
      */
-    createColumnHoverZones() {
-        if (!this.gameBoard) return;
+    setupCoordinateInteractions() {
+        const topCoords = document.getElementById('topCoords');
+        const bottomCoords = document.getElementById('bottomCoords');
         
-        // Remove existing hover zones
-        this._removeExistingHoverZones();
-        
-        // Create hover zones for all 7 columns
-        for (let col = 0; col < 7; col++) {
-            this._createColumnHoverZone(col);
+        if (topCoords) {
+            this._setupCoordinateLabelHandlers(topCoords);
+        }
+        if (bottomCoords) {
+            this._setupCoordinateLabelHandlers(bottomCoords);
         }
         
-        console.log('🎯 Created CSS Grid-aligned hover zones for perfect column alignment');
+        console.log('🎯 Setup coordinate label interactions for column selection');
     }
 
     /**
@@ -83,79 +83,51 @@ export class InteractionHandler {
     }
 
     /**
-     * Remove existing hover zones from DOM
+     * Setup coordinate label event handlers
      * @private
      */
-    _removeExistingHoverZones() {
-        const existingZones = this.gameBoard.querySelectorAll('.column-hover-zone');
-        existingZones.forEach(zone => zone.remove());
-    }
-
-    /**
-     * Create hover zone for specific column
-     * @private
-     */
-    _createColumnHoverZone(col) {
-        const dropZone = document.createElement('div');
-        dropZone.className = 'column-hover-zone';
-        dropZone.dataset.col = col;
+    _setupCoordinateLabelHandlers(coordContainer) {
+        // Find or create coordinate labels
+        const coords = coordContainer.querySelectorAll('.coord');
         
-        // Position using CSS Grid to align perfectly with board columns
-        Object.assign(dropZone.style, {
-            position: 'absolute',
-            top: '-60px',
-            left: '0',
-            right: '0',
-            height: '60px',
-            gridColumnStart: (col + 1).toString(),
-            gridColumnEnd: (col + 2).toString(),
-            gridRowStart: '1',
-            gridRowEnd: '2',
-            border: '2px dashed rgba(255, 255, 255, 0.3)',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '2rem',
-            color: 'rgba(255, 255, 255, 0.7)',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            zIndex: '10'
+        if (coords.length === 0) {
+            // Generate coordinate labels if they don't exist
+            this._generateCoordinateLabels(coordContainer);
+            return this._setupCoordinateLabelHandlers(coordContainer);
+        }
+        
+        coords.forEach((coord, index) => {
+            const col = index; // Columns 0-6 for internal use, display as 1-7
+            
+            const clickHandler = () => this.handleColumnClick(col);
+            const mouseEnterHandler = () => this.handleColumnHover(col);
+            const mouseLeaveHandler = () => this.handleColumnHoverLeave();
+            
+            coord.addEventListener('click', clickHandler);
+            coord.addEventListener('mouseenter', mouseEnterHandler);
+            coord.addEventListener('mouseleave', mouseLeaveHandler);
+            
+            this._trackEventListener(coord, 'click', clickHandler);
+            this._trackEventListener(coord, 'mouseenter', mouseEnterHandler);
+            this._trackEventListener(coord, 'mouseleave', mouseLeaveHandler);
         });
-        
-        // Add hover effects
-        this._setupHoverZoneEvents(dropZone, col);
-        
-        this.gameBoard.appendChild(dropZone);
     }
 
     /**
-     * Setup hover zone event handlers
+     * Generate coordinate labels if they don't exist
      * @private
      */
-    _setupHoverZoneEvents(dropZone, col) {
-        const mouseEnterHandler = () => {
-            dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-            dropZone.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-            this.handleColumnHover(col);
-        };
+    _generateCoordinateLabels(coordContainer) {
+        // Clear existing content
+        coordContainer.innerHTML = '';
         
-        const mouseLeaveHandler = () => {
-            dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-            dropZone.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-            this.handleColumnHoverLeave();
-        };
-        
-        const clickHandler = () => this.handleColumnClick(col);
-        
-        dropZone.addEventListener('mouseenter', mouseEnterHandler);
-        dropZone.addEventListener('mouseleave', mouseLeaveHandler);
-        dropZone.addEventListener('click', clickHandler);
-        
-        this._trackEventListener(dropZone, 'mouseenter', mouseEnterHandler);
-        this._trackEventListener(dropZone, 'mouseleave', mouseLeaveHandler);
-        this._trackEventListener(dropZone, 'click', clickHandler);
+        for (let col = 0; col < 7; col++) {
+            const coord = document.createElement('div');
+            coord.className = 'coord';
+            coord.textContent = (col + 1).toString(); // Display 1-7
+            coord.dataset.col = col;
+            coordContainer.appendChild(coord);
+        }
     }
 
     /**
