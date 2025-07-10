@@ -303,7 +303,7 @@ impl Connect4Game {
         }
         
         // Stage 2: Check for moves that block opponent's immediate wins
-        let blocking_moves = self.ai.find_blocking_moves(self);
+        let blocking_moves = self.ai.find_opponent_winning_moves(self);
         if !blocking_moves.is_empty() {
             // If there's only one blocking move, take it
             if blocking_moves.len() == 1 {
@@ -949,6 +949,51 @@ mod tests {
         }
         
         assert_eq!(game.winner(), Some(Player::Yellow));
+    }
+    
+    #[test]
+    fn test_horizontal_blocking_scenario() {
+        let mut game = Connect4Game::new();
+        
+        // Set up the scenario: 3 yellow pieces in a row (threat)
+        // Bottom row: .YYY... (columns 1,2,3) - Yellow can win at 0 or 4
+        game.make_move_internal(1).unwrap(); // Yellow in col 1
+        game.make_move_internal(5).unwrap(); // Red in col 5 (filler)
+        game.make_move_internal(2).unwrap(); // Yellow in col 2
+        game.make_move_internal(6).unwrap(); // Red in col 6 (filler)
+        game.make_move_internal(3).unwrap(); // Yellow in col 3
+        game.make_move_internal(5).unwrap(); // Red in col 5 (filler)
+        
+        // Now it's Red's turn, and Yellow has 3 in a row horizontally
+        // Yellow can win by playing in column 0 or 4
+        println!("Board state:");
+        for row in 0..6 {
+            for col in 0..7 {
+                let cell = game.get_cell(row, col);
+                let symbol = match cell {
+                    0 => ".",
+                    1 => "Y",
+                    2 => "R",
+                    _ => "?",
+                };
+                print!("{}", symbol);
+            }
+            println!();
+        }
+        
+        // Test AI's blocking logic
+        let blocking_moves = game.ai.find_opponent_winning_moves(&game);
+        
+        // Yellow should be able to win at column 0 or 4 (extending the horizontal line)
+        assert!(blocking_moves.contains(&0) || blocking_moves.contains(&4), 
+               "AI should detect that Yellow can win in column 0 or 4: {:?}", blocking_moves);
+        
+        // Get AI move suggestion
+        let ai_move = game.get_ai_move();
+        
+        // AI should block the horizontal win
+        assert!(ai_move == Some(0) || ai_move == Some(4), 
+               "AI should block horizontal win by playing in column 0 or 4, got {:?}", ai_move);
     }
     
     #[test]

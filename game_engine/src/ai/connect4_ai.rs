@@ -363,6 +363,26 @@ impl Connect4AI {
         blocking_moves
     }
     
+    /// Find all winning moves for the opponent (for comprehensive threat detection)
+    pub fn find_opponent_winning_moves(&self, game: &Connect4Game) -> Vec<usize> {
+        let mut winning_moves = Vec::new();
+        let opponent = self.ai_player.opponent();
+        
+        for column in 0..7 {
+            if game.is_valid_move(column) {
+                // Create a hypothetical game where it's opponent's turn
+                let hypothetical_game = game.create_hypothetical_state(opponent);
+                if let Some(test_game) = hypothetical_game.make_move_copy(column) {
+                    if test_game.winner() == Some(opponent) {
+                        winning_moves.push(column);
+                    }
+                }
+            }
+        }
+        
+        winning_moves
+    }
+    
     /// Advanced tactical evaluation
     pub fn get_tactical_analysis(&self, game: &Connect4Game) -> TacticalAnalysis {
         TacticalAnalysis {
