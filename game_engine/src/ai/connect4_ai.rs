@@ -364,10 +364,12 @@ impl Connect4AI {
     }
     
     /// Find all winning moves for the opponent (for comprehensive threat detection)
+    /// ENHANCED: Includes Zwickmühle (.Y.Y.) pattern detection
     pub fn find_opponent_winning_moves(&self, game: &Connect4Game) -> Vec<usize> {
         let mut winning_moves = Vec::new();
         let opponent = self.ai_player.opponent();
         
+        // Standard immediate win detection
         for column in 0..7 {
             if game.is_valid_move(column) {
                 // Create a hypothetical game where it's opponent's turn
@@ -380,7 +382,162 @@ impl Connect4AI {
             }
         }
         
+        // CRITICAL: Zwickmühle detection (.Y.Y. patterns)
+        let zwickmuehle_threats = self.find_zwickmuehle_threats(game, opponent);
+        winning_moves.extend(zwickmuehle_threats);
+        
+        // Remove duplicates and return
+        winning_moves.sort();
+        winning_moves.dedup();
         winning_moves
+    }
+    
+    /// Detect Zwickmühle patterns (.Y.Y.) that lead to guaranteed opponent wins
+    /// These are critical threats that must be blocked immediately
+    /// ENHANCED: Checks horizontal, vertical, and diagonal Zwickmühle patterns
+    pub fn find_zwickmuehle_threats(&self, game: &Connect4Game, opponent: Player) -> Vec<usize> {
+        let mut threat_columns = Vec::new();
+        
+        // 1. HORIZONTAL Zwickmühle patterns (.Y.Y.)
+        threat_columns.extend(self.find_horizontal_zwickmuehle(game, opponent));
+        
+        // 2. VERTICAL Zwickmühle patterns (not applicable in Connect4 - gravity)
+        // Note: Vertical .Y.Y. patterns are impossible due to gravity
+        
+        // 3. DIAGONAL Zwickmühle patterns (.Y.Y.)
+        threat_columns.extend(self.find_diagonal_zwickmuehle(game, opponent));
+        
+        threat_columns.sort();
+        threat_columns.dedup();
+        threat_columns
+    }
+    
+    /// Find horizontal Zwickmühle patterns (.Y.Y.)
+    fn find_horizontal_zwickmuehle(&self, game: &Connect4Game, opponent: Player) -> Vec<usize> {
+        let mut threat_columns = Vec::new();
+        
+        for row in 0..6 {
+            for start_col in 0..4 { // Pattern needs 4 consecutive positions
+                // Check pattern: Empty, Opponent, Empty, Opponent
+                let positions = [
+                    (row, start_col),
+                    (row, start_col + 1), 
+                    (row, start_col + 2),
+                    (row, start_col + 3),
+                ];
+                
+                let cells: Vec<u8> = positions.iter()
+                    .map(|&(r, c)| game.get_cell(r as usize, c as usize))
+                    .collect();
+                
+                // Pattern: .Y.Y (positions 0 and 2 empty, 1 and 3 have opponent)
+                if self.is_zwickmuehle_pattern(&cells, opponent) {
+                    let empty_cols = self.get_playable_empty_positions(&positions, game);
+                    
+                    // If both empty positions are playable, this is a Zwickmühle threat
+                    if empty_cols.len() >= 2 {
+                        println!("🚨 HORIZONTAL ZWICKMÜHLE: .{:?}.{:?}. at row {}, cols {:?}", 
+                                opponent, opponent, row, empty_cols);
+                        threat_columns.extend(empty_cols);
+                    }
+                }
+            }
+        }
+        
+        threat_columns
+    }
+    
+    /// Find diagonal Zwickmühle patterns (.Y.Y.)
+    pub fn find_diagonal_zwickmuehle(&self, game: &Connect4Game, opponent: Player) -> Vec<usize> {
+        let mut threat_columns = Vec::new();
+        
+        // Check ascending diagonals (/) - bottom-left to top-right
+        for start_row in 3..6 { // Must have room for 4 pieces diagonally
+            for start_col in 0..4 {
+                let positions = [
+                    (start_row, start_col),
+                    (start_row - 1, start_col + 1),
+                    (start_row - 2, start_col + 2), 
+                    (start_row - 3, start_col + 3),
+                ];
+                
+                let cells: Vec<u8> = positions.iter()
+                    .map(|&(r, c)| game.get_cell(r as usize, c as usize))
+                    .collect();
+                
+                if self.is_zwickmuehle_pattern(&cells, opponent) {
+                    let empty_cols = self.get_playable_empty_positions(&positions, game);
+                    if empty_cols.len() >= 2 {
+                        println!("🚨 DIAGONAL ZWICKMÜHLE (/): .{:?}.{:?}. at positions {:?}, cols {:?}", 
+                                opponent, opponent, positions, empty_cols);
+                        threat_columns.extend(empty_cols);
+                    }
+                }
+            }
+        }
+        
+        // Check descending diagonals (\) - top-left to bottom-right
+        for start_row in 0..3 { // Must have room for 4 pieces diagonally
+            for start_col in 0..4 {
+                let positions = [
+                    (start_row, start_col),
+                    (start_row + 1, start_col + 1),
+                    (start_row + 2, start_col + 2),
+                    (start_row + 3, start_col + 3),
+                ];
+                
+                let cells: Vec<u8> = positions.iter()
+                    .map(|&(r, c)| game.get_cell(r as usize, c as usize))
+                    .collect();
+                
+                if self.is_zwickmuehle_pattern(&cells, opponent) {
+                    let empty_cols = self.get_playable_empty_positions(&positions, game);
+                    if empty_cols.len() >= 2 {
+                        println!("🚨 DIAGONAL ZWICKMÜHLE (\\): .{:?}.{:?}. at positions {:?}, cols {:?}", 
+                                opponent, opponent, positions, empty_cols);
+                        threat_columns.extend(empty_cols);
+                    }
+                }
+            }
+        }
+        
+        threat_columns
+    }
+    
+    /// Check if cell pattern matches Zwickmühle (.Y.Y.)
+    fn is_zwickmuehle_pattern(&self, cells: &[u8], opponent: Player) -> bool {
+        let opponent_cell = match opponent {
+            Player::Yellow => 1,
+            Player::Red => 2,
+            Player::Black | Player::White => return false, // Not supported for Connect4
+        };
+        
+        // Pattern: Empty (0), Opponent, Empty (0), Opponent
+        cells.len() == 4 && 
+        cells[0] == 0 && 
+        cells[1] == opponent_cell && 
+        cells[2] == 0 && 
+        cells[3] == opponent_cell
+    }
+    
+    /// Get playable empty positions (columns where pieces can actually be placed)
+    fn get_playable_empty_positions(&self, positions: &[(usize, usize)], game: &Connect4Game) -> Vec<usize> {
+        let mut playable_cols = Vec::new();
+        
+        for &(row, col) in positions {
+            // Position is empty and playable if:
+            // 1. Current cell is empty (0)
+            // 2. Column is not full (valid move)
+            // 3. Piece would land in this row (correct column height)
+            if game.get_cell(row, col) == 0 && game.is_valid_move(col) {
+                let expected_landing_row = 6 - 1 - game.get_column_height(col);
+                if expected_landing_row == row {
+                    playable_cols.push(col);
+                }
+            }
+        }
+        
+        playable_cols
     }
     
     /// Advanced tactical evaluation
