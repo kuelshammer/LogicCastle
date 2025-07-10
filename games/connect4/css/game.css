@@ -42,22 +42,29 @@
   margin: 0;
   font-size: 2.5rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap; /* Verhindert Umbruch */
+  min-width: max-content; /* Sorgt für genug Platz */
 }
 
 .back-button {
-  background: white;
-  color: #333;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  margin-left: 1rem; /* Abstand vom Rand */
 }
 
 .back-button:hover {
-  background: #f0f0f0;
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .game-mode-selector select {
@@ -216,6 +223,20 @@
 .move-value {
   font-size: 1.2rem;
   font-weight: bold;
+}
+
+/* Sidebar Controls */
+.game-controls-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.game-controls-sidebar .btn {
+  width: 100%;
+  justify-content: center;
+  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
 }
 
 /* Game Board Container */
@@ -516,15 +537,29 @@
 /* Blocked move feedback - REMOVED
    Visual feedback is now only handled by column coordinates */
 
-/* Column hover effects - Simplified for clean UI */
-.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece):not(.selected):first-of-type,
-.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece):not(.selected):first-of-type,
-.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece):not(.selected):first-of-type,
-.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece):not(.selected):first-of-type,
-.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece):not(.selected):first-of-type,
-.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece):not(.selected):first-of-type,
-.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece):not(.selected):first-of-type {
-  background: rgba(255, 235, 59, 0.3);
+/* Column hover effects - Blaue Spalten-Hervorhebung */
+.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece),
+.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece),
+.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece),
+.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece),
+.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece),
+.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece),
+.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece) {
+  background: rgba(59, 130, 246, 0.4) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
+  transform: scale(1.02) !important;
+}
+
+/* Hover-Effekt für die ganze Spalte */
+.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1),
+.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2),
+.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3),
+.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4),
+.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5),
+.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6),
+.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7) {
+  box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2) !important;
 }
 
 /* Drop animation */
@@ -610,6 +645,11 @@
   
   .board-coords.top {
     margin-top: 2rem !important; /* More space on mobile due to stacked header */
+  }
+  
+  .game-controls-sidebar .btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
   }
   
   /* Kompakte Sidebar für schmale Bildschirme */

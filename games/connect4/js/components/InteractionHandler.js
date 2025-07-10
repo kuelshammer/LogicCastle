@@ -140,6 +140,9 @@ export class InteractionHandler {
         this.hoveredColumn = col;
         this.showDropPreview(col);
         
+        // Set data attribute for CSS styling
+        this.gameBoard.setAttribute('data-hover-col', col);
+        
         // Callback for external handling
         if (this.onColumnHoverCallback) {
             this.onColumnHoverCallback(col);
@@ -153,6 +156,9 @@ export class InteractionHandler {
     handleColumnHoverLeave() {
         this.hoveredColumn = null;
         this.hideDropPreview();
+        
+        // Remove data attribute for CSS styling
+        this.gameBoard.removeAttribute('data-hover-col');
         
         // Callback for external handling
         if (this.onColumnHoverLeaveCallback) {
