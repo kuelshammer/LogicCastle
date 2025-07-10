@@ -1,0 +1,46 @@
+{
+  "baseline": {
+    "avgMemoryDelta": 2501.6,
+    "minMemoryDelta": -576816,
+    "maxMemoryDelta": 489104,
+    "stdDevMemoryDelta": 107105.3494178512,
+    "measurements": 50,
+    "totalMemoryUsed": 125080
+  },
+  "hotspots": {
+    "undoRedo": {
+      "avgMemoryDelta": 6773.44,
+      "minMemoryDelta": -581024,
+      "maxMemoryDelta": 30560,
+      "stdDevMemoryDelta": 83987.96385296174,
+      "measurements": 50,
+      "totalMemoryUsed": 338672
+    },
+    "aiAnalysis": {
+      "avgMemoryDelta": -5658.08,
+      "minMemoryDelta": -960200,
+      "maxMemoryDelta": 469928,
+      "stdDevMemoryDelta": 229357.46269854307,
+      "measurements": 50,
+      "totalMemoryUsed": -282904
+    },
+    "gameState": {
+      "avgMemoryDelta": 25295.36,
+      "minMemoryDelta": -1462488,
+      "maxMemoryDelta": 444160,
+      "stdDevMemoryDelta": 666577.9126845942,
+      "measurements": 50,
+      "totalMemoryUsed": 1264768
+    },
+    "objectCreation": {
+      "avgMemoryDelta": 49989.44,
+      "minMemoryDelta": -3267720,
+      "maxMemoryDelta": 853120,
+      "stdDevMemoryDelta": 1514545.0538594371,
+      "measurements": 50,
+      "totalMemoryUsed": 2499472
+    }
+  },
+  "measurements": [],
+  "timestamp": "2025-07-09T20:56:59.272Z"
+}

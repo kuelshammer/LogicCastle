@@ -1,5 +1,5 @@
 use crate::data::BitPackedBoard;
-use crate::geometry::{Connect4Grid, PatternProvider};
+use crate::geometry::{Connect4Grid, PatternProvider, BoardGeometry};
 use crate::games::connect4::Connect4Game;
 use crate::Player;
 
@@ -44,15 +44,28 @@ impl PatternEvaluator {
         self.fork_cache.borrow_mut().clear();
     }
     
-    /// Generate a hash key for board position (for caching)
+    /// Generate a hash key for board position (optimized with direct board access)
     fn generate_position_hash(&self, game: &Connect4Game, player: Player) -> u64 {
         let mut hash = 0u64;
         
-        // Simple hash based on board state
+        // Get direct board access for efficient hashing
+        let yellow_board = game.get_board_for_player(Player::Yellow);
+        let red_board = game.get_board_for_player(Player::Red);
+        
+        // Hash board state using direct bit operations
+        // This is much faster than 42 get_cell() calls (6x7)
         for row in 0..6 {
             for col in 0..7 {
-                let cell = game.get_cell(row, col);
-                hash = hash.wrapping_mul(3).wrapping_add(cell as u64);
+                if let Some(index) = game.geometry().to_index((row as i32, col as i32)) {
+                    let cell_value = if yellow_board.get_bit(index) {
+                        1u64 // Yellow
+                    } else if red_board.get_bit(index) {
+                        2u64 // Red  
+                    } else {
+                        0u64 // Empty
+                    };
+                    hash = hash.wrapping_mul(3).wrapping_add(cell_value);
+                }
             }
         }
         

@@ -1,9 +1,25 @@
 pub mod connect4_ai;
+pub mod gomoku_ai;
 pub mod pattern_evaluator;
 pub mod test_data;
 pub mod gemini_test_cases;
+pub mod gomoku_test_data;
+pub mod gomoku_test_cases;
+pub mod gemini_gomoku_tests;
+pub mod gemini_gomoku_multi_tests;
+pub mod categorized_gemini_tests;
+pub mod advanced_gomoku_scenarios;
+pub mod quick_gemini_test;
+pub mod connect4_multi_test_example;
 
 pub use connect4_ai::Connect4AI;
+pub use gomoku_ai::GomokuAI;
 pub use pattern_evaluator::PatternEvaluator;
-pub use test_data::{AITestCase, parse_board_from_ascii, game_to_ascii, test_ai_case, test_ai_case_xor, parse_ascii_to_boards, extract_move_from_boards};
+pub use test_data::{AITestCase, parse_board_from_ascii, parse_connect4_board_from_ascii, game_to_ascii, test_ai_case, test_ai_case_xor, parse_ascii_to_boards, extract_move_from_boards};
 pub use gemini_test_cases::{get_gemini_test_cases, run_all_gemini_tests};
+pub use gomoku_test_data::{GomokuAITestCase, GomokuAIMultiTestCase, GomokuTestType, parse_gomoku_ascii_to_boards, extract_gomoku_move_from_boards, gomoku_game_to_ascii, parse_gomoku_board_from_ascii, is_valid_gomoku_state, test_gomoku_ai_case_xor, test_gomoku_ai_multi_case, test_gomoku_ai_case_full_simulation};
+pub use gomoku_test_cases::{get_gomoku_test_cases, run_all_gomoku_tests};
+pub use gemini_gomoku_tests::{get_gemini_gomoku_test_cases, run_gemini_gomoku_tests};
+pub use gemini_gomoku_multi_tests::{get_gemini_gomoku_multi_test_cases, run_gemini_gomoku_multi_tests};
+pub use categorized_gemini_tests::{get_categorized_gemini_test_cases, run_categorized_gemini_tests, get_test_statistics_by_category};
+pub use advanced_gomoku_scenarios::{get_advanced_gomoku_scenarios, run_advanced_gomoku_scenarios, get_advanced_scenario_statistics};

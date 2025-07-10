@@ -12,8 +12,8 @@ pub mod ai;
 
 // Re-export key types for public API
 pub use geometry::{BoardGeometry, PatternProvider, QuadraticGrid, Connect4Grid, GomokuGrid, HexGrid, StandardHexGrid, HexEdge};
-pub use games::Connect4Game;
-pub use ai::{Connect4AI, PatternEvaluator};
+pub use games::{Connect4Game, GomokuGame};
+pub use ai::{Connect4AI, GomokuAI, PatternEvaluator};
 
 // A macro to provide `println!(..)`-style syntax for `console.log` logging.
 #[cfg(feature = "web_sys")]
@@ -142,6 +142,8 @@ impl From<GameError> for String {
 pub enum Player {
     Yellow = 1, // Assign integer values for easier conversion
     Red = 2,
+    Black = 3,  // For Gomoku/Gobang
+    White = 4,  // For Gomoku/Gobang
 }
 
 impl Player {
@@ -150,6 +152,8 @@ impl Player {
         match self {
             Player::Yellow => Player::Red,
             Player::Red => Player::Yellow,
+            Player::Black => Player::White,
+            Player::White => Player::Black,
         }
     }
 }
@@ -159,6 +163,8 @@ impl From<Player> for i8 {
         match player {
             Player::Yellow => 1,
             Player::Red => 2,
+            Player::Black => 3,
+            Player::White => 4,
         }
     }
 }
@@ -169,6 +175,8 @@ impl TryFrom<i8> for Player {
         match value {
             1 => Ok(Player::Yellow),
             2 => Ok(Player::Red),
+            3 => Ok(Player::Black),
+            4 => Ok(Player::White),
             _ => Err("Invalid player value".to_string()), // Convert to String
         }
     }
@@ -328,6 +336,8 @@ impl Game {
                         self.current_player = match self.current_player {
                             Player::Yellow => Player::Red,
                             Player::Red => Player::Yellow,
+                            Player::Black => Player::White,
+                            Player::White => Player::Black,
                         };
                         return Ok(());
                     },
@@ -368,6 +378,8 @@ impl Game {
         self.current_player = match self.current_player {
             Player::Yellow => Player::Red,
             Player::Red => Player::Yellow,
+            Player::Black => Player::White,
+            Player::White => Player::Black,
         };
         Ok(())
     }
@@ -1207,6 +1219,8 @@ impl Game {
         let opponent = match self.current_player {
             Player::Yellow => Player::Red,
             Player::Red => Player::Yellow,
+            Player::Black => Player::White,
+            Player::White => Player::Black,
         };
         
         self.detect_bottom_row_forks(opponent)

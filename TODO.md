@@ -65,6 +65,51 @@
 - **Benefit:** Maintainability and onboarding
 - **Priority:** 🟢 Low
 
+## 🧠 AI ALGORITHM OPTIMIZATIONS - Strategic Insights
+
+### MCTS & Alpha-Beta Pruning Enhancement Strategy 🎯 **NEW PRIORITY**
+
+#### 4.1 Forced Move Sequence Optimization ⭐ **CRITICAL INSIGHT**
+- **Konzept:** Bei Gomoku-Situationen mit **mehreren geschlossenen Vierern** entstehen erzwungene Zugketten
+- **Problem:** Gegner hat oft nur **eine einzige Blockierungsoption** → nicht branching
+- **Optimierung:** Solche "Pseudo-Züge" sollten die Suchtiefe nicht erhöhen
+- **Strategie:** Alpha-Beta sollte **erzwungene Ketten zuerst** durchgehen
+- **Beispiel:** `.BBBB. + .BBBB.` → Gegner muss beide blockieren → deterministische Sequenz
+- **Benefit:** Höhere effektive Suchtiefe ohne exponentiellen Branching-Overhead
+
+#### 4.2 MCTS Branch Management 🌳
+- **Regel:** Nur dann neuen MCTS-Zweig öffnen, wenn Gegner **echte Wahlfreiheit** hat
+- **Identifikation:** Erkennung von "forced response" vs "strategic choice" 
+- **Implementation:** Pattern-basierte Klassifizierung von Spielsituationen
+- **Performance:** Dramatische Reduktion des Search-Space bei gleichbleibender Qualität
+
+#### 4.3 Priority-Based Move Ordering 📊
+- **Reihenfolge:** 
+  1. **Immediate wins** (eigene Gewinnzüge)
+  2. **Forced defense** (Blockierung von Gegner-Gewinnen)
+  3. **Forced sequences** (erzwungene Ketten)
+  4. **Strategic choices** (echte Entscheidungen)
+- **Cutoff-Optimierung:** Early termination bei eindeutigen forced sequences
+- **Cache-Strategy:** Memoization für wiederkehrende forced patterns
+
+#### 4.4 Research Questions 🔬 **TODO**
+- **Q1:** Wie identifiziert man "forced responses" automatisch?
+- **Q2:** Welche Heuristiken unterscheiden echte Branching-Points?
+- **Q3:** Wie implementiert man variable Tiefe basierend auf Zwang-Grad?
+- **Q4:** Performance-Benchmarks: Traditionell vs. Forced-Sequence-optimiert
+
+#### 4.5 GEMINI MCTS INTEGRATION 🤝 **SYNERGY OPPORTUNITY**
+- **Quelle:** Gemini Report (20250710-103000) basierend auf Perplexity MCTS Research
+- **Synergy:** Forced Sequences + Threat Space Search (TSS) = Revolutionary AI
+- **Implementation:**
+  - `GomokuThreatAnalyzer` mit BitPackedBoard Bit-Masken
+  - UCB1 Enhancement: `exploitation + exploration + threat_bonus`
+  - VCF/VCT-Solver für automatische forced sequence detection
+  - Progressive Widening nur für non-forced moves
+- **Performance Potential:** 5-10x effective search depth improvement
+
+---
+
 ## 🔴 FRONTEND ISSUES - Nach Backend-Fixes
 
 ### 1. Modal System komplett kaputt ❌ **DEFERRED**

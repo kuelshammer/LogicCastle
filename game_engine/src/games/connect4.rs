@@ -115,6 +115,10 @@ impl Connect4Game {
         match player {
             Player::Yellow => &self.yellow_board,
             Player::Red => &self.red_board,
+            Player::Black | Player::White => {
+                // Connect4 doesn't use Black/White players, default to Yellow
+                &self.yellow_board
+            }
         }
     }
     
@@ -123,6 +127,10 @@ impl Connect4Game {
         match self.current_player {
             Player::Yellow => &mut self.yellow_board,
             Player::Red => &mut self.red_board,
+            Player::Black | Player::White => {
+                // Connect4 doesn't use Black/White players, default to Yellow
+                &mut self.yellow_board
+            }
         }
     }
     
@@ -131,6 +139,10 @@ impl Connect4Game {
         match self.current_player {
             Player::Yellow => &self.yellow_board,
             Player::Red => &self.red_board,
+            Player::Black | Player::White => {
+                // Connect4 doesn't use Black/White players, default to Yellow
+                &self.yellow_board
+            }
         }
     }
     
@@ -207,7 +219,7 @@ impl Connect4Game {
         self.evaluator = PatternEvaluator::new();
     }
     
-    /// Start a new game series with "loser starts" rule
+    /// Start a new game series with "loser starts" rule (legacy method)
     /// If loser_starts is true, the losing player from the previous game starts the next game
     pub fn start_new_series(&mut self, loser_starts: bool) {
         if loser_starts && self.winner.is_some() {
@@ -218,6 +230,25 @@ impl Connect4Game {
             // Default: Yellow starts or alternating start
             self.reset();
         }
+    }
+    
+    /// Start a new game series with fixed player colors
+    /// Players keep their colors throughout the series, only start order changes
+    /// This is ideal for tournaments where Player A = always Yellow, Player B = always Red
+    #[wasm_bindgen]
+    pub fn start_new_series_with_players(&mut self, player_a: Player, player_b: Player, winner: Player) {
+        // Validate that we're using Connect4 players
+        let (color_a, color_b) = match (player_a, player_b) {
+            (Player::Yellow, Player::Red) | (Player::Red, Player::Yellow) => (player_a, player_b),
+            _ => {
+                // Default to Yellow/Red if invalid players provided
+                (Player::Yellow, Player::Red)
+            }
+        };
+        
+        // Loser starts next game, but keeps their assigned color
+        let starting_player = if winner == color_a { color_b } else { color_a };
+        self.reset_with_starting_player(starting_player);
     }
     
     /// Create a hypothetical game state for AI evaluation
@@ -1061,5 +1092,37 @@ mod tests {
         assert!(game.winner.is_none());
         assert_eq!(game.get_cell(5, 3), 0); // Board cleared
         assert_eq!(game.get_cell(5, 4), 0); // Board cleared
+    }
+    
+    #[test]
+    fn test_series_with_fixed_player_colors() {
+        let mut game = Connect4Game::new();
+        
+        // Set up a game where Yellow wins
+        game.make_move_internal(3).unwrap(); // Yellow
+        game.make_move_internal(4).unwrap(); // Red
+        game.make_move_internal(3).unwrap(); // Yellow
+        game.make_move_internal(4).unwrap(); // Red
+        game.make_move_internal(3).unwrap(); // Yellow
+        game.make_move_internal(4).unwrap(); // Red
+        game.make_move_internal(3).unwrap(); // Yellow wins (4 in a row vertically)
+        
+        assert_eq!(game.winner(), Some(Player::Yellow));
+        
+        // Start new series with fixed colors: Player A = Yellow, Player B = Red
+        // Since Yellow won, Red should start the next game
+        game.start_new_series_with_players(Player::Yellow, Player::Red, Player::Yellow);
+        
+        // Verify game is reset
+        assert_eq!(game.winner(), None);
+        assert_eq!(game.move_count(), 0);
+        
+        // Verify Red starts (loser starts, but keeps their color)
+        assert_eq!(game.current_player(), Player::Red);
+        
+        // Test the reverse scenario: if Red wins, Yellow should start
+        let mut game2 = Connect4Game::new();
+        game2.start_new_series_with_players(Player::Yellow, Player::Red, Player::Red);
+        assert_eq!(game2.current_player(), Player::Yellow);
     }
 }

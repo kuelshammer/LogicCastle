@@ -121,6 +121,28 @@ pub fn game_to_ascii(game: &Connect4Game) -> String {
     result
 }
 
+/// Parse ASCII board representation into Connect4Game with automatic player detection
+/// Similar to Gomoku version - determines current player by piece count
+/// Returns (game, current_player) where current_player is determined by piece count
+pub fn parse_connect4_board_from_ascii(ascii: &str) -> Result<(Connect4Game, Player), String> {
+    let (yellow_board, red_board) = parse_ascii_to_boards(ascii)?;
+    
+    // Determine current player based on piece count
+    let yellow_count = yellow_board.count_set_bits();
+    let red_count = red_board.count_set_bits();
+    
+    let current_player = if yellow_count > red_count {
+        Player::Red  // Red's turn (Yellow has one more piece)
+    } else {
+        Player::Yellow  // Yellow's turn (equal pieces or Red has one more)
+    };
+    
+    // Create game from boards
+    let game = Connect4Game::from_boards(yellow_board, red_board, current_player);
+    
+    Ok((game, current_player))
+}
+
 /// Test a single AI test case
 pub fn test_ai_case(test_case: &AITestCase) -> Result<(), String> {
     // Parse the initial board
@@ -334,6 +356,73 @@ mod tests {
         
         // Should preserve the pattern
         assert!(converted_back.contains("..XO..."));
+    }
+    
+    #[test]
+    fn test_full_bidirectional_round_trip() {
+        // Test: ASCII → Game → ASCII → Game → ASCII
+        // Use a valid gravity-compliant Connect4 board
+        let original_ascii = "
+.......
+.......
+.......
+.......
+.......
+.XOX...
+        ";
+        
+        // First conversion: ASCII → Game
+        let (game1, player1) = parse_board_from_ascii(original_ascii).unwrap();
+        assert_eq!(game1.move_count(), 3); // Should have 3 pieces
+        
+        // Second conversion: Game → ASCII
+        let ascii2 = game_to_ascii(&game1);
+        
+        // Third conversion: ASCII → Game  
+        let (game2, player2) = parse_board_from_ascii(&ascii2).unwrap();
+        
+        // Fourth conversion: Game → ASCII
+        let ascii3 = game_to_ascii(&game2);
+        
+        // Verify consistency across all conversions
+        assert_eq!(player1, player2, "Player should be consistent");
+        assert_eq!(game1.move_count(), game2.move_count(), "Move count should be consistent");
+        assert_eq!(ascii2.trim(), ascii3.trim(), "ASCII representations should be identical");
+        
+        // Verify board state is preserved
+        for row in 0..6 {
+            for col in 0..7 {
+                assert_eq!(
+                    game1.get_cell(row, col), 
+                    game2.get_cell(row, col),
+                    "Cell ({}, {}) should be identical", row, col
+                );
+            }
+        }
+        
+        // Verify specific pattern preservation
+        assert!(ascii3.contains(".XOX..."), "Pattern should be preserved through full round-trip");
+    }
+    
+    #[test]
+    fn test_parse_connect4_board_from_ascii() {
+        let ascii = "
+.......
+.......
+.......
+.......
+...O...
+..X....
+        ";
+        
+        let result = parse_connect4_board_from_ascii(ascii);
+        assert!(result.is_ok());
+        
+        let (game, current_player) = result.unwrap();
+        assert_eq!(game.get_cell(5, 2), 1); // Yellow stone at bottom
+        assert_eq!(game.get_cell(4, 3), 2); // Red stone above
+        assert_eq!(current_player, Player::Yellow); // Yellow's turn (equal pieces)
+        assert_eq!(game.move_count(), 2);
     }
     
     #[test]

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Game Button Diagnosis</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .test-container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .test-result { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid;
+        }
+        .success { 
+            background: rgba(40, 167, 69, 0.2); 
+            border-color: #28a745; 
+            color: #d4edda; 
+        }
+        .error { 
+            background: rgba(220, 53, 69, 0.2); 
+            border-color: #dc3545; 
+            color: #f8d7da; 
+        }
+        .warning { 
+            background: rgba(255, 193, 7, 0.2); 
+            border-color: #ffc107; 
+            color: #fff3cd; 
+        }
+        .info { 
+            background: rgba(23, 162, 184, 0.2); 
+            border-color: #17a2b8; 
+            color: #d1ecf1; 
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px 8px; 
+            border: none;
+            border-radius: 8px;
+            cursor: pointer; 
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .board-display {
+            width: 300px;
+            height: 250px;
+            background: #2c3e50;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ecf0f1;
+            border: 2px solid #34495e;
+        }
+        .board-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .game-state {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        pre {
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 New Game Button Diagnosis - Phase 2B</h1>
+        <p>Diagnosing the "New Game Button shows blue square" issue after Backend fixes.</p>
+        
+        <div id="results"></div>
+        
+        <div class="button-group">
+            <button onclick="runAllTests()">🧪 Run All Tests</button>
+            <button onclick="testGameInitialization()">🎮 Test Game Initialization</button>
+            <button onclick="testNewGameButton()">🔄 Test New Game Button</button>
+            <button onclick="testBoardRendering()">🎲 Test Board Rendering</button>
+            <button onclick="testWASMIntegration()">🦀 Test WASM Integration</button>
+        </div>
+
+        <div class="button-group">
+            <button onclick="manualNewGame()">🔄 Manual New Game</button>
+            <button onclick="showGameState()">📊 Show Game State</button>
+            <button onclick="resetBoardVisual()">🎨 Reset Board Visual</button>
+        </div>
+
+        <div class="board-container">
+            <div class="board-display" id="boardDisplay">
+                Board will appear here
+            </div>
+            <div class="game-state" id="gameState">
+                Game state will appear here
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Connect4GameBitPacked } from './games/connect4/js/game.js';
+        
+        let game = null;
+        let gameState = null;
+        
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        window.logResult = logResult;
+
+        async function testGameInitialization() {
+            logResult('🎮 Testing Game Initialization...', 'info');
+            
+            try {
+                // Create new game instance
+                game = new Connect4GameBitPacked();
+                logResult('✅ Connect4GameBitPacked instance created', 'success');
+                
+                // Initialize game
+                await game.init();
+                logResult('✅ Game initialized successfully', 'success');
+                
+                // Test basic functionality
+                const initialState = game.getGameState();
+                if (initialState) {
+                    logResult(`✅ Game state retrieved: ${initialState.moveCount} moves`, 'success');
+                } else {
+                    logResult('❌ Game state is null', 'error');
+                }
+                
+                // Test board access
+                const board = game.getBoard();
+                if (board && Array.isArray(board)) {
+                    logResult(`✅ Board retrieved: ${board.length} rows`, 'success');
+                } else {
+                    logResult('❌ Board is invalid', 'error');
+                }
+                
+                // Test WASM board access
+                if (game.board) {
+                    logResult('✅ WASM board accessible', 'success');
+                    const memoryUsage = game.board.memory_usage();
+                    logResult(`✅ Memory usage: ${memoryUsage} bytes`, 'success');
+                } else {
+                    logResult('❌ WASM board not accessible', 'error');
+                }
+                
+                updateGameStateDisplay();
+                
+            } catch (error) {
+                logResult(`❌ Game initialization failed: ${error.message}`, 'error');
+                console.error('Initialization error:', error);
+            }
+        }
+
+        async function testNewGameButton() {
+            logResult('🔄 Testing New Game Button Functionality...', 'info');
+            
+            if (!game) {
+                logResult('⚠️ No game instance, initializing first...', 'warning');
+                await testGameInitialization();
+            }
+            
+            try {
+                // Make some moves first
+                logResult('🎮 Making test moves...', 'info');
+                await game.makeMove(3);
+                await game.makeMove(2);
+                await game.makeMove(4);
+                
+                logResult(`✅ Made 3 moves, move count: ${game.getMoveCount()}`, 'success');
+                
+                // Now test new game
+                logResult('🔄 Calling newGame()...', 'info');
+                game.newGame();
+                
+                // Check if game was reset
+                const moveCount = game.getMoveCount();
+                const board = game.getBoard();
+                
+                if (moveCount === 0) {
+                    logResult('✅ Move count reset to 0', 'success');
+                } else {
+                    logResult(`❌ Move count not reset: ${moveCount}`, 'error');
+                }
+                
+                // Check if board is empty
+                const boardFlat = board.flat();
+                const nonZeroCells = boardFlat.filter(cell => cell !== 0);
+                
+                if (nonZeroCells.length === 0) {
+                    logResult('✅ Board is empty after new game', 'success');
+                } else {
+                    logResult(`❌ Board has ${nonZeroCells.length} non-empty cells`, 'error');
+                }
+                
+                updateGameStateDisplay();
+                updateBoardDisplay();
+                
+            } catch (error) {
+                logResult(`❌ New game test failed: ${error.message}`, 'error');
+                console.error('New game error:', error);
+            }
+        }
+
+        async function testBoardRendering() {
+            logResult('🎲 Testing Board Rendering...', 'info');
+            
+            if (!game) {
+                logResult('⚠️ No game instance, initializing first...', 'warning');
+                await testGameInitialization();
+            }
+            
+            try {
+                // Test board visualization
+                const board = game.getBoard();
+                
+                if (board) {
+                    logResult(`✅ Board has ${board.length} rows and ${board[0].length} columns`, 'success');
+                    
+                    // Test each row
+                    for (let row = 0; row < board.length; row++) {
+                        const rowData = board[row];
+                        if (Array.isArray(rowData) && rowData.length === 7) {
+                            logResult(`✅ Row ${row} has correct structure`, 'success');
+                        } else {
+                            logResult(`❌ Row ${row} has incorrect structure`, 'error');
+                        }
+                    }
+                    
+                    updateBoardDisplay();
+                    
+                } else {
+                    logResult('❌ Board is null or undefined', 'error');
+                }
+                
+            } catch (error) {
+                logResult(`❌ Board rendering test failed: ${error.message}`, 'error');
+                console.error('Board rendering error:', error);
+            }
+        }
+
+        async function testWASMIntegration() {
+            logResult('🦀 Testing WASM Integration...', 'info');
+            
+            if (!game) {
+                logResult('⚠️ No game instance, initializing first...', 'warning');
+                await testGameInitialization();
+            }
+            
+            try {
+                // Test WASM methods
+                const wasmBoard = game.board;
+                
+                if (wasmBoard) {
+                    logResult('✅ WASM board instance exists', 'success');
+                    
+                    // Test memory usage
+                    const memoryUsage = wasmBoard.memory_usage();
+                    logResult(`✅ Memory usage: ${memoryUsage} bytes`, 'success');
+                    
+                    // Test get_board
+                    const flatBoard = wasmBoard.get_board();
+                    logResult(`✅ Flat board: ${flatBoard.length} cells`, 'success');
+                    
+                    // Test current player
+                    const currentPlayer = wasmBoard.get_current_player();
+                    logResult(`✅ Current player: ${currentPlayer}`, 'success');
+                    
+                    // Test move count
+                    const moveCount = wasmBoard.get_move_count();
+                    logResult(`✅ Move count: ${moveCount}`, 'success');
+                    
+                    // Test reset functionality
+                    wasmBoard.reset();
+                    const newMoveCount = wasmBoard.get_move_count();
+                    logResult(`✅ After reset, move count: ${newMoveCount}`, 'success');
+                    
+                } else {
+                    logResult('❌ WASM board not accessible', 'error');
+                }
+                
+                updateGameStateDisplay();
+                
+            } catch (error) {
+                logResult(`❌ WASM integration test failed: ${error.message}`, 'error');
+                console.error('WASM integration error:', error);
+            }
+        }
+
+        function updateGameStateDisplay() {
+            const gameStateDiv = document.getElementById('gameState');
+            
+            if (game) {
+                try {
+                    const state = game.getGameState();
+                    const perfStats = game.getPerformanceStats();
+                    
+                    gameStateDiv.innerHTML = `
+                        <h3>Game State</h3>
+                        <pre>${JSON.stringify(state, null, 2)}</pre>
+                        <h3>Performance Stats</h3>
+                        <pre>${JSON.stringify(perfStats, null, 2)}</pre>
+                    `;
+                } catch (error) {
+                    gameStateDiv.innerHTML = `<p>Error getting game state: ${error.message}</p>`;
+                }
+            } else {
+                gameStateDiv.innerHTML = '<p>No game instance</p>';
+            }
+        }
+
+        function updateBoardDisplay() {
+            const boardDiv = document.getElementById('boardDisplay');
+            
+            if (game) {
+                try {
+                    const board = game.getBoard();
+                    
+                    if (board) {
+                        let boardHTML = '<div style="font-family: monospace; font-size: 14px;">';
+                        
+                        for (let row = 0; row < board.length; row++) {
+                            let rowHTML = '';
+                            for (let col = 0; col < board[row].length; col++) {
+                                const cell = board[row][col];
+                                const cellChar = cell === 0 ? '⚪' : (cell === 1 ? '🟡' : '🔴');
+                                rowHTML += cellChar + ' ';
+                            }
+                            boardHTML += rowHTML + '<br>';
+                        }
+                        
+                        boardHTML += '</div>';
+                        boardDiv.innerHTML = boardHTML;
+                    } else {
+                        boardDiv.innerHTML = '<p style="color: #e74c3c;">❌ Board is null</p>';
+                    }
+                } catch (error) {
+                    boardDiv.innerHTML = `<p style="color: #e74c3c;">❌ Error: ${error.message}</p>`;
+                }
+            } else {
+                boardDiv.innerHTML = '<p>No game instance</p>';
+            }
+        }
+
+        window.manualNewGame = async function() {
+            logResult('🔄 Manual New Game triggered...', 'info');
+            
+            if (!game) {
+                await testGameInitialization();
+            }
+            
+            try {
+                game.newGame();
+                logResult('✅ Manual new game successful', 'success');
+                updateGameStateDisplay();
+                updateBoardDisplay();
+            } catch (error) {
+                logResult(`❌ Manual new game failed: ${error.message}`, 'error');
+            }
+        };
+
+        window.showGameState = function() {
+            updateGameStateDisplay();
+            logResult('📊 Game state updated', 'info');
+        };
+
+        window.resetBoardVisual = function() {
+            updateBoardDisplay();
+            logResult('🎨 Board visual updated', 'info');
+        };
+
+        window.runAllTests = async function() {
+            document.getElementById('results').innerHTML = '';
+            logResult('🚀 Running Complete New Game Button Test Suite...', 'info');
+            
+            await testGameInitialization();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testWASMIntegration();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testBoardRendering();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            await testNewGameButton();
+            
+            logResult('✅ All New Game Button tests completed!', 'success');
+        };
+
+        // Auto-run basic tests on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                logResult('🎬 New Game Button Diagnosis initialized', 'info');
+                logResult('👆 Click "Run All Tests" to start comprehensive testing', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
