@@ -26,7 +26,7 @@ export class SoundManager {
             volume: options.volume || 0.3,
             enabled: options.enabled !== false,
             preload: options.preload !== false,
-            audioPath: options.audioPath || '/LogicCastle/games/connect4/assets/audio/',
+            audioPath: options.audioPath || './assets/audio/',
             ...options
         };
         
@@ -160,7 +160,11 @@ export class SoundManager {
         });
         
         await Promise.allSettled(loadPromises);
-        console.log(`🔊 Preloaded ${this.audioBuffers.size}/${Object.keys(this.soundEffects).length} sounds`);
+        if (this.audioBuffers.size > 0) {
+            console.log(`🔊 Preloaded ${this.audioBuffers.size}/${Object.keys(this.soundEffects).length} sounds`);
+        } else {
+            console.log(`🔊 Audio system initialized without sound files (silent mode)`);
+        }
     }
     
     /**
@@ -183,7 +187,12 @@ export class SoundManager {
             console.log(`🔊 Loaded sound: ${key}`);
             
         } catch (error) {
-            console.warn(`🔊 Failed to load ${filename}:`, error.message);
+            // Reduce log spam for 404 errors (expected when no audio files exist)
+            if (error.message.includes('404')) {
+                console.log(`🔊 Audio file not found: ${filename} (using silent fallback)`);
+            } else {
+                console.warn(`🔊 Failed to load ${filename}:`, error.message);
+            }
             // Create silent buffer as fallback
             this.createSilentBuffer(key);
         }

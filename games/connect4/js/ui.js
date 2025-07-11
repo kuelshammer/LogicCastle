@@ -1523,7 +1523,7 @@ export class Connect4UI extends BaseGameUI {
      * @returns {Array} Array of {row, col} positions forming the winning line
      */
     detectVictoryLinePositions(winner) {
-        if (!this.game || !this.game.initialized) {
+        if (!this.game || !this.game.initialized || typeof this.game.getCell !== 'function') {
             return [];
         }
 

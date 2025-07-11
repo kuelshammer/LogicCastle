@@ -289,6 +289,12 @@ export class BoardRenderer {
     updateBoard(game) {
         if (!this.initialized || !game) return;
         
+        // HOTFIX: Check if game is properly initialized and has required methods
+        if (!game.initialized || typeof game.getCell !== 'function') {
+            console.log('⚠️ Game not ready for board update - skipping update');
+            return;
+        }
+        
         // Update each cell based on game state
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {

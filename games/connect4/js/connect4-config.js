@@ -74,8 +74,8 @@ export const CONNECT4_UI_CONFIG = {
     // Keyboard Shortcuts Configuration
     keyboard: {
         // Function keys
-        'F1': 'toggleHelp',
-        'F2': 'toggleAssistance', 
+        'F1': 'toggleModal_help',
+        'F2': 'toggleModal_assistance', 
         'F3': 'resetScore',
         
         // Game controls
@@ -86,14 +86,14 @@ export const CONNECT4_UI_CONFIG = {
         'r': 'resetScore',
         'R': 'resetScore',
         
-        // Column selection (1-7)
-        '1': 'dropColumn1',
-        '2': 'dropColumn2',
-        '3': 'dropColumn3',
-        '4': 'dropColumn4',
-        '5': 'dropColumn5',
-        '6': 'dropColumn6',
-        '7': 'dropColumn7',
+        // Column selection (1-7) - DISABLED until actions are implemented
+        // '1': 'dropColumn1',
+        // '2': 'dropColumn2',
+        // '3': 'dropColumn3',
+        // '4': 'dropColumn4',
+        // '5': 'dropColumn5',
+        // '6': 'dropColumn6',
+        // '7': 'dropColumn7',
         
         // Ctrl combinations
         'Ctrl+z': 'undoMove',
