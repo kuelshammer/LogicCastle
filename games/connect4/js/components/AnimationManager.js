@@ -73,24 +73,44 @@ export class AnimationManager {
      * @private
      */
     async initializeParticleEngine() {
-        const { ParticleEngine } = await import('./ParticleEngine.js');
-        
-        // Create canvas for particles
-        const canvas = document.createElement('canvas');
-        canvas.id = 'connect4-particles';
-        canvas.style.position = 'fixed';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.pointerEvents = 'none';
-        canvas.style.zIndex = '9999';
-        document.body.appendChild(canvas);
-        
-        // Initialize particle engine
-        this.particleEngine = new ParticleEngine(canvas, {
-            maxParticles: this.reducedMotion ? 20 : 150
-        });
-        
-        console.log('🎊 ParticleEngine initialized');
+        try {
+            const { ParticleEngine } = await import('./ParticleEngine.js');
+            
+            // Use existing canvas from HTML or create new one
+            let canvas = document.getElementById('particleCanvas');
+            if (!canvas) {
+                console.log('🎊 Creating dynamic particle canvas...');
+                canvas = document.createElement('canvas');
+                canvas.id = 'connect4-particles';
+                canvas.style.position = 'fixed';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.pointerEvents = 'none';
+                canvas.style.zIndex = '9999';
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                document.body.appendChild(canvas);
+            } else {
+                console.log('🎊 Using existing particle canvas from HTML');
+                // Ensure canvas is properly sized and positioned
+                const boardWrapper = canvas.parentElement;
+                if (boardWrapper) {
+                    const rect = boardWrapper.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                }
+            }
+            
+            // Initialize particle engine
+            this.particleEngine = new ParticleEngine(canvas, {
+                maxParticles: this.reducedMotion ? 20 : 150
+            });
+            
+            console.log('🎊 ParticleEngine initialized successfully');
+        } catch (error) {
+            console.error('❌ ParticleEngine initialization failed:', error);
+            this.particleEngine = null;
+        }
     }
     
     /**
@@ -622,11 +642,14 @@ export class AnimationManager {
             
             // Trigger confetti particles
             if (this.particleEngine) {
+                console.log('🎊 ParticleEngine available, creating celebration burst...');
                 const gameBoard = document.querySelector('.game-board-container');
                 if (gameBoard) {
                     const rect = gameBoard.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
                     const centerY = rect.top + rect.height / 2;
+                    
+                    console.log(`🎯 Celebration center: ${centerX}, ${centerY}`);
                     
                     // Multiple burst patterns for epic celebration
                     this.particleEngine.createCelebrationBurst({
@@ -641,15 +664,21 @@ export class AnimationManager {
                     
                     // Delayed secondary burst
                     setTimeout(() => {
-                        this.particleEngine.createCelebrationBurst({
-                            x: centerX,
-                            y: centerY - 100,
-                            pattern: 'fountain',
-                            particleCount: 60,
-                            colors: ['#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
-                        });
+                        if (this.particleEngine) {
+                            this.particleEngine.createCelebrationBurst({
+                                x: centerX,
+                                y: centerY - 100,
+                                pattern: 'fountain',
+                                particleCount: 60,
+                                colors: ['#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+                            });
+                        }
                     }, 500);
+                } else {
+                    console.warn('⚠️ Game board container not found for celebration');
                 }
+            } else {
+                console.warn('⚠️ ParticleEngine not available for celebration');
             }
             
             // Enhanced victory line animation

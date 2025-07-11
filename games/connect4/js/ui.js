@@ -1491,8 +1491,11 @@ export class Connect4UI extends BaseGameUI {
      * @param {number} winner - Winning player (1 or 2)
      */
     async detectAndAnimatePremiumVictoryLine(winner) {
+        console.log(`🏆 VICTORY ANIMATION TRIGGERED for player ${winner}`);
+        
         if (!this.animationManager || !this.boardRenderer) {
             console.warn('⚠️ Premium victory line animation requires AnimationManager and BoardRenderer');
+            console.log('AnimationManager:', !!this.animationManager, 'BoardRenderer:', !!this.boardRenderer);
             return;
         }
 
