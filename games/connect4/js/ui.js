@@ -1105,6 +1105,11 @@ export class Connect4UI extends BaseGameUI {
             this.boardRenderer.clearBoard();
         }
         
+        // Clear all visual effects (confetti, particles, animations)
+        if (this.animationManager) {
+            this.animationManager.clearAllEffects();
+        }
+        
         // Clear UI state
         this.clearAssistanceHighlights();
         this.hideDropPreview();

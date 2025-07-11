@@ -660,7 +660,7 @@ export class AnimationManager {
             // Trigger confetti particles
             if (this.particleEngine) {
                 console.log('🎊 ParticleEngine available, creating celebration burst...');
-                const gameBoard = document.querySelector('.game-board-container');
+                const gameBoard = document.querySelector('.game-board');
                 if (gameBoard) {
                     const rect = gameBoard.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
@@ -834,6 +834,30 @@ export class AnimationManager {
         
         // Create ripple effect
         this.createButtonRipple(button, event);
+    }
+    
+    /**
+     * Clear all visual effects (for new game)
+     */
+    clearAllEffects() {
+        console.log('🧹 Clearing all visual effects for new game...');
+        
+        // Clear celebration state
+        this.celebrationActive = false;
+        
+        // Clear particle effects
+        if (this.particleEngine) {
+            this.particleEngine.clearCanvas();
+        }
+        
+        // Clear any pending animations
+        this.animationQueue = [];
+        this.isAnimating = false;
+        
+        // Clear column previews
+        this.clearColumnPreview();
+        
+        console.log('✅ All visual effects cleared');
     }
     
     /**

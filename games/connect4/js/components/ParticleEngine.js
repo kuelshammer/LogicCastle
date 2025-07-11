@@ -436,6 +436,15 @@ export class ParticleEngine {
     }
     
     /**
+     * Clear canvas completely (for new game reset)
+     */
+    clearCanvas() {
+        this.clearAllParticles();
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        console.log('🧹 Canvas completely cleared for new game');
+    }
+    
+    /**
      * Check if device is mobile
      * @private
      */
