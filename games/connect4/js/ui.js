@@ -156,11 +156,13 @@ export class Connect4UI extends BaseGameUI {
      */
     addConfettiTestButton() {
         const headerControls = document.querySelector('.header-controls');
+        console.log('🔍 Looking for .header-controls:', headerControls);
+        
         if (headerControls) {
             const testBtn = document.createElement('button');
             testBtn.id = 'testConfettiBtn';
             testBtn.className = 'btn btn-warning';
-            testBtn.style.background = 'orange';
+            testBtn.style.cssText = 'background: orange !important; color: white !important; margin-left: 10px;';
             testBtn.innerHTML = '<span class="btn-icon">🎊</span> Test Konfetti';
             
             testBtn.addEventListener('click', () => {
@@ -169,7 +171,21 @@ export class Connect4UI extends BaseGameUI {
             });
             
             headerControls.appendChild(testBtn);
-            console.log('🎊 Test confetti button added');
+            console.log('🎊 Test confetti button added successfully');
+        } else {
+            // Fallback: Add to body if header-controls not found
+            const testBtn = document.createElement('button');
+            testBtn.id = 'testConfettiBtn';
+            testBtn.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 99999; background: orange; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;';
+            testBtn.innerHTML = '🎊 Test Konfetti';
+            
+            testBtn.addEventListener('click', () => {
+                console.log('🎊 Test button clicked - triggering confetti');
+                window.testConfetti();
+            });
+            
+            document.body.appendChild(testBtn);
+            console.log('🎊 Test confetti button added to body as fallback');
         }
     }
 

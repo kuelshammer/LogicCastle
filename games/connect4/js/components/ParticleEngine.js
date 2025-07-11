@@ -388,10 +388,10 @@ export class ParticleEngine {
             this.animationId = null;
         }
         
-        // Clear canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Don't clear canvas completely - let particles fade naturally
+        // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        console.log('🎊 Particle animation stopped');
+        console.log('🎊 Particle animation stopped (canvas preserved)');
     }
     
     /**
