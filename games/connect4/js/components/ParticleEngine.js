@@ -76,17 +76,25 @@ export class ParticleEngine {
      */
     resizeCanvas() {
         const rect = document.body.getBoundingClientRect();
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+        
+        // Store logical dimensions for physics calculations
+        this.logicalWidth = window.innerWidth;
+        this.logicalHeight = window.innerHeight;
+        
+        // Set canvas size
+        this.canvas.width = this.logicalWidth;
+        this.canvas.height = this.logicalHeight;
         
         // Scale for high-DPI displays
         const dpr = window.devicePixelRatio || 1;
-        this.canvas.width *= dpr;
-        this.canvas.height *= dpr;
-        this.ctx.scale(dpr, dpr);
+        if (dpr > 1) {
+            this.canvas.width *= dpr;
+            this.canvas.height *= dpr;
+            this.ctx.scale(dpr, dpr);
+        }
         
-        this.canvas.style.width = window.innerWidth + 'px';
-        this.canvas.style.height = window.innerHeight + 'px';
+        this.canvas.style.width = this.logicalWidth + 'px';
+        this.canvas.style.height = this.logicalHeight + 'px';
     }
     
     /**
@@ -100,8 +108,8 @@ export class ParticleEngine {
         }
         
         const {
-            x = this.canvas.width / 2,
-            y = this.canvas.height / 2,
+            x = (this.logicalWidth || this.canvas.width) / 2,
+            y = (this.logicalHeight || this.canvas.height) / 2,
             particleCount = Math.floor(this.config.maxParticles * 0.3),
             colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'],
             pattern = 'explosion', // explosion, fountain, spiral
@@ -245,9 +253,19 @@ export class ParticleEngine {
             particle.y += particle.vy * dt;
             particle.rotation += particle.rotationSpeed * dt;
             
+            // Keep particles within canvas bounds (use logical dimensions)
+            const canvasWidth = this.logicalWidth || this.canvas.width;
+            const canvasHeight = this.logicalHeight || this.canvas.height;
+            
+            // Bounce off sides
+            if (particle.x < particle.size || particle.x > canvasWidth - particle.size) {
+                particle.vx *= -this.config.bounceDecay;
+                particle.x = Math.max(particle.size, Math.min(canvasWidth - particle.size, particle.x));
+            }
+            
             // Bounce off bottom
-            if (particle.y > this.canvas.height - particle.size) {
-                particle.y = this.canvas.height - particle.size;
+            if (particle.y > canvasHeight - particle.size) {
+                particle.y = canvasHeight - particle.size;
                 particle.vy *= -this.config.bounceDecay;
                 particle.bounces++;
                 
@@ -255,6 +273,13 @@ export class ParticleEngine {
                 if (particle.bounces > 3) {
                     particle.vy = Math.max(particle.vy, -2);
                 }
+            }
+            
+            // Remove particles that go too far off-screen
+            if (particle.x < -100 || particle.x > canvasWidth + 100 || particle.y > canvasHeight + 100) {
+                this.activeParticles.splice(i, 1);
+                this.returnParticleToPool(particle);
+                continue;
             }
             
             // Update life
