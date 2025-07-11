@@ -74,6 +74,9 @@ export class Connect4UI extends BaseGameUI {
         // Initialization guard to prevent multiple initializations
         // Note: Use 'initialized' to match BaseGameUI's getter pattern
         this.initialized = false;
+        
+        // Starting player rotation (1 = Yellow, 2 = Red)
+        this.nextStartingPlayer = 1; // Yellow starts first game by default
     }
 
     /**
@@ -137,56 +140,17 @@ export class Connect4UI extends BaseGameUI {
         console.log('✅ Connect4 UI fully initialized');
         console.log('🧪 PHASE 2A: Run window.testModalSystem() to test modals');
         
-        // Add debug test button for confetti
-        this.addConfettiTestButton();
-        
-        // Expose confetti test function globally
-        window.testConfetti = () => {
-            console.log('🎊 Manual confetti test triggered');
-            if (this.animationManager) {
-                this.animationManager.triggerPremiumCelebration('yellow', [
-                    { row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 }
-                ]);
-            }
-        };
+        // Confetti test functionality removed - using real game victories only
     }
 
     /**
-     * Add confetti test button for debugging
+     * Initialize starting player rotation logic
      */
-    addConfettiTestButton() {
-        const headerControls = document.querySelector('.header-controls');
-        console.log('🔍 Looking for .header-controls:', headerControls);
+    initializeStartingPlayerRotation() {
+        // Track next starting player (1 = Yellow, 2 = Red)
+        this.nextStartingPlayer = 1; // Yellow starts first game by default
         
-        if (headerControls) {
-            const testBtn = document.createElement('button');
-            testBtn.id = 'testConfettiBtn';
-            testBtn.className = 'btn btn-warning';
-            testBtn.style.cssText = 'background: orange !important; color: white !important; margin-left: 10px;';
-            testBtn.innerHTML = '<span class="btn-icon">🎊</span> Test Konfetti';
-            
-            testBtn.addEventListener('click', () => {
-                console.log('🎊 Test button clicked - triggering confetti');
-                window.testConfetti();
-            });
-            
-            headerControls.appendChild(testBtn);
-            console.log('🎊 Test confetti button added successfully');
-        } else {
-            // Fallback: Add to body if header-controls not found
-            const testBtn = document.createElement('button');
-            testBtn.id = 'testConfettiBtn';
-            testBtn.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 99999; background: orange; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;';
-            testBtn.innerHTML = '🎊 Test Konfetti';
-            
-            testBtn.addEventListener('click', () => {
-                console.log('🎊 Test button clicked - triggering confetti');
-                window.testConfetti();
-            });
-            
-            document.body.appendChild(testBtn);
-            console.log('🎊 Test confetti button added to body as fallback');
-        }
+        console.log('🔄 Starting player rotation initialized - Yellow starts first');
     }
 
     /**
@@ -1026,6 +990,9 @@ export class Connect4UI extends BaseGameUI {
         
         this.updateScores();
         
+        // Determine next starting player based on game result
+        this.determineNextStartingPlayer(gameData.winner);
+        
         // Handle victory with premium celebration
         const winnerName = gameData.winner === 1 ? 'Gelb' : (gameData.winner === 2 ? 'Rot' : null);
         if (winnerName && gameData.winner) {
@@ -1038,6 +1005,25 @@ export class Connect4UI extends BaseGameUI {
             }, 500); // Delay to let victory animation start
         } else {
             this.showMessage('🤝 Unentschieden!', 'info');
+        }
+    }
+
+    /**
+     * Determine next starting player based on game result
+     * Rule: Winner loses starting advantage (starting player rotates on victory)
+     */
+    determineNextStartingPlayer(winner) {
+        const previousStarter = this.nextStartingPlayer;
+        
+        if (winner && winner !== 0) {
+            // Victory: Winner loses starting advantage
+            this.nextStartingPlayer = (winner === 1) ? 2 : 1;
+            const winnerName = winner === 1 ? 'Gelb' : 'Rot';
+            const nextStarterName = this.nextStartingPlayer === 1 ? 'Gelb' : 'Rot';
+            console.log(`🔄 Sieger ${winnerName} verliert Startvorteil → ${nextStarterName} startet nächstes Spiel`);
+        } else {
+            // Draw/No winner: Starting player stays the same
+            console.log(`🤝 Unentschieden → ${this.nextStartingPlayer === 1 ? 'Gelb' : 'Rot'} startet weiterhin`);
         }
     }
 
@@ -1095,9 +1081,25 @@ export class Connect4UI extends BaseGameUI {
      * Override newGame for Connect4-specific logic (ULTRATHINK)
      */
     newGame() {
-        // Reset the game engine
+        // Reset the game engine with proper starting player
         if (this.game) {
-            this.game.newGame();
+            // Check if WASM board supports starting player selection
+            if (this.game.board && typeof this.game.board.reset_with_starting_player === 'function') {
+                // Use WASM API directly with player enum (1=Yellow, 2=Red)
+                this.game.board.reset_with_starting_player(this.nextStartingPlayer);
+                const starterName = this.nextStartingPlayer === 1 ? 'Gelb' : 'Rot';
+                console.log(`🎮 WASM: Neues Spiel mit Startspieler: ${starterName} (${this.nextStartingPlayer})`);
+                
+                // Update JavaScript wrapper state
+                this.game.gameHistory = [];
+                this.game.currentMoveIndex = -1;
+                this.game.totalMoves = 0;
+                this.game.averageMoveTime = 0;
+            } else {
+                // Fallback to standard reset
+                this.game.newGame();
+                console.log('⚠️ WASM API reset_with_starting_player nicht verfügbar - Standard Reset verwendet');
+            }
         }
         
         // ULTRATHINK: Clear board through BoardRenderer component
@@ -1117,7 +1119,9 @@ export class Connect4UI extends BaseGameUI {
         // Update UI to reflect new game state
         this.updateUI();
         
-        this.showMessage('Neues Spiel gestartet!', 'info');
+        // Show message with starting player info
+        const starterName = this.nextStartingPlayer === 1 ? 'Gelb' : 'Rot';
+        this.showMessage(`🆕 Neues Spiel gestartet! ${starterName} beginnt.`, 'info');
     }
 
     /**
