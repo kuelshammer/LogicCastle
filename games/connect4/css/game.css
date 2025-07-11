@@ -7,6 +7,8 @@
 
 /* Import central design system */
 @import url('../../../assets/css/main.css');
+/* Import advanced animations */
+@import url('./animations.css');
 .game-container {
   max-width: 1400px;
   margin: 0 auto;

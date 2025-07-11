@@ -1,0 +1,370 @@
+/**
+ * Connect4 Advanced Animations
+ * Premium visual effects for enhanced gameplay experience
+ */
+
+/* ===== SMOOTH PIECE DROP PHYSICS ===== */
+
+/* Realistic drop animation with bounce physics */
+@keyframes piece-drop-realistic {
+  0% {
+    transform: translateY(-100px) scale(0.8);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(0) scale(1.05);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-8px) scale(0.98);
+  }
+  95% {
+    transform: translateY(0) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Enhanced drop with ripple effect */
+@keyframes piece-drop-with-ripple {
+  0% {
+    transform: translateY(-120px) scale(0.7);
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  60% {
+    transform: translateY(0) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(0) scale(1.1);
+    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+  }
+  85% {
+    transform: translateY(-5px) scale(0.95);
+  }
+  95% {
+    transform: translateY(0) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Variable height drops based on row position */
+.game-piece.dropping-row-0 {
+  animation: piece-drop-realistic 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.game-piece.dropping-row-1 {
+  animation: piece-drop-realistic 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.game-piece.dropping-row-2 {
+  animation: piece-drop-realistic 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.game-piece.dropping-row-3 {
+  animation: piece-drop-realistic 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.game-piece.dropping-row-4 {
+  animation: piece-drop-realistic 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.game-piece.dropping-row-5 {
+  animation: piece-drop-realistic 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Premium ripple effect for special moves */
+.game-piece.dropping-special {
+  animation: piece-drop-with-ripple 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ===== GHOST STONE PREVIEW ===== */
+
+.game-slot .ghost-piece {
+  position: absolute;
+  width: 85%;
+  height: 85%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.game-slot.preview-yellow .ghost-piece {
+  border-color: rgba(255, 235, 59, 0.8);
+  background: rgba(255, 235, 59, 0.15);
+  box-shadow: 0 0 15px rgba(255, 235, 59, 0.3);
+}
+
+.game-slot.preview-red .ghost-piece {
+  border-color: rgba(244, 67, 54, 0.8);
+  background: rgba(244, 67, 54, 0.15);
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.3);
+}
+
+.game-slot.show-preview .ghost-piece {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== ENHANCED COLUMN HOVER EFFECTS ===== */
+
+.game-board[data-hover-col] .game-slot {
+  transition: all 0.2s ease;
+}
+
+/* Subtle column highlighting */
+.game-board[data-hover-col="0"] .game-slot:nth-child(7n+1):not(.has-piece),
+.game-board[data-hover-col="1"] .game-slot:nth-child(7n+2):not(.has-piece),
+.game-board[data-hover-col="2"] .game-slot:nth-child(7n+3):not(.has-piece),
+.game-board[data-hover-col="3"] .game-slot:nth-child(7n+4):not(.has-piece),
+.game-board[data-hover-col="4"] .game-slot:nth-child(7n+5):not(.has-piece),
+.game-board[data-hover-col="5"] .game-slot:nth-child(7n+6):not(.has-piece),
+.game-board[data-hover-col="6"] .game-slot:nth-child(7n+7):not(.has-piece) {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  transform: scale(1.02) !important;
+  box-shadow: 
+    inset 0 0 15px rgba(59, 130, 246, 0.2),
+    0 0 10px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Enhanced ripple effect for column preview */
+.game-board.column-preview::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at var(--preview-x, 50%) var(--preview-y, 50%), 
+    rgba(59, 130, 246, 0.1) 0%, 
+    rgba(59, 130, 246, 0.05) 30%, 
+    transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  animation: preview-ripple 0.6s ease-out;
+}
+
+@keyframes preview-ripple {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* ===== VICTORY LINE HIGHLIGHTING ===== */
+
+/* Progressive winning line reveal */
+@keyframes victory-line-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: hue-rotate(180deg);
+  }
+  75% {
+    transform: scale(1.05);
+    filter: hue-rotate(360deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: hue-rotate(0deg);
+  }
+}
+
+.game-piece.victory-piece {
+  animation: victory-line-reveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation-fill-mode: forwards;
+  position: relative;
+  z-index: 100;
+}
+
+/* Staggered animation for sequential piece highlighting */
+.game-piece.victory-piece:nth-child(1) { animation-delay: 0s; }
+.game-piece.victory-piece:nth-child(2) { animation-delay: 0.15s; }
+.game-piece.victory-piece:nth-child(3) { animation-delay: 0.3s; }
+.game-piece.victory-piece:nth-child(4) { animation-delay: 0.45s; }
+
+/* Continuous victory glow */
+@keyframes victory-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.8),
+      0 0 40px rgba(255, 215, 0, 0.6),
+      0 0 60px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 1),
+      0 0 60px rgba(255, 215, 0, 0.8),
+      0 0 90px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.game-piece.victory-glow {
+  animation: victory-glow 1.5s ease-in-out infinite;
+}
+
+/* ===== CELEBRATION CONFETTI EFFECTS ===== */
+
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #FFD700;
+  animation: confetti-fall 3s linear infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Color variations for confetti */
+.confetti-piece.yellow { background: #FFD700; }
+.confetti-piece.red { background: #FF4444; }
+.confetti-piece.blue { background: #4444FF; }
+.confetti-piece.green { background: #44FF44; }
+.confetti-piece.purple { background: #FF44FF; }
+
+/* ===== MICRO-INTERACTIONS ===== */
+
+/* Button micro-bounces */
+.btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Coordinate label enhancement */
+.coord {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.coord::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: all 0.5s;
+}
+
+.coord:hover::before {
+  left: 100%;
+}
+
+/* Board breathing animation (subtle) */
+.game-board {
+  animation: board-breathe 6s ease-in-out infinite;
+}
+
+@keyframes board-breathe {
+  0%, 100% {
+    box-shadow: 
+      0 8px 24px rgba(0, 0, 0, 0.3),
+      inset 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 12px 28px rgba(0, 0, 0, 0.35),
+      inset 0 0 25px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Hardware acceleration hints */
+.game-piece,
+.coord,
+.btn,
+.game-slot {
+  will-change: transform;
+}
+
+.game-piece.dropping,
+.game-piece.victory-piece,
+.confetti-piece {
+  will-change: transform, opacity;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .game-piece.dropping {
+    animation: none;
+    transition: opacity 0.3s ease;
+  }
+  
+  .game-piece.victory-piece {
+    animation: none;
+  }
+  
+  .confetti-piece {
+    display: none;
+  }
+  
+  .game-board {
+    animation: none;
+  }
+  
+  .coord::before {
+    display: none;
+  }
+}

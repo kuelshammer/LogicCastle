@@ -22,6 +22,7 @@ import { InteractionHandler } from './components/InteractionHandler.js';
 import { AssistanceManager } from './components/AssistanceManager.js';
 import { MemoryManager } from './components/MemoryManager.js';
 import { OptimizedElementBinder } from './components/OptimizedElementBinder.js';
+import { AnimationManager } from './components/AnimationManager.js';
 
 export class Connect4UI extends BaseGameUI {
     constructor(game) {
@@ -68,6 +69,7 @@ export class Connect4UI extends BaseGameUI {
         this.assistanceManager = null;
         this.memoryManager = null;
         this.optimizedElementBinder = null;
+        this.animationManager = null;
         
         // Initialization guard to prevent multiple initializations
         // Note: Use 'initialized' to match BaseGameUI's getter pattern
@@ -116,6 +118,9 @@ export class Connect4UI extends BaseGameUI {
         
         // Initialize ULTRATHINK AssistanceManager component
         this.initializeAssistanceManager();
+        
+        // Initialize AnimationManager component
+        this.initializeAnimationManager();
         
         // Update initial UI state
         this.updateUI();
@@ -365,6 +370,33 @@ export class Connect4UI extends BaseGameUI {
     }
 
     /**
+     * Initialize AnimationManager component
+     * Handles all premium animations and visual effects
+     */
+    initializeAnimationManager() {
+        if (!this.boardRenderer) {
+            console.error('❌ BoardRenderer must be initialized before AnimationManager');
+            return;
+        }
+        
+        console.log('🎬 Initializing AnimationManager component...');
+        
+        // Create AnimationManager instance
+        this.animationManager = new AnimationManager(this.elements.gameBoard, this.boardRenderer);
+        
+        // Track component with MemoryManager
+        if (this.memoryManager) {
+            this.memoryManager.trackComponent(this.animationManager);
+        }
+        
+        // Log performance settings
+        const perfSettings = this.animationManager.getPerformanceSettings();
+        console.log('🎬 Animation performance settings:', perfSettings);
+        
+        console.log('✅ AnimationManager component initialized successfully');
+    }
+
+    /**
      * Initialize MemoryManager component (ULTRATHINK)
      * Provides comprehensive memory management and resource tracking
      */
@@ -459,6 +491,13 @@ export class Connect4UI extends BaseGameUI {
         this.hoveredColumn = col;
         this.updateAssistanceHighlights();
         
+        // Show premium column preview with AnimationManager
+        if (this.animationManager) {
+            const currentPlayer = this.game.getCurrentPlayer();
+            const playerColor = currentPlayer === 1 ? 'yellow' : 'red';
+            this.animationManager.showColumnPreview(col, playerColor);
+        }
+        
         // InteractionHandler handles showDropPreview internally
         console.log(`🎯 Column ${col} hovered (handled by InteractionHandler)`);
     }
@@ -470,6 +509,11 @@ export class Connect4UI extends BaseGameUI {
     onColumnHoverLeave() {
         this.hoveredColumn = null;
         this.clearAssistanceHighlights();
+        
+        // Clear premium column preview with AnimationManager
+        if (this.animationManager) {
+            this.animationManager.clearColumnPreview();
+        }
         
         // InteractionHandler handles hideDropPreview internally
         console.log('🎯 Column hover left (handled by InteractionHandler)');
@@ -1214,6 +1258,12 @@ export class Connect4UI extends BaseGameUI {
             this.assistanceManager = null;
         }
         
+        // Cleanup AnimationManager component
+        if (this.animationManager) {
+            this.animationManager.destroy();
+            this.animationManager = null;
+        }
+        
         // Cleanup InteractionHandler component
         if (this.interactionHandler) {
             this.interactionHandler.destroy();
@@ -1241,12 +1291,12 @@ export class Connect4UI extends BaseGameUI {
     /**
      * Handle move made event
      */
-    onMoveMade(moveData) {
+    async onMoveMade(moveData) {
         console.log('✅ Move made:', moveData);
         
         if (moveData && typeof moveData === 'object') {
             const { row, col, player } = moveData;
-            this.updateBoardVisual(row, col, player);
+            await this.updateBoardVisual(row, col, player);
         }
         
         this.updateUI();
@@ -1262,11 +1312,25 @@ export class Connect4UI extends BaseGameUI {
      * Update board visual representation after move (ULTRATHINK)
      * Uses BoardRenderer component instead of direct DOM manipulation
      */
-    updateBoardVisual(row, col, player) {
+    async updateBoardVisual(row, col, player) {
         if (!this.boardRenderer) return;
         
-        // Use BoardRenderer component to update visual
-        this.boardRenderer.updateBoardVisual(row, col, player);
+        // Use AnimationManager for enhanced visual updates
+        if (this.animationManager) {
+            const playerColor = player === 1 ? 'yellow' : 'red';
+            const isSpecialMove = false; // TODO: Detect winning/blocking moves
+            
+            console.log(`🎬 Animating piece placement: row ${row}, col ${col}, ${playerColor}`);
+            
+            // Update board state first
+            this.boardRenderer.updateBoardVisual(row, col, player);
+            
+            // Then animate the drop
+            await this.animationManager.animatePieceDrop(col, row, playerColor, isSpecialMove);
+        } else {
+            // Fallback to basic BoardRenderer update
+            this.boardRenderer.updateBoardVisual(row, col, player);
+        }
     }
 
     /**
