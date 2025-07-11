@@ -521,7 +521,13 @@ export class Connect4UI extends BaseGameUI {
      * Called by InteractionHandler component via callback
      */
     onColumnHover(col) {
-        if (this.isProcessingMove || !this.game || !this.game.initialized || typeof this.game.isGameOver !== 'function' || this.game.isGameOver()) return;
+        if (this.isProcessingMove || !this.game || !this.game.initialized || typeof this.game.isGameOver !== 'function') return;
+        
+        // Silent return if game is over (no error message)
+        if (this.game.isGameOver()) {
+            console.log('🛑 Game over - ignoring click silently');
+            return;
+        }
         
         this.hoveredColumn = col;
         this.updateAssistanceHighlights();

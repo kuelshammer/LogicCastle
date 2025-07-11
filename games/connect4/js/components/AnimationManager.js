@@ -96,8 +96,17 @@ export class AnimationManager {
                 const boardWrapper = canvas.parentElement;
                 if (boardWrapper) {
                     const rect = boardWrapper.getBoundingClientRect();
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
+                    console.log('🎯 Board wrapper rect:', rect);
+                    
+                    // Ensure minimum size
+                    canvas.width = Math.max(rect.width, 600);
+                    canvas.height = Math.max(rect.height, 400);
+                    
+                    console.log(`🎨 Canvas sized to: ${canvas.width}x${canvas.height}`);
+                } else {
+                    console.warn('⚠️ Board wrapper not found, using default size');
+                    canvas.width = 800;
+                    canvas.height = 600;
                 }
             }
             
@@ -679,6 +688,48 @@ export class AnimationManager {
                 }
             } else {
                 console.warn('⚠️ ParticleEngine not available for celebration');
+                
+                // Fallback: Simple DOM celebration
+                const gameBoard = document.querySelector('.game-board-container');
+                if (gameBoard) {
+                    const celebrationDiv = document.createElement('div');
+                    celebrationDiv.innerHTML = '🎊🎉✨';
+                    celebrationDiv.style.cssText = `
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        font-size: 3rem;
+                        z-index: 9999;
+                        animation: celebration 2s ease-out forwards;
+                        pointer-events: none;
+                    `;
+                    
+                    // Add keyframes if not exists
+                    if (!document.getElementById('celebration-keyframes')) {
+                        const style = document.createElement('style');
+                        style.id = 'celebration-keyframes';
+                        style.textContent = `
+                            @keyframes celebration {
+                                0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+                                50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+                                100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                    
+                    gameBoard.style.position = 'relative';
+                    gameBoard.appendChild(celebrationDiv);
+                    
+                    setTimeout(() => {
+                        if (celebrationDiv.parentNode) {
+                            celebrationDiv.parentNode.removeChild(celebrationDiv);
+                        }
+                    }, 2000);
+                    
+                    console.log('🎉 Fallback DOM celebration triggered');
+                }
             }
             
             // Enhanced victory line animation
