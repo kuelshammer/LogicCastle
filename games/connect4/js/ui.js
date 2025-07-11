@@ -136,6 +136,41 @@ export class Connect4UI extends BaseGameUI {
         
         console.log('✅ Connect4 UI fully initialized');
         console.log('🧪 PHASE 2A: Run window.testModalSystem() to test modals');
+        
+        // Add debug test button for confetti
+        this.addConfettiTestButton();
+        
+        // Expose confetti test function globally
+        window.testConfetti = () => {
+            console.log('🎊 Manual confetti test triggered');
+            if (this.animationManager) {
+                this.animationManager.triggerPremiumCelebration('yellow', [
+                    { row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 }
+                ]);
+            }
+        };
+    }
+
+    /**
+     * Add confetti test button for debugging
+     */
+    addConfettiTestButton() {
+        const headerControls = document.querySelector('.header-controls');
+        if (headerControls) {
+            const testBtn = document.createElement('button');
+            testBtn.id = 'testConfettiBtn';
+            testBtn.className = 'btn btn-warning';
+            testBtn.style.background = 'orange';
+            testBtn.innerHTML = '<span class="btn-icon">🎊</span> Test Konfetti';
+            
+            testBtn.addEventListener('click', () => {
+                console.log('🎊 Test button clicked - triggering confetti');
+                window.testConfetti();
+            });
+            
+            headerControls.appendChild(testBtn);
+            console.log('🎊 Test confetti button added');
+        }
     }
 
     /**
