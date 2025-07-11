@@ -98,10 +98,14 @@ export class AnimationManager {
      * @private
      */
     async initializeSoundManager() {
-        const { soundManager } = await import('./SoundManager.js');
-        this.soundManager = soundManager;
-        
-        console.log('🔊 SoundManager initialized');
+        try {
+            const { soundManager } = await import('./SoundManager.js');
+            this.soundManager = soundManager;
+            console.log('🔊 SoundManager initialized');
+        } catch (error) {
+            console.warn('⚠️ SoundManager initialization failed:', error.message);
+            this.soundManager = null; // Continue without audio
+        }
     }
 
     /**

@@ -388,6 +388,7 @@
 }
 
 .board-wrapper {
+  position: relative; /* Enable absolute positioning for particle canvas */
   display: flex;
   align-items: center;
   justify-content: center;
