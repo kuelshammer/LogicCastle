@@ -56,32 +56,32 @@
 }
 
 /* Variable height drops based on row position */
-.game-piece.dropping-row-0 {
+.game-piece.dropping-row-0, .disc.dropping-row-0 {
   animation: piece-drop-realistic 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.game-piece.dropping-row-1 {
+.game-piece.dropping-row-1, .disc.dropping-row-1 {
   animation: piece-drop-realistic 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.game-piece.dropping-row-2 {
+.game-piece.dropping-row-2, .disc.dropping-row-2 {
   animation: piece-drop-realistic 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.game-piece.dropping-row-3 {
+.game-piece.dropping-row-3, .disc.dropping-row-3 {
   animation: piece-drop-realistic 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.game-piece.dropping-row-4 {
+.game-piece.dropping-row-4, .disc.dropping-row-4 {
   animation: piece-drop-realistic 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.game-piece.dropping-row-5 {
+.game-piece.dropping-row-5, .disc.dropping-row-5 {
   animation: piece-drop-realistic 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Premium ripple effect for special moves */
-.game-piece.dropping-special {
+.game-piece.dropping-special, .disc.dropping-special {
   animation: piece-drop-with-ripple 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
@@ -201,7 +201,7 @@
   }
 }
 
-.game-piece.victory-piece {
+.game-piece.victory-piece, .disc.victory-piece {
   animation: victory-line-reveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   animation-fill-mode: forwards;
   position: relative;
@@ -209,10 +209,10 @@
 }
 
 /* Staggered animation for sequential piece highlighting */
-.game-piece.victory-piece:nth-child(1) { animation-delay: 0s; }
-.game-piece.victory-piece:nth-child(2) { animation-delay: 0.15s; }
-.game-piece.victory-piece:nth-child(3) { animation-delay: 0.3s; }
-.game-piece.victory-piece:nth-child(4) { animation-delay: 0.45s; }
+.game-piece.victory-piece:nth-child(1), .disc.victory-piece:nth-child(1) { animation-delay: 0s; }
+.game-piece.victory-piece:nth-child(2), .disc.victory-piece:nth-child(2) { animation-delay: 0.15s; }
+.game-piece.victory-piece:nth-child(3), .disc.victory-piece:nth-child(3) { animation-delay: 0.3s; }
+.game-piece.victory-piece:nth-child(4), .disc.victory-piece:nth-child(4) { animation-delay: 0.45s; }
 
 /* Continuous victory glow */
 @keyframes victory-glow {
@@ -230,7 +230,7 @@
   }
 }
 
-.game-piece.victory-glow {
+.game-piece.victory-glow, .disc.victory-glow {
   animation: victory-glow 1.5s ease-in-out infinite;
 }
 
@@ -333,6 +333,7 @@
 
 /* Hardware acceleration hints */
 .game-piece,
+.disc,
 .coord,
 .btn,
 .game-slot {
@@ -340,19 +341,21 @@
 }
 
 .game-piece.dropping,
+.disc.dropping,
 .game-piece.victory-piece,
+.disc.victory-piece,
 .confetti-piece {
   will-change: transform, opacity;
 }
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .game-piece.dropping {
+  .game-piece.dropping, .disc.dropping {
     animation: none;
     transition: opacity 0.3s ease;
   }
   
-  .game-piece.victory-piece {
+  .game-piece.victory-piece, .disc.victory-piece {
     animation: none;
   }
   

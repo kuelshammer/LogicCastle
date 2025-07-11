@@ -58,7 +58,7 @@ export class AnimationManager {
                 return;
             }
             
-            const piece = cell.querySelector('.game-piece');
+            const piece = cell.querySelector('.game-piece, .disc');
             if (!piece) {
                 console.warn(`⚠️ Game piece not found in cell`);
                 resolve();
@@ -232,8 +232,8 @@ export class AnimationManager {
         for (let row = 5; row >= 0; row--) {
             const cell = this.boardRenderer.getCellAt(row, column);
             if (cell) {
-                const piece = cell.querySelector('.game-piece');
-                if (piece && piece.classList.contains('empty')) {
+                const piece = cell.querySelector('.game-piece, .disc');
+                if (piece && (piece.classList.contains('empty') || piece.className === 'disc empty')) {
                     return row;
                 }
             }
@@ -252,7 +252,7 @@ export class AnimationManager {
             winningPositions.forEach(({row, col}) => {
                 const cell = this.boardRenderer.getCellAt(row, col);
                 if (cell) {
-                    const piece = cell.querySelector('.game-piece');
+                    const piece = cell.querySelector('.game-piece, .disc');
                     if (piece) {
                         piece.classList.add('victory-glow');
                     }
@@ -269,7 +269,7 @@ export class AnimationManager {
             const cell = this.boardRenderer.getCellAt(row, col);
             
             if (cell) {
-                const piece = cell.querySelector('.game-piece');
+                const piece = cell.querySelector('.game-piece, .disc');
                 if (piece) {
                     // Add victory animation class
                     piece.classList.add('victory-piece');

@@ -821,7 +821,7 @@ export class Connect4UI extends BaseGameUI {
     }
 
     /**
-     * Handle game over event
+     * Handle game over event with Victory Line Highlighting
      */
     onGameOver(gameData) {
         console.log('🏁 Game over:', gameData);
@@ -836,10 +836,16 @@ export class Connect4UI extends BaseGameUI {
         
         this.updateScores();
         
-        // Show game over message
+        // Handle victory with victory line highlighting
         const winnerName = gameData.winner === 1 ? 'Gelb' : (gameData.winner === 2 ? 'Rot' : null);
-        if (winnerName) {
-            this.showMessage(`🏆 ${winnerName} hat gewonnen!`, 'win');
+        if (winnerName && gameData.winner) {
+            // Detect and animate victory line
+            this.detectAndAnimateVictoryLine(gameData.winner);
+            
+            // Show game over message after animation starts
+            setTimeout(() => {
+                this.showMessage(`🏆 ${winnerName} hat gewonnen!`, 'win');
+            }, 500); // Delay to let victory animation start
         } else {
             this.showMessage('🤝 Unentschieden!', 'info');
         }
@@ -852,6 +858,7 @@ export class Connect4UI extends BaseGameUI {
         console.log('🆕 Game reset');
         this.clearAssistanceHighlights();
         this.hideDropPreview();
+        this.clearVictoryHighlights(); // Clear victory animations
         this.updateUI();
     }
 
@@ -1392,5 +1399,141 @@ export class Connect4UI extends BaseGameUI {
         } finally {
             this.isProcessingMove = false;
         }
+    }
+
+    // ==================== VICTORY LINE HIGHLIGHTING ====================
+
+    /**
+     * Detect and animate victory line for the winning player
+     * @param {number} winner - Winning player (1 or 2)
+     */
+    async detectAndAnimateVictoryLine(winner) {
+        if (!this.animationManager || !this.boardRenderer) {
+            console.warn('⚠️ Victory line animation requires AnimationManager and BoardRenderer');
+            return;
+        }
+
+        console.log(`🏆 Detecting victory line for player ${winner}`);
+        
+        try {
+            // Detect victory line positions using board analysis
+            const winningPositions = this.detectVictoryLinePositions(winner);
+            
+            if (winningPositions.length >= 4) {
+                console.log(`🎯 Victory line detected:`, winningPositions);
+                
+                // Animate the victory line with progressive highlighting
+                const playerColor = winner === 1 ? 'yellow' : 'red';
+                await this.animationManager.animateVictoryLine(winningPositions, playerColor);
+                
+                console.log(`✨ Victory line animation complete for ${playerColor}`);
+            } else {
+                console.warn('⚠️ Could not detect complete victory line');
+            }
+        } catch (error) {
+            console.error('❌ Victory line animation failed:', error);
+        }
+    }
+
+    /**
+     * Detect victory line positions by analyzing the board
+     * @param {number} winner - Winning player (1 or 2)
+     * @returns {Array} Array of {row, col} positions forming the winning line
+     */
+    detectVictoryLinePositions(winner) {
+        if (!this.game || !this.game.initialized) {
+            return [];
+        }
+
+        const winningPositions = [];
+        
+        // Check all possible 4-in-a-row patterns
+        const directions = [
+            [0, 1],   // Horizontal
+            [1, 0],   // Vertical
+            [1, 1],   // Diagonal /
+            [1, -1]   // Diagonal \
+        ];
+
+        // Scan the entire board for winning patterns
+        for (let row = 0; row < 6; row++) {
+            for (let col = 0; col < 7; col++) {
+                if (this.game.getCell(row, col) === winner) {
+                    // Check each direction from this position
+                    for (const [dRow, dCol] of directions) {
+                        const line = this.checkLineFromPosition(row, col, dRow, dCol, winner);
+                        if (line.length >= 4) {
+                            return line; // Return first complete winning line found
+                        }
+                    }
+                }
+            }
+        }
+
+        return winningPositions;
+    }
+
+    /**
+     * Check for a line of 4+ pieces in a specific direction from a starting position
+     * @param {number} startRow - Starting row
+     * @param {number} startCol - Starting column  
+     * @param {number} dRow - Row direction
+     * @param {number} dCol - Column direction
+     * @param {number} player - Player to check for (1 or 2)
+     * @returns {Array} Array of positions forming the line
+     */
+    checkLineFromPosition(startRow, startCol, dRow, dCol, player) {
+        const line = [];
+        let row = startRow;
+        let col = startCol;
+
+        // Extend line forward in the direction
+        while (row >= 0 && row < 6 && col >= 0 && col < 7 && 
+               this.game.getCell(row, col) === player) {
+            line.push({ row, col });
+            row += dRow;
+            col += dCol;
+        }
+
+        // Extend line backward in the opposite direction (skip starting position)
+        row = startRow - dRow;
+        col = startCol - dCol;
+        const backwardLine = [];
+        
+        while (row >= 0 && row < 6 && col >= 0 && col < 7 && 
+               this.game.getCell(row, col) === player) {
+            backwardLine.unshift({ row, col }); // Add to beginning to maintain order
+            row -= dRow;
+            col -= dCol;
+        }
+
+        // Combine backward and forward lines
+        return [...backwardLine, ...line];
+    }
+
+    /**
+     * Clear all victory highlighting effects
+     */
+    clearVictoryHighlights() {
+        if (!this.boardRenderer) return;
+
+        // Remove victory classes from all pieces
+        const allPieces = document.querySelectorAll('.game-piece.victory-piece, .game-piece.victory-glow, .disc.victory-piece, .disc.victory-glow');
+        allPieces.forEach(piece => {
+            piece.classList.remove('victory-piece', 'victory-glow');
+        });
+
+        // Clear any celebration effects
+        if (this.animationManager) {
+            // Stop any ongoing celebrations
+            const celebrationOverlays = document.querySelectorAll('.celebration-overlay');
+            celebrationOverlays.forEach(overlay => {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            });
+        }
+
+        console.log('🧹 Victory highlights cleared');
     }
 }
