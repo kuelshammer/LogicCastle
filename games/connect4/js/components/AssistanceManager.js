@@ -70,7 +70,10 @@ export class AssistanceManager {
      * Extracted from Connect4UINew.updateAssistanceHighlights()
      */
     updateAssistanceHighlights() {
-        if (!this.game) return;
+        if (!this.game || !this.game.initialized || typeof this.game.getCurrentPlayer !== 'function') {
+            console.log('⚠️ Game not ready for assistance highlights');
+            return;
+        }
         
         // Clear existing highlights
         this.clearAssistanceHighlights();

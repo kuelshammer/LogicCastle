@@ -486,13 +486,13 @@ export class Connect4UI extends BaseGameUI {
      * Called by InteractionHandler component via callback
      */
     onColumnHover(col) {
-        if (this.isProcessingMove || this.game.isGameOver()) return;
+        if (this.isProcessingMove || !this.game || !this.game.initialized || this.game.isGameOver()) return;
         
         this.hoveredColumn = col;
         this.updateAssistanceHighlights();
         
         // Show premium column preview with AnimationManager
-        if (this.animationManager) {
+        if (this.animationManager && this.game && this.game.initialized) {
             const currentPlayer = this.game.getCurrentPlayer();
             const playerColor = currentPlayer === 1 ? 'yellow' : 'red';
             this.animationManager.showColumnPreview(col, playerColor);
