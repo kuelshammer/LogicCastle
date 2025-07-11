@@ -393,7 +393,7 @@ export class Connect4UI extends BaseGameUI {
         const perfSettings = this.animationManager.getPerformanceSettings();
         console.log('🎬 Animation performance settings:', perfSettings);
         
-        console.log('✅ AnimationManager component initialized successfully');
+        console.log('✅ AnimationManager component initialized successfully');\n        \n        // Setup enhanced interaction feedback\n        this.setupEnhancedInteractionFeedback();
     }
 
     /**
@@ -1535,5 +1535,107 @@ export class Connect4UI extends BaseGameUI {
         }
 
         console.log('🧹 Victory highlights cleared');
+    }
+    
+    // ==================== ENHANCED INTERACTION FEEDBACK ====================
+    
+    /**
+     * Setup enhanced interaction feedback for all UI elements
+     */
+    setupEnhancedInteractionFeedback() {
+        if (!this.animationManager) {
+            console.warn('⚠️ AnimationManager required for enhanced interaction feedback');
+            return;
+        }
+        
+        console.log('🎭 Setting up enhanced interaction feedback...');
+        
+        // Enhanced button ripple effects
+        this.setupButtonRippleEffects();
+        
+        // Enhanced coordinate click feedback
+        this.setupCoordinateClickFeedback();
+        
+        console.log('✨ Enhanced interaction feedback setup complete');
+    }
+    
+    /**
+     * Setup button ripple effects for all buttons
+     * @private
+     */
+    setupButtonRippleEffects() {
+        const buttons = document.querySelectorAll('.btn, button, .game-controls button');
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                if (this.animationManager) {
+                    this.animationManager.createButtonRipple(button, event);
+                }
+            });
+        });
+        
+        console.log(`🎭 Button ripple effects setup for ${buttons.length} buttons`);
+    }
+    
+    /**
+     * Setup enhanced coordinate click feedback
+     * @private
+     */
+    setupCoordinateClickFeedback() {
+        // Setup for existing coordinates
+        this.attachCoordinateListeners();
+        
+        // Observer for dynamically created coordinates
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const coords = node.querySelectorAll ? node.querySelectorAll('.coord') : [];
+                        coords.forEach(coord => {
+                            this.attachCoordinateListener(coord);
+                        });
+                        
+                        if (node.classList && node.classList.contains('coord')) {
+                            this.attachCoordinateListener(node);
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Observe coordinate containers
+        const topCoords = document.getElementById('topCoords');
+        const bottomCoords = document.getElementById('bottomCoords');
+        
+        if (topCoords) observer.observe(topCoords, { childList: true });
+        if (bottomCoords) observer.observe(bottomCoords, { childList: true });
+        
+        console.log('🎯 Enhanced coordinate click feedback setup complete');
+    }
+    
+    /**
+     * Attach coordinate listeners to existing coordinates
+     * @private
+     */
+    attachCoordinateListeners() {
+        const coords = document.querySelectorAll('.coord');
+        coords.forEach(coord => this.attachCoordinateListener(coord));
+        console.log(`🎯 Coordinate listeners attached to ${coords.length} coordinates`);
+    }
+    
+    /**
+     * Attach click listener to a single coordinate
+     * @private
+     */
+    attachCoordinateListener(coord) {
+        if (coord.dataset.enhancedListener) return; // Avoid duplicate listeners
+        
+        coord.addEventListener('click', () => {
+            if (this.animationManager) {
+                this.animationManager.animateCoordinateClick(coord);
+            }
+        });
+        
+        coord.dataset.enhancedListener = 'true';
     }
 }

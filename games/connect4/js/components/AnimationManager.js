@@ -174,7 +174,7 @@ export class AnimationManager {
     }
     
     /**
-     * Show column preview with ghost piece
+     * Show enhanced column preview with ghost piece and ripple effects
      * @param {number} column - Column index (0-6)
      * @param {string} playerColor - 'yellow' or 'red'
      */
@@ -189,7 +189,7 @@ export class AnimationManager {
         const cell = this.boardRenderer.getCellAt(targetRow, column);
         if (!cell) return;
         
-        // Create or show ghost piece
+        // Create enhanced ghost piece with improved animations
         let ghostPiece = cell.querySelector('.ghost-piece');
         if (!ghostPiece) {
             ghostPiece = document.createElement('div');
@@ -197,17 +197,25 @@ export class AnimationManager {
             cell.appendChild(ghostPiece);
         }
         
-        // Apply preview styling
+        // Apply preview styling with enhanced effects
         cell.classList.add('show-preview', `preview-${playerColor}`);
         
         // Set hover data attribute for CSS styling
         this.gameBoard.setAttribute('data-hover-col', column);
         
-        console.log(`👻 Showing column preview: column ${column + 1}, ${playerColor}`);
+        // Add ripple effect for enhanced feedback
+        if (!this.reducedMotion) {
+            this.createHoverRipple(cell, playerColor);
+        }
+        
+        // Highlight entire column with staggered animation
+        this.animateColumnHighlight(column);
+        
+        console.log(`👻 Enhanced column preview: column ${column + 1}, ${playerColor}`);
     }
     
     /**
-     * Clear column preview
+     * Clear column preview with smooth fade-out
      */
     clearColumnPreview() {
         if (this.previewColumn !== null) {
@@ -215,9 +223,24 @@ export class AnimationManager {
             if (targetRow !== -1) {
                 const cell = this.boardRenderer.getCellAt(targetRow, this.previewColumn);
                 if (cell) {
-                    cell.classList.remove('show-preview', 'preview-yellow', 'preview-red');
+                    // Smooth fade-out animation
+                    const ghostPiece = cell.querySelector('.ghost-piece');
+                    if (ghostPiece && !this.reducedMotion) {
+                        ghostPiece.style.transition = 'all 0.3s ease-out';
+                        ghostPiece.style.opacity = '0';
+                        ghostPiece.style.transform = 'scale(0.8) translateY(10px)';
+                        
+                        setTimeout(() => {
+                            cell.classList.remove('show-preview', 'preview-yellow', 'preview-red');
+                        }, 300);
+                    } else {
+                        cell.classList.remove('show-preview', 'preview-yellow', 'preview-red');
+                    }
                 }
             }
+            
+            // Clear column highlight
+            this.clearColumnHighlight(this.previewColumn);
         }
         
         this.gameBoard.removeAttribute('data-hover-col');
@@ -378,6 +401,129 @@ export class AnimationManager {
         }
         
         this.isAnimating = false;
+    }
+    
+    /**
+     * Create hover ripple effect for enhanced feedback
+     * @private
+     */
+    createHoverRipple(cell, playerColor) {
+        const ripple = document.createElement('div');
+        ripple.className = `hover-ripple ${playerColor}-ripple`;
+        ripple.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: ${playerColor === 'yellow' ? 'rgba(255, 235, 59, 0.4)' : 'rgba(244, 67, 54, 0.4)'};
+            transform: translate(-50%, -50%) scale(0);
+            animation: hover-ripple-expand 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 5;
+        `;
+        
+        cell.style.position = 'relative';
+        cell.appendChild(ripple);
+        
+        // Remove ripple after animation
+        setTimeout(() => {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        }, 600);
+    }
+    
+    /**
+     * Animate column highlight with staggered effect
+     * @private
+     */
+    animateColumnHighlight(column) {
+        if (this.reducedMotion) return;
+        
+        // Add staggered highlighting from top to bottom
+        for (let row = 0; row < 6; row++) {
+            setTimeout(() => {
+                const cell = this.boardRenderer.getCellAt(row, column);
+                if (cell) {
+                    const piece = cell.querySelector('.game-piece, .disc');
+                    if (piece && piece.classList.contains('empty')) {
+                        cell.classList.add('column-highlight-wave');
+                        
+                        // Remove highlight after animation
+                        setTimeout(() => {
+                            cell.classList.remove('column-highlight-wave');
+                        }, 400);
+                    }
+                }
+            }, row * 50); // 50ms stagger
+        }
+    }
+    
+    /**
+     * Clear column highlight effects
+     * @private
+     */
+    clearColumnHighlight(column) {
+        for (let row = 0; row < 6; row++) {
+            const cell = this.boardRenderer.getCellAt(row, column);
+            if (cell) {
+                cell.classList.remove('column-highlight-wave');
+            }
+        }
+    }
+    
+    /**
+     * Create button ripple effect on click
+     * @param {HTMLElement} button - Button element
+     * @param {Event} event - Click event for position
+     */
+    createButtonRipple(button, event) {
+        if (this.reducedMotion) return;
+        
+        const rect = button.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: ${y}px;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            animation: btn-ripple 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            z-index: 1;
+        `;
+        
+        button.style.position = 'relative';
+        button.appendChild(ripple);
+        
+        // Remove ripple after animation
+        setTimeout(() => {
+            if (ripple.parentNode) {
+                ripple.parentNode.removeChild(ripple);
+            }
+        }, 600);
+    }
+    
+    /**
+     * Animate coordinate click feedback
+     * @param {HTMLElement} coord - Coordinate element
+     */
+    animateCoordinateClick(coord) {
+        if (this.reducedMotion) return;
+        
+        coord.classList.add('clicked');
+        
+        setTimeout(() => {
+            coord.classList.remove('clicked');
+        }, 500);
     }
     
     /**
