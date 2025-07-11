@@ -44,7 +44,10 @@ export class InteractionHandler {
         // Handle board clicks for column selection (fallback)
         this._setupBoardClickHandler();
         
-        console.log('🎯 Column interactions set up (coordinate labels + board clicks)');
+        // Setup board hover events for mouse preview
+        this._setupBoardHoverHandler();
+        
+        console.log('🎯 Column interactions set up (coordinate labels + board clicks + hover)');
     }
 
     /**
@@ -80,6 +83,56 @@ export class InteractionHandler {
         
         this.gameBoard.addEventListener('click', clickHandler);
         this._trackEventListener(this.gameBoard, 'click', clickHandler);
+    }
+
+    /**
+     * Setup board hover event handler for mouse preview
+     * @private
+     */
+    _setupBoardHoverHandler() {
+        const mouseEnterHandler = (event) => {
+            const slot = event.target.closest('.game-slot');
+            if (slot) {
+                const col = this._getColumnFromSlot(slot);
+                if (col !== null) {
+                    this.handleColumnHover(col);
+                }
+            }
+        };
+
+        const mouseLeaveHandler = (event) => {
+            // Only clear hover if we're leaving the entire board
+            if (!event.relatedTarget || !this.gameBoard.contains(event.relatedTarget)) {
+                this.handleColumnHoverLeave();
+            }
+        };
+
+        this.gameBoard.addEventListener('mouseenter', mouseEnterHandler, true);
+        this.gameBoard.addEventListener('mouseleave', mouseLeaveHandler);
+        
+        this._trackEventListener(this.gameBoard, 'mouseenter', mouseEnterHandler);
+        this._trackEventListener(this.gameBoard, 'mouseleave', mouseLeaveHandler);
+    }
+
+    /**
+     * Get column index from game slot element
+     * @private
+     */
+    _getColumnFromSlot(slot) {
+        // Get slot position from data attributes or DOM position
+        const col = slot.dataset.col;
+        if (col !== undefined) {
+            return parseInt(col);
+        }
+
+        // Fallback: Calculate from DOM position (6x7 grid)
+        const slots = Array.from(this.gameBoard.querySelectorAll('.game-slot'));
+        const index = slots.indexOf(slot);
+        if (index >= 0) {
+            return index % 7; // 7 columns
+        }
+
+        return null;
     }
 
     /**

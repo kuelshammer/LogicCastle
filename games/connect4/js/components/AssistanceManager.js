@@ -71,7 +71,7 @@ export class AssistanceManager {
      */
     updateAssistanceHighlights() {
         if (!this.game || !this.game.initialized || typeof this.game.getCurrentPlayer !== 'function') {
-            console.log('⚠️ Game not ready for assistance highlights');
+            console.log('⚠️ AssistanceManager: Game not ready for assistance highlights');
             return;
         }
         
@@ -82,17 +82,25 @@ export class AssistanceManager {
         const playerKey = currentPlayer === 1 ? 'player1' : 'player2';
         const settings = this.assistanceSettings[playerKey];
         
+        console.log(`🔍 AssistanceManager: Updating highlights for ${playerKey} (Player ${currentPlayer})`);
+        console.log(`🔍 AssistanceManager: Settings:`, settings);
+        
         if (settings.threats) {
+            console.log('🔍 Highlighting threats...');
             this.highlightThreats();
         }
         
         if (settings['winning-moves']) {
+            console.log('🔍 Highlighting winning moves...');
             this.highlightWinningMoves();
         }
         
         if (settings['blocked-columns']) {
+            console.log('🔍 Highlighting blocked columns...');
             this.highlightBlockedColumns();
         }
+        
+        console.log(`✅ AssistanceManager: Highlights updated for ${playerKey}`);
     }
 
     /**
@@ -119,16 +127,31 @@ export class AssistanceManager {
      * Extracted from Connect4UINew.highlightWinningMoves()
      */
     highlightWinningMoves() {
-        if (!this.game || !this.game.getWinningMoves) return;
+        if (!this.game) {
+            console.warn('⚠️ No game instance for winning moves');
+            return;
+        }
+        
+        if (!this.game.getWinningMoves) {
+            console.warn('⚠️ getWinningMoves method not available on game instance');
+            return;
+        }
         
         try {
             const currentPlayer = this.game.getCurrentPlayer();
-            const winningMoves = this.game.getWinningMoves(currentPlayer);
+            console.log(`🔍 Getting winning moves for player ${currentPlayer}...`);
             
-            this.highlightColumns(winningMoves, 'winning-column');
-            console.log(`🎯 Highlighted ${winningMoves.length} winning move columns for player ${currentPlayer}`);
+            const winningMoves = this.game.getWinningMoves(currentPlayer);
+            console.log(`🔍 Winning moves result:`, winningMoves);
+            
+            if (Array.isArray(winningMoves) && winningMoves.length > 0) {
+                this.highlightColumns(winningMoves, 'winning-column');
+                console.log(`🎯 Highlighted ${winningMoves.length} winning move columns for player ${currentPlayer}`);
+            } else {
+                console.log(`ℹ️ No winning moves available for player ${currentPlayer}`);
+            }
         } catch (error) {
-            console.warn('⚠️ Failed to highlight winning moves:', error.message);
+            console.error('❌ Failed to highlight winning moves:', error);
         }
     }
 
@@ -258,14 +281,15 @@ export class AssistanceManager {
      */
     toggleAssistance(player, type) {
         if (!this.assistanceSettings[player] || this.assistanceSettings[player][type] === undefined) {
-            console.warn(`⚠️ Invalid assistance setting: ${player}.${type}`);
+            console.warn(`⚠️ AssistanceManager: Invalid assistance setting: ${player}.${type}`);
             return;
         }
 
         // Toggle the setting
         this.assistanceSettings[player][type] = !this.assistanceSettings[player][type];
         
-        console.log(`🎯 Toggled ${player} ${type}: ${this.assistanceSettings[player][type]}`);
+        console.log(`🎯 AssistanceManager: Toggled ${player} ${type}: ${this.assistanceSettings[player][type]}`);
+        console.log(`🎯 AssistanceManager: Full settings:`, this.assistanceSettings);
         
         // Update highlights immediately
         this.updateAssistanceHighlights();

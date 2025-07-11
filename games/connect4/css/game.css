@@ -273,7 +273,7 @@
 .board-coords.top {
   width: 100%;
   max-width: 490px;
-  margin-top: 1.5rem !important; /* Extra space from header */
+  margin-top: 2.5rem !important; /* Increased space to prevent header overlap */
 }
 
 .board-coords.bottom {
