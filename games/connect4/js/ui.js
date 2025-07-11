@@ -521,14 +521,14 @@ export class Connect4UI extends BaseGameUI {
      * Called by InteractionHandler component via callback
      */
     onColumnHover(col) {
-        if (this.isProcessingMove || !this.game || !this.game.initialized || this.game.isGameOver()) return;
+        if (this.isProcessingMove || !this.game || !this.game.initialized || typeof this.game.isGameOver !== 'function' || this.game.isGameOver()) return;
         
         this.hoveredColumn = col;
         this.updateAssistanceHighlights();
         
         // Show premium column preview with AnimationManager
         if (this.animationManager && this.game && this.game.initialized) {
-            const currentPlayer = this.game.getCurrentPlayer();
+            const currentPlayer = (this.game && typeof this.game.getCurrentPlayer === 'function') ? this.game.getCurrentPlayer() : 1;
             const playerColor = currentPlayer === 1 ? 'yellow' : 'red';
             this.animationManager.showColumnPreview(col, playerColor);
         }
@@ -559,7 +559,7 @@ export class Connect4UI extends BaseGameUI {
      * Called by InteractionHandler component via callback
      */
     onColumnClick(col) {
-        if (this.isProcessingMove || this.game.isGameOver()) {
+        if (this.isProcessingMove || !this.game || !this.game.initialized || typeof this.game.isGameOver !== 'function' || this.game.isGameOver()) {
             return;
         }
 
@@ -593,9 +593,9 @@ export class Connect4UI extends BaseGameUI {
             
             // Debug game state before move
             console.log('🔍 Game state before move:', {
-                currentPlayer: this.game.getCurrentPlayer(),
-                gameOver: this.game.isGameOver(),
-                moveCount: this.game.getMoveCount ? this.game.getMoveCount() : 'unknown',
+                currentPlayer: (this.game && typeof this.game.getCurrentPlayer === 'function') ? this.game.getCurrentPlayer() : 1,
+                gameOver: (this.game && typeof this.game.isGameOver === 'function') ? this.game.isGameOver() : 'unknown',
+                moveCount: (this.game && typeof this.game.getMoveCount === 'function') ? this.game.getMoveCount() : 'unknown',
                 gameExists: !!this.game,
                 makeMoveFn: typeof this.game.makeMove
             });
@@ -752,7 +752,7 @@ export class Connect4UI extends BaseGameUI {
         if (!this.game || !this.game.initialized) return;
         
         try {
-            const currentPlayer = this.game.getCurrentPlayer();
+            const currentPlayer = (this.game && typeof this.game.getCurrentPlayer === 'function') ? this.game.getCurrentPlayer() : 1;
             const gameContainer = document.querySelector('.game-container');
             const boardContainer = document.querySelector('.game-board-container');
             
@@ -806,8 +806,8 @@ export class Connect4UI extends BaseGameUI {
         
         if (!this.game) return;
         
-        if (this.game.isGameOver()) {
-            const winner = this.game.getWinner();
+        if (this.game && typeof this.game.isGameOver === 'function' && this.game.isGameOver()) {
+            const winner = (this.game && typeof this.game.getWinner === 'function') ? this.game.getWinner() : null;
             if (winner) {
                 const playerName = winner === 1 ? 'Gelb' : 'Rot';
                 gameStatus.textContent = `${playerName} hat gewonnen!`;
@@ -817,7 +817,7 @@ export class Connect4UI extends BaseGameUI {
                 gameStatus.className = 'game-status draw';
             }
         } else {
-            const currentPlayer = this.game.getCurrentPlayer();
+            const currentPlayer = (this.game && typeof this.game.getCurrentPlayer === 'function') ? this.game.getCurrentPlayer() : 1;
             const playerName = currentPlayer === 1 ? 'Gelb' : 'Rot';
             
             if (this.isAiThinking && currentPlayer === this.aiPlayer) {
@@ -837,7 +837,7 @@ export class Connect4UI extends BaseGameUI {
         const indicator = this.elements.currentPlayerIndicator;
         if (!indicator || !this.game) return;
         
-        const currentPlayer = this.game.getCurrentPlayer();
+        const currentPlayer = (this.game && typeof this.game.getCurrentPlayer === 'function') ? this.game.getCurrentPlayer() : 1;
         const disc = indicator.querySelector('.player-disc');
         const name = indicator.querySelector('.player-name');
         
@@ -857,14 +857,15 @@ export class Connect4UI extends BaseGameUI {
     updateControls() {
         const undoBtn = this.elements.undoBtn;
         if (undoBtn && this.game) {
-            const canUndo = this.game.canUndo() && !this.game.isGameOver();
+            const canUndo = (typeof this.game.canUndo === 'function' && this.game.canUndo()) && 
+                            !(typeof this.game.isGameOver === 'function' && this.game.isGameOver());
             undoBtn.disabled = !canUndo;
         }
         
         // Update move counter
         const moveCounter = this.elements.moveCounter;
         if (moveCounter && this.game) {
-            moveCounter.textContent = this.game.getMoveCount();
+            moveCounter.textContent = (typeof this.game.getMoveCount === 'function') ? this.game.getMoveCount() : 0;
         }
     }
 
@@ -894,8 +895,8 @@ export class Connect4UI extends BaseGameUI {
         this.updateUI();
         
         // Check for AI turn
-        if (this.gameMode !== 'two-player' && !this.game.isGameOver()) {
-            const currentPlayer = this.game.getCurrentPlayer();
+        if (this.gameMode !== 'two-player' && this.game && typeof this.game.isGameOver === 'function' && !this.game.isGameOver()) {
+            const currentPlayer = (this.game && typeof this.game.getCurrentPlayer === 'function') ? this.game.getCurrentPlayer() : 1;
             if (currentPlayer === this.aiPlayer) {
                 setTimeout(() => this.makeAIMove(), this.aiThinkingDelay);
             }
@@ -1433,7 +1434,7 @@ export class Connect4UI extends BaseGameUI {
             this.showMessage('🤖 KI denkt nach...', 'info');
             
             // Verify game state before AI move
-            if (!this.game || this.game.isGameOver()) {
+            if (!this.game || !this.game.initialized || typeof this.game.isGameOver !== 'function' || this.game.isGameOver()) {
                 console.warn('⚠️ AI move aborted - game over or invalid game state');
                 return;
             }
@@ -1475,7 +1476,7 @@ export class Connect4UI extends BaseGameUI {
                 errorMessage: error.message,
                 errorStack: error.stack,
                 gameState: this.game ? 'available' : 'missing',
-                gameOver: this.game ? this.game.isGameOver() : 'unknown'
+                gameOver: (this.game && typeof this.game.isGameOver === 'function') ? this.game.isGameOver() : 'unknown'
             });
             this.showMessage(`KI-Fehler: ${error.message}`, 'error');
         } finally {
