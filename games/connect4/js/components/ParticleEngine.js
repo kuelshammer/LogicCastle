@@ -118,6 +118,7 @@ export class ParticleEngine {
             this.activeParticles.push(particle);
         }
         
+        console.log(`🎯 Created ${this.activeParticles.length} particles, starting animation`);
         this.startAnimation();
     }
     
@@ -192,6 +193,7 @@ export class ParticleEngine {
     startAnimation() {
         if (this.isAnimating) return;
         
+        console.log(`🚀 Starting animation with ${this.activeParticles.length} particles`);
         this.isAnimating = true;
         this.animate();
     }
@@ -220,8 +222,10 @@ export class ParticleEngine {
         
         // Continue animation if particles exist
         if (this.activeParticles.length > 0) {
+            console.log(`🔄 Continuing animation with ${this.activeParticles.length} particles`);
             this.animationId = requestAnimationFrame(() => this.animate());
         } else {
+            console.log(`⏹️ No particles left - stopping animation`);
             this.stopAnimation();
         }
     }
