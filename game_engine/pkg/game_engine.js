@@ -768,6 +768,21 @@ export class Connect4Game {
         return ret;
     }
     /**
+     * Set AI difficulty level
+     * @param {AIDifficulty} difficulty
+     */
+    set_ai_difficulty(difficulty) {
+        wasm.connect4game_set_ai_difficulty(this.__wbg_ptr, difficulty);
+    }
+    /**
+     * Get current AI difficulty level
+     * @returns {AIDifficulty}
+     */
+    get_ai_difficulty() {
+        const ret = wasm.connect4game_get_ai_difficulty(this.__wbg_ptr);
+        return ret;
+    }
+    /**
      * Get move count (frontend naming convention)
      * @returns {number}
      */

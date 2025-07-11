@@ -389,6 +389,18 @@ impl Connect4Game {
         self.current_player()
     }
     
+    /// Set AI difficulty level
+    #[wasm_bindgen]
+    pub fn set_ai_difficulty(&mut self, difficulty: crate::ai::connect4_ai::AIDifficulty) {
+        self.ai.set_difficulty_level(difficulty);
+    }
+    
+    /// Get current AI difficulty level
+    #[wasm_bindgen]
+    pub fn get_ai_difficulty(&self) -> crate::ai::connect4_ai::AIDifficulty {
+        self.ai.get_difficulty_level()
+    }
+    
     /// Get move count (frontend naming convention)
     #[wasm_bindgen]
     pub fn get_move_count(&self) -> usize {

@@ -221,6 +221,14 @@ export class Connect4Game {
    */
   get_current_player(): Player;
   /**
+   * Set AI difficulty level
+   */
+  set_ai_difficulty(difficulty: AIDifficulty): void;
+  /**
+   * Get current AI difficulty level
+   */
+  get_ai_difficulty(): AIDifficulty;
+  /**
    * Get move count (frontend naming convention)
    */
   get_move_count(): number;
@@ -643,6 +651,8 @@ export interface InitOutput {
   readonly connect4game_analyze_position: (a: number) => number;
   readonly connect4game_get_game_phase: (a: number) => number;
   readonly connect4game_memory_usage: (a: number) => number;
+  readonly connect4game_set_ai_difficulty: (a: number, b: number) => void;
+  readonly connect4game_get_ai_difficulty: (a: number) => number;
   readonly connect4game_get_move_count: (a: number) => number;
   readonly connect4game_get_winner: (a: number) => number;
   readonly connect4game_get_board: (a: number, b: number) => void;
