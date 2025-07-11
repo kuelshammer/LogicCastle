@@ -663,32 +663,41 @@ export class AnimationManager {
                 const gameBoard = document.querySelector('.game-board');
                 if (gameBoard) {
                     const rect = gameBoard.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
                     
-                    console.log(`🎯 Celebration center: ${centerX}, ${centerY}`);
-                    console.log(`🎯 Window size: ${window.innerWidth}x${window.innerHeight}`);
+                    // Convert to canvas-relative coordinates (not window coordinates!)
+                    const canvas = document.getElementById('particleCanvas');
+                    const canvasRect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0 };
                     
+                    const centerX = (rect.left - canvasRect.left) + rect.width / 2;
+                    const centerY = (rect.top - canvasRect.top) + rect.height / 2;
+                    
+                    console.log(`🎯 Game board rect:`, rect);
+                    console.log(`🎯 Canvas rect:`, canvasRect);
+                    console.log(`🎯 Canvas-relative center: ${centerX}, ${centerY}`);
+                    
+                    // Player-specific confetti colors with more variation
+                    const confettiColors = playerColor === 'yellow' ? 
+                        ['#FFD700', '#FFA000', '#FFEB3B', '#FF8F00', '#FFF176', '#FFCC02'] :
+                        ['#F44336', '#D32F2F', '#FF5722', '#C62828', '#EF5350', '#FF1744'];
+                        
                     // Multiple burst patterns for epic celebration
                     this.particleEngine.createCelebrationBurst({
                         x: centerX,
                         y: centerY,
                         pattern: 'explosion',
                         particleCount: 80,
-                        colors: playerColor === 'yellow' ? 
-                            ['#FFD700', '#FFA000', '#FFEB3B', '#FF8F00'] :
-                            ['#F44336', '#D32F2F', '#FF5722', '#C62828']
+                        colors: confettiColors
                     });
                     
-                    // Delayed secondary burst
+                    // Delayed secondary burst with same player colors
                     setTimeout(() => {
                         if (this.particleEngine) {
                             this.particleEngine.createCelebrationBurst({
                                 x: centerX,
-                                y: centerY - 100,
+                                y: centerY - 50,
                                 pattern: 'fountain',
                                 particleCount: 60,
-                                colors: ['#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+                                colors: confettiColors
                             });
                         }
                     }, 500);
