@@ -748,6 +748,27 @@ export class AnimationManager {
                     
                     console.log('🎉 Fallback DOM celebration triggered');
                 }
+                
+                // ADDITIONAL SIMPLE CANVAS CONFETTI FOR DEBUGGING
+                const canvas = document.getElementById('particleCanvas');
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Draw 20 simple colored circles
+                    for (let i = 0; i < 20; i++) {
+                        ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        ctx.beginPath();
+                        ctx.arc(
+                            Math.random() * canvas.width,
+                            Math.random() * canvas.height,
+                            Math.random() * 20 + 10,
+                            0, 2 * Math.PI
+                        );
+                        ctx.fill();
+                    }
+                    
+                    console.log('🎨 Simple canvas confetti drawn - 20 colored circles');
+                }
             }
             
             // Enhanced victory line animation
