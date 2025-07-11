@@ -306,6 +306,7 @@
       // WASM and UI-Module System Connect4 initialization
       import init, { Connect4Game, Connect4AI, AIDifficulty } from '../../game_engine/pkg/game_engine.js';
       import { Connect4UI } from './js/ui.js?v=production';
+      import { Connect4GameBitPacked } from './js/game.js';
       
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async function () {
@@ -320,7 +321,7 @@
             throw new Error('Game board element not found in DOM');
           }
           
-          const game = new Connect4Game();
+          const game = new Connect4GameBitPacked();
           const ui = new Connect4UI(game);
           
           // Initialize AI with proper difficulty based on game mode

@@ -1,0 +1,18 @@
+{
+  "name": "logiccastle-debug-tools",
+  "version": "1.0.0",
+  "description": "Automated debugging tools for LogicCastle games",
+  "main": "puppeteer-debug-monitor.js",
+  "scripts": {
+    "monitor": "node puppeteer-debug-monitor.js",
+    "monitor-connect4": "node puppeteer-debug-monitor.js http://localhost:3000/games/connect4/",
+    "install-deps": "npm install"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  },
+  "devDependencies": {},
+  "keywords": ["debug", "puppeteer", "automation", "testing"],
+  "author": "LogicCastle Debug Team",
+  "license": "MIT"
+}

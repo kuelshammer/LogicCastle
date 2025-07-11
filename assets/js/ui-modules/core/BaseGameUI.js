@@ -298,6 +298,9 @@ export class BaseGameUI {
     bindKeyboardActions(keyboardController) {
         const actionMap = {
             'toggleHelp': () => this.toggleModal('help'),
+            'toggleModal_help': () => this.toggleModal('help'),
+            'toggleModal_assistance': () => this.toggleModal('assistance'),
+            'toggleAssistance': () => this.toggleModal('assistance'),
             'toggleGameHelp': () => this.toggleModal('gameHelp'),
             'closeModal': () => this.closeAllModals(),
             'newGame': () => this.newGame(),
