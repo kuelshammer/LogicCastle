@@ -208,8 +208,9 @@ export class ParticleEngine {
         // Performance monitoring
         this.updatePerformanceMetrics(deltaTime);
         
-        // Clear canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Clear canvas with fade effect instead of complete clear
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // Very transparent overlay for fade effect
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Update and render particles
         this.updateParticles(deltaTime);
