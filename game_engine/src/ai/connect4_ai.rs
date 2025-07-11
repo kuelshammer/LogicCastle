@@ -3,14 +3,24 @@ use crate::games::connect4::Connect4Game;
 use crate::Player;
 use crate::ai::pattern_evaluator::{PatternEvaluator, GamePhase};
 
-/// AI Difficulty levels with corresponding search depths
-/// Based on memory analysis: Easy=2, Medium=4, Hard=6
+/// AI Strategy types for Stage 4 decision making
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum AIStrategy {
+    Random,        // Random move from safe moves
+    WeakMCTS,      // MCTS with depth 2
+    MediumMCTS,    // MCTS with depth 4
+    StrongMCTS,    // MCTS with depth 6
+    AdaptiveMCTS,  // Variable depth based on game phase
+}
+
+/// AI Difficulty levels with variable Stage 4 strategies
+/// All difficulties use Stage 1-3 (Win/Block/Safe), but differ in Stage 4
 #[wasm_bindgen]
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum AIDifficulty {
-    Easy = 2,    // 53 states, 33KB, 5ms - Perfect for beginners
-    Medium = 4,  // 1,767 states, 1.1MB, 67ms - Good balance
-    Hard = 6,    // 39,119 states, 24MB, 870ms - Strong AI
+    Easy,    // 50% Random, 30% Weak MCTS, 20% Medium MCTS
+    Medium,  // 20% Random, 60% Weak MCTS, 20% Medium MCTS  
+    Hard,    // Adaptive MCTS: Depth 4→8→10 based on game phase
 }
 
 /// Connect4 AI implementation using Gemini's pattern-based evaluation
@@ -21,6 +31,7 @@ pub struct Connect4AI {
     evaluator: PatternEvaluator,
     max_depth: usize,
     ai_player: Player,
+    difficulty: AIDifficulty,
 }
 
 #[wasm_bindgen]
@@ -29,18 +40,26 @@ impl Connect4AI {
     pub fn new() -> Self {
         Self {
             evaluator: PatternEvaluator::new(),
-            max_depth: 7, // Good balance of strength vs speed
+            max_depth: 4, // Default depth for medium difficulty
             ai_player: Player::Red,
+            difficulty: AIDifficulty::Medium,
         }
     }
     
     /// Create AI with specific difficulty level
     #[wasm_bindgen]
     pub fn with_difficulty(difficulty: AIDifficulty) -> Self {
+        let default_depth = match difficulty {
+            AIDifficulty::Easy => 2,
+            AIDifficulty::Medium => 4, 
+            AIDifficulty::Hard => 6,
+        };
+        
         Self {
             evaluator: PatternEvaluator::new(),
-            max_depth: difficulty as usize,
+            max_depth: default_depth,
             ai_player: Player::Red,
+            difficulty,
         }
     }
     
@@ -60,18 +79,18 @@ impl Connect4AI {
     /// This is the preferred way to set AI strength
     #[wasm_bindgen]
     pub fn set_difficulty_level(&mut self, difficulty: AIDifficulty) {
-        self.max_depth = difficulty as usize;
+        self.difficulty = difficulty;
+        self.max_depth = match difficulty {
+            AIDifficulty::Easy => 2,
+            AIDifficulty::Medium => 4,
+            AIDifficulty::Hard => 6,
+        };
     }
     
     /// Get current difficulty level
     #[wasm_bindgen]
     pub fn get_difficulty_level(&self) -> AIDifficulty {
-        match self.max_depth {
-            2 => AIDifficulty::Easy,
-            4 => AIDifficulty::Medium,
-            6 => AIDifficulty::Hard,
-            _ => AIDifficulty::Medium, // Default fallback
-        }
+        self.difficulty
     }
     
     /// Get the best move for the current position
@@ -125,6 +144,49 @@ impl Connect4AI {
 
 // Non-WASM methods for internal use and testing
 impl Connect4AI {
+    /// Choose Stage 4 strategy based on difficulty and weighted randomness
+    pub fn choose_stage4_strategy(&self, _game: &Connect4Game) -> AIStrategy {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        let random_value: f32 = rng.gen_range(0.0..1.0);
+        
+        match self.difficulty {
+            AIDifficulty::Easy => {
+                match random_value {
+                    x if x < 0.5 => AIStrategy::Random,      // 50%
+                    x if x < 0.8 => AIStrategy::WeakMCTS,    // 30%
+                    _ => AIStrategy::MediumMCTS,             // 20%
+                }
+            },
+            AIDifficulty::Medium => {
+                match random_value {
+                    x if x < 0.2 => AIStrategy::Random,      // 20%
+                    x if x < 0.8 => AIStrategy::WeakMCTS,    // 60%
+                    _ => AIStrategy::MediumMCTS,             // 20%
+                }
+            },
+            AIDifficulty::Hard => {
+                AIStrategy::AdaptiveMCTS
+            },
+        }
+    }
+    
+    /// Get MCTS depth based on strategy and game phase
+    pub fn get_mcts_depth(&self, strategy: AIStrategy, move_count: usize) -> usize {
+        match strategy {
+            AIStrategy::Random => 0, // Not used for random
+            AIStrategy::WeakMCTS => 2,
+            AIStrategy::MediumMCTS => 4,
+            AIStrategy::StrongMCTS => 6,
+            AIStrategy::AdaptiveMCTS => {
+                match move_count {
+                    0..=20 => 4,   // Early game: Solid play
+                    21..=30 => 8,  // Mid game: Strong tactical analysis
+                    _ => 10,       // Endgame: Perfect calculation
+                }
+            },
+        }
+    }
     /// Measure memory usage for AI search at specific depth
     /// This helps us understand memory requirements for different search depths
     pub fn measure_memory_usage(&self, game: &Connect4Game, depth: usize) -> MemoryReport {

@@ -191,14 +191,14 @@ function getArrayJsValueFromWasm0(ptr, len) {
     return result;
 }
 /**
- * AI Difficulty levels with corresponding search depths
- * Based on memory analysis: Easy=2, Medium=4, Hard=6
- * @enum {2 | 4 | 6}
+ * AI Difficulty levels with variable Stage 4 strategies
+ * All difficulties use Stage 1-3 (Win/Block/Safe), but differ in Stage 4
+ * @enum {0 | 1 | 2}
  */
 export const AIDifficulty = Object.freeze({
-    Easy: 2, "2": "Easy",
-    Medium: 4, "4": "Medium",
-    Hard: 6, "6": "Hard",
+    Easy: 0, "0": "Easy",
+    Medium: 1, "1": "Medium",
+    Hard: 2, "2": "Hard",
 });
 /**
  * @enum {0 | 1 | 2 | 3 | 4 | 5}

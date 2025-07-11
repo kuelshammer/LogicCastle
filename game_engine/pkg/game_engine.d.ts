@@ -2,13 +2,13 @@
 /* eslint-disable */
 export function main(): void;
 /**
- * AI Difficulty levels with corresponding search depths
- * Based on memory analysis: Easy=2, Medium=4, Hard=6
+ * AI Difficulty levels with variable Stage 4 strategies
+ * All difficulties use Stage 1-3 (Win/Block/Safe), but differ in Stage 4
  */
 export enum AIDifficulty {
-  Easy = 2,
-  Medium = 4,
-  Hard = 6,
+  Easy = 0,
+  Medium = 1,
+  Hard = 2,
 }
 export enum GameError {
   OutOfBounds = 0,

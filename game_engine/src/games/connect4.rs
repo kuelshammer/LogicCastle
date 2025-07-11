@@ -2,6 +2,7 @@ use wasm_bindgen::prelude::*;
 use crate::data::BitPackedBoard;
 use crate::geometry::{Connect4Grid, BoardGeometry, PatternProvider};
 use crate::ai::{Connect4AI, PatternEvaluator};
+use crate::ai::connect4_ai::AIStrategy;
 use crate::{GamePhase, PositionAnalysis, Player};
 
 /// Connect4 game implementation using the Three-Layer Architecture
@@ -336,8 +337,8 @@ impl Connect4Game {
             return self.ai.get_best_move(self);
         }
         
-        // STAGE 4: Strategic minimax on safe moves
-        self.get_best_move_from_candidates(&safe_moves)
+        // STAGE 4: Difficulty-specific strategy
+        self.get_stage4_move(&safe_moves)
     }
     
     /// Analyze current position comprehensively
@@ -901,6 +902,73 @@ impl Connect4Game {
             if let Some(game_copy) = self.make_move_copy(col) {
                 // Evaluate this position
                 let score = self.ai.evaluate_position(&game_copy);
+                
+                if score > best_score {
+                    best_score = score;
+                    best_move = Some(col);
+                }
+            }
+        }
+        
+        best_move
+    }
+    
+    /// Stage 4: Difficulty-specific move selection
+    /// Implements variable strategies based on AI difficulty
+    fn get_stage4_move(&self, safe_moves: &[usize]) -> Option<usize> {
+        if safe_moves.is_empty() {
+            return None;
+        }
+        
+        // Choose strategy based on difficulty and randomness
+        let strategy = self.ai.choose_stage4_strategy(self);
+        
+        match strategy {
+            AIStrategy::Random => {
+                self.get_random_safe_move(safe_moves)
+            },
+            AIStrategy::WeakMCTS |
+            AIStrategy::MediumMCTS |
+            AIStrategy::StrongMCTS |
+            AIStrategy::AdaptiveMCTS => {
+                let depth = self.ai.get_mcts_depth(strategy, self.move_count);
+                self.get_mcts_move_with_depth(safe_moves, depth)
+            },
+        }
+    }
+    
+    /// Get random move from safe moves (Stage 4: Random strategy)
+    fn get_random_safe_move(&self, safe_moves: &[usize]) -> Option<usize> {
+        if safe_moves.is_empty() {
+            return None;
+        }
+        
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        let random_index = rng.gen_range(0..safe_moves.len());
+        Some(safe_moves[random_index])
+    }
+    
+    /// Get MCTS move with specific depth (Stage 4: MCTS strategies)
+    fn get_mcts_move_with_depth(&self, safe_moves: &[usize], depth: usize) -> Option<usize> {
+        if safe_moves.is_empty() {
+            return None;
+        }
+        
+        if safe_moves.len() == 1 {
+            return Some(safe_moves[0]);
+        }
+        
+        let mut best_move = None;
+        let mut best_score = i32::MIN;
+        
+        for &col in safe_moves {
+            if let Some(game_copy) = self.make_move_copy(col) {
+                // Use temporary AI with specific depth
+                let mut temp_ai = self.ai.clone();
+                temp_ai.set_difficulty(depth);
+                
+                let score = temp_ai.evaluate_position(&game_copy);
                 
                 if score > best_score {
                     best_score = score;
