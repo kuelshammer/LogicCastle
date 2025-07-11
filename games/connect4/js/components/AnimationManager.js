@@ -98,9 +98,17 @@ export class AnimationManager {
                     const rect = boardWrapper.getBoundingClientRect();
                     console.log('🎯 Board wrapper rect:', rect);
                     
-                    // Ensure minimum size
-                    canvas.width = Math.max(rect.width, 600);
-                    canvas.height = Math.max(rect.height, 400);
+                    // Force full-screen canvas for better visibility
+                    canvas.width = Math.max(rect.width, window.innerWidth);
+                    canvas.height = Math.max(rect.height, window.innerHeight);
+                    
+                    // Ensure canvas covers the entire board area
+                    canvas.style.position = 'fixed';
+                    canvas.style.top = '0';
+                    canvas.style.left = '0';
+                    canvas.style.width = '100vw';
+                    canvas.style.height = '100vh';
+                    canvas.style.zIndex = '99999';
                     
                     console.log(`🎨 Canvas sized to: ${canvas.width}x${canvas.height}`);
                 } else {
@@ -659,6 +667,7 @@ export class AnimationManager {
                     const centerY = rect.top + rect.height / 2;
                     
                     console.log(`🎯 Celebration center: ${centerX}, ${centerY}`);
+                    console.log(`🎯 Window size: ${window.innerWidth}x${window.innerHeight}`);
                     
                     // Multiple burst patterns for epic celebration
                     this.particleEngine.createCelebrationBurst({
