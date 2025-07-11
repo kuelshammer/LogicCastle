@@ -154,7 +154,7 @@ export class ParticleEngine {
         
         particle.x = x;
         particle.y = y;
-        particle.life = 1.0;
+        particle.life = this.config.particleLifespan; // Fix: Use milliseconds, not 1.0
         particle.maxLife = this.config.particleLifespan;
         particle.color = colors[Math.floor(Math.random() * colors.length)];
         particle.size = 2 + Math.random() * 6;
@@ -210,11 +210,9 @@ export class ParticleEngine {
         // Performance monitoring
         this.updatePerformanceMetrics(deltaTime);
         
-        // DISABLE ALL CANVAS CLEARING FOR DEBUGGING
-        // this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        // this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        console.log(`🎨 Render frame - ${this.activeParticles.length} particles active`);
+        // Clear canvas with subtle trail effect
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Update and render particles
         this.updateParticles(deltaTime);
@@ -222,10 +220,8 @@ export class ParticleEngine {
         
         // Continue animation if particles exist
         if (this.activeParticles.length > 0) {
-            console.log(`🔄 Continuing animation with ${this.activeParticles.length} particles`);
             this.animationId = requestAnimationFrame(() => this.animate());
         } else {
-            console.log(`⏹️ No particles left - stopping animation`);
             this.stopAnimation();
         }
     }

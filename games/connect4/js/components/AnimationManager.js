@@ -123,15 +123,6 @@ export class AnimationManager {
                 maxParticles: this.reducedMotion ? 20 : 150
             });
             
-            // VISUAL TEST: Draw red rectangle to test canvas visibility
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = 'red';
-            ctx.fillRect(50, 50, 200, 100);
-            ctx.fillStyle = 'white';
-            ctx.font = '20px Arial';
-            ctx.fillText('CANVAS TEST', 70, 110);
-            console.log('🎯 VISUAL TEST: Red rectangle drawn on canvas for visibility test');
-            
             console.log('🎊 ParticleEngine initialized successfully');
         } catch (error) {
             console.error('❌ ParticleEngine initialization failed:', error);
