@@ -221,11 +221,13 @@ export const GamePhase = Object.freeze({
     Endgame: 2, "2": "Endgame",
 });
 /**
- * @enum {1 | 2}
+ * @enum {1 | 2 | 3 | 4}
  */
 export const Player = Object.freeze({
     Yellow: 1, "1": "Yellow",
     Red: 2, "2": "Red",
+    Black: 3, "3": "Black",
+    White: 4, "4": "White",
 });
 /**
  * @enum {0 | 1 | 2 | 3 | 4}
@@ -660,12 +662,23 @@ export class Connect4Game {
         wasm.connect4game_reset_with_starting_player(this.__wbg_ptr, starting_player);
     }
     /**
-     * Start a new game series with "loser starts" rule
+     * Start a new game series with "loser starts" rule (legacy method)
      * If loser_starts is true, the losing player from the previous game starts the next game
      * @param {boolean} loser_starts
      */
     start_new_series(loser_starts) {
         wasm.connect4game_start_new_series(this.__wbg_ptr, loser_starts);
+    }
+    /**
+     * Start a new game series with fixed player colors
+     * Players keep their colors throughout the series, only start order changes
+     * This is ideal for tournaments where Player A = always Yellow, Player B = always Red
+     * @param {Player} player_a
+     * @param {Player} player_b
+     * @param {Player} winner
+     */
+    start_new_series_with_players(player_a, player_b, winner) {
+        wasm.connect4game_start_new_series_with_players(this.__wbg_ptr, player_a, player_b, winner);
     }
     /**
      * Create a hypothetical game state for AI evaluation
@@ -714,7 +727,8 @@ export class Connect4Game {
         return ret !== 0;
     }
     /**
-     * Get AI move suggestion
+     * Get AI move suggestion using BULLETPROOF 4-stage hierarchical decision logic
+     * ABSOLUTE PRIORITY: Own win > Block opponent > Strategic play
      * @returns {number | undefined}
      */
     get_ai_move() {
@@ -1367,6 +1381,369 @@ export class Game {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             wasm.game_get_blocking_moves_gobang(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+}
+
+const GomokuGameFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_gomokugame_free(ptr >>> 0, 1));
+/**
+ * Gomoku/Gobang game implementation using the Three-Layer Architecture
+ * Composes geometry and data layers for clean separation of concerns
+ */
+export class GomokuGame {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(GomokuGame.prototype);
+        obj.__wbg_ptr = ptr;
+        GomokuGameFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        GomokuGameFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_gomokugame_free(ptr, 0);
+    }
+    constructor() {
+        const ret = wasm.gomokugame_new();
+        this.__wbg_ptr = ret >>> 0;
+        GomokuGameFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Create a new Gomoku game with a specific starting player
+     * This is essential for game series where "loser starts next game"
+     * @param {Player} starting_player
+     * @returns {GomokuGame}
+     */
+    static new_with_starting_player(starting_player) {
+        const ret = wasm.gomokugame_new_with_starting_player(starting_player);
+        return GomokuGame.__wrap(ret);
+    }
+    /**
+     * Make a move at the specified position (row, col)
+     * Gomoku allows free placement anywhere on the board
+     * @param {number} row
+     * @param {number} col
+     * @returns {boolean}
+     */
+    make_move(row, col) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_make_move(retptr, this.__wbg_ptr, row, col);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            return r0 !== 0;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get cell value at position (0 = empty, 1 = black, 2 = white)
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_cell(row, col) {
+        const ret = wasm.gomokugame_get_cell(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * Get current player
+     * @returns {Player}
+     */
+    current_player() {
+        const ret = wasm.gomokugame_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get winner (if any)
+     * @returns {Player | undefined}
+     */
+    winner() {
+        const ret = wasm.gomokugame_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Get move count
+     * @returns {number}
+     */
+    move_count() {
+        const ret = wasm.gomokugame_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Check if position is valid for next move
+     * @param {number} row
+     * @param {number} col
+     * @returns {boolean}
+     */
+    is_valid_move(row, col) {
+        const ret = wasm.gomokugame_is_valid_move(this.__wbg_ptr, row, col);
+        return ret !== 0;
+    }
+    /**
+     * Reset game to initial state
+     */
+    reset() {
+        wasm.gomokugame_newGame(this.__wbg_ptr);
+    }
+    /**
+     * Reset game with a specific starting player
+     * @param {Player} starting_player
+     */
+    reset_with_starting_player(starting_player) {
+        wasm.gomokugame_reset_with_starting_player(this.__wbg_ptr, starting_player);
+    }
+    /**
+     * Start a new game series with "loser starts" rule (legacy method)
+     * If loser_starts is true, the losing player from the previous game starts the next game
+     * @param {boolean} loser_starts
+     */
+    start_new_series(loser_starts) {
+        wasm.gomokugame_start_new_series(this.__wbg_ptr, loser_starts);
+    }
+    /**
+     * Start a new game series with fixed player colors
+     * Players keep their colors throughout the series, only start order changes
+     * This is ideal for tournaments where Player A = always Black, Player B = always White
+     * @param {Player} player_a
+     * @param {Player} player_b
+     * @param {Player} winner
+     */
+    start_new_series_with_players(player_a, player_b, winner) {
+        wasm.gomokugame_start_new_series_with_players(this.__wbg_ptr, player_a, player_b, winner);
+    }
+    /**
+     * Get board state as string for debugging
+     * @returns {string}
+     */
+    board_string() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_board_string(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Check if game is draw (board full, no winner)
+     * @returns {boolean}
+     */
+    is_draw() {
+        const ret = wasm.gomokugame_is_draw(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Check if game is over (win or draw)
+     * @returns {boolean}
+     */
+    is_game_over() {
+        const ret = wasm.gomokugame_is_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get current game phase for AI strategy
+     * @returns {GamePhase}
+     */
+    get_game_phase() {
+        const ret = wasm.gomokugame_get_game_phase(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get memory usage of the game state (for performance monitoring)
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.gomokugame_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get current player (frontend naming convention)
+     * @returns {Player}
+     */
+    get_current_player() {
+        const ret = wasm.gomokugame_get_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get move count (frontend naming convention)
+     * @returns {number}
+     */
+    get_move_count() {
+        const ret = wasm.gomokugame_get_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get winner (frontend naming convention)
+     * @returns {Player | undefined}
+     */
+    get_winner() {
+        const ret = wasm.gomokugame_get_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Get board state as flat array for frontend (15 rows × 15 cols = 225 elements)
+     * @returns {Uint8Array}
+     */
+    get_board() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_get_board(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Check if undo is possible
+     * @returns {boolean}
+     */
+    can_undo() {
+        const ret = wasm.gomokugame_can_undo(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Undo the last move
+     * @returns {boolean}
+     */
+    undo_move() {
+        const ret = wasm.gomokugame_undo_move(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Frontend-friendly method aliases
+     */
+    newGame() {
+        wasm.gomokugame_newGame(this.__wbg_ptr);
+    }
+    /**
+     * @returns {boolean}
+     */
+    undoMove() {
+        const ret = wasm.gomokugame_undoMove(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get AI move suggestion
+     * @returns {Uint32Array}
+     */
+    get_ai_move() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_get_ai_move(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get AI move suggestion for specific player
+     * @param {Player} player
+     * @returns {Uint32Array}
+     */
+    get_ai_move_for_player(player) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_get_ai_move_for_player(retptr, this.__wbg_ptr, player);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Evaluate position for current player
+     * @returns {number}
+     */
+    evaluate_position() {
+        const ret = wasm.gomokugame_evaluate_position(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Evaluate position for specific player
+     * @param {Player} player
+     * @returns {number}
+     */
+    evaluate_position_for_player(player) {
+        const ret = wasm.gomokugame_evaluate_position_for_player(this.__wbg_ptr, player);
+        return ret;
+    }
+    /**
+     * Get threat level for a position and player
+     * @param {number} row
+     * @param {number} col
+     * @param {Player} player
+     * @returns {number}
+     */
+    get_threat_level(row, col, player) {
+        const ret = wasm.gomokugame_get_threat_level(this.__wbg_ptr, row, col, player);
+        return ret;
+    }
+    /**
+     * Get winning moves for current player
+     * @returns {Uint32Array}
+     */
+    get_winning_moves() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_get_winning_moves(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get blocking moves (prevent opponent from winning)
+     * @returns {Uint32Array}
+     */
+    get_blocking_moves() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_get_blocking_moves(retptr, this.__wbg_ptr);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             var v1 = getArrayU32FromWasm0(r0, r1).slice();

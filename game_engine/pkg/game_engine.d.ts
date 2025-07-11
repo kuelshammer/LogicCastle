@@ -29,6 +29,8 @@ export enum GamePhase {
 export enum Player {
   Yellow = 1,
   Red = 2,
+  Black = 3,
+  White = 4,
 }
 export enum TrioDifficulty {
   Impossible = 0,
@@ -170,10 +172,16 @@ export class Connect4Game {
    */
   reset_with_starting_player(starting_player: Player): void;
   /**
-   * Start a new game series with "loser starts" rule
+   * Start a new game series with "loser starts" rule (legacy method)
    * If loser_starts is true, the losing player from the previous game starts the next game
    */
   start_new_series(loser_starts: boolean): void;
+  /**
+   * Start a new game series with fixed player colors
+   * Players keep their colors throughout the series, only start order changes
+   * This is ideal for tournaments where Player A = always Yellow, Player B = always Red
+   */
+  start_new_series_with_players(player_a: Player, player_b: Player, winner: Player): void;
   /**
    * Create a hypothetical game state for AI evaluation
    * This allows the AI to evaluate positions regardless of whose turn it is
@@ -192,7 +200,8 @@ export class Connect4Game {
    */
   is_game_over(): boolean;
   /**
-   * Get AI move suggestion
+   * Get AI move suggestion using BULLETPROOF 4-stage hierarchical decision logic
+   * ABSOLUTE PRIORITY: Own win > Block opponent > Strategic play
    */
   get_ai_move(): number | undefined;
   /**
@@ -398,6 +407,140 @@ export class Game {
   get_blocking_moves_gobang(): Uint32Array;
 }
 /**
+ * Gomoku/Gobang game implementation using the Three-Layer Architecture
+ * Composes geometry and data layers for clean separation of concerns
+ */
+export class GomokuGame {
+  free(): void;
+  constructor();
+  /**
+   * Create a new Gomoku game with a specific starting player
+   * This is essential for game series where "loser starts next game"
+   */
+  static new_with_starting_player(starting_player: Player): GomokuGame;
+  /**
+   * Make a move at the specified position (row, col)
+   * Gomoku allows free placement anywhere on the board
+   */
+  make_move(row: number, col: number): boolean;
+  /**
+   * Get cell value at position (0 = empty, 1 = black, 2 = white)
+   */
+  get_cell(row: number, col: number): number;
+  /**
+   * Get current player
+   */
+  current_player(): Player;
+  /**
+   * Get winner (if any)
+   */
+  winner(): Player | undefined;
+  /**
+   * Get move count
+   */
+  move_count(): number;
+  /**
+   * Check if position is valid for next move
+   */
+  is_valid_move(row: number, col: number): boolean;
+  /**
+   * Reset game to initial state
+   */
+  reset(): void;
+  /**
+   * Reset game with a specific starting player
+   */
+  reset_with_starting_player(starting_player: Player): void;
+  /**
+   * Start a new game series with "loser starts" rule (legacy method)
+   * If loser_starts is true, the losing player from the previous game starts the next game
+   */
+  start_new_series(loser_starts: boolean): void;
+  /**
+   * Start a new game series with fixed player colors
+   * Players keep their colors throughout the series, only start order changes
+   * This is ideal for tournaments where Player A = always Black, Player B = always White
+   */
+  start_new_series_with_players(player_a: Player, player_b: Player, winner: Player): void;
+  /**
+   * Get board state as string for debugging
+   */
+  board_string(): string;
+  /**
+   * Check if game is draw (board full, no winner)
+   */
+  is_draw(): boolean;
+  /**
+   * Check if game is over (win or draw)
+   */
+  is_game_over(): boolean;
+  /**
+   * Get current game phase for AI strategy
+   */
+  get_game_phase(): GamePhase;
+  /**
+   * Get memory usage of the game state (for performance monitoring)
+   */
+  memory_usage(): number;
+  /**
+   * Get current player (frontend naming convention)
+   */
+  get_current_player(): Player;
+  /**
+   * Get move count (frontend naming convention)
+   */
+  get_move_count(): number;
+  /**
+   * Get winner (frontend naming convention)
+   */
+  get_winner(): Player | undefined;
+  /**
+   * Get board state as flat array for frontend (15 rows × 15 cols = 225 elements)
+   */
+  get_board(): Uint8Array;
+  /**
+   * Check if undo is possible
+   */
+  can_undo(): boolean;
+  /**
+   * Undo the last move
+   */
+  undo_move(): boolean;
+  /**
+   * Frontend-friendly method aliases
+   */
+  newGame(): void;
+  undoMove(): boolean;
+  /**
+   * Get AI move suggestion
+   */
+  get_ai_move(): Uint32Array;
+  /**
+   * Get AI move suggestion for specific player
+   */
+  get_ai_move_for_player(player: Player): Uint32Array;
+  /**
+   * Evaluate position for current player
+   */
+  evaluate_position(): number;
+  /**
+   * Evaluate position for specific player
+   */
+  evaluate_position_for_player(player: Player): number;
+  /**
+   * Get threat level for a position and player
+   */
+  get_threat_level(row: number, col: number, player: Player): number;
+  /**
+   * Get winning moves for current player
+   */
+  get_winning_moves(): Uint32Array;
+  /**
+   * Get blocking moves (prevent opponent from winning)
+   */
+  get_blocking_moves(): Uint32Array;
+}
+/**
  * Position analysis structure for AI decision making
  */
 export class PositionAnalysis {
@@ -492,6 +635,7 @@ export interface InitOutput {
   readonly connect4game_get_column_height: (a: number, b: number) => number;
   readonly connect4game_reset_with_starting_player: (a: number, b: number) => void;
   readonly connect4game_start_new_series: (a: number, b: number) => void;
+  readonly connect4game_start_new_series_with_players: (a: number, b: number, c: number, d: number) => void;
   readonly connect4game_create_hypothetical_state: (a: number, b: number) => number;
   readonly connect4game_board_string: (a: number, b: number) => void;
   readonly connect4game_is_draw: (a: number) => number;
@@ -512,6 +656,38 @@ export interface InitOutput {
   readonly connect4game_newGame: (a: number) => void;
   readonly connect4game_undoMove: (a: number) => number;
   readonly connect4game_getAIMove: (a: number) => number;
+  readonly __wbg_gomokugame_free: (a: number, b: number) => void;
+  readonly gomokugame_new: () => number;
+  readonly gomokugame_new_with_starting_player: (a: number) => number;
+  readonly gomokugame_make_move: (a: number, b: number, c: number, d: number) => void;
+  readonly gomokugame_get_cell: (a: number, b: number, c: number) => number;
+  readonly gomokugame_current_player: (a: number) => number;
+  readonly gomokugame_winner: (a: number) => number;
+  readonly gomokugame_move_count: (a: number) => number;
+  readonly gomokugame_is_valid_move: (a: number, b: number, c: number) => number;
+  readonly gomokugame_reset_with_starting_player: (a: number, b: number) => void;
+  readonly gomokugame_start_new_series: (a: number, b: number) => void;
+  readonly gomokugame_start_new_series_with_players: (a: number, b: number, c: number, d: number) => void;
+  readonly gomokugame_board_string: (a: number, b: number) => void;
+  readonly gomokugame_is_draw: (a: number) => number;
+  readonly gomokugame_is_game_over: (a: number) => number;
+  readonly gomokugame_get_game_phase: (a: number) => number;
+  readonly gomokugame_memory_usage: (a: number) => number;
+  readonly gomokugame_get_current_player: (a: number) => number;
+  readonly gomokugame_get_move_count: (a: number) => number;
+  readonly gomokugame_get_winner: (a: number) => number;
+  readonly gomokugame_get_board: (a: number, b: number) => void;
+  readonly gomokugame_can_undo: (a: number) => number;
+  readonly gomokugame_undo_move: (a: number) => number;
+  readonly gomokugame_newGame: (a: number) => void;
+  readonly gomokugame_undoMove: (a: number) => number;
+  readonly gomokugame_get_ai_move: (a: number, b: number) => void;
+  readonly gomokugame_get_ai_move_for_player: (a: number, b: number, c: number) => void;
+  readonly gomokugame_evaluate_position: (a: number) => number;
+  readonly gomokugame_evaluate_position_for_player: (a: number, b: number) => number;
+  readonly gomokugame_get_threat_level: (a: number, b: number, c: number, d: number) => number;
+  readonly gomokugame_get_winning_moves: (a: number, b: number) => void;
+  readonly gomokugame_get_blocking_moves: (a: number, b: number) => void;
   readonly __wbg_connect4ai_free: (a: number, b: number) => void;
   readonly connect4ai_new: () => number;
   readonly connect4ai_with_difficulty: (a: number) => number;
@@ -623,11 +799,12 @@ export interface InitOutput {
   readonly triogame_categorize_target_difficulty_wasm: (a: number, b: number) => number;
   readonly triogame_comprehensive_gap_analysis: (a: number) => void;
   readonly game_is_terminal: (a: number) => number;
-  readonly connect4game_get_ai_move: (a: number) => number;
   readonly connect4game_move_count: (a: number) => number;
   readonly connect4game_get_current_player: (a: number) => number;
   readonly connect4game_winner: (a: number) => number;
+  readonly connect4game_get_ai_move: (a: number) => number;
   readonly connect4game_reset: (a: number) => void;
+  readonly gomokugame_reset: (a: number) => void;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_2: (a: number, b: number) => number;

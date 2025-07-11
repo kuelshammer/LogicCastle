@@ -870,10 +870,11 @@ impl Connect4Game {
             if self.is_valid_move(col) {
                 // Create a copy with this move applied
                 if let Some(game_after_move) = self.make_move_copy(col) {
-                    // Check if opponent has an immediate win after this move
-                    let opponent_wins = game_after_move.ai.find_immediate_win(&game_after_move);
+                    // FIXED: Check if opponent has winning moves after our move
+                    let opponent_winning_moves = game_after_move.ai.find_opponent_winning_moves(&game_after_move);
                     
-                    if opponent_wins.is_none() {
+                    // Move is safe if opponent has NO winning moves after it
+                    if opponent_winning_moves.is_empty() {
                         safe_moves.push(col);
                     }
                 }
