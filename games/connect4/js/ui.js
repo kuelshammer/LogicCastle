@@ -610,6 +610,56 @@ export class Connect4UI extends BaseGameUI {
             const moveResult = await this.game.makeMove(col);
             console.log('✅ Move successful:', moveResult);
             
+            // Extract row from game state for proper animation
+            let placedRow = null;
+            if (typeof this.game.getLastMoveRow === 'function') {
+                placedRow = this.game.getLastMoveRow();
+            } else {
+                // Fallback: find the topmost non-empty cell in this column
+                for (let r = 5; r >= 0; r--) {
+                    if (this.game && typeof this.game.getCell === 'function') {
+                        const cell = this.game.getCell(r, col);
+                        if (cell !== 0) {
+                            placedRow = r;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Trigger move animation with correct row
+            const enhancedMoveResult = {
+                ...moveResult,
+                row: placedRow,
+                col: col,
+                player: (this.game && typeof this.game.getCurrentPlayer === 'function') ? 
+                    (this.game.getCurrentPlayer() === 1 ? 2 : 1) : null // Previous player (before switch)
+            };
+            
+            console.log('🎬 Enhanced move result:', enhancedMoveResult);
+            
+            // Trigger visual update immediately
+            if (enhancedMoveResult.row !== null && enhancedMoveResult.player) {
+                this.onMoveMade(enhancedMoveResult);
+            }
+            
+            // CRITICAL FIX: Check for game over after successful move
+            if (this.game && typeof this.game.isGameOver === 'function' && this.game.isGameOver()) {
+                console.log('🏁 Game over detected after move!');
+                
+                // Get winner information
+                const winner = (this.game && typeof this.game.getWinner === 'function') ? 
+                    this.game.getWinner() : null;
+                
+                console.log('🏆 Winner detected:', winner);
+                
+                // Trigger victory animation immediately
+                const gameOverData = { winner, moveResult: enhancedMoveResult };
+                setTimeout(() => {
+                    this.onGameOver(gameOverData);
+                }, 100); // Small delay to ensure UI is updated
+            }
+            
             return Promise.resolve(moveResult);
             
         } catch (error) {
