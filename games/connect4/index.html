@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/glasmorphism.css" />
   </head>
   <body>
-    <div class="game-container">
+    <div class="game-container" data-current-player="1">
       <header class="game-header">
         <div class="header-left">
           <a href="../../index.html" class="back-button">← Zurück</a>
@@ -29,7 +29,7 @@
       </header>
 
       <main class="game-main">
-        <div class="game-board-container">
+        <div class="game-board-container glass-panel" data-current-player="1">
           <div class="board-coords top grid grid-cols-7 mb-2 mt-6" id="topCoords" style="gap: 8px;">
             <!-- Column numbers 1-7 will be generated with grid alignment -->
           </div>
@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <div class="game-info-compact">
+        <div class="game-info-compact glass-panel">
           <div class="info-section">
             <h3>Aktueller Spieler</h3>
             <div class="current-player">
@@ -81,11 +81,11 @@
           <div class="info-section">
             <h3>Spiel-Steuerung</h3>
             <div class="game-controls-sidebar">
-              <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
-              <button class="btn btn-secondary" id="undoBtn" disabled>Rückgängig (U)</button>
-              <button class="btn btn-outline" id="resetScoreBtn">Score zurücksetzen (F3)</button>
-              <button class="btn btn-success" id="assistanceBtn">Spielerhilfen (F2)</button>
-              <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
+              <button class="btn btn-primary" id="newGameBtn" data-tooltip="Startet ein neues Spiel">Neues Spiel (N)</button>
+              <button class="btn btn-secondary" id="undoBtn" disabled data-tooltip="Macht den letzten Zug rückgängig">Rückgängig (U)</button>
+              <button class="btn btn-outline" id="resetScoreBtn" data-tooltip="Setzt den Spielstand zurück">Score zurücksetzen (F3)</button>
+              <button class="btn btn-success" id="assistanceBtn" data-tooltip="Öffnet die Spielerhilfen">Spielerhilfen (F2)</button>
+              <button class="btn btn-info" id="helpBtn" data-tooltip="Zeigt die Spielanleitung">Spielanleitung (F1)</button>
             </div>
           </div>
         </div>

@@ -5,6 +5,174 @@
 
 /* Note: Loading spinner styles now imported from central design system (assets/css/main.css) */
 
+/* ===== PREMIUM EFFECTS IMPORTS ===== */
+@import './glasmorphism-advanced.css';
+@import './micro-interactions.css';
+
+/* ===== PREMIUM ANIMATION ENHANCEMENTS ===== */
+
+/* Enhanced drop ripple animation */
+@keyframes drop-ripple-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+/* Enhanced hover ripple animation */
+@keyframes hover-ripple-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+    }
+}
+
+/* Button ripple animation */
+@keyframes btn-ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+}
+
+/* Column highlight wave animation */
+.column-highlight-wave {
+    animation: column-wave 0.4s ease-out;
+}
+
+@keyframes column-wave {
+    0% {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1);
+    }
+    50% {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+    100% {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1);
+    }
+}
+
+/* Victory piece glow animation */
+.victory-piece {
+    animation: victory-pulse 2s ease-in-out infinite;
+}
+
+.victory-glow {
+    box-shadow: 0 0 30px currentColor !important;
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+@keyframes victory-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px currentColor;
+    }
+    50% {
+        box-shadow: 0 0 40px currentColor;
+    }
+}
+
+/* Particle canvas styling */
+#connect4-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Enhanced loading states */
+.loading-state {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-state::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+    animation: loading-shimmer 2s infinite;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Enhanced focus states for accessibility */
+.game-slot:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.8);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2);
+}
+
+/* Enhanced disabled states */
+.disabled-overlay {
+    position: relative;
+}
+
+.disabled-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.1) 2px,
+        rgba(255, 255, 255, 0.1) 4px
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.disabled-overlay:hover::before {
+    opacity: 1;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .victory-piece,
+    .column-highlight-wave,
+    .loading-state::before {
+        animation: none;
+    }
+    
+    .victory-glow {
+        transition: none;
+    }
+}
+
 /* Notification Toast */
 .toast {
   position: fixed;

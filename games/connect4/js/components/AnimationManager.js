@@ -29,6 +29,13 @@ export class AnimationManager {
         this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         this.animationSpeed = this.reducedMotion ? 0.5 : 1.0;
         
+        // Premium effects engines
+        this.particleEngine = null;
+        this.soundManager = null;
+        
+        // Initialize premium effects
+        this.initializePremiumEffects();
+        
         // Animation timing configuration
         this.timing = {
             dropBase: 400,
@@ -40,6 +47,61 @@ export class AnimationManager {
         };
         
         console.log('🎬 AnimationManager initialized with', this.reducedMotion ? 'reduced motion' : 'full animations');
+        console.log('🎊 Premium effects and sound integration ready');
+    }
+    
+    /**
+     * Initialize premium effects systems
+     * @private
+     */
+    async initializePremiumEffects() {
+        try {
+            // Initialize particle engine
+            await this.initializeParticleEngine();
+            
+            // Initialize sound manager
+            await this.initializeSoundManager();
+            
+            console.log('✨ Premium effects systems initialized');
+        } catch (error) {
+            console.warn('⚠️ Premium effects initialization failed:', error.message);
+        }
+    }
+    
+    /**
+     * Initialize particle engine for confetti effects
+     * @private
+     */
+    async initializeParticleEngine() {
+        const { ParticleEngine } = await import('./ParticleEngine.js');
+        
+        // Create canvas for particles
+        const canvas = document.createElement('canvas');
+        canvas.id = 'connect4-particles';
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '9999';
+        document.body.appendChild(canvas);
+        
+        // Initialize particle engine
+        this.particleEngine = new ParticleEngine(canvas, {
+            maxParticles: this.reducedMotion ? 20 : 150
+        });
+        
+        console.log('🎊 ParticleEngine initialized');
+    }
+    
+    /**
+     * Initialize sound manager
+     * @private
+     */
+    async initializeSoundManager() {
+        const { soundManager } = await import('./SoundManager.js');
+        this.soundManager = soundManager;
+        
+        console.log('🔊 SoundManager initialized');
     }
 
     /**
@@ -538,6 +600,147 @@ export class AnimationManager {
     }
     
     /**
+     * Trigger premium celebration with particles and sound
+     * @param {string} playerColor - 'yellow' or 'red'
+     * @param {Array} winningPositions - Array of {row, col} winning positions
+     */
+    async triggerPremiumCelebration(playerColor, winningPositions) {
+        if (this.reducedMotion || this.celebrationActive) return;
+        
+        this.celebrationActive = true;
+        console.log(`🎉 Premium celebration for ${playerColor}`);
+        
+        try {
+            // Play victory sound
+            if (this.soundManager) {
+                this.soundManager.playVictory();
+            }
+            
+            // Trigger confetti particles
+            if (this.particleEngine) {
+                const gameBoard = document.querySelector('.game-board-container');
+                if (gameBoard) {
+                    const rect = gameBoard.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    // Multiple burst patterns for epic celebration
+                    this.particleEngine.createCelebrationBurst({
+                        x: centerX,
+                        y: centerY,
+                        pattern: 'explosion',
+                        particleCount: 80,
+                        colors: playerColor === 'yellow' ? 
+                            ['#FFD700', '#FFA000', '#FFEB3B', '#FF8F00'] :
+                            ['#F44336', '#D32F2F', '#FF5722', '#C62828']
+                    });
+                    
+                    // Delayed secondary burst
+                    setTimeout(() => {
+                        this.particleEngine.createCelebrationBurst({
+                            x: centerX,
+                            y: centerY - 100,
+                            pattern: 'fountain',
+                            particleCount: 60,
+                            colors: ['#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+                        });
+                    }, 500);
+                }
+            }
+            
+            // Enhanced victory line animation
+            await this.animateVictoryLine(winningPositions, playerColor);
+            
+        } catch (error) {
+            console.warn('⚠️ Premium celebration error:', error.message);
+        } finally {
+            // Reset celebration state after duration
+            setTimeout(() => {
+                this.celebrationActive = false;
+            }, this.timing.confettiDuration);
+        }
+    }
+    
+    /**
+     * Animate piece drop with sound effects
+     * @param {number} column - Column index (0-6)
+     * @param {number} row - Row index (0-5)
+     * @param {string} playerColor - 'yellow' or 'red'
+     * @param {boolean} special - Special move (winning move, blocking move)
+     */
+    async animatePieceDropWithSound(column, row, playerColor, special = false) {
+        try {
+            // Play piece placement sound
+            if (this.soundManager) {
+                this.soundManager.playPiecePlace();
+            }
+            
+            // Animate the drop with enhanced effects
+            await this.animatePieceDrop(column, row, playerColor, special);
+            
+            // Additional sound effects for special moves
+            if (special && this.soundManager) {
+                setTimeout(() => {
+                    this.soundManager.playConfetti();
+                }, 200);
+            }
+            
+        } catch (error) {
+            console.warn('⚠️ Enhanced piece drop error:', error.message);
+            // Fallback to basic animation
+            await this.animatePieceDrop(column, row, playerColor, special);
+        }
+    }
+    
+    /**
+     * Enhanced column preview with sound feedback
+     * @param {number} column - Column index (0-6)
+     * @param {string} playerColor - 'yellow' or 'red'
+     */
+    showEnhancedColumnPreview(column, playerColor) {
+        // Play subtle hover sound
+        if (this.soundManager && !this.reducedMotion) {
+            this.soundManager.playHover();
+        }
+        
+        // Show visual preview
+        this.showColumnPreview(column, playerColor);
+    }
+    
+    /**
+     * Enhanced button click with ripple and sound
+     * @param {HTMLElement} button - Button element
+     * @param {Event} event - Click event
+     */
+    handleEnhancedButtonClick(button, event) {
+        // Play button click sound
+        if (this.soundManager) {
+            this.soundManager.playButtonClick();
+        }
+        
+        // Create ripple effect
+        this.createButtonRipple(button, event);
+    }
+    
+    /**
+     * Get premium effects status
+     */
+    getPremiumEffectsStatus() {
+        return {
+            particleEngine: {
+                available: !!this.particleEngine,
+                stats: this.particleEngine ? this.particleEngine.getPerformanceStats() : null
+            },
+            soundManager: {
+                available: !!this.soundManager,
+                status: this.soundManager ? this.soundManager.getStatus() : null
+            },
+            performance: this.getPerformanceSettings(),
+            celebrationActive: this.celebrationActive
+        };
+    }
+    
+    /**
      * Cleanup all animations and remove event listeners
      */
     destroy() {
@@ -547,6 +750,17 @@ export class AnimationManager {
         
         // Clear previews
         this.clearColumnPreview();
+        
+        // Cleanup premium effects
+        if (this.particleEngine) {
+            this.particleEngine.destroy();
+            this.particleEngine = null;
+        }
+        
+        if (this.soundManager) {
+            this.soundManager.destroy();
+            this.soundManager = null;
+        }
         
         // Remove any celebration overlays
         const overlays = document.querySelectorAll('.celebration-overlay');
@@ -558,7 +772,7 @@ export class AnimationManager {
         
         this.celebrationActive = false;
         
-        console.log('🎬 AnimationManager destroyed');
+        console.log('🎬 AnimationManager destroyed with premium effects cleanup');
     }
 }
 

@@ -1,0 +1,417 @@
+/**
+ * Micro-Interactions Polish for Connect4
+ * 
+ * Subtle animations and feedback that enhance user experience
+ * without overwhelming the interface. Focus on responsiveness
+ * and delight in every interaction.
+ */
+
+/* ===== ENHANCED LOADING STATES ===== */
+
+.loading-skeleton {
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.1) 25%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0.1) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spinner-rotate 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spinner-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== ENHANCED FOCUS INDICATORS ===== */
+
+.focus-visible,
+*:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+  transition: outline-offset 0.2s ease;
+}
+
+.focus-visible:focus-visible,
+*:focus-visible:focus-visible {
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2);
+}
+
+/* Enhanced focus for interactive elements */
+.coord:focus-visible {
+  outline-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 0 0 6px rgba(255, 255, 255, 0.2),
+    0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.game-slot:focus-visible {
+  outline-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 
+    0 0 0 6px rgba(59, 130, 246, 0.2),
+    0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* ===== CONTEXTUAL TOOLTIPS ===== */
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+[data-tooltip]::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 1000;
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ===== ENHANCED STATE TRANSITIONS ===== */
+
+.state-transition {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.state-entering {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.state-entered {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.state-exiting {
+  opacity: 0;
+  transform: translateY(-20px) scale(1.05);
+}
+
+/* ===== DISABLED STATE ENHANCEMENTS ===== */
+
+.disabled,
+:disabled,
+[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.disabled::before,
+:disabled::before,
+[aria-disabled="true"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.1) 2px,
+    rgba(255, 255, 255, 0.1) 4px
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.disabled:hover::before,
+:disabled:hover::before,
+[aria-disabled="true"]:hover::before {
+  opacity: 1;
+}
+
+/* ===== ENHANCED BUTTON FEEDBACK ===== */
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.6s ease;
+}
+
+.btn-primary:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== ENHANCED FORM INTERACTIONS ===== */
+
+.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  transition: color 0.3s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.form-control:focus::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== ENHANCED MODAL INTERACTIONS ===== */
+
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.9) translateY(-20px);
+}
+
+.modal-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-exit {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.2s ease-out;
+}
+
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+/* ===== ENHANCED NOTIFICATION SYSTEM ===== */
+
+.notification {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  transform: translateX(400px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.notification.entering {
+  transform: translateX(0);
+}
+
+.notification.entering::before {
+  transform: translateX(100%);
+}
+
+.notification.success {
+  border-left: 4px solid #10B981;
+}
+
+.notification.error {
+  border-left: 4px solid #EF4444;
+}
+
+.notification.warning {
+  border-left: 4px solid #F59E0B;
+}
+
+.notification.info {
+  border-left: 4px solid #3B82F6;
+}
+
+/* ===== ENHANCED PROGRESS INDICATORS ===== */
+
+.progress-bar {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 8px;
+}
+
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 10px;
+  width: var(--progress, 0%);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-bar.animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent);
+  animation: progress-shine 2s ease-in-out infinite;
+}
+
+@keyframes progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-skeleton,
+  .loading-spinner,
+  .notification::before,
+  .progress-bar.animated::after {
+    animation: none;
+  }
+  
+  .state-transition,
+  .modal-enter-active,
+  .modal-exit-active,
+  .notification {
+    transition-duration: 0.1s;
+  }
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enhanced high contrast support */
+@media (prefers-contrast: high) {
+  .btn,
+  .form-control,
+  .notification {
+    border-width: 2px;
+  }
+  
+  .focus-visible,
+  *:focus-visible {
+    outline-width: 4px;
+  }
+}

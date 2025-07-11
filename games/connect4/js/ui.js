@@ -119,7 +119,7 @@ export class Connect4UI extends BaseGameUI {
         // Initialize ULTRATHINK AssistanceManager component
         this.initializeAssistanceManager();
         
-        // Initialize AnimationManager component
+        // Initialize AnimationManager component with premium effects
         this.initializeAnimationManager();
         
         // Update initial UI state
@@ -393,7 +393,42 @@ export class Connect4UI extends BaseGameUI {
         const perfSettings = this.animationManager.getPerformanceSettings();
         console.log('🎬 Animation performance settings:', perfSettings);
         
-        console.log('✅ AnimationManager component initialized successfully');\n        \n        // Setup enhanced interaction feedback\n        this.setupEnhancedInteractionFeedback();
+        console.log('✅ AnimationManager component initialized successfully');
+        
+        // Setup enhanced interaction feedback
+        this.setupEnhancedInteractionFeedback();
+    }
+    
+    /**
+     * Setup enhanced interaction feedback with premium effects
+     */
+    setupEnhancedInteractionFeedback() {
+        console.log('🎨 Setting up enhanced interaction feedback...');
+        
+        // Enhanced button clicks with sound and ripple effects
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('button, .btn');
+            if (button && this.animationManager) {
+                this.animationManager.handleEnhancedButtonClick(button, event);
+            }
+        });
+        
+        // Enhanced hover feedback for game elements
+        const gameBoard = this.elements.gameBoard;
+        if (gameBoard) {
+            gameBoard.addEventListener('mouseenter', (event) => {
+                const cell = event.target.closest('.game-slot');
+                if (cell && this.animationManager) {
+                    const col = parseInt(cell.dataset.col);
+                    if (!isNaN(col)) {
+                        const playerColor = this.game?.getCurrentPlayer() === 1 ? 'yellow' : 'red';
+                        this.animationManager.showEnhancedColumnPreview(col, playerColor);
+                    }
+                }
+            }, true);
+        }
+        
+        console.log('✅ Enhanced interaction feedback setup complete');
     }
 
     /**
@@ -707,6 +742,53 @@ export class Connect4UI extends BaseGameUI {
         this.updatePlayerIndicator();
         this.updateControls();
         this.updateScores();
+        this.updateDynamicGlasmorphism();
+    }
+    
+    /**
+     * Update dynamic glasmorphism effects based on current game state
+     */
+    updateDynamicGlasmorphism() {
+        if (!this.game || !this.game.initialized) return;
+        
+        try {
+            const currentPlayer = this.game.getCurrentPlayer();
+            const gameContainer = document.querySelector('.game-container');
+            const boardContainer = document.querySelector('.game-board-container');
+            
+            if (gameContainer) {
+                gameContainer.setAttribute('data-current-player', currentPlayer.toString());
+            }
+            
+            if (boardContainer) {
+                boardContainer.setAttribute('data-current-player', currentPlayer.toString());
+            }
+            
+            // Update mouse tracking for glasmorphism effects
+            this.updateMouseTracking();
+            
+            console.log(`🎨 Dynamic glasmorphism updated for player ${currentPlayer}`);
+        } catch (error) {
+            console.warn('⚠️ Dynamic glasmorphism update failed:', error.message);
+        }
+    }
+    
+    /**
+     * Setup mouse tracking for glasmorphism hover effects
+     */
+    updateMouseTracking() {
+        const gameContainer = document.querySelector('.game-container');
+        if (!gameContainer) return;
+        
+        // Add mouse tracking for glasmorphism effects
+        gameContainer.addEventListener('mousemove', (e) => {
+            const rect = gameContainer.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            gameContainer.style.setProperty('--mouse-x', `${x}%`);
+            gameContainer.style.setProperty('--mouse-y', `${y}%`);
+        });
     }
 
     /**
@@ -836,11 +918,11 @@ export class Connect4UI extends BaseGameUI {
         
         this.updateScores();
         
-        // Handle victory with victory line highlighting
+        // Handle victory with premium celebration
         const winnerName = gameData.winner === 1 ? 'Gelb' : (gameData.winner === 2 ? 'Rot' : null);
         if (winnerName && gameData.winner) {
-            // Detect and animate victory line
-            this.detectAndAnimateVictoryLine(gameData.winner);
+            // Detect and animate victory line with premium effects
+            this.detectAndAnimatePremiumVictoryLine(gameData.winner);
             
             // Show game over message after animation starts
             setTimeout(() => {
@@ -1332,8 +1414,8 @@ export class Connect4UI extends BaseGameUI {
             // Update board state first
             this.boardRenderer.updateBoardVisual(row, col, player);
             
-            // Then animate the drop
-            await this.animationManager.animatePieceDrop(col, row, playerColor, isSpecialMove);
+            // Then animate the drop with premium effects
+            await this.animationManager.animatePieceDropWithSound(col, row, playerColor, isSpecialMove);
         } else {
             // Fallback to basic BoardRenderer update
             this.boardRenderer.updateBoardVisual(row, col, player);
@@ -1404,34 +1486,34 @@ export class Connect4UI extends BaseGameUI {
     // ==================== VICTORY LINE HIGHLIGHTING ====================
 
     /**
-     * Detect and animate victory line for the winning player
+     * Detect and animate premium victory line for the winning player
      * @param {number} winner - Winning player (1 or 2)
      */
-    async detectAndAnimateVictoryLine(winner) {
+    async detectAndAnimatePremiumVictoryLine(winner) {
         if (!this.animationManager || !this.boardRenderer) {
-            console.warn('⚠️ Victory line animation requires AnimationManager and BoardRenderer');
+            console.warn('⚠️ Premium victory line animation requires AnimationManager and BoardRenderer');
             return;
         }
 
-        console.log(`🏆 Detecting victory line for player ${winner}`);
+        console.log(`🏆 Detecting premium victory line for player ${winner}`);
         
         try {
             // Detect victory line positions using board analysis
             const winningPositions = this.detectVictoryLinePositions(winner);
             
             if (winningPositions.length >= 4) {
-                console.log(`🎯 Victory line detected:`, winningPositions);
+                console.log(`🎯 Premium victory line detected:`, winningPositions);
                 
-                // Animate the victory line with progressive highlighting
+                // Trigger premium celebration with particles, sound and enhanced victory line
                 const playerColor = winner === 1 ? 'yellow' : 'red';
-                await this.animationManager.animateVictoryLine(winningPositions, playerColor);
+                await this.animationManager.triggerPremiumCelebration(playerColor, winningPositions);
                 
-                console.log(`✨ Victory line animation complete for ${playerColor}`);
+                console.log(`✨ Premium victory celebration complete for ${playerColor}`);
             } else {
                 console.warn('⚠️ Could not detect complete victory line');
             }
         } catch (error) {
-            console.error('❌ Victory line animation failed:', error);
+            console.error('❌ Premium victory line animation failed:', error);
         }
     }
 
