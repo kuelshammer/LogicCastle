@@ -1,0 +1,335 @@
+/**
+ * Gomoku Advanced Animations
+ * Premium visual effects for enhanced gameplay experience
+ * Adapted from Connect4 "Goldstandard"
+ */
+
+/* ===== SMOOTH STONE PLACEMENT PHYSICS ===== */
+
+/* Realistic stone placement animation with bounce physics */
+@keyframes stone-place-realistic {
+  0% {
+    transform: scale(0) rotate(180deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2) rotate(90deg);
+    opacity: 0.8;
+  }
+  80% {
+    transform: scale(0.9) rotate(20deg);
+    opacity: 0.9;
+  }
+  95% {
+    transform: scale(1.05) rotate(-5deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Enhanced stone placement with ripple effect */
+@keyframes stone-place-with-ripple {
+  0% {
+    transform: scale(0) rotate(180deg);
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    transform: scale(1.3) rotate(90deg);
+    opacity: 0.8;
+  }
+  60% {
+    transform: scale(1.3) rotate(90deg);
+    box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+  }
+  80% {
+    transform: scale(0.9) rotate(10deg);
+    opacity: 0.95;
+  }
+  95% {
+    transform: scale(1.08) rotate(-3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Stone placement animations */
+.stone.placing {
+  animation: stone-place-realistic 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stone.placing-special {
+  animation: stone-place-with-ripple 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== ENHANCED HOVER PREVIEW ===== */
+
+.intersection .preview-stone {
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
+}
+
+.intersection:hover .preview-stone {
+  opacity: 0.7;
+  transform: scale(1) rotate(5deg);
+}
+
+.intersection .preview-stone.black {
+  border-color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.intersection .preview-stone.white {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== WINNING LINE ANIMATIONS ===== */
+
+@keyframes winning-line-reveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes winning-stone-celebration {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  25% {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 0 20px #FFD700;
+  }
+  50% {
+    transform: scale(1.1) rotate(-3deg);
+    box-shadow: 0 0 25px #FFD700;
+  }
+  75% {
+    transform: scale(1.15) rotate(2deg);
+    box-shadow: 0 0 20px #FFD700;
+  }
+  100% {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #FFD700;
+  }
+}
+
+.intersection.winning-stone {
+  animation: winning-line-reveal 0.6s ease-out;
+}
+
+.intersection.winning-stone .stone {
+  animation: winning-stone-celebration 1.5s ease-in-out infinite;
+}
+
+/* ===== THREAT DETECTION ANIMATIONS ===== */
+
+@keyframes threat-warning {
+  0% {
+    background: linear-gradient(45deg, #DEB887, #F5DEB3);
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+  }
+  50% {
+    background: linear-gradient(45deg, #FFB6C1, #FFC0CB);
+    box-shadow: 0 0 0 8px rgba(255, 152, 0, 0.3);
+  }
+  100% {
+    background: linear-gradient(45deg, #DEB887, #F5DEB3);
+    box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+  }
+}
+
+@keyframes winning-opportunity {
+  0% {
+    background: linear-gradient(45deg, #DEB887, #F5DEB3);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+  50% {
+    background: linear-gradient(45deg, #98FB98, #90EE90);
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0.4);
+  }
+  100% {
+    background: linear-gradient(45deg, #DEB887, #F5DEB3);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+.intersection.threat-highlight {
+  animation: threat-warning 2s ease-in-out infinite;
+}
+
+.intersection.winning-opportunity {
+  animation: winning-opportunity 2s ease-in-out infinite;
+}
+
+/* ===== LAST MOVE INDICATOR ===== */
+
+@keyframes last-move-indicator {
+  0% {
+    box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(135, 206, 235, 0.9);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+    transform: scale(1);
+  }
+}
+
+.intersection.last-move {
+  animation: last-move-indicator 3s ease-in-out;
+}
+
+/* ===== BOARD INTERACTION EFFECTS ===== */
+
+@keyframes intersection-hover {
+  0% {
+    transform: scale(1);
+    background: linear-gradient(45deg, #DEB887, #F5DEB3);
+  }
+  100% {
+    transform: scale(1.05);
+    background: linear-gradient(45deg, #F0E68C, #FFFFE0);
+  }
+}
+
+.intersection:hover {
+  animation: intersection-hover 0.2s ease-out forwards;
+}
+
+/* ===== CONFETTI AND CELEBRATION EFFECTS ===== */
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-particle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: #FFD700;
+  z-index: 1000;
+  pointer-events: none;
+  animation: confetti-fall 3s linear;
+}
+
+.confetti-particle.red { background: #FF6B6B; }
+.confetti-particle.blue { background: #4ECDC4; }
+.confetti-particle.green { background: #45B7D1; }
+.confetti-particle.yellow { background: #FFA07A; }
+.confetti-particle.purple { background: #DA70D6; }
+
+/* ===== GAME STATE TRANSITIONS ===== */
+
+@keyframes game-over-overlay {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.game-over-overlay {
+  animation: game-over-overlay 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== ASSISTANCE SYSTEM ANIMATIONS ===== */
+
+@keyframes assistance-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.intersection.assistance-highlight {
+  animation: assistance-pulse 2s ease-in-out infinite;
+}
+
+/* ===== BOARD ENTRANCE ANIMATION ===== */
+
+@keyframes board-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.game-board {
+  animation: board-entrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+
+@media (max-width: 768px) {
+  .stone.placing,
+  .stone.placing-special {
+    animation-duration: 0.3s;
+  }
+  
+  .intersection:hover {
+    animation-duration: 0.1s;
+  }
+}
+
+/* ===== ACCESSIBILITY SUPPORT ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  .stone.placing,
+  .stone.placing-special,
+  .intersection:hover,
+  .intersection.threat-highlight,
+  .intersection.winning-opportunity,
+  .intersection.last-move,
+  .intersection.assistance-highlight,
+  .game-board {
+    animation: none;
+  }
+}

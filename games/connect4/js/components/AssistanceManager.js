@@ -201,11 +201,16 @@ export class AssistanceManager {
      * @private
      */
     _highlightCoordinateLabels(col, highlightClass) {
+        console.log(`🔍 Highlighting coordinate labels for column ${col} with class ${highlightClass}`);
+        
         // Highlight top coordinates
         const topCoord = this.elements.topCoords?.querySelector(`[data-col="${col}"]`);
         if (topCoord) {
             topCoord.classList.add(highlightClass);
             this.highlightedElements.add(topCoord);
+            console.log(`✅ Added ${highlightClass} to top coord ${col}`);
+        } else {
+            console.warn(`⚠️ Top coordinate not found for column ${col}. topCoords element:`, this.elements.topCoords);
         }
         
         // Highlight bottom coordinates
@@ -213,6 +218,9 @@ export class AssistanceManager {
         if (bottomCoord) {
             bottomCoord.classList.add(highlightClass);
             this.highlightedElements.add(bottomCoord);
+            console.log(`✅ Added ${highlightClass} to bottom coord ${col}`);
+        } else {
+            console.warn(`⚠️ Bottom coordinate not found for column ${col}. bottomCoords element:`, this.elements.bottomCoords);
         }
     }
 

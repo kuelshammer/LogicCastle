@@ -304,6 +304,7 @@
 }
 
 /* Winning column coordinate styling - GREEN and BOLD */
+.board-coords .coord.winning-column,
 .coord.winning-column {
   color: #4CAF50 !important;
   font-weight: bold !important;
@@ -315,9 +316,11 @@
   box-shadow: 0 0 6px rgba(76, 175, 80, 0.4) !important;
   cursor: pointer !important;
   animation: winning-glow 1.5s ease-in-out infinite alternate !important;
+  transform: scale(1.1) !important;
 }
 
 /* Blocking column coordinate styling - ORANGE and URGENT */
+.board-coords .coord.blocking-column,
 .coord.blocking-column {
   color: #FF9800 !important;
   font-weight: bold !important;
@@ -329,6 +332,7 @@
   box-shadow: 0 0 6px rgba(255, 152, 0, 0.4) !important;
   cursor: pointer !important;
   animation: blocking-glow 1.2s ease-in-out infinite alternate !important;
+  transform: scale(1.1) !important;
 }
 
 @keyframes winning-glow {
@@ -350,6 +354,7 @@
 }
 
 /* Blocked column coordinate styling - GREY and DISABLED */
+.board-coords .coord.blocked-column,
 .coord.blocked-column {
   color: #999 !important;
   text-decoration: line-through !important;
@@ -358,6 +363,7 @@
   background: rgba(0, 0, 0, 0.05) !important;
   border-radius: 4px !important;
   font-weight: normal !important;
+  transform: scale(0.9) !important;
 }
 
 /* Blocked column feedback animation */

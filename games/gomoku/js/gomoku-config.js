@@ -1,8 +1,8 @@
 /**
  * Gomoku UI Configuration
  * 
- * Comprehensive configuration for Gomoku UI modules replacing ~300 lines 
- * of duplicate DOM binding, keyboard, and modal setup code.
+ * Based on Connect4 goldstandard configuration system.
+ * Adapted for 15x15 Gomoku board and 5-in-a-row gameplay.
  */
 
 export const GOMOKU_UI_CONFIG = {
@@ -27,31 +27,26 @@ export const GOMOKU_UI_CONFIG = {
             'undoBtn',
             'resetScoreBtn',
             'helpBtn',
-            'gameHelpBtn',
+            'assistanceBtn',
             
             // Modals
             'helpModal',
-            'gameHelpModal',
             'assistanceModal',
             'closeHelpBtn',
-            'closeGameHelpBtn',
+            'closeAssistanceBtn',
             
             // Game mode
             'gameMode',
             
-            // Coordinate displays
-            'topCoords',
-            'bottomCoords', 
-            'leftCoords',
-            'rightCoords',
-            
-            // Helper checkboxes for assistance system
-            'helpPlayer1Level0',
-            'helpPlayer1Level1',
-            'helpPlayer1Level2',
-            'helpPlayer2Level0',
-            'helpPlayer2Level1',
-            'helpPlayer2Level2'
+            // Player assistance checkboxes
+            'player1-undo',
+            'player2-undo',
+            'player1-threats',
+            'player2-threats',
+            'player1-winning-moves',
+            'player2-winning-moves',
+            'player1-blocked-positions',
+            'player2-blocked-positions'
         ]
     },
 
@@ -64,16 +59,9 @@ export const GOMOKU_UI_CONFIG = {
             closeOnOutsideClick: true
         },
         
-        gameHelp: {
-            id: 'gameHelpModal', 
-            closeKey: 'F2',
-            closeOnEscape: true,
-            closeOnOutsideClick: true
-        },
-        
         assistance: {
             id: 'assistanceModal',
-            closeKey: null, // Managed by assistance system
+            closeKey: 'F2',
             closeOnEscape: true,
             closeOnOutsideClick: false
         }
@@ -82,8 +70,8 @@ export const GOMOKU_UI_CONFIG = {
     // Keyboard Shortcuts Configuration
     keyboard: {
         // Function keys
-        'F1': 'toggleHelp',
-        'F2': 'toggleGameHelp', 
+        'F1': 'toggleModal_help',
+        'F2': 'toggleModal_assistance', 
         'F3': 'resetScore',
         
         // Game controls
@@ -94,156 +82,76 @@ export const GOMOKU_UI_CONFIG = {
         'r': 'resetScore',
         'R': 'resetScore',
         
-        // TEMPORARILY DISABLED: Cursor navigation (WASD) - not implemented yet
-        // 'w': 'moveCursorUp',
-        // 'W': 'moveCursorUp', 
-        // 's': 'moveCursorDown',
-        // 'S': 'moveCursorDown',
-        // 'a': 'moveCursorLeft',
-        // 'A': 'moveCursorLeft',
-        // 'd': 'moveCursorRight',
-        // 'D': 'moveCursorRight',
-        
-        // TEMPORARILY DISABLED: Stone placement actions - not implemented yet
-        // 'x': 'placeCursorStone',
-        // 'X': 'placeCursorStone',
-        // ' ': 'showCursor', // Spacebar to activate cursor
-        
-        // TEMPORARILY DISABLED: Navigation controls - not implemented yet
-        // 'Tab': 'toggleCursor',
-        // 'Escape': 'closeModalOrHideCursor',
-        
         // Ctrl combinations
         'Ctrl+z': 'undoMove',
         'Ctrl+Z': 'undoMove',
-        'Ctrl+r': 'newGame',
-        'Ctrl+R': 'newGame'
+        'Ctrl+n': 'newGame',
+        'Ctrl+N': 'newGame'
     },
 
-    // Message System Configuration
-    messages: {
-        position: 'top-right',
-        duration: 3000,
-        maxMessages: 5,
+    // Performance Configuration
+    performance: {
+        enableAnimations: true,
+        animationDuration: 300,
         
-        types: {
-            info: { duration: 3000 },
-            success: { duration: 3000 },
-            error: { duration: 5000 },
-            warning: { duration: 4000 },
-            win: { duration: 5000 }
-        }
+        // Intersection rendering optimization
+        useLazyRendering: true,
+        renderBatchSize: 25,  // 25 intersections per batch for 15x15 board
+        
+        // Preview system configuration
+        enableHoverPreviews: true,
+        previewDelay: 50,     // ms delay before showing preview
+        
+        // Assistance system performance
+        assistanceUpdateDelay: 100,  // ms delay for assistance calculations
+        maxHighlightedPositions: 20   // limit highlights for performance
     },
 
-    // Game-specific settings
+    // Game-specific Configuration
     game: {
-        boardSize: 15,
-        animationDuration: 400,
-        aiThinkingDelay: 800,
+        boardSize: 15,        // 15x15 Gomoku board
+        winCondition: 5,      // 5 stones in a row to win
+        enableForbiddenMoves: false,  // Standard Gomoku rules (no forbidden moves)
         
-        // Cursor system settings
-        cursor: {
-            startRow: 7,  // Center of 15x15 board
-            startCol: 7,
-            mode: 'navigate'
-        },
+        // Stone placement rules
+        allowOverwrite: false,
+        requireIntersectionClick: true,
         
-        // Two-stage stone placement
-        placement: {
-            enableTwoStage: true,
-            previewEnabled: true
-        }
-    },
-
-    // Helper system configuration
-    helpers: {
-        enabled: true,
-        players: ['player1', 'player2'],
-        levels: ['level0', 'level1', 'level2'],
+        // AI configuration
+        defaultAILevel: 'medium',
+        aiThinkingTime: 600,   // ms
         
-        // Default settings
-        defaultSettings: {
-            player1: { level0: false, level1: false, level2: false },
-            player2: { level0: false, level1: false, level2: false }
-        }
-    },
-
-    // WASM Integration settings
-    wasm: {
-        enabled: true,
-        autoInitialize: true,
-        enhancedAI: true
-    },
-
-    // Assistance system settings  
-    assistance: {
-        enabled: true,
-        autoInitialize: true,
-        validateMoves: true
-    },
-
-    // Animation settings
-    animations: {
-        duration: 400,
-        easing: 'ease-in-out',
-        stonePlacement: true,
-        cursorMovement: true,
-        modalTransitions: true
-    },
-
-    // Debug settings
-    debug: {
-        enableLogging: false,
-        logCursorMovement: false,
-        logKeyboardEvents: false,
-        logModalEvents: false
+        // Assistance features
+        assistanceFeatures: [
+            'threats',         // Show threat positions  
+            'winning-moves',   // Show winning opportunities
+            'blocked-positions', // Show blocked positions
+            'undo'             // Allow undo moves
+        ]
     }
 };
 
 /**
- * Game mode specific configurations
+ * Create game-mode specific configuration
+ * @param {string} mode - Game mode ('two-player', 'single-player', 'demo')
+ * @returns {Object} Configuration object
  */
-export const GOMOKU_GAME_MODES = {
-    'two-player': {
-        aiEnabled: false,
-        helperDefaults: {
-            player1: { level0: false, level1: false, level2: false },
-            player2: { level0: false, level1: false, level2: false }
-        }
-    },
+export function createGomokuConfig(mode = 'two-player') {
+    const baseConfig = { ...GOMOKU_UI_CONFIG };
     
-    'vs-bot-wasm': {
-        aiEnabled: true,
-        aiType: 'wasm-smart',
-        aiPlayer: 'white',
-        helperDefaults: {
-            player1: { level0: true, level1: false, level2: false }, // Human gets basic help
-            player2: { level0: false, level1: false, level2: false }  // AI doesn't need help
-        }
-    },
-    
-    'vs-bot-wasm-expert': {
-        aiEnabled: true,
-        aiType: 'wasm-expert', 
-        aiPlayer: 'white',
-        helperDefaults: {
-            player1: { level0: true, level1: true, level2: false },  // Human gets more help vs expert
-            player2: { level0: false, level1: false, level2: false }
-        }
+    switch (mode) {
+        case 'single-player':
+            baseConfig.game.aiEnabled = true;
+            baseConfig.game.defaultAILevel = 'medium';
+            baseConfig.performance.aiThinkingTime = 800;
+            break;
+            
+        case 'two-player':
+        default:
+            baseConfig.game.aiEnabled = false;
+            baseConfig.game.autoPlay = false;
+            break;
     }
-};
-
-/**
- * Create a merged configuration for a specific game mode
- * @param {string} gameMode - The game mode identifier
- * @returns {Object} Merged configuration
- */
-export function createGomokuConfig(gameMode = 'two-player') {
-    const modeConfig = GOMOKU_GAME_MODES[gameMode] || GOMOKU_GAME_MODES['two-player'];
     
-    return {
-        ...GOMOKU_UI_CONFIG,
-        mode: gameMode,
-        modeSettings: modeConfig
-    };
+    return baseConfig;
 }

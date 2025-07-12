@@ -736,14 +736,10 @@ export class Connect4UI extends BaseGameUI {
     }
 
     /**
-     * Setup assistance system - LEGACY
-     * ⚠️ DEPRECATED: Replaced by AssistanceManager component
-     * Kept for fallback compatibility only
+     * Setup assistance system - Delegates to AssistanceManager component
      */
     setupAssistanceSystem() {
-        console.warn('⚠️ DEPRECATED: setupAssistanceSystem() replaced by AssistanceManager component');
-        
-        // Fallback to component if available
+        // Delegate to component
         if (this.assistanceManager) {
             this.assistanceManager.setupAssistanceSystem();
             return;
@@ -754,12 +750,10 @@ export class Connect4UI extends BaseGameUI {
 
     /**
      * Update assistance highlights based on current settings (ULTRATHINK)
-     * ⚠️ DEPRECATED: Replaced by AssistanceManager component
+     * Delegates to AssistanceManager component
      */
     updateAssistanceHighlights() {
-        console.warn('⚠️ DEPRECATED: updateAssistanceHighlights() replaced by AssistanceManager component');
-        
-        // Delegate to component if available
+        // Delegate to component
         if (this.assistanceManager) {
             this.assistanceManager.updateAssistanceHighlights();
             return;
@@ -774,12 +768,10 @@ export class Connect4UI extends BaseGameUI {
 
     /**
      * Clear all assistance highlights (ULTRATHINK)
-     * ⚠️ DEPRECATED: Replaced by AssistanceManager component
+     * Delegates to AssistanceManager component
      */
     clearAssistanceHighlights() {
-        console.warn('⚠️ DEPRECATED: clearAssistanceHighlights() replaced by AssistanceManager component');
-        
-        // Delegate to component if available
+        // Delegate to component
         if (this.assistanceManager) {
             this.assistanceManager.clearAssistanceHighlights();
             return;
@@ -1190,12 +1182,10 @@ export class Connect4UI extends BaseGameUI {
 
     /**
      * Update assistance checkboxes based on current settings (ULTRATHINK)
-     * ⚠️ DEPRECATED: Replaced by AssistanceManager component
+     * Delegates to AssistanceManager component
      */
     updateAssistanceCheckboxes() {
-        console.warn('⚠️ DEPRECATED: updateAssistanceCheckboxes() replaced by AssistanceManager component');
-        
-        // Delegate to component if available
+        // Delegate to component
         if (this.assistanceManager) {
             this.assistanceManager.updateAssistanceCheckboxes();
             return;
@@ -1248,12 +1238,10 @@ export class Connect4UI extends BaseGameUI {
 
     /**
      * Toggle assistance setting for specific player and type (ULTRATHINK)
-     * ⚠️ DEPRECATED: Replaced by AssistanceManager component
+     * Delegates to AssistanceManager component
      */
     toggleAssistance(player, type) {
-        console.warn('⚠️ DEPRECATED: toggleAssistance() replaced by AssistanceManager component');
-        
-        // Delegate to component if available
+        // Delegate to component
         if (this.assistanceManager) {
             this.assistanceManager.toggleAssistance(player, type);
             return this.assistanceManager.getAssistanceSetting(player, type);
@@ -1265,10 +1253,9 @@ export class Connect4UI extends BaseGameUI {
 
     /**
      * Get current assistance setting for player and type (ULTRATHINK)
-     * ⚠️ DEPRECATED: Replaced by AssistanceManager component
+     * Delegates to AssistanceManager component
      */
     getAssistanceSetting(player, type) {
-        console.warn('⚠️ DEPRECATED: getAssistanceSetting() replaced by AssistanceManager component');
         
         // Delegate to component if available
         if (this.assistanceManager) {
