@@ -256,28 +256,151 @@
 
     <!-- Game Scripts -->
     <script type="module">
-      import { GomokuUI } from './js/ui-goldstandard.js';
-      
+      // Simple Gomoku Game Engine
+      class SimpleGomokuGame {
+        constructor() {
+          this.board = Array(15).fill().map(() => Array(15).fill(0));
+          this.currentPlayer = 1; // 1 = Black, 2 = White
+          this.gameOver = false;
+          this.winner = null;
+          this.moveHistory = [];
+          this.moveCount = 0;
+        }
+
+        getCurrentPlayer() {
+          return this.currentPlayer;
+        }
+
+        isValidMove(row, col) {
+          if (this.gameOver) return false;
+          if (row < 0 || row >= 15 || col < 0 || col >= 15) return false;
+          return this.board[row][col] === 0;
+        }
+
+        makeMove(row, col) {
+          if (!this.isValidMove(row, col)) {
+            return { success: false, reason: 'Invalid move' };
+          }
+
+          // Place stone
+          this.board[row][col] = this.currentPlayer;
+          this.moveHistory.push({ row, col, player: this.currentPlayer });
+          this.moveCount++;
+
+          // Check for win
+          if (this.checkWin(row, col)) {
+            this.gameOver = true;
+            this.winner = this.currentPlayer;
+          } else if (this.moveCount >= 225) { // Board full
+            this.gameOver = true;
+            this.winner = null; // Draw
+          }
+
+          // Switch player
+          if (!this.gameOver) {
+            this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+          }
+
+          return { success: true, row, col, player: this.board[row][col] };
+        }
+
+        checkWin(row, col) {
+          const player = this.board[row][col];
+          const directions = [
+            [0, 1],   // horizontal
+            [1, 0],   // vertical
+            [1, 1],   // diagonal \
+            [1, -1]   // diagonal /
+          ];
+
+          for (const [dr, dc] of directions) {
+            let count = 1;
+            
+            // Count in positive direction
+            for (let i = 1; i < 5; i++) {
+              const newRow = row + dr * i;
+              const newCol = col + dc * i;
+              if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && 
+                  this.board[newRow][newCol] === player) {
+                count++;
+              } else {
+                break;
+              }
+            }
+            
+            // Count in negative direction
+            for (let i = 1; i < 5; i++) {
+              const newRow = row - dr * i;
+              const newCol = col - dc * i;
+              if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && 
+                  this.board[newRow][newCol] === player) {
+                count++;
+              } else {
+                break;
+              }
+            }
+            
+            if (count >= 5) {
+              return true;
+            }
+          }
+          
+          return false;
+        }
+
+        isGameOver() {
+          return this.gameOver;
+        }
+
+        getWinner() {
+          return this.winner;
+        }
+
+        getBoard() {
+          return this.board;
+        }
+
+        getMoveCount() {
+          return this.moveCount;
+        }
+
+        newGame() {
+          this.board = Array(15).fill().map(() => Array(15).fill(0));
+          this.currentPlayer = 1;
+          this.gameOver = false;
+          this.winner = null;
+          this.moveHistory = [];
+          this.moveCount = 0;
+        }
+
+        undoMove() {
+          if (this.moveHistory.length === 0) {
+            return { success: false, reason: 'No moves to undo' };
+          }
+
+          const lastMove = this.moveHistory.pop();
+          this.board[lastMove.row][lastMove.col] = 0;
+          this.moveCount--;
+          
+          // Reset game state
+          this.gameOver = false;
+          this.winner = null;
+          this.currentPlayer = lastMove.player;
+
+          return { success: true };
+        }
+      }
+
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async () => {
         console.log('🚀 Initializing Gomoku Goldstandard...');
         
         try {
-          // Create game instance (placeholder - will be replaced with actual WASM integration)
-          const game = {
-            initialized: true,
-            getCurrentPlayer: () => 1,
-            makeMove: (row, col) => ({ success: true, row, col }),
-            isValidMove: (row, col) => true,
-            isGameOver: () => false,
-            getWinner: () => null,
-            newGame: () => {},
-            undoMove: () => ({ success: true }),
-            getBoard: () => Array(15).fill().map(() => Array(15).fill(0)),
-            getMoveCount: () => 0
-          };
+          // Create game instance
+          const game = new SimpleGomokuGame();
           
-          // Create UI instance
+          // Import and create UI
+          const { GomokuUI } = await import('./js/ui-goldstandard.js');
           window.ui = new GomokuUI(game);
           
           // Initialize UI
@@ -285,7 +408,8 @@
           
           console.log('✅ Gomoku Goldstandard initialized successfully');
           
-          // Make UI available for debugging
+          // Make available for debugging
+          window.gomokuGame = game;
           window.gomokuUI = window.ui;
           
         } catch (error) {
