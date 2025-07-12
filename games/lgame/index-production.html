@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>L-Game - LogicCastle Production</title>
+    <link rel="stylesheet" href="css/game-production.css?v=20250712_production" />
+    <link rel="stylesheet" href="css/animations.css?v=20250712_production" />
+  </head>
+  <body>
+    <div class="game-container">
+      <!-- Game Header -->
+      <div class="game-header">
+        <div class="header-left">
+          <a href="../../" class="back-button">← Zurück</a>
+          <h1>🔷 L-Game</h1>
+        </div>
+        
+        <div class="header-controls">
+          <div class="l-piece-selector">
+            <button id="selectPlayer1LPiece" class="btn btn-primary player-1-btn">
+              <span class="btn-icon">🔵</span>
+              L-Stück 1
+            </button>
+            <button id="selectPlayer2LPiece" class="btn btn-secondary player-2-btn">
+              <span class="btn-icon">🔴</span>
+              L-Stück 2
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Game Area -->
+      <div class="game-main">
+        <!-- Game Board Area -->
+        <div class="game-board-area">
+          <div class="game-board-container">
+            <!-- Game Status -->
+            <div id="gameStatus" class="game-status">Bereit</div>
+            
+            <!-- Current Player Indicator -->
+            <div id="currentPlayerIndicator" class="current-player-section">
+              <span class="player-indicator active">
+                <span class="player-piece player-1"></span>
+                Spieler 1 ist am Zug
+              </span>
+            </div>
+            
+            <!-- Game Board -->
+            <div class="game-board" id="gameBoard">
+              <!-- 4x4 grid = 16 cells -->
+              <!-- Generated dynamically by JavaScript -->
+            </div>
+            
+            <!-- Interaction Mode Display -->
+            <div class="interaction-mode">
+              <span class="mode-label">Modus:</span>
+              <span class="mode-display" id="interactionModeDisplay">L-Stück platzieren</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Game Info -->
+        <div class="game-info-compact">
+          <!-- Current Player Section -->
+          <div class="current-player-section">
+            <h3>Aktueller Spieler</h3>
+            <div id="currentPlayerDisplay" class="player-indicator active">
+              <span class="player-piece player-1"></span>
+              <span>Spieler 1</span>
+            </div>
+          </div>
+
+          <!-- Game Status Section -->
+          <div class="game-status-section">
+            <h3>Spielstand</h3>
+            <div class="score-display">
+              <div class="score-item player-1">
+                <div class="score-label">Spieler 1</div>
+                <div class="score-value" id="player1Score">0</div>
+              </div>
+              <div class="score-item player-2">
+                <div class="score-label">Spieler 2</div>
+                <div class="score-value" id="player2Score">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Info Section -->
+          <div class="game-info-section">
+            <h3>Spiel-Info</h3>
+            <div class="info-item">
+              <span class="info-label">Züge</span>
+              <span class="info-value" id="moveCounter">0</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Orientierung</span>
+              <span class="info-value" id="orientationDisplay">0°</span>
+            </div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="button-group">
+            <button class="btn btn-primary" id="newGameBtn">
+              <span class="btn-icon">🆕</span>
+              Neues Spiel (N)
+            </button>
+            <button class="btn btn-secondary" id="undoBtn">
+              <span class="btn-icon">↩️</span>
+              Rückgängig (U)
+            </button>
+            <button class="btn btn-tertiary" id="rotateLPieceBtn">
+              <span class="btn-icon">🔄</span>
+              Drehen (R)
+            </button>
+            <button class="btn btn-success" id="assistanceBtn">
+              <span class="btn-icon">💡</span>
+              Spielerhilfen (F2)
+            </button>
+            <button class="btn btn-info" id="helpBtn">
+              <span class="btn-icon">❓</span>
+              Hilfe (F1)
+            </button>
+          </div>
+
+          <!-- Interaction Mode Selector -->
+          <div class="mode-selector">
+            <h4>Interaktion</h4>
+            <div class="mode-buttons">
+              <button class="btn btn-outline mode-btn active" id="lPieceModeBtn" data-mode="L_PIECE">
+                L-Stück (L)
+              </button>
+              <button class="btn btn-outline mode-btn" id="neutralPieceModeBtn" data-mode="NEUTRAL_PIECE">
+                Neutral (Leertaste)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal help-modal">
+        <div class="modal-header">
+          <h2>🔷 L-Game - Spielanleitung</h2>
+          <button class="modal-close" id="closeHelpBtn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="help-content">
+            <div class="help-section">
+              <h3>🎯 Spielziel</h3>
+              <p>
+                Das Ziel ist es, den Gegner zu blockieren, sodass er sein L-Stück nicht mehr bewegen kann.
+                Wer als Erster sein L-Stück nicht mehr bewegen kann, verliert das Spiel.
+              </p>
+            </div>
+
+            <div class="help-section">
+              <h3>🎮 Spielregeln</h3>
+              <ul>
+                <li><strong>Jeder Spieler</strong> hat ein L-förmiges Spielstück</li>
+                <li><strong>Zwei neutrale</strong> runde Spielsteine für beide Spieler</li>
+                <li><strong>Spielfeld:</strong> 4×4 Brett mit 16 Feldern</li>
+                <li><strong>Zugpflicht:</strong> Das L-Stück muss in jedem Zug bewegt werden</li>
+                <li><strong>Optional:</strong> Nach dem L-Stück kann ein neutraler Stein gesetzt werden</li>
+              </ul>
+            </div>
+
+            <div class="help-section">
+              <h3>📋 Zugregeln</h3>
+              <ul>
+                <li>Das L-Stück muss auf eine neue Position bewegt werden</li>
+                <li>Das L-Stück kann gedreht und gespiegelt werden (8 Orientierungen)</li>
+                <li>Alle 4 Felder des L-Stücks müssen frei sein</li>
+                <li>Neutrale Steine können optional nach dem L-Zug gesetzt werden</li>
+                <li>Neutrale Steine dürfen bewegt werden</li>
+              </ul>
+            </div>
+
+            <div class="help-section">
+              <h3>⌨️ Tastenkombinationen</h3>
+              <ul>
+                <li><kbd>F1</kbd> - Diese Hilfe öffnen/schließen</li>
+                <li><kbd>F2</kbd> - Spielerhilfen öffnen/schließen</li>
+                <li><kbd>N</kbd> - Neues Spiel starten</li>
+                <li><kbd>U</kbd> - Letzten Zug rückgängig machen</li>
+                <li><kbd>R</kbd> - L-Stück drehen</li>
+                <li><kbd>1</kbd> - L-Stück Spieler 1 auswählen</li>
+                <li><kbd>2</kbd> - L-Stück Spieler 2 auswählen</li>
+                <li><kbd>L</kbd> - L-Stück Modus</li>
+                <li><kbd>Leertaste</kbd> - Neutral-Stück Modus</li>
+              </ul>
+            </div>
+
+            <div class="help-section">
+              <h3>💡 Strategietipps</h3>
+              <ul>
+                <li>Versuche das Zentrum zu kontrollieren</li>
+                <li>Blockiere die Bewegungsmöglichkeiten des Gegners</li>
+                <li>Nutze neutrale Steine strategisch zur Blockierung</li>
+                <li>Plane mehrere Züge im Voraus</li>
+                <li>Behalte alle 8 L-Stück Orientierungen im Kopf</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="closeHelpFooterBtn">Verstanden</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assistance Modal -->
+    <div class="modal-overlay" id="assistanceModal">
+      <div class="modal assistance-modal">
+        <div class="modal-header">
+          <h2>💡 Spielerhilfen</h2>
+          <button class="modal-close" id="closeAssistanceBtn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="assistance-content">
+            <div class="assistance-section">
+              <h3>🔵 Spieler 1</h3>
+              <div class="assistance-options">
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-hints" class="assist-checkbox" data-assist="hints">
+                  <span class="option-label">💡 Hinweise anzeigen</span>
+                  <span class="option-description">Zeigt mögliche Züge und Strategien</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-valid-moves" class="assist-checkbox" data-assist="valid-moves">
+                  <span class="option-label">✅ Gültige Züge markieren</span>
+                  <span class="option-description">Hebt gültige Platzierungen hervor</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-undo" class="assist-checkbox" data-assist="undo" checked>
+                  <span class="option-label">↩️ Rückgängig erlauben</span>
+                  <span class="option-description">Erlaubt das Rückgängigmachen von Zügen</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="assistance-section">
+              <h3>🔴 Spieler 2</h3>
+              <div class="assistance-options">
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-hints" class="assist-checkbox" data-assist="hints">
+                  <span class="option-label">💡 Hinweise anzeigen</span>
+                  <span class="option-description">Zeigt mögliche Züge und Strategien</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-valid-moves" class="assist-checkbox" data-assist="valid-moves">
+                  <span class="option-label">✅ Gültige Züge markieren</span>
+                  <span class="option-description">Hebt gültige Platzierungen hervor</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-undo" class="assist-checkbox" data-assist="undo" checked>
+                  <span class="option-label">↩️ Rückgängig erlauben</span>
+                  <span class="option-description">Erlaubt das Rückgängigmachen von Zügen</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="assistance-info">
+              <p><strong>Hinweis:</strong> Die Spielerhilfen sind Lernwerkzeuge. Für ein authentisches Spielerlebnis können sie ausgeschaltet werden.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="resetAssistanceBtn">Zurücksetzen</button>
+          <button class="btn btn-primary" id="closeAssistanceFooterBtn">Speichern</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script type="module">
+      // Initialize L-Game when DOM is loaded
+      document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🚀 Initializing L-Game Production...');
+        
+        try {
+          // Import L-Game engine and UI
+          const { LGameEngine } = await import('./js/game.js');
+          const { LGameUI } = await import('./js/ui-production.js');
+          
+          // Create L-Game engine instance
+          const gameEngine = new LGameEngine();
+          await gameEngine.init();
+          
+          // Create UI with game engine
+          window.ui = new LGameUI(gameEngine);
+          
+          // Initialize UI
+          await window.ui.init();
+          
+          console.log('✅ L-Game Production initialized successfully');
+          
+          // Make available for debugging
+          window.lgameEngine = gameEngine;
+          window.lgameUI = window.ui;
+          
+          // Setup additional UI handlers
+          setupAdditionalHandlers();
+          
+        } catch (error) {
+          console.error('❌ Failed to initialize L-Game Production:', error);
+          showInitializationError(error);
+        }
+      });
+      
+      function setupAdditionalHandlers() {
+        // Rotation button
+        const rotateLPieceBtn = document.getElementById('rotateLPieceBtn');
+        if (rotateLPieceBtn) {
+          rotateLPieceBtn.addEventListener('click', () => {
+            if (window.ui) {
+              window.ui.rotateCurrentLPiece();
+            }
+          });
+        }
+        
+        // Mode selector buttons
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        modeButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const mode = btn.dataset.mode;
+            if (window.ui) {
+              window.ui.setInteractionMode(mode);
+            }
+            
+            // Update button states
+            modeButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Update mode display
+            const modeDisplay = document.getElementById('interactionModeDisplay');
+            if (modeDisplay) {
+              modeDisplay.textContent = mode === 'L_PIECE' ? 'L-Stück platzieren' : 'Neutral-Stück platzieren';
+            }
+          });
+        });
+        
+        console.log('✅ Additional L-Game handlers setup complete');
+      }
+      
+      function showInitializationError(error) {
+        const errorDiv = document.createElement('div');
+        errorDiv.innerHTML = `
+          <div style="position: fixed; top: 20px; left: 20px; right: 20px; background: #ef4444; color: white; padding: 15px; border-radius: 8px; z-index: 1000; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+            <h3 style="margin: 0 0 10px 0;">❌ L-Game Fehler</h3>
+            <p style="margin: 0 0 10px 0;"><strong>Fehler:</strong> ${error.message}</p>
+            <p style="margin: 0; font-size: 12px; opacity: 0.9;">Bitte laden Sie die Seite neu (F5).</p>
+          </div>
+        `;
+        document.body.appendChild(errorDiv);
+      }
+    </script>
+  </body>
+</html>
