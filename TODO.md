@@ -219,3 +219,42 @@
 **Strategy:** Fix backend foundation first, then UI
 **Timeline:** Phase 1 (immediate), Phase 2 (this week), Phase 3 (next week)
 **Last Updated:** 2025-07-09 (Nach JavaScript AI Elimination)
+
+---
+
+## 🎯 GOMOKU BITPACKED 3-LAYER FIX - CRITICAL TASK (2025-07-12)
+
+### Problem: Gomoku folgt nicht Connect4's BitPacked-Standard ❌
+- **Critical Issue:** Import errors prevent Gomoku from loading
+- **Root Cause:** Missing 3-layer architecture alignment with Connect4
+- **Impact:** Gomoku completely non-functional
+
+### Connect4's Working 3-Layer Model ✅:
+```
+LAYER 3 (UI/Frontend) ──→ Connect4UI uses Connect4GameBitPacked
+LAYER 2 (Game Logic)  ──→ Connect4GameBitPacked wraps Connect4Game  
+LAYER 1 (WASM/Rust)   ──→ Connect4Game (BitPackedBoard)
+```
+
+### Gomoku Import Errors to Fix:
+1. **Layer 2 Error**: `import { GomokuBoard }` ← **doesn't exist in WASM exports!**
+2. **Layer 2 Error**: `this.board = new GomokuBoard()` ← **wrong class instantiation!**
+3. **Layer 3 Error**: Imports from `game_v2.js` instead of `game-bitpacked.js`
+4. **API Inconsistency**: Method names differ between Connect4 and Gomoku WASM APIs
+
+### Implementation Plan:
+- **STEP 1**: WASM-Layer verification - Check `GomokuGame` export and API alignment
+- **STEP 2**: Game Logic Layer repair - Fix `game-bitpacked.js` import statements  
+- **STEP 3**: UI Layer adaptation - Update `index-goldstandard.html` BitPacked integration
+- **STEP 4**: Component Integration - Adapt UI-Components to BitPacked wrapper pattern
+- **STEP 5**: Testing & Verification - Validate 15x15 board functionality and performance
+
+### Success Criteria:
+- ✅ Gomoku loads without WASM import errors
+- ✅ 15x15 board renders and accepts stone placement
+- ✅ BitPackedBoard<15,15,2> performance optimization active
+- ✅ UI architecture matches Connect4's component pattern
+- ✅ All game functions work (moves, win detection, undo, etc.)
+
+**Priority:** 🔴 **CRITICAL** - Blocks Gomoku functionality completely
+**Estimated Time:** 2-3 hours implementation + testing

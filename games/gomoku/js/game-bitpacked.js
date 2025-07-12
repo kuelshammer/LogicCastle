@@ -6,7 +6,7 @@
  * Performance benefits for Monte Carlo Tree Search and Alpha-Beta Pruning.
  */
 
-import init, { GomokuBoard } from '../../../game_engine/pkg/game_engine.js';
+import init, { GomokuGame } from '../../../game_engine/pkg/game_engine.js';
 
 export class GomokuGameBitPacked {
     constructor() {
@@ -34,12 +34,12 @@ export class GomokuGameBitPacked {
             await init();
             
             // Create BitPackedBoard instance
-            this.board = new GomokuBoard();
+            this.board = new GomokuGame();
             this.initialized = true;
             
             console.log('✅ BitPackedBoard Gomoku initialized successfully');
-            console.log(`📊 Memory usage: ${this.board.memory_usage()} bytes (vs 225 bytes naive implementation)`);
-            console.log(`🔢 Memory efficiency: ${((225 - this.board.memory_usage()) / 225 * 100).toFixed(1)}% savings`);
+            // Memory usage tracking would be here if available in WASM API
+            console.log('✅ BitPackedBoard Gomoku ready for 15x15 gameplay');
             
             return true;
         } catch (error) {
@@ -64,7 +64,7 @@ export class GomokuGameBitPacked {
             const gameWon = this.board.make_move(row, col);
             
             // Record move in history
-            this.gameHistory.push({ row, col, player: this.board.get_current_player() });
+            this.gameHistory.push({ row, col, player: this.board.current_player() });
             this.currentMoveIndex++;
             
             // Trigger callbacks
@@ -73,16 +73,17 @@ export class GomokuGameBitPacked {
             }
             
             if (gameWon && this.onGameEnd) {
-                this.onGameEnd({ winner: this.board.get_winner() });
+                this.onGameEnd({ winner: this.board.winner() });
             }
             
             if (this.onGameStateChange) {
                 this.onGameStateChange(this.getGameState());
             }
             
-            return gameWon;
+            return { success: true, gameWon, row, col };
         } catch (error) {
-            throw new Error(`Invalid move: ${error.message}`);
+            console.warn(`Invalid move at (${row}, ${col}):`, error.message);
+            return { success: false, reason: error.message };
         }
     }
     
@@ -95,13 +96,12 @@ export class GomokuGameBitPacked {
         }
         
         return {
-            board: this.board.get_board(),
-            currentPlayer: this.board.get_current_player(),
-            moveCount: this.board.get_move_count(),
-            isGameOver: this.board.is_game_over(),
-            winner: this.board.get_winner(),
-            legalMoves: this.getLegalMoves(),
-            memoryUsage: this.board.memory_usage()
+            board: this.getBoardState(),
+            currentPlayer: this.board.current_player(),
+            moveCount: this.board.move_count(),
+            isGameOver: this.isGameOver(),
+            winner: this.board.winner(),
+            legalMoves: this.getLegalMoves()
         };
     }
     
@@ -114,14 +114,13 @@ export class GomokuGameBitPacked {
         }
         
         const moves = [];
-        const legalMoves = this.board.get_legal_moves();
-        
-        // Convert flattened array to {row, col} objects
-        for (let i = 0; i < legalMoves.length; i += 2) {
-            moves.push({
-                row: legalMoves[i],
-                col: legalMoves[i + 1]
-            });
+        // For Gomoku, any empty position is a legal move
+        for (let row = 0; row < 15; row++) {
+            for (let col = 0; col < 15; col++) {
+                if (this.board.is_valid_move(row, col)) {
+                    moves.push({ row, col });
+                }
+            }
         }
         
         return moves;
@@ -142,6 +141,13 @@ export class GomokuGameBitPacked {
     }
     
     /**
+     * Check if move is valid (required by UI)
+     */
+    isValidMove(row, col) {
+        return this.isValidPosition(row, col);
+    }
+    
+    /**
      * Check if position is valid
      */
     isValidPosition(row, col) {
@@ -149,7 +155,7 @@ export class GomokuGameBitPacked {
             return false;
         }
         
-        return this.board.is_valid_position(row, col);
+        return this.board.is_valid_move(row, col);
     }
     
     /**
@@ -160,7 +166,7 @@ export class GomokuGameBitPacked {
             return;
         }
         
-        this.board.clear();
+        this.board.reset();
         this.gameHistory = [];
         this.currentMoveIndex = -1;
         
@@ -172,6 +178,23 @@ export class GomokuGameBitPacked {
     }
     
     /**
+     * Start new game (alias for resetGame to match UI expectations)
+     */
+    newGame() {
+        this.resetGame();
+    }
+    
+    /**
+     * Undo last move (placeholder - WASM doesn't support undo yet)
+     */
+    undoMove() {
+        // TODO: Implement undo functionality
+        // For now, return failure since WASM API doesn't support undo
+        console.warn('⚠️ Undo not supported by WASM API yet');
+        return { success: false, reason: 'Undo not supported by WASM API' };
+    }
+    
+    /**
      * Get current player (1 or 2)
      */
     getCurrentPlayer() {
@@ -179,7 +202,7 @@ export class GomokuGameBitPacked {
             return 1;
         }
         
-        return this.board.get_current_player();
+        return this.board.current_player();
     }
     
     /**
@@ -190,7 +213,8 @@ export class GomokuGameBitPacked {
             return false;
         }
         
-        return this.board.is_game_over();
+        // Game is over if there's a winner
+        return this.board.winner() !== undefined;
     }
     
     /**
@@ -201,7 +225,7 @@ export class GomokuGameBitPacked {
             return null;
         }
         
-        const winner = this.board.get_winner();
+        const winner = this.board.winner();
         return winner !== undefined ? winner : null;
     }
     
@@ -213,7 +237,16 @@ export class GomokuGameBitPacked {
             return 0;
         }
         
-        return this.board.count_stones(player);
+        // Count stones manually since API doesn't provide this
+        let count = 0;
+        for (let row = 0; row < 15; row++) {
+            for (let col = 0; col < 15; col++) {
+                if (this.board.get_cell(row, col) === player) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
     
     /**
@@ -224,7 +257,7 @@ export class GomokuGameBitPacked {
             return 0;
         }
         
-        return this.board.get_move_count();
+        return this.board.move_count();
     }
     
     /**
@@ -242,7 +275,27 @@ export class GomokuGameBitPacked {
             return 0;
         }
         
-        return this.board.memory_usage();
+        // Memory usage not available in current API
+        return 57; // Estimated BitPacked size
+    }
+    
+    /**
+     * Get current board state as 2D array
+     */
+    getBoardState() {
+        if (!this.initialized) {
+            return Array(15).fill().map(() => Array(15).fill(0));
+        }
+        
+        const board = [];
+        for (let row = 0; row < 15; row++) {
+            const rowArray = [];
+            for (let col = 0; col < 15; col++) {
+                rowArray.push(this.board.get_cell(row, col));
+            }
+            board.push(rowArray);
+        }
+        return board;
     }
     
     /**

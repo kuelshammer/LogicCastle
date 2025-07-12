@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>5 Gewinnt (Gomoku) - LogicCastle Goldstandard</title>
-    <link rel="stylesheet" href="css/game-new.css?v=20250711_goldstandard" />
-    <link rel="stylesheet" href="css/animations.css?v=20250711_goldstandard" />
+    <title>5 Gewinnt (Gomoku) - LogicCastle Production</title>
+    <link rel="stylesheet" href="css/game-new.css?v=20250711_production" />
+    <link rel="stylesheet" href="css/animations.css?v=20250711_production" />
   </head>
   <body>
     <div class="game-container">
@@ -256,164 +256,33 @@
 
     <!-- Game Scripts -->
     <script type="module">
-      // Simple Gomoku Game Engine
-      class SimpleGomokuGame {
-        constructor() {
-          this.board = Array(15).fill().map(() => Array(15).fill(0));
-          this.currentPlayer = 1; // 1 = Black, 2 = White
-          this.gameOver = false;
-          this.winner = null;
-          this.moveHistory = [];
-          this.moveCount = 0;
-        }
-
-        getCurrentPlayer() {
-          return this.currentPlayer;
-        }
-
-        isValidMove(row, col) {
-          if (this.gameOver) return false;
-          if (row < 0 || row >= 15 || col < 0 || col >= 15) return false;
-          return this.board[row][col] === 0;
-        }
-
-        makeMove(row, col) {
-          if (!this.isValidMove(row, col)) {
-            return { success: false, reason: 'Invalid move' };
-          }
-
-          // Place stone
-          this.board[row][col] = this.currentPlayer;
-          this.moveHistory.push({ row, col, player: this.currentPlayer });
-          this.moveCount++;
-
-          // Check for win
-          if (this.checkWin(row, col)) {
-            this.gameOver = true;
-            this.winner = this.currentPlayer;
-          } else if (this.moveCount >= 225) { // Board full
-            this.gameOver = true;
-            this.winner = null; // Draw
-          }
-
-          // Switch player
-          if (!this.gameOver) {
-            this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
-          }
-
-          return { success: true, row, col, player: this.board[row][col] };
-        }
-
-        checkWin(row, col) {
-          const player = this.board[row][col];
-          const directions = [
-            [0, 1],   // horizontal
-            [1, 0],   // vertical
-            [1, 1],   // diagonal \
-            [1, -1]   // diagonal /
-          ];
-
-          for (const [dr, dc] of directions) {
-            let count = 1;
-            
-            // Count in positive direction
-            for (let i = 1; i < 5; i++) {
-              const newRow = row + dr * i;
-              const newCol = col + dc * i;
-              if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && 
-                  this.board[newRow][newCol] === player) {
-                count++;
-              } else {
-                break;
-              }
-            }
-            
-            // Count in negative direction
-            for (let i = 1; i < 5; i++) {
-              const newRow = row - dr * i;
-              const newCol = col - dc * i;
-              if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && 
-                  this.board[newRow][newCol] === player) {
-                count++;
-              } else {
-                break;
-              }
-            }
-            
-            if (count >= 5) {
-              return true;
-            }
-          }
-          
-          return false;
-        }
-
-        isGameOver() {
-          return this.gameOver;
-        }
-
-        getWinner() {
-          return this.winner;
-        }
-
-        getBoard() {
-          return this.board;
-        }
-
-        getMoveCount() {
-          return this.moveCount;
-        }
-
-        newGame() {
-          this.board = Array(15).fill().map(() => Array(15).fill(0));
-          this.currentPlayer = 1;
-          this.gameOver = false;
-          this.winner = null;
-          this.moveHistory = [];
-          this.moveCount = 0;
-        }
-
-        undoMove() {
-          if (this.moveHistory.length === 0) {
-            return { success: false, reason: 'No moves to undo' };
-          }
-
-          const lastMove = this.moveHistory.pop();
-          this.board[lastMove.row][lastMove.col] = 0;
-          this.moveCount--;
-          
-          // Reset game state
-          this.gameOver = false;
-          this.winner = null;
-          this.currentPlayer = lastMove.player;
-
-          return { success: true };
-        }
-      }
-
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async () => {
-        console.log('🚀 Initializing Gomoku Goldstandard...');
+        console.log('🚀 Initializing Gomoku Production...');
         
         try {
-          // Create game instance
-          const game = new SimpleGomokuGame();
+          // Import BitPacked game and UI
+          const { GomokuGameBitPacked } = await import('./js/game-bitpacked.js');
+          const { GomokuUI } = await import('./js/ui-production.js');
           
-          // Import and create UI
-          const { GomokuUI } = await import('./js/ui-goldstandard.js');
-          window.ui = new GomokuUI(game);
+          // Create BitPacked game instance
+          const bitPackedGame = new GomokuGameBitPacked();
+          await bitPackedGame.init();
+          
+          // Create UI with BitPacked game
+          window.ui = new GomokuUI(bitPackedGame);
           
           // Initialize UI
           await window.ui.init();
           
-          console.log('✅ Gomoku Goldstandard initialized successfully');
+          console.log('✅ Gomoku Production initialized successfully');
           
           // Make available for debugging
-          window.gomokuGame = game;
+          window.gomokuGame = bitPackedGame;
           window.gomokuUI = window.ui;
           
         } catch (error) {
-          console.error('❌ Failed to initialize Gomoku Goldstandard:', error);
+          console.error('❌ Failed to initialize Gomoku Production:', error);
         }
       });
     </script>
