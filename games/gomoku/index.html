@@ -3,37 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>5 Gewinnt (Gomoku) - LogicCastle</title>
-    <link rel="stylesheet" href="css/game.css?v=20250701_vmin_square_fix" />
-    <link rel="stylesheet" href="css/ui.css?v=20250701_no_transform" />
-    <link rel="stylesheet" href="css/wasm-enhancements.css?v=20250701_final_animation_fix" />
-    <link rel="stylesheet" href="css/assistance.css?v=20250702_assistance_system" />
+    <title>5 Gewinnt (Gomoku) - LogicCastle Production</title>
+    <link rel="stylesheet" href="css/game-new.css?v=20250711_production" />
+    <link rel="stylesheet" href="css/animations.css?v=20250711_production" />
   </head>
   <body>
-    <div class="minimal-game-container">
+    <div class="game-container">
+      <!-- Game Header -->
       <div class="game-header">
-        <h1>⚫ Gomoku</h1>
-        <div class="game-controls">
-          <button class="btn btn-primary" id="newGameBtn">Neues Spiel (N)</button>
-          <button class="btn btn-secondary" id="undoBtn">Rückgängig (U)</button>
-          <button class="btn btn-success" id="assistanceBtn">Spielerhilfen (F2)</button>
-          <button class="btn btn-info" id="helpBtn">Spielanleitung (F1)</button>
+        <div class="header-left">
+          <a href="../../" class="back-button">← Zurück</a>
+          <h1>⚫ Gomoku</h1>
+        </div>
+        
+        <div class="header-controls">
+          <div class="game-mode-selector">
+            <select id="gameMode" class="form-select">
+              <option value="two-player">2 Spieler</option>
+              <option value="single-player">Gegen KI</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="game-board-container">
-        <!-- Add required UI elements for UI-Module System -->
-        <div id="gameStatus">Ready</div>
-        <div id="currentPlayerIndicator">
-          <span class="player-indicator">
-            <span class="player-stone black"></span>
-            Black to move
-          </span>
+      <!-- Main Game Area -->
+      <div class="game-main">
+        <!-- Game Board Area -->
+        <div class="game-board-area">
+          <div class="game-board-container">
+            <!-- Game Status -->
+            <div id="gameStatus" class="game-status">Bereit</div>
+            
+            <!-- Current Player Indicator -->
+            <div id="currentPlayerIndicator" class="current-player-section">
+              <span class="player-indicator active">
+                <span class="player-stone black"></span>
+                Schwarz ist am Zug
+              </span>
+            </div>
+            
+            <!-- Game Board -->
+            <div class="game-board" id="gameBoard">
+              <!-- 15x15 grid = 225 intersections -->
+              <!-- Generated dynamically by JavaScript -->
+            </div>
+          </div>
         </div>
-        
-        <div class="game-board" id="gameBoard">
-          <!-- 15x15 grid = 225 intersections -->
-          <!-- Generated dynamically by JavaScript -->
+
+        <!-- Sidebar Game Info -->
+        <div class="game-info-compact">
+          <!-- Current Player Section -->
+          <div class="current-player-section">
+            <h3>Aktueller Spieler</h3>
+            <div id="currentPlayerDisplay" class="player-indicator active">
+              <span class="player-stone black"></span>
+              <span>Schwarz</span>
+            </div>
+          </div>
+
+          <!-- Game Status Section -->
+          <div class="game-status-section">
+            <h3>Spielstand</h3>
+            <div class="score-display">
+              <div class="score-item black">
+                <div class="score-label">Schwarz</div>
+                <div class="score-value" id="blackScore">0</div>
+              </div>
+              <div class="score-item white">
+                <div class="score-label">Weiß</div>
+                <div class="score-value" id="whiteScore">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Info Section -->
+          <div class="game-info-section">
+            <h3>Spiel-Info</h3>
+            <div class="info-item">
+              <span class="info-label">Züge</span>
+              <span class="info-value" id="moveCounter">0</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Modus</span>
+              <span class="info-value" id="gameModeDisplay">2 Spieler</span>
+            </div>
+          </div>
+
+          <!-- Control Buttons -->
+          <div class="button-group">
+            <button class="btn btn-primary" id="newGameBtn">
+              <span class="btn-icon">🆕</span>
+              Neues Spiel (N)
+            </button>
+            <button class="btn btn-secondary" id="undoBtn">
+              <span class="btn-icon">↩️</span>
+              Rückgängig (U)
+            </button>
+            <button class="btn btn-success" id="assistanceBtn">
+              <span class="btn-icon">💡</span>
+              Spielerhilfen (F2)
+            </button>
+            <button class="btn btn-info" id="helpBtn">
+              <span class="btn-icon">❓</span>
+              Hilfe (F1)
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -41,41 +115,60 @@
     <!-- Help Modal -->
     <div class="modal-overlay" id="helpModal">
       <div class="modal help-modal">
-        <h2>⚫ Gomoku - Spielanleitung</h2>
+        <div class="modal-header">
+          <h2>⚫ Gomoku - Spielanleitung</h2>
+          <button class="modal-close" id="closeHelpBtn">&times;</button>
+        </div>
 
-        <div class="help-content">
-          <div class="help-section">
-            <h3>🎯 Spielziel</h3>
-            <p>
-              Platziere fünf deiner Steine in einer geraden Linie (horizontal, vertikal oder diagonal) 
-              auf dem 15x15 Spielfeld!
-            </p>
-          </div>
+        <div class="modal-body">
+          <div class="help-content">
+            <div class="help-section">
+              <h3>🎯 Spielziel</h3>
+              <p>
+                Platziere fünf deiner Steine in einer geraden Linie (horizontal, vertikal oder diagonal) 
+                auf dem 15×15 Spielbrett, um zu gewinnen.
+              </p>
+            </div>
 
-          <div class="help-section">
-            <h3>🎮 Spielablauf</h3>
-            <ul>
-              <li>Schwarz beginnt und setzt den ersten Stein</li>
-              <li>Spieler setzen abwechselnd ihre Steine auf freie Kreuzungspunkte</li>
-              <li>Der erste Spieler mit 5 Steinen in einer Reihe gewinnt</li>
-              <li>Strategisches Platzieren und Blockieren ist entscheidend</li>
-            </ul>
-          </div>
+            <div class="help-section">
+              <h3>🎮 Spielregeln</h3>
+              <ul>
+                <li><strong>Schwarz</strong> beginnt das Spiel</li>
+                <li>Abwechselnd setzen die Spieler ihre Steine auf freie Kreuzungspunkte</li>
+                <li>Gewonnen hat, wer zuerst 5 Steine in einer Reihe hat</li>
+                <li>Reihen können horizontal, vertikal oder diagonal verlaufen</li>
+                <li>Gesetzte Steine können nicht mehr bewegt werden</li>
+              </ul>
+            </div>
 
-          <div class="help-section">
-            <h3>⌨️ Steuerung</h3>
-            <ul>
-              <li><strong>Maus-Klick:</strong> Stein auf Kreuzungspunkt setzen</li>
-              <li><strong>N:</strong> Neues Spiel starten</li>
-              <li><strong>U:</strong> Letzten Zug rückgängig machen</li>
-              <li><strong>F1:</strong> Diese Hilfe anzeigen</li>
-              <li><strong>F2:</strong> Spielerhilfen konfigurieren</li>
-            </ul>
+            <div class="help-section">
+              <h3>⌨️ Tastenkombinationen</h3>
+              <ul>
+                <li><kbd>F1</kbd> - Diese Hilfe öffnen/schließen</li>
+                <li><kbd>F2</kbd> - Spielerhilfen öffnen/schließen</li>
+                <li><kbd>N</kbd> - Neues Spiel starten</li>
+                <li><kbd>U</kbd> - Letzten Zug rückgängig machen</li>
+                <li><kbd>Strg+Z</kbd> - Letzten Zug rückgängig machen</li>
+                <li><kbd>1-9</kbd> - Spalte 1-9 fokussieren</li>
+                <li><kbd>0</kbd> - Spalte 10 fokussieren</li>
+                <li><kbd>Q-T</kbd> - Spalten 11-15 fokussieren</li>
+              </ul>
+            </div>
+
+            <div class="help-section">
+              <h3>💡 Strategietipps</h3>
+              <ul>
+                <li>Kontrolliere das Zentrum des Brettes</li>
+                <li>Erstelle mehrere Bedrohungen gleichzeitig</li>
+                <li>Blockiere gegnerische Dreier-Reihen</li>
+                <li>Nutze die Spielerhilfen zum Lernen</li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div class="modal-buttons">
-          <button class="btn btn-primary" id="closeHelpBtn">Verstanden</button>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="closeHelpFooterBtn">Verstanden</button>
         </div>
       </div>
     </div>
@@ -83,158 +176,115 @@
     <!-- Assistance Modal -->
     <div class="modal-overlay" id="assistanceModal">
       <div class="modal assistance-modal">
-        <h2>🎛️ Gomoku Spielerhilfen</h2>
+        <div class="modal-header">
+          <h2>💡 Spielerhilfen</h2>
+          <button class="modal-close" id="closeAssistanceBtn">&times;</button>
+        </div>
 
-        <div class="help-content">
-          <div class="help-section">
-            <h3>🔧 Verfügbare Hilfen</h3>
-            <ul>
-              <li><strong>Zug rückgängig:</strong> Letzte Züge rückgängig machen</li>
-              <li><strong>Bedrohungen anzeigen:</strong> Gegnerische 4er-Reihen hervorheben</li>
-              <li><strong>Gewinnzüge markieren:</strong> Direkte Gewinnmöglichkeiten zeigen</li>
-              <li><strong>Strategische Hinweise:</strong> Empfohlene Züge anzeigen</li>
-            </ul>
-          </div>
+        <div class="modal-body">
+          <div class="assistance-content">
+            <div class="assistance-section">
+              <h3>⚫ Spieler 1 (Schwarz)</h3>
+              <div class="assistance-options">
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-threats" class="assist-checkbox" data-assist="threats">
+                  <span class="option-label">🚨 Bedrohungen anzeigen</span>
+                  <span class="option-description">Zeigt Positionen, wo der Gegner gewinnen könnte</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-winning-moves" class="assist-checkbox" data-assist="winning-moves">
+                  <span class="option-label">🏆 Gewinnzüge anzeigen</span>
+                  <span class="option-description">Zeigt Positionen für sofortige Siege</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-blocked-positions" class="assist-checkbox" data-assist="blocked-positions">
+                  <span class="option-label">🚫 Blockierte Positionen</span>
+                  <span class="option-description">Zeigt ungünstige oder blockierte Züge</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player1-undo" class="assist-checkbox" data-assist="undo">
+                  <span class="option-label">↩️ Rückgängig erlauben</span>
+                  <span class="option-description">Erlaubt das Rückgängigmachen von Zügen</span>
+                </label>
+              </div>
+            </div>
 
-          <div class="help-section">
-            <h3>ℹ️ Hinweise</h3>
-            <ul>
-              <li>Spielerhilfen sind optional und können jederzeit aktiviert werden</li>
-              <li>Hilfen beeinflussen nur die Anzeige, nicht die Spiellogik</li>
-              <li>Ideal für Lernende und Strategieentwicklung</li>
-            </ul>
+            <div class="assistance-section">
+              <h3>⚪ Spieler 2 (Weiß)</h3>
+              <div class="assistance-options">
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-threats" class="assist-checkbox" data-assist="threats">
+                  <span class="option-label">🚨 Bedrohungen anzeigen</span>
+                  <span class="option-description">Zeigt Positionen, wo der Gegner gewinnen könnte</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-winning-moves" class="assist-checkbox" data-assist="winning-moves">
+                  <span class="option-label">🏆 Gewinnzüge anzeigen</span>
+                  <span class="option-description">Zeigt Positionen für sofortige Siege</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-blocked-positions" class="assist-checkbox" data-assist="blocked-positions">
+                  <span class="option-label">🚫 Blockierte Positionen</span>
+                  <span class="option-description">Zeigt ungünstige oder blockierte Züge</span>
+                </label>
+                
+                <label class="assistance-option">
+                  <input type="checkbox" id="player2-undo" class="assist-checkbox" data-assist="undo">
+                  <span class="option-label">↩️ Rückgängig erlauben</span>
+                  <span class="option-description">Erlaubt das Rückgängigmachen von Zügen</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="assistance-info">
+              <p><strong>Hinweis:</strong> Die Spielerhilfen sind Lernwerkzeuge. Für ein authentisches Spielerlebnis können sie ausgeschaltet werden.</p>
+            </div>
           </div>
         </div>
 
-        <div class="modal-buttons">
-          <button class="btn btn-primary" id="closeAssistanceBtn">Schließen</button>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="resetAssistanceBtn">Zurücksetzen</button>
+          <button class="btn btn-primary" id="closeAssistanceFooterBtn">Speichern</button>
         </div>
       </div>
     </div>
 
-    <!-- Load WASM and initialize game modules -->
+    <!-- Game Scripts -->
     <script type="module">
-      import init, { Game, Player, GomokuBoard } from '../../game_engine/pkg/game_engine.js';
-      import { GomokuGame } from './js/game_v2.js';
-      import { GomokuUINew } from './js/ui-new.js';
-      import { EnhancedGobangAI } from './js/ai-enhanced.js';
-      import { GomokuAssistanceSystem } from './js/assistance-system.js';
-      import { WasmGomokuIntegration } from './js/wasm-integration.js';
-      import { BitPackedGomokuIntegration } from './js/bitpacked-integration.js';
-
-      // Progressive WASM loading strategy for GitHub Pages compatibility
-      async function initWasmWithFallback() {
-        // Detect environment for optimal loading strategy
-        const isGitHubPages = window.location.hostname.includes('github.io') || 
-                             window.location.hostname.includes('pages.dev');
-        
-        console.log(`🌐 Environment detected: ${isGitHubPages ? 'GitHub Pages' : 'Local Development'}`);
+      // Initialize game when DOM is loaded
+      document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🚀 Initializing Gomoku Production...');
         
         try {
-          if (isGitHubPages) {
-            // GitHub Pages strategy: Use fetch + instantiate (bypasses MIME type issues)
-            console.log('🔧 Using GitHub Pages compatible WASM loading...');
-            await init();
-          } else {
-            // Local development: Use standard streaming (optimal performance)
-            console.log('🚀 Using streaming WASM loading for local development...');
-            await init();
-          }
+          // Import BitPacked game and UI
+          const { GomokuGameBitPacked } = await import('./js/game-bitpacked.js');
+          const { GomokuUI } = await import('./js/ui-production.js');
           
-          console.log('✅ WASM module initialized successfully');
-          return true;
-        } catch (error) {
-          console.error('❌ WASM initialization failed:', error);
-          throw error;
-        }
-      }
-
-      async function initializeGomoku() {
-        try {
-          // Initialize WASM module with fallback strategy
-          await initWasmWithFallback();
+          // Create BitPacked game instance
+          const bitPackedGame = new GomokuGameBitPacked();
+          await bitPackedGame.init();
           
-          // Make WASM classes available globally for compatibility
-          window.WasmGame = Game;
-          window.WasmPlayer = Player;
+          // Create UI with BitPacked game
+          window.ui = new GomokuUI(bitPackedGame);
           
-          // Initialize game - handle both pre-loaded and post-loaded DOM states
-          async function initializeGameUI() {
-            console.log('🎮 Starting minimal game UI initialization...');
-            
-            try {
-              console.log('🎯 Creating GomokuGame...');
-              const game = new GomokuGame();
-              
-              console.log('🦀 Initializing game WASM...');
-              await game.init(); // Initialize WASM
-              
-              console.log('🎨 Creating GomokuUINew...');
-              const ui = new GomokuUINew(game);
-              
-              console.log('🔧 Initializing UI...');
-              await ui.init();
-              
-              // Make objects globally available for debugging and integration
-              console.log('🌐 Making objects globally available...');
-              window.game = game;
-              window.ui = ui;
-              
-              console.log('✅ Game and UI initialization complete!');
-              
-              // Crosshair system testing functions
-              window.testCrosshair = () => ui.testCrosshairPositions();
-              window.validateLines = () => ui.validateLineAlignment();
-              
-              // Initialize WASM integration for move analysis dashboard
-              try {
-                console.log('🔧 Initializing WASM Integration...');
-                const wasmIntegration = new WasmGomokuIntegration(ui);
-                ui.wasmIntegration = wasmIntegration;
-                
-                // CRITICAL: Initialize the WASM engine
-                await wasmIntegration.initializeWasmEngine();
-                
-                console.log('✅ WASM Integration enabled');
-                
-                // Initialize BitPackedBoard integration for performance optimization
-                console.log('⚡ Initializing BitPackedBoard Integration...');
-                const bitPackedIntegration = new BitPackedGomokuIntegration(ui);
-                ui.bitPackedIntegration = bitPackedIntegration;
-                
-                console.log('⚡ BitPackedBoard Integration enabled');
-              } catch (integrationError) {
-                console.warn('⚠️ WASM Integration disabled due to conflicts:', integrationError.message);
-              }
-              
-            } catch (error) {
-              console.error('❌ Game/UI initialization failed:', error);
-              console.error('Error stack:', error.stack);
-              throw error;
-            }
-            
-            console.log('🎮 Minimal Gomoku initialized with ES6 modules + WASM integration');
-          }
+          // Initialize UI
+          await window.ui.init();
           
-          // Call initialization immediately if DOM is ready, or wait for it
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeGameUI);
-          } else {
-            // DOM is already ready, initialize immediately
-            await initializeGameUI();
-          }
+          console.log('✅ Gomoku Production initialized successfully');
+          
+          // Make available for debugging
+          window.gomokuGame = bitPackedGame;
+          window.gomokuUI = window.ui;
           
         } catch (error) {
-          console.error('❌ Failed to initialize Gomoku WASM:', error);
-          
-          // Graceful degradation: Keep UI structure, show WASM status
-          document.addEventListener('DOMContentLoaded', () => {
-            console.log('🛡️ Graceful degradation activated - minimal UI preserved');
-          });
+          console.error('❌ Failed to initialize Gomoku Production:', error);
         }
-      }
-      
-      initializeGomoku().catch(console.error);
+      });
     </script>
   </body>
 </html>
