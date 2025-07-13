@@ -1,32 +1,34 @@
 /**
- * LGameUI - L-Game Production UI Controller
+ * LGameUI - L-Game Production UI Controller with BitPacked Engine
  * 
- * Adapted from Connect4 goldstandard UI system for L-Game.
- * Implements the complete 3-layer architecture with component-based design.
+ * Implements the complete 3-layer architecture with BitPacked WASM integration.
+ * Following Connect4 goldstandard pattern for L-Game.
  * 
  * Architecture:
- * - LAYER 1: WASM/Rust (LGameEngine via game.js)
+ * - LAYER 1: WASM/Rust (3x BitPackedBoard<4,4,1> via LGameEngineBitPacked)
  * - LAYER 2: Game Logic/JavaScript (ui-production.js)
  * - LAYER 3: UI/Frontend (components + interactions)
  * 
  * Features:
- * - L-piece placement and rotation
- * - Neutral piece placement
- * - Game state management
- * - Victory detection and celebration
- * - Player assistance system
+ * - L-piece placement with 8 orientations
+ * - Neutral piece movement
+ * - BitPacked game state management
+ * - Blockade victory detection
+ * - Performance tracking
  * - Keyboard shortcuts
  * - Modal system
  */
 
-// Import L-Game specific components
+// Import BitPacked engine and L-Game specific components
+import { LGameEngineBitPacked } from './LGameEngineBitPacked.js';
 import { LGameBoardRenderer } from './components/LGameBoardRenderer.js';
 import { LGameInteractionHandler } from './components/LGameInteractionHandler.js';
 import { LGameAnimationManager } from './components/LGameAnimationManager.js';
 
 export class LGameUI {
-    constructor(gameEngine) {
-        this.gameEngine = gameEngine;
+    constructor(gameEngine = null) {
+        // Initialize BitPacked engine if none provided
+        this.gameEngine = gameEngine || new LGameEngineBitPacked();
         this.isInitialized = false;
         
         // Component instances
@@ -35,15 +37,19 @@ export class LGameUI {
         this.animationManager = null;
         
         // Game state
-        this.currentPlayer = 1;
+        this.currentPlayer = 1; // 1=Yellow, 2=Red
         this.gameOver = false;
         this.moveCount = 0;
         this.gameHistory = [];
         
-        // Interaction state
+        // L-Game specific interaction state
         this.selectedLPiece = null;
         this.interactionMode = 'L_PIECE'; // 'L_PIECE' or 'NEUTRAL_PIECE'
-        this.currentOrientation = 0;
+        this.currentOrientation = 0; // 0-7 for L-piece orientations
+        
+        // Move phases
+        this.movePhase = 'l-piece'; // 'l-piece' → 'neutral' → 'complete'
+        this.pendingNeutralMove = null;
         
         // Player assistance settings
         this.assistanceSettings = {
@@ -62,17 +68,27 @@ export class LGameUI {
         // Score tracking
         this.scores = { player1: 0, player2: 0 };
         
-        console.log('🎮 L-Game UI initialized with production components');
+        // Performance tracking
+        this.performanceStats = {
+            totalMoves: 0,
+            averageMoveTime: 0,
+            memoryUsage: 0
+        };
+        
+        console.log('🧩 L-Game UI initialized with BitPacked engine');
     }
 
     /**
-     * Initialize the complete UI system
+     * Initialize the complete UI system with BitPacked engine
      */
     async init() {
         try {
-            console.log('🚀 Initializing L-Game Production UI...');
+            console.log('🚀 Initializing L-Game Production UI with BitPacked engine...');
             
-            // Initialize core components
+            // Initialize BitPacked game engine first
+            await this.initializeBitPackedEngine();
+            
+            // Initialize core UI components
             await this.initializeComponents();
             
             // Setup board rendering
@@ -90,11 +106,14 @@ export class LGameUI {
             // Setup modal system
             this.setupModalSystem();
             
+            // Setup game engine event listeners
+            this.setupGameEngineEvents();
+            
             // Initialize game state
             this.initializeGameState();
             
             this.isInitialized = true;
-            console.log('✅ L-Game Production UI fully initialized');
+            console.log('✅ L-Game Production UI with BitPacked engine fully initialized');
             
             return true;
             
@@ -102,6 +121,21 @@ export class LGameUI {
             console.error('❌ L-Game UI initialization failed:', error);
             this.showMessage('UI-System konnte nicht geladen werden.', 'error');
             return false;
+        }
+    }
+
+    /**
+     * Initialize BitPacked game engine
+     * @private
+     */
+    async initializeBitPackedEngine() {
+        if (!this.gameEngine.initialized) {
+            console.log('🧩 Initializing BitPacked L-Game engine...');
+            await this.gameEngine.init();
+            
+            // Update performance stats
+            this.performanceStats = this.gameEngine.getPerformanceStats();
+            console.log('✅ BitPacked engine initialized:', this.performanceStats);
         }
     }
 
@@ -263,6 +297,35 @@ export class LGameUI {
     }
 
     /**
+     * Setup game engine event listeners
+     * @private
+     */
+    setupGameEngineEvents() {
+        // Listen to BitPacked engine events
+        this.gameEngine.on('move', (data) => {
+            this.onEngineMove(data);
+        });
+
+        this.gameEngine.on('lPieceMove', (data) => {
+            this.onEngineLPieceMove(data);
+        });
+
+        this.gameEngine.on('neutralMove', (data) => {
+            this.onEngineNeutralMove(data);
+        });
+
+        this.gameEngine.on('gameOver', (data) => {
+            this.onEngineGameOver(data);
+        });
+
+        this.gameEngine.on('newGame', (data) => {
+            this.onEngineNewGame(data);
+        });
+
+        console.log('✅ Game engine events setup complete');
+    }
+
+    /**
      * Handle cell click for L-Game moves
      * @private
      */
@@ -311,75 +374,85 @@ export class LGameUI {
     }
 
     /**
-     * Place L-piece on the board
+     * Place L-piece on the board using BitPacked engine
      * @private
      */
     async placeLPiece(anchorRow, anchorCol, player, orientation) {
-        // Calculate L-piece positions
-        const positions = this.calculateLPiecePositions(anchorRow, anchorCol, orientation);
-        
-        // Validate move with game engine
-        const isValid = await this.gameEngine.isValidLPieceMove(player, positions);
-        if (!isValid) {
-            this.showMessage('Ungültiger L-Stück Zug!', 'warning');
-            return;
+        try {
+            // Make move directly with BitPacked engine
+            const result = this.gameEngine.makeMove(anchorRow, anchorCol, orientation);
+            
+            // Animate L-piece placement
+            if (this.animationManager) {
+                const positions = this.calculateLPiecePositions(anchorRow, anchorCol, orientation);
+                await this.animationManager.animateLPiecePlacement(positions, player, orientation);
+            }
+            
+            // Update board visualization
+            await this.updateBoardFromEngine();
+            
+            // Update UI state
+            this.moveCount = result.moveNumber;
+            this.currentPlayer = result.currentPlayer;
+            this.gameOver = result.isGameOver;
+            
+            // Update display
+            this.updateGameDisplay();
+            
+            // Check for victory
+            if (result.isGameOver) {
+                await this.handleGameEnd(result.winner);
+            } else {
+                // Proceed to neutral piece phase (optional)
+                this.movePhase = 'neutral';
+                this.updateGameStatus('Neutraler Stein bewegen (optional)');
+            }
+            
+            console.log(`✅ L-piece placed: Player ${this.gameEngine.getPlayerName(player)} at (${anchorRow},${anchorCol}) orientation ${orientation}`);
+            
+        } catch (error) {
+            console.error('❌ L-piece placement failed:', error);
+            this.showMessage(`Ungültiger L-Stück Zug: ${error.message}`, 'warning');
         }
-        
-        // Make move in game engine
-        const result = await this.gameEngine.placeLPiece(player, positions, orientation);
-        if (!result.success) {
-            this.showMessage('Zug konnte nicht ausgeführt werden.', 'error');
-            return;
-        }
-        
-        // Animate L-piece placement
-        await this.animationManager.animateLPiecePlacement(positions, player, orientation);
-        
-        // Update game state
-        this.moveCount++;
-        this.updateGameDisplay();
-        
-        // Check for victory
-        if (result.gameWon) {
-            await this.handleGameEnd(player);
-        } else {
-            // Continue to next phase (neutral piece placement if required)
-            this.proceedToNextPhase();
-        }
-        
-        console.log(`✅ L-piece placed: Player ${player} at ${anchorRow},${anchorCol}`);
     }
 
     /**
-     * Place neutral piece on the board
+     * Place neutral piece on the board using BitPacked engine
      * @private
      */
     async placeNeutralPiece(row, col) {
-        // Validate move with game engine
-        const isValid = await this.gameEngine.isValidNeutralPieceMove(row, col);
-        if (!isValid) {
-            this.showMessage('Ungültiger Neutral-Stück Zug!', 'warning');
-            return;
+        try {
+            // Check if there's a neutral piece to move
+            const neutralPieces = this.gameEngine.getNeutralPieces();
+            if (neutralPieces.length === 0) {
+                this.showMessage('Keine neutralen Steine zum Bewegen verfügbar.', 'warning');
+                return;
+            }
+            
+            // For now, move the first neutral piece found to the target position
+            const fromPos = neutralPieces[0];
+            
+            // Make neutral piece move
+            const result = this.gameEngine.moveNeutralPiece(fromPos.row, fromPos.col, row, col);
+            
+            // Animate neutral piece movement
+            if (this.animationManager) {
+                await this.animationManager.animateNeutralPieceMovement(fromPos.row, fromPos.col, row, col);
+            }
+            
+            // Update board visualization
+            await this.updateBoardFromEngine();
+            
+            // Complete the turn
+            this.movePhase = 'complete';
+            this.updateGameStatus('Zug abgeschlossen - nächster Spieler');
+            
+            console.log(`✅ Neutral piece moved from (${fromPos.row},${fromPos.col}) to (${row},${col})`);
+            
+        } catch (error) {
+            console.error('❌ Neutral piece placement failed:', error);
+            this.showMessage(`Neutraler Stein konnte nicht bewegt werden: ${error.message}`, 'warning');
         }
-        
-        // Make move in game engine
-        const result = await this.gameEngine.placeNeutralPiece(row, col);
-        if (!result.success) {
-            this.showMessage('Neutral-Stück konnte nicht platziert werden.', 'error');
-            return;
-        }
-        
-        // Animate neutral piece placement
-        await this.animationManager.animateNeutralPiecePlacement(row, col);
-        
-        // Update game state
-        this.moveCount++;
-        this.updateGameDisplay();
-        
-        // Switch to next player
-        this.switchPlayer();
-        
-        console.log(`✅ Neutral piece placed at ${row},${col}`);
     }
 
     /**
@@ -480,12 +553,12 @@ export class LGameUI {
     }
 
     /**
-     * Start new game
+     * Start new game with BitPacked engine
      */
     async startNewGame() {
         try {
             // Reset game engine
-            await this.gameEngine.newGame();
+            this.gameEngine.newGame();
             
             // Reset UI state
             this.gameOver = false;
@@ -494,24 +567,71 @@ export class LGameUI {
             this.selectedLPiece = 1;
             this.interactionMode = 'L_PIECE';
             this.currentOrientation = 0;
+            this.movePhase = 'l-piece';
+            this.pendingNeutralMove = null;
             this.gameHistory = [];
             
             // Clear visual effects
-            this.animationManager.clearAllEffects();
+            if (this.animationManager) {
+                this.animationManager.clearAllEffects();
+            }
             
             // Reset board
-            await this.boardRenderer.clearBoard();
-            await this.boardRenderer.createBoard();
+            if (this.boardRenderer) {
+                await this.boardRenderer.clearBoard();
+                await this.boardRenderer.createBoard();
+            }
+            
+            // Update board from engine state
+            await this.updateBoardFromEngine();
             
             // Update display
             this.updateGameDisplay();
-            this.updateGameStatus('Neues Spiel gestartet');
+            this.updateGameStatus('Neues L-Game gestartet - L-Stück setzen');
             
-            console.log('✅ New L-Game started');
+            console.log('✅ New L-Game started with BitPacked engine');
             
         } catch (error) {
             console.error('❌ Failed to start new game:', error);
             this.showMessage('Neues Spiel konnte nicht gestartet werden.', 'error');
+        }
+    }
+
+    /**
+     * Update board visualization from BitPacked engine state
+     * @private
+     */
+    async updateBoardFromEngine() {
+        if (!this.gameEngine || !this.boardRenderer) return;
+        
+        const boardState = this.gameEngine.getBoard();
+        if (!boardState) return;
+        
+        // Clear current board
+        await this.boardRenderer.clearBoard();
+        
+        // Render board state
+        for (let row = 0; row < 4; row++) {
+            for (let col = 0; col < 4; col++) {
+                const cellValue = boardState[row][col];
+                if (cellValue !== 0) {
+                    let pieceType, player;
+                    
+                    if (cellValue === 1) {
+                        pieceType = 'l-piece';
+                        player = 1; // Yellow
+                    } else if (cellValue === 2) {
+                        pieceType = 'l-piece';
+                        player = 2; // Red
+                    } else if (cellValue === 3) {
+                        pieceType = 'neutral';
+                        player = null;
+                    }
+                    
+                    // Render piece at position
+                    await this.boardRenderer.renderPiece(row, col, pieceType, player);
+                }
+            }
         }
     }
 
@@ -774,9 +894,76 @@ export class LGameUI {
             this.boardRenderer.destroy();
         }
         
+        // Destroy game engine
+        if (this.gameEngine) {
+            this.gameEngine.destroy();
+        }
+        
         // Clear state
         this.isInitialized = false;
         
         console.log('🧹 L-Game UI destroyed');
+    }
+
+    // ==================== ENGINE EVENT HANDLERS ====================
+
+    /**
+     * Handle move event from BitPacked engine
+     * @private
+     */
+    onEngineMove(data) {
+        console.log('🎯 Engine move event:', data);
+        this.updateBoardFromEngine();
+        this.updateGameDisplay();
+    }
+
+    /**
+     * Handle L-piece move event from BitPacked engine
+     * @private
+     */
+    onEngineLPieceMove(data) {
+        console.log('🧩 Engine L-piece move:', data);
+        this.currentPlayer = data.currentPlayer;
+        this.moveCount = data.moveNumber;
+        
+        if (data.canMoveNeutral) {
+            this.movePhase = 'neutral';
+            this.updateGameStatus('Neutraler Stein bewegen (optional)');
+        } else {
+            this.movePhase = 'complete';
+        }
+        
+        this.updateGameDisplay();
+    }
+
+    /**
+     * Handle neutral move event from BitPacked engine
+     * @private
+     */
+    onEngineNeutralMove(data) {
+        console.log('🔘 Engine neutral move:', data);
+        this.movePhase = 'complete';
+        this.updateGameStatus('Zug abgeschlossen');
+        this.updateBoardFromEngine();
+    }
+
+    /**
+     * Handle game over event from BitPacked engine
+     * @private
+     */
+    onEngineGameOver(data) {
+        console.log('🏁 Engine game over:', data);
+        this.gameOver = true;
+        this.handleGameEnd(data.winner);
+    }
+
+    /**
+     * Handle new game event from BitPacked engine
+     * @private
+     */
+    onEngineNewGame(data) {
+        console.log('🆕 Engine new game:', data);
+        this.updateBoardFromEngine();
+        this.updateGameDisplay();
     }
 }

@@ -286,28 +286,23 @@
     <script type="module">
       // Initialize L-Game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async () => {
-        console.log('🚀 Initializing L-Game Production...');
+        console.log('🚀 Initializing L-Game Production with BitPacked Engine...');
         
         try {
-          // Import L-Game engine and UI
-          const { LGameEngine } = await import('./js/game.js');
+          // Import L-Game BitPacked UI
           const { LGameUI } = await import('./js/ui-production.js');
           
-          // Create L-Game engine instance
-          const gameEngine = new LGameEngine();
-          await gameEngine.init();
+          // Create UI instance (BitPacked engine created internally)
+          window.ui = new LGameUI();
           
-          // Create UI with game engine
-          window.ui = new LGameUI(gameEngine);
-          
-          // Initialize UI
+          // Initialize UI with BitPacked engine
           await window.ui.init();
           
-          console.log('✅ L-Game Production initialized successfully');
+          console.log('✅ L-Game Production with BitPacked engine initialized successfully');
           
           // Make available for debugging
-          window.lgameEngine = gameEngine;
           window.lgameUI = window.ui;
+          window.lgameEngine = window.ui.gameEngine;
           
           // Setup additional UI handlers
           setupAdditionalHandlers();
