@@ -549,6 +549,66 @@ export class GomokuGame {
   get_blocking_moves(): Uint32Array;
 }
 /**
+ * L-Game implementation using 3 separate BitPackedBoard<4,4,1>
+ * Following Connect4 pattern: separate boards for each piece type
+ */
+export class LGame {
+  free(): void;
+  /**
+   * Create new L-Game with initial setup
+   */
+  constructor();
+  /**
+   * Reset game to initial state
+   */
+  reset(): void;
+  /**
+   * Get cell value at position (for JavaScript interface)
+   * Returns: 0=empty, 1=player1, 2=player2, 3=neutral
+   */
+  get_cell(row: number, col: number): number;
+  /**
+   * Get complete board state as flat array (for JavaScript)
+   */
+  get_board_state(): Uint8Array;
+  /**
+   * Get valid moves count (for JavaScript interface)
+   */
+  get_valid_moves_count(): number;
+  /**
+   * Check if current player is blocked (cannot move L-piece)
+   */
+  is_current_player_blocked(): boolean;
+  /**
+   * Make a move (L-piece move is mandatory, neutral move is optional)
+   */
+  make_move(l_to_row: number, l_to_col: number, l_to_orientation: number): void;
+  /**
+   * Move neutral piece (optional part of move)
+   */
+  move_neutral_piece(from_row: number, from_col: number, to_row: number, to_col: number): void;
+  /**
+   * Get game status summary for debugging
+   */
+  get_status_summary(): string;
+  /**
+   * Get current player
+   */
+  readonly current_player: Player;
+  /**
+   * Get move count
+   */
+  readonly move_count: number;
+  /**
+   * Check if game is over
+   */
+  readonly game_over: boolean;
+  /**
+   * Get winner (if any)
+   */
+  readonly winner: Player | undefined;
+}
+/**
  * Position analysis structure for AI decision making
  */
 export class PositionAnalysis {
@@ -698,6 +758,20 @@ export interface InitOutput {
   readonly gomokugame_get_threat_level: (a: number, b: number, c: number, d: number) => number;
   readonly gomokugame_get_winning_moves: (a: number, b: number) => void;
   readonly gomokugame_get_blocking_moves: (a: number, b: number) => void;
+  readonly __wbg_lgame_free: (a: number, b: number) => void;
+  readonly lgame_new: () => number;
+  readonly lgame_current_player: (a: number) => number;
+  readonly lgame_move_count: (a: number) => number;
+  readonly lgame_game_over: (a: number) => number;
+  readonly lgame_winner: (a: number) => number;
+  readonly lgame_reset: (a: number) => void;
+  readonly lgame_get_cell: (a: number, b: number, c: number) => number;
+  readonly lgame_get_board_state: (a: number, b: number) => void;
+  readonly lgame_get_valid_moves_count: (a: number) => number;
+  readonly lgame_is_current_player_blocked: (a: number) => number;
+  readonly lgame_make_move: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly lgame_move_neutral_piece: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly lgame_get_status_summary: (a: number, b: number) => void;
   readonly __wbg_connect4ai_free: (a: number, b: number) => void;
   readonly connect4ai_new: () => number;
   readonly connect4ai_with_difficulty: (a: number) => number;

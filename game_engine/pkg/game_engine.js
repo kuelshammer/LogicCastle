@@ -1770,6 +1770,178 @@ export class GomokuGame {
     }
 }
 
+const LGameFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_lgame_free(ptr >>> 0, 1));
+/**
+ * L-Game implementation using 3 separate BitPackedBoard<4,4,1>
+ * Following Connect4 pattern: separate boards for each piece type
+ */
+export class LGame {
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        LGameFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_lgame_free(ptr, 0);
+    }
+    /**
+     * Create new L-Game with initial setup
+     */
+    constructor() {
+        const ret = wasm.lgame_new();
+        this.__wbg_ptr = ret >>> 0;
+        LGameFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
+     * Get current player
+     * @returns {Player}
+     */
+    get current_player() {
+        const ret = wasm.lgame_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get move count
+     * @returns {number}
+     */
+    get move_count() {
+        const ret = wasm.lgame_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Check if game is over
+     * @returns {boolean}
+     */
+    get game_over() {
+        const ret = wasm.lgame_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get winner (if any)
+     * @returns {Player | undefined}
+     */
+    get winner() {
+        const ret = wasm.lgame_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Reset game to initial state
+     */
+    reset() {
+        wasm.lgame_reset(this.__wbg_ptr);
+    }
+    /**
+     * Get cell value at position (for JavaScript interface)
+     * Returns: 0=empty, 1=player1, 2=player2, 3=neutral
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_cell(row, col) {
+        const ret = wasm.lgame_get_cell(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * Get complete board state as flat array (for JavaScript)
+     * @returns {Uint8Array}
+     */
+    get_board_state() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_get_board_state(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get valid moves count (for JavaScript interface)
+     * @returns {number}
+     */
+    get_valid_moves_count() {
+        const ret = wasm.lgame_get_valid_moves_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Check if current player is blocked (cannot move L-piece)
+     * @returns {boolean}
+     */
+    is_current_player_blocked() {
+        const ret = wasm.lgame_is_current_player_blocked(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Make a move (L-piece move is mandatory, neutral move is optional)
+     * @param {number} l_to_row
+     * @param {number} l_to_col
+     * @param {number} l_to_orientation
+     */
+    make_move(l_to_row, l_to_col, l_to_orientation) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_make_move(retptr, this.__wbg_ptr, l_to_row, l_to_col, l_to_orientation);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Move neutral piece (optional part of move)
+     * @param {number} from_row
+     * @param {number} from_col
+     * @param {number} to_row
+     * @param {number} to_col
+     */
+    move_neutral_piece(from_row, from_col, to_row, to_col) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_move_neutral_piece(retptr, this.__wbg_ptr, from_row, from_col, to_row, to_col);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            if (r1) {
+                throw takeObject(r0);
+            }
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get game status summary for debugging
+     * @returns {string}
+     */
+    get_status_summary() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_get_status_summary(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+}
+
 const PositionAnalysisFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_positionanalysis_free(ptr >>> 0, 1));

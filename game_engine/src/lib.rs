@@ -12,7 +12,7 @@ pub mod ai;
 
 // Re-export key types for public API
 pub use geometry::{BoardGeometry, PatternProvider, QuadraticGrid, Connect4Grid, GomokuGrid, HexGrid, StandardHexGrid, HexEdge};
-pub use games::{Connect4Game, GomokuGame};
+pub use games::{Connect4Game, GomokuGame, LGame};
 pub use ai::{Connect4AI, GomokuAI, PatternEvaluator};
 
 // A macro to provide `println!(..)`-style syntax for `console.log` logging.
