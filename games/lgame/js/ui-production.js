@@ -617,29 +617,38 @@ export class LGameUI {
         // Clear current board
         await this.boardRenderer.clearBoard();
         
-        // Render board state
+        // Group cells by piece type and player
+        const player1Cells = [];
+        const player2Cells = [];
+        const neutralCells = [];
+        
         for (let row = 0; row < 4; row++) {
             for (let col = 0; col < 4; col++) {
                 const cellValue = boardState[row][col];
-                if (cellValue !== 0) {
-                    let pieceType, player;
-                    
-                    if (cellValue === 1) {
-                        pieceType = 'l-piece';
-                        player = 1; // Yellow
-                    } else if (cellValue === 2) {
-                        pieceType = 'l-piece';
-                        player = 2; // Red
-                    } else if (cellValue === 3) {
-                        pieceType = 'neutral';
-                        player = null;
-                    }
-                    
-                    // Render piece at position
-                    await this.boardRenderer.renderPiece(row, col, pieceType, player);
+                if (cellValue === 1) {
+                    player1Cells.push([row, col]);
+                } else if (cellValue === 2) {
+                    player2Cells.push([row, col]);
+                } else if (cellValue === 3) {
+                    neutralCells.push([row, col]);
                 }
             }
         }
+        
+        // Place L-pieces
+        if (player1Cells.length > 0) {
+            this.boardRenderer.placeLPiece('player1', player1Cells, 0);
+        }
+        if (player2Cells.length > 0) {
+            this.boardRenderer.placeLPiece('player2', player2Cells, 0);
+        }
+        
+        // Place neutral pieces
+        neutralCells.forEach(([row, col], index) => {
+            this.boardRenderer.placeNeutralPiece(`neutral${index + 1}`, row, col);
+        });
+        
+        console.log(`🎨 Board updated: ${player1Cells.length} player1, ${player2Cells.length} player2, ${neutralCells.length} neutral pieces`);
     }
 
     /**
