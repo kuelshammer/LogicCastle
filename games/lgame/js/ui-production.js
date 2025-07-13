@@ -109,8 +109,11 @@ export class LGameUI {
             // Setup game engine event listeners
             this.setupGameEngineEvents();
             
-            // Initialize game state
+            // Initialize game state and load initial board configuration
             this.initializeGameState();
+            
+            // Load and display the initial L-Game configuration from WASM
+            await this.loadInitialGameConfiguration();
             
             this.isInitialized = true;
             console.log('✅ L-Game Production UI with BitPacked engine fully initialized');
@@ -370,7 +373,11 @@ export class LGameUI {
      * @private
      */
     handleLPieceSelect(player) {
-        this.selectLPiece(player);
+        // Avoid infinite recursion - set state directly without calling selectLPiece
+        this.selectedLPiece = player;
+        this.setInteractionMode('L_PIECE');
+        this.updateCurrentPlayerDisplay();
+        console.log(`L-piece selected for player ${player} (via interaction handler)`);
     }
 
     /**
@@ -667,6 +674,29 @@ export class LGameUI {
         this.updateGameDisplay();
         this.updateGameStatus('Bereit zum Spielen');
         this.selectLPiece(1); // Start with player 1
+    }
+
+    /**
+     * Load initial L-Game configuration from WASM engine
+     * @private
+     */
+    async loadInitialGameConfiguration() {
+        try {
+            console.log('🎯 Loading initial L-Game configuration...');
+            
+            // Get the initial board state from WASM engine
+            await this.updateBoardFromEngine();
+            
+            // Update game display to reflect initial state
+            this.updateGameDisplay();
+            this.updateGameStatus('L-Game bereit - Spieler 1 beginnt');
+            
+            console.log('✅ Initial L-Game configuration loaded');
+            
+        } catch (error) {
+            console.error('❌ Failed to load initial L-Game configuration:', error);
+            // Continue anyway - game will work with empty board
+        }
     }
 
     /**
