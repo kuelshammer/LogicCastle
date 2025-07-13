@@ -42,6 +42,13 @@ export class LGameBoardRenderer {
     }
 
     /**
+     * Create board method for compatibility with ui-production.js
+     */
+    async createBoard() {
+        return this.initializeBoard();
+    }
+
+    /**
      * Initialize the L-Game board (4x4 grid)
      */
     initializeBoard() {
