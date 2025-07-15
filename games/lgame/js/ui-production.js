@@ -339,12 +339,23 @@ export class LGameUI {
         }
         
         try {
+            // Check if clicked on own L-piece to select it
+            const boardState = this.gameEngine.getBoard();
+            const cellValue = boardState[row][col];
+            
+            if (cellValue === this.currentPlayer) {
+                // Clicked on own L-piece - select it for movement
+                this.selectLPiece(this.currentPlayer);
+                this.showMessage(`L-Stück Spieler ${this.currentPlayer} ausgewählt. Klicken Sie auf eine neue Position.`, 'info');
+                return;
+            }
+            
             if (mode === 'L_PIECE' && selectedPiece) {
                 await this.placeLPiece(row, col, selectedPiece, orientation);
             } else if (mode === 'NEUTRAL_PIECE') {
                 await this.placeNeutralPiece(row, col);
             } else {
-                this.showMessage('Bitte wählen Sie zuerst ein L-Stück aus.', 'warning');
+                this.showMessage('Klicken Sie zuerst auf Ihr L-Stück, dann auf die neue Position.', 'info');
             }
         } catch (error) {
             console.error('❌ Cell click error:', error);

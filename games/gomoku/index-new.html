@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gomoku - LogicCastle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    backdropBlur: {
+                        xs: '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom glassmorphism styles */
+        .glass {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-dark {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Board container with true intersection system */
+        .board-container {
+            position: relative;
+            width: 480px;
+            height: 480px;
+            background: linear-gradient(to bottom right, #f3e5ab, #e6d18a);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Grid lines overlay - positioned exactly */
+        .grid-lines {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 420px;
+            height: 420px;
+            pointer-events: none;
+        }
+        
+        /* Horizontal lines at exact positions */
+        .grid-line-h {
+            position: absolute;
+            width: 420px;
+            height: 1.5px;
+            background: rgba(101, 67, 33, 0.7);
+            left: 0;
+        }
+        
+        /* Vertical lines at exact positions */
+        .grid-line-v {
+            position: absolute;
+            height: 420px;
+            width: 1.5px;
+            background: rgba(101, 67, 33, 0.7);
+            top: 0;
+        }
+        
+        /* Intersection points container */
+        .intersection-points {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            width: 420px;
+            height: 420px;
+        }
+        
+        /* Individual intersection points - absolutely positioned on line crossings */
+        .intersection {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            cursor: crosshair;
+            transition: all 0.2s ease;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+        
+        .intersection::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .intersection:hover::before {
+            background: rgba(255, 255, 255, 0.5);
+            width: 8px;
+            height: 8px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Stone styles */
+        .stone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: placeStone 0.3s ease-out;
+        }
+        
+        .stone-black {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border: 2px solid #374151;
+        }
+        
+        .stone-white {
+            background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+            border: 2px solid #d1d5db;
+        }
+        
+        /* Star points */
+        .star-point {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(101, 67, 33, 0.6);
+        }
+        
+        @keyframes placeStone {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            60% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* Winning line animation */
+        .winning-stone {
+            animation: winningGlow 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes winningGlow {
+            0% { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+            100% { box-shadow: 0 4px 20px rgba(34, 197, 94, 0.6), 0 0 30px rgba(34, 197, 94, 0.4); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <!-- Background decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 p-6 text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <a href="../../" class="glass px-4 py-2 rounded-xl text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                    ← Zurück zu LogicCastle
+                </a>
+                <div class="glass px-4 py-2 rounded-xl">
+                    <select id="gameMode" class="bg-transparent text-white focus:outline-none">
+                        <option value="two-player" class="text-gray-900">2 Spieler</option>
+                        <option value="single-player" class="text-gray-900">Gegen KI</option>
+                    </select>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-2">
+                <span class="inline-block w-8 h-8 bg-gray-900 rounded-full mr-3 align-middle"></span>
+                Gomoku
+            </h1>
+            <p class="text-lg md:text-xl text-white opacity-90">Fünf in einer Reihe gewinnt</p>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="relative z-10 max-w-7xl mx-auto p-6">
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            
+            <!-- Game Board Section (3/4 width on large screens) -->
+            <div class="xl:col-span-3">
+                <div class="glass rounded-3xl p-8 shadow-2xl">
+                    <!-- Current Player Indicator -->
+                    <div class="flex justify-center mb-6">
+                        <div id="currentPlayerIndicator" class="glass-dark px-6 py-3 rounded-2xl">
+                            <div class="flex items-center text-white">
+                                <div id="currentPlayerStone" class="w-6 h-6 rounded-full mr-3 stone-black"></div>
+                                <span id="currentPlayerText" class="text-lg font-semibold">Schwarz ist am Zug</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gomoku Board -->
+                    <div class="flex justify-center">
+                        <div class="relative">
+                            <!-- Board with true intersection-based placement -->
+                            <div class="board-container" id="boardContainer">
+                                <!-- Grid lines overlay -->
+                                <div class="grid-lines" id="gridLines">
+                                    <!-- Lines will be generated by JavaScript -->
+                                </div>
+                                
+                                <!-- Intersection points for clicking -->
+                                <div class="intersection-points" id="gameBoard">
+                                    <!-- 15x15 intersection points will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Info Sidebar -->
+            <div class="space-y-6">
+                <!-- Game Status -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Spielstatus</h3>
+                    <div class="space-y-3 text-white">
+                        <div class="flex justify-between">
+                            <span>Züge gespielt:</span>
+                            <span id="moveCounter" class="font-bold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Modus:</span>
+                            <span id="currentMode" class="font-bold">2 Spieler</span>
+                        </div>
+                        <div class="mt-4 p-3 glass-dark rounded-xl">
+                            <div id="gameStatus" class="text-center font-semibold">Bereit zum Spielen</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Score Board -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Spielstand</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full stone-black mr-2"></div>
+                                <span>Schwarz</span>
+                            </div>
+                            <span id="blackScore" class="text-2xl font-bold">0</span>
+                        </div>
+                        <div class="flex items-center justify-between text-white">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 rounded-full stone-white mr-2"></div>
+                                <span>Weiß</span>
+                            </div>
+                            <span id="whiteScore" class="text-2xl font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Controls -->
+                <div class="glass rounded-2xl p-6 shadow-xl space-y-3">
+                    <h3 class="text-xl font-bold text-white mb-4">Steuerung</h3>
+                    <button id="newGameBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg">
+                        🆕 Neues Spiel (N)
+                    </button>
+                    <button id="undoBtn" class="w-full glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200">
+                        ↶ Rückgängig (U)
+                    </button>
+                    <button id="hintBtn" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg">
+                        💡 Hilfe (F1)
+                    </button>
+                </div>
+                
+                <!-- Game Rules -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Spielregeln</h3>
+                    <div class="text-white text-sm space-y-2 opacity-90">
+                        <p><strong>Ziel:</strong> Schaffe eine ununterbrochene Reihe von 5 Steinen.</p>
+                        <p><strong>Richtungen:</strong> Waagerecht, senkrecht oder diagonal.</p>
+                        <p><strong>Gewinn:</strong> Der erste Spieler mit 5 in einer Reihe gewinnt.</p>
+                        <p><strong>Steuerung:</strong> Klicke auf Schnittpunkte um Steine zu setzen.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Game Scripts -->
+    <script type="module" src="js/gomoku-new.js"></script>
+</body>
+</html>

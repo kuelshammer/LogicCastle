@@ -195,15 +195,15 @@ export class LGameBoardRenderer {
         const piece = document.createElement('div');
         piece.className = `lpiece ${player} placing`;
         
-        // Apply L-piece styles based on player
+        // Apply L-piece styles based on player (L-Game standard colors)
         const playerStyles = {
             player1: {
-                background: 'linear-gradient(135deg, #4CAF50, #2E7D32)',
-                border: '2px solid #1B5E20'
+                background: 'linear-gradient(135deg, #FFD700, #FFC107)', // Gold/Yellow
+                border: '2px solid #F57F17'
             },
             player2: {
-                background: 'linear-gradient(135deg, #2196F3, #1565C0)',
-                border: '2px solid #0D47A1'
+                background: 'linear-gradient(135deg, #F44336, #C62828)', // Red
+                border: '2px solid #B71C1C'
             }
         };
 
@@ -285,8 +285,8 @@ export class LGameBoardRenderer {
             width: '70%',
             height: '70%',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #FF5722, #D84315)',
-            border: '2px solid #BF360C',
+            background: 'linear-gradient(135deg, #757575, #424242)', // Gray
+            border: '2px solid #212121',
             boxShadow: '0 3px 8px rgba(0, 0, 0, 0.3)'
         });
 

@@ -56,7 +56,7 @@ export class LGameInteractionHandler {
      */
     _setupBoardClickHandler() {
         const clickHandler = (event) => {
-            const cell = event.target.closest('.cell');
+            const cell = event.target.closest('.board-cell');
             if (cell) {
                 const row = parseInt(cell.dataset.row);
                 const col = parseInt(cell.dataset.col);
@@ -74,7 +74,7 @@ export class LGameInteractionHandler {
      */
     _setupBoardHoverHandler() {
         const mouseEnterHandler = (event) => {
-            const cell = event.target.closest('.cell');
+            const cell = event.target.closest('.board-cell');
             if (cell) {
                 const row = parseInt(cell.dataset.row);
                 const col = parseInt(cell.dataset.col);
@@ -410,7 +410,7 @@ export class LGameInteractionHandler {
      * Clear cell highlights
      */
     clearCellHighlights(className = 'highlight') {
-        const highlightedCells = this.gameBoard.querySelectorAll(`.cell.${className}`);
+        const highlightedCells = this.gameBoard.querySelectorAll(`.board-cell.${className}`);
         highlightedCells.forEach(cell => cell.classList.remove(className));
     }
 
