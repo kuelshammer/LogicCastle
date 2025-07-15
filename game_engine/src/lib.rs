@@ -12,7 +12,7 @@ pub mod ai;
 
 // Re-export key types for public API
 pub use geometry::{BoardGeometry, PatternProvider, QuadraticGrid, Connect4Grid, GomokuGrid, HexGrid, StandardHexGrid, HexEdge};
-pub use games::{Connect4Game, GomokuGame, LGame};
+pub use games::{Connect4Game, GomokuGame, LGame, TrioGame};
 pub use ai::{Connect4AI, GomokuAI, PatternEvaluator};
 
 // A macro to provide `println!(..)`-style syntax for `console.log` logging.
@@ -1587,13 +1587,13 @@ impl Game {
 }
 
 #[wasm_bindgen]
-pub struct TrioGame {
+pub struct TrioGameLegacy {
     board: Board,
     target_number: u8,
 }
 
 #[wasm_bindgen]
-impl TrioGame {
+impl TrioGameLegacy {
     #[wasm_bindgen(constructor)]
     pub fn new(difficulty: u8) -> Self {
         let mut board = Board::new(7, 7);
@@ -1703,7 +1703,7 @@ impl TrioGame {
         }
 
 
-        TrioGame {
+        TrioGameLegacy {
             board,
             target_number,
         }
@@ -1902,7 +1902,7 @@ pub enum TrioDistribution {
 }
 
 // Extended TrioGame with gap analysis capabilities
-impl TrioGame {
+impl TrioGameLegacy {
     /// Analyze which targets are reachable with current board distribution
     pub fn analyze_reachable_targets(&self) -> ReachabilityAnalysis {
         let mut reachable = Vec::new();
@@ -2118,7 +2118,7 @@ impl TrioGame {
         // Generate a guaranteed reachable target
         let target_number = Self::generate_guaranteed_target(&board);
         
-        TrioGame {
+        TrioGameLegacy {
             board,
             target_number,
         }
@@ -2153,7 +2153,7 @@ impl TrioGame {
 }
 
 #[wasm_bindgen]
-impl TrioGame {
+impl TrioGameLegacy {
     /// Create new game with specific distribution (WASM-exposed)
     pub fn new_with_distribution_wasm(distribution: TrioDistribution) -> Self {
         Self::new_with_distribution(distribution)
@@ -2187,7 +2187,7 @@ impl TrioGame {
         ];
         
         for distribution in distributions.iter() {
-            let game = TrioGame::new_with_distribution(*distribution);
+            let game = TrioGameLegacy::new_with_distribution(*distribution);
             let analysis = game.analyze_reachable_targets();
             
             report.push_str(&format!("Distribution: {:?}\n", distribution));

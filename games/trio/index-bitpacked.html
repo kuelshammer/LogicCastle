@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trio BitPacked - LogicCastle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom glassmorphism and animation styles */
+        .glass {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-dark {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .trio-number-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <!-- Background decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="glass rounded-2xl p-8 text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <h2 class="text-2xl font-bold text-white mb-2">Trio wird geladen...</h2>
+            <p class="text-white opacity-75">BitPacked WASM Engine wird initialisiert</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="relative z-10 p-6 text-center">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-center justify-between mb-4">
+                <a href="../../" class="glass px-4 py-2 rounded-xl text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                    ← Zurück zu LogicCastle
+                </a>
+                <div class="glass px-4 py-2 rounded-xl">
+                    <span class="text-white text-sm">3-Schicht BitPacked</span>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-2">
+                <span class="inline-block w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-full mr-3 align-middle"></span>
+                Trio
+            </h1>
+            <p class="text-lg md:text-xl text-white opacity-90">Finde drei Zahlen: a×b+c oder a×b-c = Ziel</p>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="relative z-10 max-w-7xl mx-auto p-6">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            
+            <!-- Game Board Section -->
+            <div class="xl:col-span-2">
+                <div class="glass rounded-3xl p-8 shadow-2xl">
+                    <!-- Target Display -->
+                    <div class="text-center mb-6">
+                        <div id="targetDisplay" class="glass-dark rounded-2xl p-6 max-w-xs mx-auto">
+                            <div class="text-6xl font-bold text-white" id="targetNumber">0</div>
+                            <div class="text-lg text-gray-300 mt-2">Ziel</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Number Grid -->
+                    <div class="mb-6">
+                        <div id="numberGrid" class="trio-number-grid">
+                            <!-- 7×7 grid will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Selected Numbers Display -->
+                    <div class="glass-dark rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-white mb-4 text-center">Ausgewählte Zahlen</h3>
+                        <div class="grid grid-cols-5 gap-4 items-center max-w-md mx-auto">
+                            <div class="text-center">
+                                <div class="w-12 h-12 glass rounded-xl flex items-center justify-center text-white font-bold text-lg" id="selected1">?</div>
+                                <div class="text-xs text-gray-400 mt-1">a</div>
+                            </div>
+                            <div class="text-center text-white text-2xl">×</div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 glass rounded-xl flex items-center justify-center text-white font-bold text-lg" id="selected2">?</div>
+                                <div class="text-xs text-gray-400 mt-1">b</div>
+                            </div>
+                            <div class="text-center text-white text-2xl" id="operatorSign">±</div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 glass rounded-xl flex items-center justify-center text-white font-bold text-lg" id="selected3">?</div>
+                                <div class="text-xs text-gray-400 mt-1">c</div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="text-3xl font-bold text-white">= <span id="calculatedResult">?</span></div>
+                        </div>
+                        <div class="text-center mt-4" id="selectedDisplay">
+                            <span class="text-gray-400">Keine Auswahl</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Info Sidebar -->
+            <div class="space-y-6">
+                <!-- Game Controls -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Steuerung</h3>
+                    <div class="space-y-3">
+                        <button id="submitSolutionBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg disabled:opacity-50">
+                            ✓ Lösung einreichen
+                        </button>
+                        <button id="clearSelectionBtn" class="w-full glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200">
+                            ✗ Auswahl löschen
+                        </button>
+                        <button id="newGameBtn" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg">
+                            🎲 Neues Spiel (N)
+                        </button>
+                        <button id="showSolutionBtn" class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg">
+                            💡 Lösung anzeigen (S)
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Game Statistics -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Statistiken</h3>
+                    <div class="space-y-3 text-white">
+                        <div class="flex justify-between">
+                            <span>Lösungen gefunden:</span>
+                            <span id="realizedCount" class="font-bold text-green-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Versuche:</span>
+                            <span id="moveCounter" class="font-bold">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Schwierigkeit:</span>
+                            <select id="gameMode" class="bg-transparent text-white border border-white border-opacity-20 rounded px-2 py-1">
+                                <option value="kinderfreundlich" class="text-gray-900">Kinderfreundlich</option>
+                                <option value="vollspektrum" selected class="text-gray-900">Vollspektrum</option>
+                                <option value="strategisch" class="text-gray-900">Strategisch</option>
+                                <option value="analytisch" class="text-gray-900">Analytisch</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Game Status -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Status</h3>
+                    <div class="text-center">
+                        <div id="gameStatus" class="text-white font-semibold">Bereit zum Spielen</div>
+                    </div>
+                </div>
+                
+                <!-- Solution History -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Lösungshistorie</h3>
+                    <div id="solutionHistory" class="space-y-2 max-h-48 overflow-y-auto">
+                        <div class="text-gray-400 text-sm text-center">Noch keine Lösungen</div>
+                    </div>
+                </div>
+                
+                <!-- Performance Info -->
+                <div class="glass rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4">Performance</h3>
+                    <div class="text-sm text-gray-300 space-y-1">
+                        <div>BitPacked Board: <span class="text-green-400">49% weniger Speicher</span></div>
+                        <div>WASM Engine: <span class="text-blue-400">Optimiert</span></div>
+                        <div>3-Schicht Architektur: <span class="text-purple-400">Aktiv</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass rounded-2xl p-8 max-w-md mx-4">
+            <h3 class="text-2xl font-bold text-white mb-4">Trio Hilfe</h3>
+            <div class="text-white space-y-3">
+                <p><strong>Ziel:</strong> Finde drei Zahlen a, b, c so dass a×b+c oder a×b-c gleich der Zielzahl ist.</p>
+                <p><strong>Bedienung:</strong> Klicke auf drei Zahlen im Grid. Die Berechnung erfolgt automatisch.</p>
+                <p><strong>Tastatur:</strong></p>
+                <ul class="list-disc list-inside text-sm space-y-1">
+                    <li>N - Neues Spiel</li>
+                    <li>C - Auswahl löschen</li>
+                    <li>S - Lösung anzeigen</li>
+                    <li>Enter - Lösung einreichen</li>
+                    <li>F1 - Diese Hilfe</li>
+                </ul>
+            </div>
+            <button id="closeHelpBtn" class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-200">
+                Schließen
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Script -->
+    <script type="module">
+        import { TrioUIBitPacked } from './js/TrioUIBitPacked.js';
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                console.log('🚀 Initializing Trio BitPacked...');
+                
+                const trioUI = new TrioUIBitPacked();
+                const success = await trioUI.init();
+                
+                if (success) {
+                    console.log('✅ Trio BitPacked initialized successfully');
+                    
+                    // Hide loading screen
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    if (loadingScreen) {
+                        loadingScreen.style.display = 'none';
+                    }
+                    
+                    // Setup additional button handlers
+                    document.getElementById('newGameBtn').addEventListener('click', () => {
+                        trioUI.newGame();
+                    });
+                    
+                    document.getElementById('clearSelectionBtn').addEventListener('click', () => {
+                        trioUI.clearSelection();
+                    });
+                    
+                    document.getElementById('submitSolutionBtn').addEventListener('click', () => {
+                        trioUI.submitSolution();
+                    });
+                    
+                    document.getElementById('showSolutionBtn').addEventListener('click', () => {
+                        trioUI.showSolution();
+                    });
+                    
+                    // Help modal
+                    document.getElementById('helpBtn')?.addEventListener('click', () => {
+                        document.getElementById('helpModal').classList.remove('hidden');
+                    });
+                    
+                    document.getElementById('closeHelpBtn').addEventListener('click', () => {
+                        document.getElementById('helpModal').classList.add('hidden');
+                    });
+                    
+                    // Keyboard shortcuts
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'F1') {
+                            e.preventDefault();
+                            document.getElementById('helpModal').classList.toggle('hidden');
+                        }
+                    });
+                    
+                    // Store reference for debugging
+                    window.trioUI = trioUI;
+                    
+                } else {
+                    console.error('❌ Failed to initialize Trio BitPacked');
+                    document.getElementById('loadingScreen').innerHTML = `
+                        <div class="glass rounded-2xl p-8 text-center">
+                            <div class="text-red-500 text-6xl mb-4">❌</div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Fehler beim Laden</h2>
+                            <p class="text-white opacity-75">Trio konnte nicht initialisiert werden</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Error initializing Trio:', error);
+                document.getElementById('loadingScreen').innerHTML = `
+                    <div class="glass rounded-2xl p-8 text-center">
+                        <div class="text-red-500 text-6xl mb-4">❌</div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Initialisierungsfehler</h2>
+                        <p class="text-white opacity-75">${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,13 @@
 /* tslint:disable */
 /* eslint-disable */
+/**
+ * Helper function to convert difficulty string to number
+ */
+export function difficulty_to_number(difficulty: string): number;
+/**
+ * Helper function to convert difficulty number to string
+ */
+export function difficulty_to_string(difficulty: number): string;
 export function main(): void;
 /**
  * AI Difficulty levels with variable Stage 4 strategies
@@ -38,6 +46,15 @@ export enum TrioDifficulty {
   Medium = 2,
   Easy = 3,
   VeryEasy = 4,
+}
+/**
+ * Difficulty levels for board generation
+ */
+export enum TrioDifficultyNew {
+  Kinderfreundlich = 1,
+  Vollspektrum = 2,
+  Strategisch = 3,
+  Analytisch = 4,
 }
 export enum TrioDistribution {
   Balanced = 0,
@@ -661,7 +678,64 @@ export class SolutionAnalysis {
   readonly get_subtract_operations: number;
   readonly get_difficulty_score: number;
 }
+/**
+ * Trio Game using BitPackedBoard<7,7,4> for memory efficiency
+ * 
+ * Trio is a mathematical puzzle game where players find combinations
+ * of three numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
+ * 
+ * Features:
+ * - 7×7 board filled with numbers 1-9
+ * - BitPacked storage: 4 bits per cell (supports 0-15, perfect for 1-9)
+ * - Memory efficient: 25 bytes vs 49 bytes naive implementation (49% reduction)
+ * - No AI opponent needed - pure puzzle game
+ */
 export class TrioGame {
+  free(): void;
+  /**
+   * Create new Trio game with specified difficulty
+   */
+  constructor(difficulty: number);
+  /**
+   * Get number at specific board position
+   */
+  get_number(row: number, col: number): number;
+  /**
+   * Get the current target number to achieve
+   */
+  get_target_number(): number;
+  /**
+   * Get current difficulty level
+   */
+  get_difficulty(): number;
+  /**
+   * Validate a trio combination (a×b+c or a×b-c = target)
+   * Returns the calculated result if valid, or -1 if invalid
+   */
+  validate_trio(row1: number, col1: number, row2: number, col2: number, row3: number, col3: number): number;
+  /**
+   * Generate new board with specified difficulty
+   */
+  generate_new_board(difficulty: number): number;
+  /**
+   * Find all possible trio solutions on the current board
+   * Returns array of solutions as [row1, col1, row2, col2, row3, col3, result]
+   */
+  find_all_solutions(): Uint8Array;
+  /**
+   * Get memory usage of the BitPacked board
+   */
+  memory_usage(): number;
+  /**
+   * Get memory efficiency compared to naive implementation
+   */
+  memory_efficiency(): number;
+  /**
+   * Get entire board as flat array for JavaScript
+   */
+  get_board_array(): Uint8Array;
+}
+export class TrioGameLegacy {
   free(): void;
   constructor(difficulty: number);
   get_board(): Int8Array;
@@ -670,7 +744,7 @@ export class TrioGame {
   /**
    * Create new game with specific distribution (WASM-exposed)
    */
-  static new_with_distribution_wasm(distribution: TrioDistribution): TrioGame;
+  static new_with_distribution_wasm(distribution: TrioDistribution): TrioGameLegacy;
   /**
    * Analyze reachable targets (WASM-exposed)
    */
@@ -772,6 +846,19 @@ export interface InitOutput {
   readonly lgame_make_move: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly lgame_move_neutral_piece: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly lgame_get_status_summary: (a: number, b: number) => void;
+  readonly __wbg_triogame_free: (a: number, b: number) => void;
+  readonly triogame_new: (a: number) => number;
+  readonly triogame_get_number: (a: number, b: number, c: number) => number;
+  readonly triogame_get_target_number: (a: number) => number;
+  readonly triogame_get_difficulty: (a: number) => number;
+  readonly triogame_validate_trio: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+  readonly triogame_generate_new_board: (a: number, b: number) => number;
+  readonly triogame_find_all_solutions: (a: number, b: number) => void;
+  readonly triogame_memory_usage: (a: number) => number;
+  readonly triogame_memory_efficiency: (a: number) => number;
+  readonly triogame_get_board_array: (a: number, b: number) => void;
+  readonly difficulty_to_number: (a: number, b: number) => number;
+  readonly difficulty_to_string: (a: number, b: number) => void;
   readonly __wbg_connect4ai_free: (a: number, b: number) => void;
   readonly connect4ai_new: () => number;
   readonly connect4ai_with_difficulty: (a: number) => number;
@@ -856,11 +943,11 @@ export interface InitOutput {
   readonly game_get_dangerous_moves_gobang: (a: number, b: number) => void;
   readonly game_get_winning_moves_gobang: (a: number, b: number) => void;
   readonly game_get_blocking_moves_gobang: (a: number, b: number) => void;
-  readonly __wbg_triogame_free: (a: number, b: number) => void;
-  readonly triogame_new: (a: number) => number;
-  readonly triogame_get_board: (a: number, b: number) => void;
-  readonly triogame_get_target_number: (a: number) => number;
-  readonly triogame_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+  readonly __wbg_triogamelegacy_free: (a: number, b: number) => void;
+  readonly triogamelegacy_new: (a: number) => number;
+  readonly triogamelegacy_get_board: (a: number, b: number) => void;
+  readonly triogamelegacy_get_target_number: (a: number) => number;
+  readonly triogamelegacy_check_combination: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
   readonly __wbg_reachabilityanalysis_free: (a: number, b: number) => void;
   readonly reachabilityanalysis_get_reachable_targets: (a: number, b: number) => void;
   readonly reachabilityanalysis_get_unreachable_targets: (a: number, b: number) => void;
@@ -877,11 +964,11 @@ export interface InitOutput {
   readonly solutionanalysis_get_subtract_operations: (a: number) => number;
   readonly solutionanalysis_get_difficulty_score: (a: number) => number;
   readonly solutionanalysis_summary: (a: number, b: number) => void;
-  readonly triogame_new_with_distribution_wasm: (a: number) => number;
-  readonly triogame_analyze_reachable_targets_wasm: (a: number) => number;
-  readonly triogame_count_solutions_for_target_wasm: (a: number, b: number) => number;
-  readonly triogame_categorize_target_difficulty_wasm: (a: number, b: number) => number;
-  readonly triogame_comprehensive_gap_analysis: (a: number) => void;
+  readonly triogamelegacy_new_with_distribution_wasm: (a: number) => number;
+  readonly triogamelegacy_analyze_reachable_targets_wasm: (a: number) => number;
+  readonly triogamelegacy_count_solutions_for_target_wasm: (a: number, b: number) => number;
+  readonly triogamelegacy_categorize_target_difficulty_wasm: (a: number, b: number) => number;
+  readonly triogamelegacy_comprehensive_gap_analysis: (a: number) => void;
   readonly game_is_terminal: (a: number) => number;
   readonly connect4game_move_count: (a: number) => number;
   readonly connect4game_get_current_player: (a: number) => number;

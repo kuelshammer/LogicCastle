@@ -142,6 +142,39 @@ function getArrayU32FromWasm0(ptr, len) {
     ptr = ptr >>> 0;
     return getUint32ArrayMemory0().subarray(ptr / 4, ptr / 4 + len);
 }
+/**
+ * Helper function to convert difficulty string to number
+ * @param {string} difficulty
+ * @returns {number}
+ */
+export function difficulty_to_number(difficulty) {
+    const ptr0 = passStringToWasm0(difficulty, wasm.__wbindgen_export_2, wasm.__wbindgen_export_3);
+    const len0 = WASM_VECTOR_LEN;
+    const ret = wasm.difficulty_to_number(ptr0, len0);
+    return ret;
+}
+
+/**
+ * Helper function to convert difficulty number to string
+ * @param {number} difficulty
+ * @returns {string}
+ */
+export function difficulty_to_string(difficulty) {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.difficulty_to_string(retptr, difficulty);
+        var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+        var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+        deferred1_0 = r0;
+        deferred1_1 = r1;
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+    }
+}
 
 function _assertClass(instance, klass) {
     if (!(instance instanceof klass)) {
@@ -238,6 +271,16 @@ export const TrioDifficulty = Object.freeze({
     Medium: 2, "2": "Medium",
     Easy: 3, "3": "Easy",
     VeryEasy: 4, "4": "VeryEasy",
+});
+/**
+ * Difficulty levels for board generation
+ * @enum {1 | 2 | 3 | 4}
+ */
+export const TrioDifficultyNew = Object.freeze({
+    Kinderfreundlich: 1, "1": "Kinderfreundlich",
+    Vollspektrum: 2, "2": "Vollspektrum",
+    Strategisch: 3, "3": "Strategisch",
+    Analytisch: 4, "4": "Analytisch",
 });
 /**
  * @enum {0 | 1 | 2 | 3}
@@ -2333,16 +2376,19 @@ export class SolutionAnalysis {
 const TrioGameFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_triogame_free(ptr >>> 0, 1));
-
+/**
+ * Trio Game using BitPackedBoard<7,7,4> for memory efficiency
+ *
+ * Trio is a mathematical puzzle game where players find combinations
+ * of three numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
+ *
+ * Features:
+ * - 7×7 board filled with numbers 1-9
+ * - BitPacked storage: 4 bits per cell (supports 0-15, perfect for 1-9)
+ * - Memory efficient: 25 bytes vs 49 bytes naive implementation (49% reduction)
+ * - No AI opponent needed - pure puzzle game
+ */
 export class TrioGame {
-
-    static __wrap(ptr) {
-        ptr = ptr >>> 0;
-        const obj = Object.create(TrioGame.prototype);
-        obj.__wbg_ptr = ptr;
-        TrioGameFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-    }
 
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -2356,6 +2402,7 @@ export class TrioGame {
         wasm.__wbg_triogame_free(ptr, 0);
     }
     /**
+     * Create new Trio game with specified difficulty
      * @param {number} difficulty
      */
     constructor(difficulty) {
@@ -2365,12 +2412,149 @@ export class TrioGame {
         return this;
     }
     /**
+     * Get number at specific board position
+     * @param {number} row
+     * @param {number} col
+     * @returns {number}
+     */
+    get_number(row, col) {
+        const ret = wasm.triogame_get_number(this.__wbg_ptr, row, col);
+        return ret;
+    }
+    /**
+     * Get the current target number to achieve
+     * @returns {number}
+     */
+    get_target_number() {
+        const ret = wasm.triogame_get_target_number(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get current difficulty level
+     * @returns {number}
+     */
+    get_difficulty() {
+        const ret = wasm.triogame_get_difficulty(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Validate a trio combination (a×b+c or a×b-c = target)
+     * Returns the calculated result if valid, or -1 if invalid
+     * @param {number} row1
+     * @param {number} col1
+     * @param {number} row2
+     * @param {number} col2
+     * @param {number} row3
+     * @param {number} col3
+     * @returns {number}
+     */
+    validate_trio(row1, col1, row2, col2, row3, col3) {
+        const ret = wasm.triogame_validate_trio(this.__wbg_ptr, row1, col1, row2, col2, row3, col3);
+        return ret;
+    }
+    /**
+     * Generate new board with specified difficulty
+     * @param {number} difficulty
+     * @returns {number}
+     */
+    generate_new_board(difficulty) {
+        const ret = wasm.triogame_generate_new_board(this.__wbg_ptr, difficulty);
+        return ret;
+    }
+    /**
+     * Find all possible trio solutions on the current board
+     * Returns array of solutions as [row1, col1, row2, col2, row3, col3, result]
+     * @returns {Uint8Array}
+     */
+    find_all_solutions() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.triogame_find_all_solutions(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get memory usage of the BitPacked board
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.triogame_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get memory efficiency compared to naive implementation
+     * @returns {number}
+     */
+    memory_efficiency() {
+        const ret = wasm.triogame_memory_efficiency(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get entire board as flat array for JavaScript
+     * @returns {Uint8Array}
+     */
+    get_board_array() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.triogame_get_board_array(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+}
+
+const TrioGameLegacyFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_triogamelegacy_free(ptr >>> 0, 1));
+
+export class TrioGameLegacy {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(TrioGameLegacy.prototype);
+        obj.__wbg_ptr = ptr;
+        TrioGameLegacyFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        TrioGameLegacyFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_triogamelegacy_free(ptr, 0);
+    }
+    /**
+     * @param {number} difficulty
+     */
+    constructor(difficulty) {
+        const ret = wasm.triogamelegacy_new(difficulty);
+        this.__wbg_ptr = ret >>> 0;
+        TrioGameLegacyFinalization.register(this, this.__wbg_ptr, this);
+        return this;
+    }
+    /**
      * @returns {Int8Array}
      */
     get_board() {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.triogame_get_board(retptr, this.__wbg_ptr);
+            wasm.triogamelegacy_get_board(retptr, this.__wbg_ptr);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             var v1 = getArrayI8FromWasm0(r0, r1).slice();
@@ -2384,7 +2568,7 @@ export class TrioGame {
      * @returns {number}
      */
     get_target_number() {
-        const ret = wasm.triogame_get_target_number(this.__wbg_ptr);
+        const ret = wasm.triogamelegacy_get_target_number(this.__wbg_ptr);
         return ret;
     }
     /**
@@ -2397,24 +2581,24 @@ export class TrioGame {
      * @returns {boolean}
      */
     check_combination(r1, c1, r2, c2, r3, c3) {
-        const ret = wasm.triogame_check_combination(this.__wbg_ptr, r1, c1, r2, c2, r3, c3);
+        const ret = wasm.triogamelegacy_check_combination(this.__wbg_ptr, r1, c1, r2, c2, r3, c3);
         return ret !== 0;
     }
     /**
      * Create new game with specific distribution (WASM-exposed)
      * @param {TrioDistribution} distribution
-     * @returns {TrioGame}
+     * @returns {TrioGameLegacy}
      */
     static new_with_distribution_wasm(distribution) {
-        const ret = wasm.triogame_new_with_distribution_wasm(distribution);
-        return TrioGame.__wrap(ret);
+        const ret = wasm.triogamelegacy_new_with_distribution_wasm(distribution);
+        return TrioGameLegacy.__wrap(ret);
     }
     /**
      * Analyze reachable targets (WASM-exposed)
      * @returns {ReachabilityAnalysis}
      */
     analyze_reachable_targets_wasm() {
-        const ret = wasm.triogame_analyze_reachable_targets_wasm(this.__wbg_ptr);
+        const ret = wasm.triogamelegacy_analyze_reachable_targets_wasm(this.__wbg_ptr);
         return ReachabilityAnalysis.__wrap(ret);
     }
     /**
@@ -2423,7 +2607,7 @@ export class TrioGame {
      * @returns {SolutionAnalysis}
      */
     count_solutions_for_target_wasm(target) {
-        const ret = wasm.triogame_count_solutions_for_target_wasm(this.__wbg_ptr, target);
+        const ret = wasm.triogamelegacy_count_solutions_for_target_wasm(this.__wbg_ptr, target);
         return SolutionAnalysis.__wrap(ret);
     }
     /**
@@ -2432,7 +2616,7 @@ export class TrioGame {
      * @returns {TrioDifficulty}
      */
     categorize_target_difficulty_wasm(target) {
-        const ret = wasm.triogame_categorize_target_difficulty_wasm(this.__wbg_ptr, target);
+        const ret = wasm.triogamelegacy_categorize_target_difficulty_wasm(this.__wbg_ptr, target);
         return ret;
     }
     /**
@@ -2444,7 +2628,7 @@ export class TrioGame {
         let deferred1_1;
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.triogame_comprehensive_gap_analysis(retptr);
+            wasm.triogamelegacy_comprehensive_gap_analysis(retptr);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             deferred1_0 = r0;
