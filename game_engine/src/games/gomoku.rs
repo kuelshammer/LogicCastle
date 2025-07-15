@@ -361,7 +361,7 @@ impl GomokuGame {
         self.undo_move()
     }
     
-    /// Get AI move suggestion
+    /// Get AI move suggestion (modern API with Option return type)
     #[wasm_bindgen]
     pub fn get_ai_move(&self) -> Vec<usize> {
         if let Some((row, col)) = self.ai.get_best_move(self) {
@@ -369,6 +369,11 @@ impl GomokuGame {
         } else {
             vec![] // Return empty vector if no move found
         }
+    }
+    
+    /// Get AI move suggestion (internal API with proper Option type)
+    pub fn get_ai_move_option(&self) -> Option<(usize, usize)> {
+        self.ai.get_best_move(self)
     }
     
     /// Get AI move suggestion for specific player
@@ -435,6 +440,53 @@ impl GomokuGame {
             }
         }
         moves
+    }
+    
+    /// Analyze position (Connect4-compatible API)
+    #[wasm_bindgen]
+    pub fn analyze_position(&self) -> String {
+        let evaluation = self.ai.evaluate_position(self, self.current_player);
+        let threatening_moves = self.get_threatening_moves();
+        let winning_moves = self.get_winning_moves();
+        let blocking_moves = self.get_blocking_moves();
+        
+        format!(
+            "Position Analysis:\n\
+            Evaluation: {}\n\
+            Threatening moves: {}\n\
+            Winning moves: {}\n\
+            Blocking moves: {}",
+            evaluation,
+            threatening_moves.len() / 2,
+            winning_moves.len() / 2,
+            blocking_moves.len() / 2
+        )
+    }
+    
+    /// Get threatening moves for current player
+    #[wasm_bindgen]
+    pub fn get_threatening_moves(&self) -> Vec<usize> {
+        let mut moves = Vec::new();
+        for row in 0..15 {
+            for col in 0..15 {
+                if self.is_valid_move(row, col) {
+                    let threat_level = self.ai.get_threat_level(self, self.current_player, row, col);
+                    if threat_level >= 3 { // Significant threat
+                        moves.push(row);
+                        moves.push(col);
+                    }
+                }
+            }
+        }
+        moves
+    }
+    
+    /// Create hypothetical state for AI evaluation
+    pub fn create_hypothetical_state(&self, hypothetical_player: Player) -> Option<GomokuGame> {
+        let mut hypothetical_game = self.clone();
+        hypothetical_game.current_player = hypothetical_player;
+        hypothetical_game.winner = None; // Reset winner for evaluation
+        Some(hypothetical_game)
     }
 }
 
