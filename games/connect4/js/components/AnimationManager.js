@@ -225,53 +225,69 @@ export class AnimationManager {
     }
     
     /**
-     * Apply color-specific styles to piece
+     * Apply modern Tailwind-compatible piece styles
      * @private
      */
     applyPieceStyles(piece, playerColor) {
+        // Remove existing color classes first
+        piece.classList.remove('empty', 'yellow', 'red', 'preview');
+        
         if (playerColor === 'yellow') {
+            // Add Tailwind classes for yellow player
+            piece.classList.add('yellow');
             piece.style.cssText += `
                 background: linear-gradient(145deg, #FFD700, #FFA000) !important;
                 border: 3px solid #F57F17 !important;
-                box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4) !important;
+                box-shadow: 0 6px 16px rgba(255, 215, 0, 0.5),
+                           inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+                backdrop-filter: blur(4px) !important;
             `;
         } else if (playerColor === 'red') {
+            // Add Tailwind classes for red player
+            piece.classList.add('red');
             piece.style.cssText += `
                 background: linear-gradient(145deg, #F44336, #D32F2F) !important;
                 border: 3px solid #C62828 !important;
-                box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4) !important;
+                box-shadow: 0 6px 16px rgba(244, 67, 54, 0.5),
+                           inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+                backdrop-filter: blur(4px) !important;
             `;
         }
+        
+        // Add modern transition for smooth effects
+        piece.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
     }
     
     /**
-     * Create subtle ripple effect on piece impact
+     * Create modern glassmorphism ripple effect on piece impact
      * @private
      */
     createDropRipple(cell) {
         const ripple = document.createElement('div');
-        ripple.className = 'drop-ripple';
+        ripple.className = 'drop-ripple absolute top-1/2 left-1/2 w-3 h-3 pointer-events-none z-10';
         ripple.style.cssText = `
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 10px;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.6);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+            border: 1px solid rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             transform: translate(-50%, -50%) scale(0);
-            animation: drop-ripple-expand 0.4s ease-out;
-            pointer-events: none;
-            z-index: 10;
+            animation: drop-ripple-expand 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         `;
         
-        cell.style.position = 'relative';
+        cell.classList.add('relative');
         cell.appendChild(ripple);
         
-        // Remove ripple after animation
+        // Remove ripple after animation with fade-out
         setTimeout(() => {
             if (ripple.parentNode) {
-                ripple.parentNode.removeChild(ripple);
+                ripple.style.transition = 'opacity 0.2s ease-out';
+                ripple.style.opacity = '0';
+                setTimeout(() => {
+                    if (ripple.parentNode) {
+                        ripple.parentNode.removeChild(ripple);
+                    }
+                }, 200);
             }
         }, 400);
     }
@@ -300,11 +316,16 @@ export class AnimationManager {
             cell.appendChild(ghostPiece);
         }
         
-        // Apply preview styling with enhanced effects
-        cell.classList.add('show-preview', `preview-${playerColor}`);
+        // Apply modern Tailwind preview styling
+        cell.classList.add('show-preview', `preview-${playerColor}`, 'transform', 'transition-all', 'duration-300');
+        
+        // Add Tailwind hover effects
+        cell.style.transform = 'scale(1.05)';
+        cell.style.filter = 'brightness(1.1)';
         
         // Set hover data attribute for CSS styling
         this.gameBoard.setAttribute('data-hover-col', column);
+        this.gameBoard.classList.add('group');
         
         // Add ripple effect for enhanced feedback
         if (!this.reducedMotion) {
@@ -326,18 +347,22 @@ export class AnimationManager {
             if (targetRow !== -1) {
                 const cell = this.boardRenderer.getCellAt(targetRow, this.previewColumn);
                 if (cell) {
-                    // Smooth fade-out animation
+                    // Modern Tailwind fade-out animation
                     const ghostPiece = cell.querySelector('.ghost-piece');
                     if (ghostPiece && !this.reducedMotion) {
-                        ghostPiece.style.transition = 'all 0.3s ease-out';
+                        ghostPiece.classList.add('transition-all', 'duration-300', 'ease-out');
                         ghostPiece.style.opacity = '0';
-                        ghostPiece.style.transform = 'scale(0.8) translateY(10px)';
+                        ghostPiece.style.transform = 'translate(-50%, -50%) scale(0.8)';
                         
                         setTimeout(() => {
-                            cell.classList.remove('show-preview', 'preview-yellow', 'preview-red');
+                            cell.classList.remove('show-preview', 'preview-yellow', 'preview-red', 'transform', 'transition-all', 'duration-300');
+                            cell.style.transform = '';
+                            cell.style.filter = '';
                         }, 300);
                     } else {
-                        cell.classList.remove('show-preview', 'preview-yellow', 'preview-red');
+                        cell.classList.remove('show-preview', 'preview-yellow', 'preview-red', 'transform', 'transition-all', 'duration-300');
+                        cell.style.transform = '';
+                        cell.style.filter = '';
                     }
                 }
             }
@@ -347,6 +372,7 @@ export class AnimationManager {
         }
         
         this.gameBoard.removeAttribute('data-hover-col');
+        this.gameBoard.classList.remove('group');
         this.previewColumn = null;
     }
     
@@ -923,9 +949,10 @@ export class AnimationManager {
     }
 }
 
-// Add dynamic CSS for drop ripple effect
+// Add modern Tailwind CSS animations for premium effects
 const style = document.createElement('style');
 style.textContent = `
+/* Modern Tailwind-compatible drop animations */
 @keyframes drop-ripple-expand {
     0% {
         transform: translate(-50%, -50%) scale(0);
@@ -934,6 +961,251 @@ style.textContent = `
     100% {
         transform: translate(-50%, -50%) scale(4);
         opacity: 0;
+    }
+}
+
+@keyframes hover-ripple-expand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(6);
+        opacity: 0;
+    }
+}
+
+@keyframes btn-ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(10);
+        opacity: 0;
+    }
+}
+
+/* Tailwind-enhanced piece animations */
+.disc.dropping {
+    animation: piece-drop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.disc.dropping-special {
+    animation: piece-drop-special 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.disc.victory-glow {
+    animation: victory-glow 1s ease-in-out infinite;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.8) !important;
+}
+
+@keyframes piece-drop {
+    0% { 
+        transform: translateY(-100px) scale(0.8); 
+        opacity: 0;
+        filter: blur(2px);
+    }
+    50% { 
+        transform: translateY(10px) scale(1.1); 
+        opacity: 0.8;
+        filter: blur(0px);
+    }
+    100% { 
+        transform: translateY(0) scale(1); 
+        opacity: 1;
+        filter: blur(0px);
+    }
+}
+
+@keyframes piece-drop-special {
+    0% { 
+        transform: translateY(-120px) scale(0.6) rotate(-180deg); 
+        opacity: 0;
+        filter: blur(3px) brightness(1.5);
+    }
+    30% { 
+        transform: translateY(20px) scale(1.2) rotate(-90deg); 
+        opacity: 0.9;
+        filter: blur(1px) brightness(1.2);
+    }
+    70% { 
+        transform: translateY(-5px) scale(0.9) rotate(0deg); 
+        opacity: 1;
+        filter: blur(0px) brightness(1.1);
+    }
+    100% { 
+        transform: translateY(0) scale(1) rotate(0deg); 
+        opacity: 1;
+        filter: blur(0px) brightness(1);
+    }
+}
+
+@keyframes victory-glow {
+    0%, 100% { 
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
+                    0 0 40px rgba(255, 215, 0, 0.4),
+                    inset 0 0 15px rgba(255, 255, 255, 0.3);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.9),
+                    0 0 80px rgba(255, 215, 0, 0.6),
+                    inset 0 0 25px rgba(255, 255, 255, 0.5);
+        transform: scale(1.05);
+    }
+}
+
+/* Tailwind glassmorphism preview effects */
+.ghost-piece {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(8px);
+    border: 2px dashed rgba(255, 255, 255, 0.6);
+    animation: ghost-pulse 1.5s ease-in-out infinite;
+    z-index: 5;
+}
+
+@keyframes ghost-pulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+/* Column highlight wave with Tailwind colors */
+.column-highlight-wave {
+    animation: column-wave 0.4s ease-out;
+}
+
+@keyframes column-wave {
+    0% {
+        background: transparent;
+        transform: scale(1);
+    }
+    50% {
+        background: rgba(59, 130, 246, 0.3);
+        transform: scale(1.05);
+    }
+    100% {
+        background: transparent;
+        transform: scale(1);
+    }
+}
+
+/* Modern coordinate click feedback */
+.coord.clicked {
+    animation: coord-click 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes coord-click {
+    0% {
+        transform: scale(1);
+        background: transparent;
+    }
+    50% {
+        transform: scale(1.2);
+        background: rgba(59, 130, 246, 0.3);
+        color: white;
+    }
+    100% {
+        transform: scale(1);
+        background: transparent;
+    }
+}
+
+/* Celebration overlay system */
+.celebration-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    animation: confetti-fall linear forwards;
+}
+
+.confetti-piece.yellow {
+    background: linear-gradient(45deg, #FFD700, #FFA000);
+}
+
+.confetti-piece.red {
+    background: linear-gradient(45deg, #F44336, #D32F2F);
+}
+
+.confetti-piece.blue {
+    background: linear-gradient(45deg, #2196F3, #1976D2);
+}
+
+.confetti-piece.green {
+    background: linear-gradient(45deg, #4CAF50, #388E3C);
+}
+
+.confetti-piece.purple {
+    background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Player-specific preview colors */
+.preview-yellow .ghost-piece {
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.6), rgba(255, 160, 0, 0.3));
+    border-color: rgba(255, 215, 0, 0.8);
+}
+
+.preview-red .ghost-piece {
+    background: radial-gradient(circle, rgba(244, 67, 54, 0.6), rgba(211, 47, 47, 0.3));
+    border-color: rgba(244, 67, 54, 0.8);
+}
+
+/* Reduced motion fallbacks */
+@media (prefers-reduced-motion: reduce) {
+    .disc.dropping,
+    .disc.dropping-special {
+        animation: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .ghost-piece {
+        animation: none;
+        opacity: 0.7;
+    }
+    
+    .column-highlight-wave {
+        animation: none;
+        background: rgba(59, 130, 246, 0.2);
+    }
+    
+    .victory-glow {
+        animation: none;
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8) !important;
     }
 }
 `;
