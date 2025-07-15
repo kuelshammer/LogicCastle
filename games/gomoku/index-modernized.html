@@ -162,6 +162,169 @@
             100% { box-shadow: 0 4px 20px rgba(34, 197, 94, 0.6), 0 0 30px rgba(34, 197, 94, 0.4); }
         }
         
+        /* Victory screen overlay */
+        .victory-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+        
+        .victory-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Victory background with winning player color */
+        .victory-background-black {
+            background: radial-gradient(circle at center, 
+                rgba(31, 41, 55, 0.95) 0%, 
+                rgba(17, 24, 39, 0.98) 50%, 
+                rgba(0, 0, 0, 0.99) 100%);
+            backdrop-filter: blur(20px);
+        }
+        
+        .victory-background-white {
+            background: radial-gradient(circle at center, 
+                rgba(249, 250, 251, 0.95) 0%, 
+                rgba(243, 244, 246, 0.98) 50%, 
+                rgba(229, 231, 235, 0.99) 100%);
+            backdrop-filter: blur(20px);
+        }
+        
+        /* Victory message styling */
+        .victory-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            animation: victoryAppear 1.2s ease-out;
+        }
+        
+        @keyframes victoryAppear {
+            0% { 
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            60% { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% { 
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        /* Victory text colors */
+        .victory-text-black {
+            color: #1f2937;
+            text-shadow: 0 0 20px rgba(31, 41, 55, 0.5);
+        }
+        
+        .victory-text-white {
+            color: #f9fafb;
+            text-shadow: 0 0 20px rgba(249, 250, 251, 0.5);
+        }
+        
+        /* Victory stones animation */
+        .victory-stones {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .victory-stone {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            animation: victoryStoneFloat 2s ease-in-out infinite;
+        }
+        
+        .victory-stone:nth-child(1) { animation-delay: 0s; }
+        .victory-stone:nth-child(2) { animation-delay: 0.2s; }
+        .victory-stone:nth-child(3) { animation-delay: 0.4s; }
+        .victory-stone:nth-child(4) { animation-delay: 0.6s; }
+        .victory-stone:nth-child(5) { animation-delay: 0.8s; }
+        
+        @keyframes victoryStoneFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .victory-stone-black {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border: 3px solid #374151;
+            box-shadow: 0 8px 25px rgba(31, 41, 55, 0.4);
+        }
+        
+        .victory-stone-white {
+            background: linear-gradient(135deg, #f9fafb, #e5e7eb);
+            border: 3px solid #d1d5db;
+            box-shadow: 0 8px 25px rgba(249, 250, 251, 0.4);
+        }
+        
+        /* Victory button */
+        .victory-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            margin-top: 20px;
+        }
+        
+        .victory-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+        
+        /* Confetti animation */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            animation: confettiFall 3s linear infinite;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Winning line highlight */
+        .winning-line {
+            position: absolute;
+            background: linear-gradient(45deg, #10b981, #059669);
+            border-radius: 3px;
+            animation: winningLinePulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+        }
+        
+        @keyframes winningLinePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
         /* AI thinking indicator */
         .ai-thinking {
             animation: aiThinking 1s ease-in-out infinite;
@@ -348,6 +511,33 @@
             </div>
         </div>
     </main>
+
+    <!-- Victory Overlay -->
+    <div id="victoryOverlay" class="victory-overlay">
+        <div id="victoryBackground" class="victory-background-black">
+            <div class="victory-message">
+                <h1 id="victoryTitle" class="text-6xl font-bold mb-4 victory-text-white">
+                    🎉 Schwarz gewinnt! 🎉
+                </h1>
+                
+                <div class="victory-stones">
+                    <div class="victory-stone victory-stone-black"></div>
+                    <div class="victory-stone victory-stone-black"></div>
+                    <div class="victory-stone victory-stone-black"></div>
+                    <div class="victory-stone victory-stone-black"></div>
+                    <div class="victory-stone victory-stone-black"></div>
+                </div>
+                
+                <p id="victoryStats" class="text-2xl mb-8 victory-text-white opacity-90">
+                    Gewonnen in 23 Zügen
+                </p>
+                
+                <button id="victoryNewGameBtn" class="victory-button">
+                    🆕 Neues Spiel
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Game Scripts -->
     <script type="module" src="js/GomokuModernized.js"></script>
