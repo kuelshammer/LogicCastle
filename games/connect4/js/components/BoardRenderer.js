@@ -61,31 +61,19 @@ export class BoardRenderer {
     }
 
     /**
-     * Apply CSS Grid styles and responsive constraints to board
+     * Apply modern Tailwind CSS Grid styles with glassmorphism
      * @private
      */
     _applyBoardStyles() {
-        // Use UI-Module System with Tailwind classes - container handles sizing
-        this.gameBoard.className = 'game-board connect4-board game-board-cells';
+        // Modern Tailwind approach with glassmorphism
+        this.gameBoard.className = 'grid grid-cols-7 grid-rows-6 gap-2 p-6 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 shadow-2xl max-w-2xl mx-auto aspect-[7/6]';
         
-        // Apply Connect4-specific styles with responsive constraints
-        Object.assign(this.gameBoard.style, {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gridTemplateRows: 'repeat(6, 1fr)',
-            gap: '8px',
-            aspectRatio: '7/6',
-            background: '#1976d2',
-            borderRadius: '16px',
-            padding: '20px',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.2)',
-            width: '100%',
-            height: 'auto',
-            maxWidth: 'min(80vw, calc(70vh * 7 / 6))',
-            maxHeight: 'min(70vh, calc(80vw * 6 / 7))'
-        });
+        // Add glassmorphism overlay effect
+        this.gameBoard.style.backdropFilter = 'blur(10px)';
+        this.gameBoard.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.9))';
+        this.gameBoard.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
         
-        console.log('🎨 Applied CSS Grid styles directly to ensure proper layout');
+        console.log('🎨 Applied modern Tailwind CSS Grid with glassmorphism');
     }
 
     /**
@@ -105,47 +93,37 @@ export class BoardRenderer {
     }
 
     /**
-     * Create individual cell with disc placeholder
+     * Create individual cell with disc placeholder using Tailwind classes
      * @private
      */
     _createCell(row, col) {
         const cell = document.createElement('div');
-        cell.className = 'cell game-slot'; // Both 'cell' for tests and 'game-slot' for functionality
+        cell.className = 'cell game-slot flex items-center justify-center relative cursor-pointer aspect-square rounded-full bg-blue-500 border-4 border-blue-800 hover:bg-blue-400 transition-all duration-200';
         cell.dataset.row = row;
         cell.dataset.col = col;
         cell.dataset.index = row * this.cols + col;
         
-        // Apply cell styles directly
-        Object.assign(cell.style, {
-            background: '#2196F3',
-            borderRadius: '50%',
-            border: '3px solid #1976D2',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            cursor: 'pointer',
-            aspectRatio: '1'
-        });
+        // Add glassmorphism effect for cells
+        cell.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.9), rgba(29, 78, 216, 0.8))';
+        cell.style.boxShadow = 'inset 0 2px 8px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15)';
         
-        // Add empty disc placeholder
+        // Add empty disc placeholder with Tailwind
         const disc = document.createElement('div');
-        disc.className = 'disc empty';
+        disc.className = 'disc empty w-[85%] h-[85%] rounded-full transition-all duration-300 relative';
         
-        // Apply only essential layout styles, let CSS handle colors and visibility
-        Object.assign(disc.style, {
-            width: '85%',
-            height: '85%',
-            borderRadius: '50%',
-            transition: 'all 0.3s ease',
-            position: 'relative',
-            aspectRatio: '1',
-            zIndex: '1'
-        });
+        // Modern glassmorphism for empty disc slots
+        disc.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))';
+        disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+        disc.style.backdropFilter = 'blur(8px)';
+        disc.style.boxShadow = 'inset 0 1px 2px rgba(255, 255, 255, 0.1)';
         
         cell.appendChild(disc);
         
-        return { cell, disc };
+        // Store references
+        this.cells.push(cell);
+        this.discs.push(disc);
+        
+        return cell;
     }
 
     /**

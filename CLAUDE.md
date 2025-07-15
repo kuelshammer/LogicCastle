@@ -2,26 +2,35 @@
 
 - **Webseite:** https://www.github.com/kuelshammer/LogicCastle/
 
-# GOMOKU BITPACKED 3-LAYER FIX PLAN
+# GOMOKU MODERNISIERUNG PLAN (GEMINI REPORTS 20250710)
 
-## Problem: Gomoku folgt nicht Connect4's 3-Schichten-BitPacked-Standard
+## Problem: Gomoku-System nicht auf Connect4 Goldstandard-Niveau
 
-### Connect4's Working 3-Layer Architecture:
-```
-LAYER 3 (UI/Frontend) ──→ Connect4UI uses Connect4GameBitPacked
-LAYER 2 (Game Logic)  ──→ Connect4GameBitPacked wraps Connect4Game  
-LAYER 1 (WASM/Rust)   ──→ Connect4Game (BitPackedBoard)
-```
+### Gemini Report Analyse:
+- **Backend**: Monolithische GomokuGame-Struktur, schwache Schichtentrennung
+- **Frontend**: Zellen-basiert statt authentische Intersektions-Platzierung
+- **API**: Inkonsistent, weniger robust als Connect4
+- **Architektur**: Veraltete Struktur vs. Connect4's 3-Schicht-Exzellenz
 
-### Critical Import Errors in Gomoku:
-1. **Layer 2**: `import { GomokuBoard }` ← **doesn't exist!**
-2. **Layer 2**: `this.board = new GomokuBoard()` ← **wrong class!**
-3. **Layer 3**: Imports from `game_v2.js` instead of `game-bitpacked.js`
-4. **API Inconsistency**: `current_player()` vs `get_current_player()`
+### PHASE 1: Backend-Refactoring (KRITISCH)
+1. **3-Schicht Architektur**: Trennung Daten/Geometrie/KI nach Connect4 Goldstandard
+2. **AI-Layer Entkopplung**: `GomokuAI` aus `GomokuGame` separieren
+3. **Geometrie-Konsolidierung**: Alle geometrischen Berechnungen in `GomokuGrid`
 
-### Fix Plan:
-- **STEP 1**: WASM-Layer check - verify GomokuGame export and API alignment
-- **STEP 2**: Game Logic Layer repair - fix game-bitpacked.js import errors
-- **STEP 3**: UI Layer adaptation - fix index-goldstandard.html BitPacked integration
-- **STEP 4**: Component Integration - adapt UI-Components to BitPacked wrapper
-- **STEP 5**: Testing & Verification - test 15x15 board and performance
+### PHASE 2: Frontend-Modernisierung (KRITISCH)
+1. **Intersektions-System**: 2-Schichten-Methode (Visual + Interaction)
+2. **Visuelle Schicht**: CSS-Hintergrundbild für 15×15 Grid
+3. **Interaktions-Schicht**: Klickbare Kreuzungspunkte
+4. **Stein-Platzierung**: Stone-Container System
+
+### PHASE 3: API-Erweiterung (STANDARD)
+1. **API-Enhancement**: Frontend-Methoden nach Connect4 Standard
+2. **Rückgabetyp-Fix**: `get_ai_move` von `Vec<usize>` zu `Option<(usize, usize)>`
+3. **Hypothetische Zustände**: `create_hypothetical_state` für KI
+
+### Technische Details:
+- **Backend**: `GomokuGame` als Zustands-Container, `self.ai.get_best_move(self)` Pattern
+- **Frontend**: Visual Background + Interaction Grid, CSS-Performance-Optimierung
+- **API**: `analyze_position()`, `get_winning_moves()`, `get_blocking_moves()`
+
+### Referenz: Connect4 als Goldstandard-Implementierung nutzen

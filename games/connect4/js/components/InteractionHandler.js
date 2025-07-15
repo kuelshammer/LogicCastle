@@ -241,8 +241,8 @@ export class InteractionHandler {
     }
 
     /**
-     * Show drop preview for column
-     * Extracted from Connect4UINew.showDropPreview()
+     * Show drop preview for column with modern glassmorphism
+     * Modernized with Tailwind CSS and glassmorphism effects
      */
     showDropPreview(col) {
         this.hideDropPreview(); // Clear any existing preview
@@ -253,32 +253,32 @@ export class InteractionHandler {
         
         const disc = slot.querySelector('.disc');
         if (disc && disc.classList.contains('empty')) {
-            disc.classList.add('preview');
+            // Add Tailwind classes for modern preview effect
+            disc.classList.add('preview', 'ring-2', 'ring-white', 'ring-opacity-60', 'animate-pulse');
             this.previewDisc = disc;
             
-            // Style preview disc
-            Object.assign(disc.style, {
-                background: 'rgba(255, 255, 255, 0.5)',
-                border: '2px dashed rgba(255, 255, 255, 0.8)',
-                boxShadow: '0 0 10px rgba(255, 255, 255, 0.5)'
-            });
+            // Modern glassmorphism preview styling
+            disc.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1))';
+            disc.style.backdropFilter = 'blur(8px)';
+            disc.style.border = '2px dashed rgba(255, 255, 255, 0.7)';
+            disc.style.boxShadow = '0 0 20px rgba(255, 255, 255, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.2)';
         }
     }
 
     /**
-     * Hide drop preview
-     * Extracted from Connect4UINew.hideDropPreview()
+     * Hide drop preview with clean Tailwind class removal
+     * Modernized to work with Tailwind CSS classes
      */
     hideDropPreview() {
         if (this.previewDisc) {
-            this.previewDisc.classList.remove('preview');
+            // Remove Tailwind classes
+            this.previewDisc.classList.remove('preview', 'ring-2', 'ring-white', 'ring-opacity-60', 'animate-pulse');
             
-            // Reset preview disc styles
-            Object.assign(this.previewDisc.style, {
-                background: 'transparent',
-                border: 'none',
-                boxShadow: 'none'
-            });
+            // Reset to original glassmorphism styling
+            this.previewDisc.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))';
+            this.previewDisc.style.backdropFilter = 'blur(8px)';
+            this.previewDisc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            this.previewDisc.style.boxShadow = 'inset 0 1px 2px rgba(255, 255, 255, 0.1)';
             
             this.previewDisc = null;
         }
