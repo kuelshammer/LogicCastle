@@ -2,22 +2,57 @@ use wasm_bindgen::prelude::*;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use crate::data::BitPackedBoard;
+use crate::geometry::{BoardGeometry, PatternProvider};
+use crate::{GamePhase, PositionAnalysis, Player};
 
-/// Trio Game using BitPackedBoard<7,7,4> for memory efficiency
+/// Trio Game using 3-Layer Architecture for clean separation of concerns
 /// 
 /// Trio is a mathematical puzzle game where players find combinations
-/// of three numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
+/// of three LINEAR numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
 /// 
 /// Features:
 /// - 7×7 board filled with numbers 1-9
 /// - BitPacked storage: 4 bits per cell (supports 0-15, perfect for 1-9)
+/// - Linear constraints: Only straight lines (horizontal/vertical/diagonal) allowed
+/// - Optimized algorithm: 120 linear patterns instead of 117,649 brute force
 /// - Memory efficient: 25 bytes vs 49 bytes naive implementation (49% reduction)
-/// - No AI opponent needed - pure puzzle game
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct TrioGame {
+    // Composition: Geometry layer handles adjacency logic
+    geometry: TrioGrid,
+    
+    // Composition: Data layer handles efficient storage
     board: BitPackedBoard<7, 7, 4>,
+    
+    // Game-specific state
     target_number: u8,
     difficulty: u8,
+    move_count: usize,
+    found_solutions: Vec<TrioSolution>,
+    current_player: Player, // For UI consistency
+}
+
+/// Trio-specific geometry layer for adjacency calculations
+#[derive(Clone)]
+pub struct TrioGrid {
+    adjacent_triplets: Vec<[(usize, usize); 3]>,
+}
+
+/// Solution representation for Trio game
+#[derive(Clone, Debug)]
+pub struct TrioSolution {
+    pub positions: [(usize, usize); 3],
+    pub values: [u8; 3],
+    pub result: u16,
+    pub operation: TrioOperation,
+}
+
+/// Mathematical operations in Trio
+#[derive(Clone, Debug, PartialEq)]
+pub enum TrioOperation {
+    Addition,   // a×b+c = target
+    Subtraction // a×b-c = target
 }
 
 /// Difficulty levels for board generation
@@ -30,18 +65,87 @@ pub enum TrioDifficultyNew {
     Analytisch = 4,          // Expert: complex patterns, advanced calculations
 }
 
+impl TrioGrid {
+    /// Create new TrioGrid with all valid adjacency patterns
+    pub fn new() -> Self {
+        let adjacent_triplets = Self::generate_adjacent_triplets();
+        Self { adjacent_triplets }
+    }
+    
+    /// Generate all possible linear triplets on a 7x7 board
+    /// Trio rules: Only straight lines allowed (horizontal, vertical, diagonal)
+    fn generate_adjacent_triplets() -> Vec<[(usize, usize); 3]> {
+        let mut triplets = Vec::new();
+        
+        // Linear patterns only: horizontal, vertical, diagonal
+        for row in 0..7 {
+            for col in 0..7 {
+                // Horizontal triplets (left to right)
+                if col + 2 < 7 {
+                    triplets.push([(row, col), (row, col + 1), (row, col + 2)]);
+                }
+                
+                // Vertical triplets (top to bottom)
+                if row + 2 < 7 {
+                    triplets.push([(row, col), (row + 1, col), (row + 2, col)]);
+                }
+                
+                // Diagonal triplets (top-left to bottom-right)
+                if row + 2 < 7 && col + 2 < 7 {
+                    triplets.push([(row, col), (row + 1, col + 1), (row + 2, col + 2)]);
+                }
+                
+                // Diagonal triplets (top-right to bottom-left)
+                if row + 2 < 7 && col >= 2 {
+                    triplets.push([(row, col), (row + 1, col - 1), (row + 2, col - 2)]);
+                }
+            }
+        }
+        
+        triplets
+    }
+    
+    /// Get all valid adjacent triplet patterns
+    pub fn get_adjacent_triplets(&self) -> &Vec<[(usize, usize); 3]> {
+        &self.adjacent_triplets
+    }
+    
+    /// Validate if three positions form an adjacent pattern
+    pub fn validate_adjacency(&self, pos1: (usize, usize), pos2: (usize, usize), pos3: (usize, usize)) -> bool {
+        let positions = [pos1, pos2, pos3];
+        self.adjacent_triplets.iter().any(|&triplet| {
+            // Check if positions match any known triplet (in any order)
+            let mut sorted_triplet = triplet;
+            sorted_triplet.sort();
+            let mut sorted_positions = positions;
+            sorted_positions.sort();
+            sorted_triplet == sorted_positions
+        })
+    }
+    
+    /// Get count of possible adjacent triplets
+    pub fn count_adjacent_patterns(&self) -> usize {
+        self.adjacent_triplets.len()
+    }
+}
+
 #[wasm_bindgen]
 impl TrioGame {
     /// Create new Trio game with specified difficulty
     #[wasm_bindgen(constructor)]
     pub fn new(difficulty: u8) -> Self {
+        let geometry = TrioGrid::new();
         let mut board = BitPackedBoard::new();
         let target = Self::generate_board_and_target(&mut board, difficulty);
         
         Self {
+            geometry,
             board,
             target_number: target,
             difficulty,
+            move_count: 0,
+            found_solutions: Vec::new(),
+            current_player: Player::Yellow, // Default for UI consistency
         }
     }
     
@@ -63,10 +167,15 @@ impl TrioGame {
         self.difficulty
     }
     
-    /// Validate a trio combination (a×b+c or a×b-c = target)
+    /// Validate a trio combination with adjacency check
     /// Returns the calculated result if valid, or -1 if invalid
     #[wasm_bindgen]
     pub fn validate_trio(&self, row1: usize, col1: usize, row2: usize, col2: usize, row3: usize, col3: usize) -> i32 {
+        // First check adjacency constraint
+        if !self.geometry.validate_adjacency((row1, col1), (row2, col2), (row3, col3)) {
+            return -1; // Not adjacent - invalid
+        }
+        
         // Get the three numbers
         let a = self.board.get_cell(row1, col1);
         let b = self.board.get_cell(row2, col2);
@@ -99,40 +208,49 @@ impl TrioGame {
         self.target_number
     }
     
-    /// Find all possible trio solutions on the current board
-    /// Returns array of solutions as [row1, col1, row2, col2, row3, col3, result]
+    /// Find all possible trio solutions using optimized adjacency algorithm
+    /// Optimization: Only check valid adjacent triplets (~200) instead of all combinations (117,649)
     #[wasm_bindgen]
     pub fn find_all_solutions(&self) -> Vec<u8> {
         let mut solutions = Vec::new();
         
-        // Check all possible combinations of 3 positions
-        for row1 in 0..7 {
-            for col1 in 0..7 {
-                for row2 in 0..7 {
-                    for col2 in 0..7 {
-                        for row3 in 0..7 {
-                            for col3 in 0..7 {
-                                // Skip if positions are the same
-                                if (row1 == row2 && col1 == col2) ||
-                                   (row1 == row3 && col1 == col3) ||
-                                   (row2 == row3 && col2 == col3) {
-                                    continue;
-                                }
-                                
-                                let result = self.validate_trio(row1, col1, row2, col2, row3, col3);
-                                if result != -1 {
-                                    solutions.push(row1 as u8);
-                                    solutions.push(col1 as u8);
-                                    solutions.push(row2 as u8);
-                                    solutions.push(col2 as u8);
-                                    solutions.push(row3 as u8);
-                                    solutions.push(col3 as u8);
-                                    solutions.push(result as u8);
-                                }
-                            }
-                        }
-                    }
-                }
+        // Use geometry layer to get only valid adjacent triplets
+        let adjacent_triplets = self.geometry.get_adjacent_triplets();
+        
+        for &triplet in adjacent_triplets {
+            let [(row1, col1), (row2, col2), (row3, col3)] = triplet;
+            
+            // Get the three numbers
+            let a = self.board.get_cell(row1, col1);
+            let b = self.board.get_cell(row2, col2);
+            let c = self.board.get_cell(row3, col3);
+            
+            // Ensure we have valid numbers (1-9)
+            if a == 0 || b == 0 || c == 0 || a > 9 || b > 9 || c > 9 {
+                continue;
+            }
+            
+            // Calculate both possible results
+            let result1 = (a as u16) * (b as u16) + (c as u16);
+            let result2 = (a as u16) * (b as u16) - (c as u16);
+            
+            // Check if either result matches the target
+            if result1 == self.target_number as u16 {
+                solutions.push(row1 as u8);
+                solutions.push(col1 as u8);
+                solutions.push(row2 as u8);
+                solutions.push(col2 as u8);
+                solutions.push(row3 as u8);
+                solutions.push(col3 as u8);
+                solutions.push(result1 as u8);
+            } else if result2 == self.target_number as u16 {
+                solutions.push(row1 as u8);
+                solutions.push(col1 as u8);
+                solutions.push(row2 as u8);
+                solutions.push(col2 as u8);
+                solutions.push(row3 as u8);
+                solutions.push(col3 as u8);
+                solutions.push(result2 as u8);
             }
         }
         
@@ -165,6 +283,99 @@ impl TrioGame {
             }
         }
         result
+    }
+    
+    /// Get count of adjacent patterns for performance info
+    #[wasm_bindgen]
+    pub fn get_adjacency_pattern_count(&self) -> usize {
+        self.geometry.count_adjacent_patterns()
+    }
+    
+    /// Connect4-compatible API: Get current player
+    #[wasm_bindgen]
+    pub fn get_current_player(&self) -> u8 {
+        match self.current_player {
+            Player::Yellow => 1,
+            Player::Red => 2,
+        }
+    }
+    
+    /// Connect4-compatible API: Make a move (mark found solution)
+    #[wasm_bindgen]
+    pub fn make_move(&mut self, row1: usize, col1: usize, row2: usize, col2: usize, row3: usize, col3: usize) -> bool {
+        let result = self.validate_trio(row1, col1, row2, col2, row3, col3);
+        if result != -1 {
+            // Store found solution
+            let solution = TrioSolution {
+                positions: [(row1, col1), (row2, col2), (row3, col3)],
+                values: [
+                    self.board.get_cell(row1, col1),
+                    self.board.get_cell(row2, col2),
+                    self.board.get_cell(row3, col3)
+                ],
+                result: result as u16,
+                operation: if (self.board.get_cell(row1, col1) as u16) * (self.board.get_cell(row2, col2) as u16) + (self.board.get_cell(row3, col3) as u16) == result as u16 {
+                    TrioOperation::Addition
+                } else {
+                    TrioOperation::Subtraction
+                }
+            };
+            
+            self.found_solutions.push(solution);
+            self.move_count += 1;
+            true
+        } else {
+            false
+        }
+    }
+    
+    /// Connect4-compatible API: Reset game
+    #[wasm_bindgen]
+    pub fn reset(&mut self) {
+        self.found_solutions.clear();
+        self.move_count = 0;
+        self.current_player = Player::Yellow;
+        // Generate new board
+        self.target_number = Self::generate_board_and_target(&mut self.board, self.difficulty);
+    }
+    
+    /// Connect4-compatible API: Get move count
+    #[wasm_bindgen]
+    pub fn get_move_count(&self) -> usize {
+        self.move_count
+    }
+    
+    /// Connect4-compatible API: Get winner (puzzle completed when all solutions found)
+    #[wasm_bindgen]
+    pub fn get_winner(&self) -> u8 {
+        let all_solutions = self.find_all_solutions();
+        let total_solutions = all_solutions.len() / 7; // Each solution has 7 elements
+        
+        if self.found_solutions.len() >= total_solutions && total_solutions > 0 {
+            1 // Player wins when all solutions found
+        } else {
+            0 // No winner yet
+        }
+    }
+    
+    /// Get game phase for UI consistency
+    #[wasm_bindgen]
+    pub fn get_game_phase(&self) -> u8 {
+        let all_solutions = self.find_all_solutions();
+        let total_solutions = all_solutions.len() / 7;
+        let found_percentage = if total_solutions > 0 {
+            (self.found_solutions.len() as f32 / total_solutions as f32) * 100.0
+        } else {
+            0.0
+        };
+        
+        if found_percentage < 30.0 {
+            0 // Early game
+        } else if found_percentage < 80.0 {
+            1 // Mid game
+        } else {
+            2 // End game
+        }
     }
 }
 
@@ -262,28 +473,27 @@ impl TrioGame {
         target
     }
     
-    /// Check if the generated board has at least one solution
+    /// Check if the generated board has at least one solution using optimized algorithm
     fn has_valid_solutions(&self) -> bool {
-        // Quick check: try to find at least one solution
-        for row1 in 0..7 {
-            for col1 in 0..7 {
-                for row2 in 0..7 {
-                    for col2 in 0..7 {
-                        for row3 in 0..7 {
-                            for col3 in 0..7 {
-                                if (row1 == row2 && col1 == col2) ||
-                                   (row1 == row3 && col1 == col3) ||
-                                   (row2 == row3 && col2 == col3) {
-                                    continue;
-                                }
-                                
-                                if self.validate_trio(row1, col1, row2, col2, row3, col3) != -1 {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
+        // Use optimized adjacency-based search
+        let adjacent_triplets = self.geometry.get_adjacent_triplets();
+        
+        for &triplet in adjacent_triplets {
+            let [(row1, col1), (row2, col2), (row3, col3)] = triplet;
+            
+            let a = self.board.get_cell(row1, col1);
+            let b = self.board.get_cell(row2, col2);
+            let c = self.board.get_cell(row3, col3);
+            
+            if a == 0 || b == 0 || c == 0 || a > 9 || b > 9 || c > 9 {
+                continue;
+            }
+            
+            let result1 = (a as u16) * (b as u16) + (c as u16);
+            let result2 = (a as u16) * (b as u16) - (c as u16);
+            
+            if result1 == self.target_number as u16 || result2 == self.target_number as u16 {
+                return true;
             }
         }
         false
