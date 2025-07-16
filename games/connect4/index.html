@@ -253,9 +253,9 @@
       </div>
     </div>
 
-    <!-- STEP 1: Modular Architecture Activation - BaseGameUI Integration -->
+    <!-- STEP 2: Modular Architecture Activation - BoardRenderer Integration -->
     <script type="module">
-      console.log('🚀 STEP 1: Activating Modular Architecture...');
+      console.log('🚀 STEP 2: Activating BoardRenderer Component...');
       
       // Import BaseGameUI from ui-modules
       try {
@@ -266,7 +266,11 @@
         const { CONNECT4_UI_CONFIG, createConnect4Config } = await import('./js/connect4-config.js');
         console.log('✅ Connect4 Config imported successfully');
         
-        // Create a hybrid game that extends BaseGameUI but uses simple logic
+        // Import BoardRenderer Component
+        const { BoardRenderer } = await import('./js/components/BoardRenderer.js');
+        console.log('✅ BoardRenderer imported successfully');
+        
+        // Create a hybrid game that extends BaseGameUI with BoardRenderer
         class ModularConnect4Game extends BaseGameUI {
           constructor() {
             const config = createConnect4Config('two-player');
@@ -281,7 +285,10 @@
             this.gameHistory = [];
             this.scores = { yellow: 0, red: 0 };
             
-            console.log('🎮 ModularConnect4Game created with BaseGameUI foundation');
+            // Initialize BoardRenderer
+            this.boardRenderer = null;
+            
+            console.log('🎮 ModularConnect4Game created with BaseGameUI + BoardRenderer');
           }
           
           async init() {
@@ -289,6 +296,9 @@
             
             // Call parent init
             await super.init();
+            
+            // Initialize BoardRenderer
+            this.initializeBoardRenderer();
             
             // Initialize our game
             this.createBoard();
@@ -299,7 +309,37 @@
             return true;
           }
           
+          initializeBoardRenderer() {
+            const gameBoard = document.getElementById('gameBoard');
+            const topCoords = document.getElementById('topCoords');
+            const bottomCoords = document.getElementById('bottomCoords');
+            
+            if (gameBoard) {
+              this.boardRenderer = new BoardRenderer(gameBoard, topCoords, bottomCoords);
+              console.log('🎯 BoardRenderer initialized');
+            } else {
+              console.error('❌ GameBoard element not found for BoardRenderer');
+            }
+          }
+          
           createBoard() {
+            // Use BoardRenderer to create board
+            if (this.boardRenderer) {
+              const success = this.boardRenderer.initializeBoard();
+              if (success) {
+                this.boardRenderer.createCoordinateLabels();
+                console.log('🎯 Board created using BoardRenderer');
+              } else {
+                console.error('❌ BoardRenderer initialization failed');
+                this.fallbackCreateBoard();
+              }
+            } else {
+              console.warn('⚠️ BoardRenderer not available, using fallback');
+              this.fallbackCreateBoard();
+            }
+          }
+          
+          fallbackCreateBoard() {
             const gameBoard = document.getElementById('gameBoard');
             if (!gameBoard) {
               console.error('❌ Game board element not found');
@@ -324,7 +364,7 @@
               }
             }
             
-            console.log('🎯 Board created with 42 cells');
+            console.log('🎯 Fallback board created with 42 cells');
           }
           
           setupEventListeners() {
@@ -511,12 +551,18 @@
           }
           
           updateCell(row, col, player) {
-            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            if (cell) {
-              const disc = cell.querySelector('.disc');
-              if (disc) {
-                disc.classList.remove('empty', 'yellow', 'red');
-                disc.classList.add(player === 1 ? 'yellow' : 'red');
+            // Use BoardRenderer if available
+            if (this.boardRenderer) {
+              this.boardRenderer.updateBoardVisual(row, col, player);
+            } else {
+              // Fallback to direct DOM manipulation
+              const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+              if (cell) {
+                const disc = cell.querySelector('.disc');
+                if (disc) {
+                  disc.classList.remove('empty', 'yellow', 'red');
+                  disc.classList.add(player === 1 ? 'yellow' : 'red');
+                }
               }
             }
           }
@@ -618,15 +664,20 @@
             this.gameHistory = [];
             this.winningLine = null;
             
-            // Reset all cells
-            const cells = document.querySelectorAll('.game-slot');
-            cells.forEach(cell => {
-              const disc = cell.querySelector('.disc');
-              if (disc) {
-                disc.classList.remove('yellow', 'red', 'winning-disc');
-                disc.classList.add('empty');
-              }
-            });
+            // Use BoardRenderer if available
+            if (this.boardRenderer) {
+              this.boardRenderer.clearBoard();
+            } else {
+              // Fallback to direct DOM manipulation
+              const cells = document.querySelectorAll('.game-slot');
+              cells.forEach(cell => {
+                const disc = cell.querySelector('.disc');
+                if (disc) {
+                  disc.classList.remove('yellow', 'red', 'winning-disc');
+                  disc.classList.add('empty');
+                }
+              });
+            }
             
             this.updateUI();
             console.log('🔄 New game started');
@@ -707,14 +758,14 @@
             
             window.game = game; // For debugging
             
-            console.log('🎮 STEP 1 Complete: BaseGameUI + Config System activated!');
+            console.log('🎮 STEP 2 Complete: BaseGameUI + BoardRenderer Component activated!');
           } catch (error) {
-            console.error('❌ STEP 1 Failed:', error);
+            console.error('❌ STEP 2 Failed:', error);
             
             // Show error message
             const errorDiv = document.createElement('div');
             errorDiv.style.cssText = 'position: fixed; top: 20px; left: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 8px; z-index: 1000; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
-            errorDiv.textContent = `STEP 1 Error: ${error.message}`;
+            errorDiv.textContent = `STEP 2 Error: ${error.message}`;
             document.body.appendChild(errorDiv);
           }
         });
