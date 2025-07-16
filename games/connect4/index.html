@@ -253,9 +253,9 @@
       </div>
     </div>
 
-    <!-- STEP 2: Modular Architecture Activation - BoardRenderer Integration -->
+    <!-- STEP 3: Modular Architecture Activation - WASM Backend Integration -->
     <script type="module">
-      console.log('🚀 STEP 2: Activating BoardRenderer Component...');
+      console.log('🚀 STEP 3: Activating WASM Backend Integration...');
       
       // Import BaseGameUI from ui-modules
       try {
@@ -270,13 +270,20 @@
         const { BoardRenderer } = await import('./js/components/BoardRenderer.js');
         console.log('✅ BoardRenderer imported successfully');
         
-        // Create a hybrid game that extends BaseGameUI with BoardRenderer
+        // Import WASM Backend
+        const { Connect4GameBitPacked } = await import('./js/game.js');
+        console.log('✅ WASM Backend imported successfully');
+        
+        // Create a hybrid game that extends BaseGameUI with BoardRenderer + WASM
         class ModularConnect4Game extends BaseGameUI {
           constructor() {
             const config = createConnect4Config('two-player');
-            super(null, config); // No game backend yet
             
-            // Game state
+            // Initialize WASM Backend first
+            this.wasmGame = new Connect4GameBitPacked();
+            super(this.wasmGame, config); // Pass WASM backend to BaseGameUI
+            
+            // Legacy game state for compatibility
             this.board = Array(6).fill(null).map(() => Array(7).fill(0));
             this.currentPlayer = 1;
             this.gameOver = false;
@@ -288,11 +295,20 @@
             // Initialize BoardRenderer
             this.boardRenderer = null;
             
-            console.log('🎮 ModularConnect4Game created with BaseGameUI + BoardRenderer');
+            console.log('🎮 ModularConnect4Game created with BaseGameUI + BoardRenderer + WASM');
           }
           
           async init() {
             console.log('🔄 Initializing modular Connect4...');
+            
+            // Initialize WASM Backend first
+            try {
+              await this.wasmGame.init();
+              console.log('✅ WASM Backend initialized successfully');
+            } catch (error) {
+              console.error('❌ WASM Backend initialization failed:', error);
+              console.log('🔄 Continuing with legacy game logic...');
+            }
             
             // Call parent init
             await super.init();
@@ -459,6 +475,57 @@
           makeMove(col) {
             if (this.gameOver || col < 0 || col >= 7) return false;
             
+            // Try WASM move first
+            if (this.wasmGame && this.wasmGame.initialized) {
+              try {
+                const moveResult = this.wasmGame.makeMove(col);
+                
+                // Update legacy state for UI compatibility
+                this.board = moveResult.board;
+                this.currentPlayer = moveResult.player === 1 ? 2 : 1; // Next player
+                this.moveCount = moveResult.moveNumber;
+                this.gameOver = moveResult.isGameOver;
+                this.winner = moveResult.winner;
+                
+                // Update visual
+                const targetRow = this.findMoveRow(col, moveResult.board);
+                if (targetRow !== -1) {
+                  this.updateCell(targetRow, col, moveResult.player);
+                }
+                
+                // Check for win
+                if (moveResult.isGameOver) {
+                  if (moveResult.winner) {
+                    this.showWin(targetRow, col);
+                    this.updateScore();
+                  } else {
+                    this.showDraw();
+                  }
+                }
+                
+                this.updateUI();
+                return true;
+                
+              } catch (error) {
+                console.error('❌ WASM move failed:', error);
+                console.log('🔄 Falling back to legacy move logic...');
+              }
+            }
+            
+            // Legacy move logic as fallback
+            return this.legacyMakeMove(col);
+          }
+          
+          findMoveRow(col, board) {
+            for (let row = 5; row >= 0; row--) {
+              if (board[row][col] !== 0) {
+                return row;
+              }
+            }
+            return -1;
+          }
+          
+          legacyMakeMove(col) {
             // Find lowest empty row in column
             let targetRow = -1;
             for (let row = 5; row >= 0; row--) {
@@ -622,6 +689,34 @@
           }
           
           undoMove() {
+            // Try WASM undo first
+            if (this.wasmGame && this.wasmGame.initialized && this.wasmGame.canUndo()) {
+              try {
+                const undoResult = this.wasmGame.undoMove();
+                
+                // Update legacy state for UI compatibility
+                this.board = undoResult.currentState.board;
+                this.currentPlayer = undoResult.currentState.currentPlayer;
+                this.moveCount = undoResult.currentState.moveCount;
+                this.gameOver = undoResult.currentState.isGameOver;
+                this.winner = undoResult.currentState.winner;
+                
+                // Update all cells
+                this.updateBoardFromState();
+                this.updateUI();
+                return true;
+                
+              } catch (error) {
+                console.error('❌ WASM undo failed:', error);
+                console.log('🔄 Falling back to legacy undo logic...');
+              }
+            }
+            
+            // Legacy undo logic as fallback
+            return this.legacyUndoMove();
+          }
+          
+          legacyUndoMove() {
             if (this.gameHistory.length === 0) return false;
             
             const lastMove = this.gameHistory.pop();
@@ -632,6 +727,12 @@
             this.winner = null;
             
             // Update all cells
+            this.updateBoardFromState();
+            this.updateUI();
+            return true;
+          }
+          
+          updateBoardFromState() {
             for (let row = 0; row < 6; row++) {
               for (let col = 0; col < 7; col++) {
                 const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
@@ -650,19 +751,41 @@
                 }
               }
             }
-            
-            this.updateUI();
-            return true;
           }
           
           resetGame() {
-            this.board = Array(6).fill(null).map(() => Array(7).fill(0));
-            this.currentPlayer = 1;
-            this.gameOver = false;
-            this.winner = null;
-            this.moveCount = 0;
-            this.gameHistory = [];
-            this.winningLine = null;
+            // Try WASM reset first
+            if (this.wasmGame && this.wasmGame.initialized) {
+              try {
+                this.wasmGame.newGame();
+                
+                // Update legacy state for UI compatibility
+                this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.winner = null;
+                this.moveCount = 0;
+                this.gameHistory = [];
+                this.winningLine = null;
+                
+                console.log('🔄 New game started using WASM backend');
+                
+              } catch (error) {
+                console.error('❌ WASM reset failed:', error);
+                console.log('🔄 Falling back to legacy reset logic...');
+              }
+            } else {
+              // Legacy reset logic
+              this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+              this.currentPlayer = 1;
+              this.gameOver = false;
+              this.winner = null;
+              this.moveCount = 0;
+              this.gameHistory = [];
+              this.winningLine = null;
+              
+              console.log('🔄 New game started using legacy logic');
+            }
             
             // Use BoardRenderer if available
             if (this.boardRenderer) {
@@ -680,7 +803,6 @@
             }
             
             this.updateUI();
-            console.log('🔄 New game started');
           }
           
           updateUI() {
@@ -758,14 +880,14 @@
             
             window.game = game; // For debugging
             
-            console.log('🎮 STEP 2 Complete: BaseGameUI + BoardRenderer Component activated!');
+            console.log('🎮 STEP 3 Complete: BaseGameUI + BoardRenderer + WASM Backend activated!');
           } catch (error) {
-            console.error('❌ STEP 2 Failed:', error);
+            console.error('❌ STEP 3 Failed:', error);
             
             // Show error message
             const errorDiv = document.createElement('div');
             errorDiv.style.cssText = 'position: fixed; top: 20px; left: 20px; right: 20px; background: #f44336; color: white; padding: 15px; border-radius: 8px; z-index: 1000; max-width: 500px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);';
-            errorDiv.textContent = `STEP 2 Error: ${error.message}`;
+            errorDiv.textContent = `STEP 3 Error: ${error.message}`;
             document.body.appendChild(errorDiv);
           }
         });
