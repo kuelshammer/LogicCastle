@@ -1,0 +1,79 @@
+/* Base Tailwind CSS for Connect4 Production Build */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Connect4 Glassmorphism System */
+@layer components {
+  .glass {
+    @apply backdrop-blur-2xl;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-2xl;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  
+  .glass-hover {
+    @apply transition-all duration-200;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Connect4 Specific Animations */
+@layer utilities {
+  .drop-animation {
+    @apply animate-drop-piece;
+  }
+  
+  .winning-disc {
+    @apply animate-winning-glow;
+  }
+  
+  .ghost-piece {
+    @apply absolute top-1/2 left-1/2 w-[85%] h-[85%] rounded-full;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(8px);
+    border: 2px dashed rgba(255, 255, 255, 0.6);
+    animation: ghost-pulse 1.5s ease-in-out infinite;
+    z-index: 5;
+  }
+  
+  .preview-yellow .ghost-piece {
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.6), rgba(255, 160, 0, 0.3));
+    border-color: rgba(255, 215, 0, 0.8);
+  }
+  
+  .preview-red .ghost-piece {
+    background: radial-gradient(circle, rgba(244, 67, 54, 0.6), rgba(211, 47, 47, 0.3));
+    border-color: rgba(244, 67, 54, 0.8);
+  }
+  
+  .coord.clicked {
+    @apply animate-coord-click;
+  }
+}
+
+/* Reduced motion fallbacks */
+@media (prefers-reduced-motion: reduce) {
+  .drop-animation,
+  .winning-disc,
+  .ghost-piece,
+  .coord.clicked {
+    animation: none !important;
+    transition: opacity 0.3s ease;
+  }
+  
+  .glass-hover {
+    transform: none;
+    transition: background-color 0.2s ease;
+  }
+}

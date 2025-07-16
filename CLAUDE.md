@@ -101,3 +101,32 @@ Alle neuen Spiele sollen diese Struktur befolgen:
 ```
 
 **Connect4 = Template für alle zukünftigen Spiele! 🏆**
+
+---
+
+## ⚠️ PRODUCTION REQUIREMENTS: TAILWIND CSS
+
+### 🚨 **WICHTIG: CDN vs. Production Build**
+
+**NIEMALS Tailwind CDN in Production verwenden!**
+```html
+<!-- ❌ FALSCH: CDN nur für Development -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- ✅ KORREKT: Optimierter Production Build -->
+<link rel="stylesheet" href="css/tailwind-built.css" />
+```
+
+### 🛠️ **Production Build Process:**
+1. **Tailwind Config**: `tailwind.config.js` mit game-spezifischen Klassen
+2. **Source CSS**: `assets/css/tailwind-production.css` mit @import statements
+3. **Build Command**: `npx tailwindcss -i source.css -o built.css --minify`
+4. **Optimized Output**: Nur verwendete Klassen werden inkludiert
+
+### 📦 **Connect4 Production Setup (2025-07-16):**
+- ✅ CDN entfernt und durch lokalen Build ersetzt
+- ✅ Custom Glassmorphism Components in Tailwind Config
+- ✅ Game-spezifische Animations als Tailwind Utilities
+- ✅ Production-optimized CSS: `games/connect4/css/tailwind-built.css`
+
+**Alle zukünftigen Spiele müssen diesem Production-Standard folgen!**
