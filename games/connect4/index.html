@@ -257,45 +257,45 @@
     <script>
       console.log('🚀 CDN-ONLY SYSTEM INITIALIZATION...');
       
-      // CDN Module URLs (GitHub Raw als Fallback für jsdelivr Probleme)
-      const CDN_MODULES = {
-        'BaseGameUI': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/assets/js/ui-modules/core/BaseGameUI.js',
-        'ElementBinder': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/assets/js/ui-modules/core/ElementBinder.js',
-        'EventDispatcher': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/assets/js/ui-modules/core/EventDispatcher.js',
-        'BoardRenderer': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/games/connect4/js/components/BoardRenderer.js',
-        'Connect4Config': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/games/connect4/js/connect4-config.js'
+      // Local Module URLs (Relative Paths für GitHub Pages Kompatibilität)
+      const LOCAL_MODULES = {
+        'BaseGameUI': './js/modules/core/BaseGameUI.js',
+        'ElementBinder': './js/modules/core/ElementBinder.js',
+        'EventDispatcher': './js/modules/core/EventDispatcher.js',
+        'BoardRenderer': './js/components/BoardRenderer.js',
+        'Connect4Config': './js/connect4-config.js'
       };
       
-      // Einfacher CDN Module Loader
-      async function loadCDNModule(moduleName) {
-        const cdnUrl = CDN_MODULES[moduleName];
-        console.log(`📦 Loading ${moduleName} from CDN: ${cdnUrl}`);
+      // Lokaler Module Loader
+      async function loadLocalModule(moduleName) {
+        const localUrl = LOCAL_MODULES[moduleName];
+        console.log(`📦 Loading ${moduleName} from local: ${localUrl}`);
         
         try {
-          const module = await import(cdnUrl);
-          console.log(`✅ CDN success for ${moduleName}`);
+          const module = await import(localUrl);
+          console.log(`✅ Local import success for ${moduleName}`);
           return module;
         } catch (error) {
-          console.error(`❌ CDN failed for ${moduleName}:`, error.message);
+          console.error(`❌ Local import failed for ${moduleName}:`, error.message);
           throw error;
         }
       }
       
-      // Initialize modular Connect4 with CDN-only
-      async function initializeCDNConnect4() {
-        console.log('🎮 Initializing CDN Connect4...');
+      // Initialize modular Connect4 with lokalen Modulen
+      async function initializeLocalConnect4() {
+        console.log('🎮 Initializing Local Connect4...');
         
         try {
-          // Load modules from CDN
-          const baseGameUI = await loadCDNModule('BaseGameUI');
-          const boardRenderer = await loadCDNModule('BoardRenderer');
-          const connect4Config = await loadCDNModule('Connect4Config');
+          // Load modules from local paths
+          const baseGameUI = await loadLocalModule('BaseGameUI');
+          const boardRenderer = await loadLocalModule('BoardRenderer');
+          const connect4Config = await loadLocalModule('Connect4Config');
           
           const BaseGameUI = baseGameUI.BaseGameUI;
           const BoardRenderer = boardRenderer.BoardRenderer;
           const configModule = connect4Config;
           
-          console.log('✅ All CDN modules loaded successfully');
+          console.log('✅ All local modules loaded successfully');
           
           // Create configuration
           const config = configModule.createConnect4Config ? 
@@ -303,7 +303,7 @@
             configModule.CONNECT4_UI_CONFIG;
           
           // Create modular game class
-          class CDNConnect4Game extends BaseGameUI {
+          class LocalConnect4Game extends BaseGameUI {
               constructor() {
                 super(null, config);
                 this.boardRenderer = null;
@@ -317,11 +317,11 @@
                 this.gameHistory = [];
                 this.scores = { yellow: 0, red: 0 };
                 
-                console.log('🎮 CDNConnect4Game created with modular architecture');
+                console.log('🎮 LocalConnect4Game created with modular architecture');
               }
               
               async init() {
-                console.log('🔄 Initializing CDN Connect4...');
+                console.log('🔄 Initializing Local Connect4...');
                 
                 try {
                   await super.init();
@@ -340,7 +340,7 @@
                 this.setupEventListeners();
                 this.updateUI();
                 
-                console.log('✅ CDN Connect4 initialized successfully');
+                console.log('✅ Local Connect4 initialized successfully');
                 return true;
               }
               
@@ -351,7 +351,7 @@
                 
                 if (gameBoard && BoardRenderer) {
                   this.boardRenderer = new BoardRenderer(gameBoard, topCoords, bottomCoords);
-                  console.log('🎯 BoardRenderer initialized from CDN');
+                  console.log('🎯 BoardRenderer initialized from local modules');
                 } else {
                   console.warn('⚠️ BoardRenderer not available or gameBoard not found');
                 }
@@ -363,7 +363,7 @@
                   const success = this.boardRenderer.initializeBoard();
                   if (success) {
                     this.boardRenderer.createCoordinateLabels();
-                    console.log('🎯 Board created using CDN BoardRenderer');
+                    console.log('🎯 Board created using local BoardRenderer');
                     return;
                   }
                 }
@@ -486,7 +486,7 @@
                   }
                 });
                 
-                console.log('🎮 Event listeners set up for CDN Connect4');
+                console.log('🎮 Event listeners set up for Local Connect4');
               }
               
               makeMove(col) {
@@ -813,17 +813,17 @@
               }
             }
             
-          // Create and initialize CDN game
-          const game = new CDNConnect4Game();
+          // Create and initialize Local game
+          const game = new LocalConnect4Game();
           await game.init();
           
           window.game = game; // For debugging
           
-          console.log('✅ CDN Connect4 Game initialized successfully!');
+          console.log('✅ Local Connect4 Game initialized successfully!');
           return true;
           
         } catch (error) {
-          console.error('❌ CDN initialization failed:', error);
+          console.error('❌ Local module initialization failed:', error);
           throw error;
         }
       }
@@ -1048,19 +1048,19 @@
         console.log('✅ Emergency minimal Connect4 initialized successfully!');
       }
       
-      // SYSTEM INITIALIZATION - CDN-ONLY mit Error Fallback
+      // SYSTEM INITIALIZATION - LOCAL MODULES mit Error Fallback
       async function initializeConnect4System() {
         console.log('🚀 Starting Connect4 System Initialization...');
         
         try {
-          // Try CDN system
-          await initializeCDNConnect4();
-          console.log('✅ CDN Connect4 system activated successfully!');
+          // Try local modules system
+          await initializeLocalConnect4();
+          console.log('✅ Local Connect4 system activated successfully!');
         } catch (error) {
-          console.error('❌ CDN system failed:', error);
+          console.error('❌ Local modules system failed:', error);
           
           // Show user-friendly error message
-          showCDNError(error);
+          showModuleError(error);
           
           // Fallback to minimal system
           console.log('🔄 Falling back to minimal implementation...');
@@ -1068,14 +1068,14 @@
         }
       }
       
-      // Show CDN error to user
-      function showCDNError(error) {
+      // Show module loading error to user
+      function showModuleError(error) {
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(244, 67, 54, 0.9); color: white; padding: 15px; border-radius: 12px; z-index: 10000; max-width: 350px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); backdrop-filter: blur(10px);';
         errorDiv.innerHTML = `
           <div style="display: flex; align-items: center; margin-bottom: 8px;">
             <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
-            <strong>CDN Module Loading Failed</strong>
+            <strong>Module Loading Failed</strong>
           </div>
           <p style="margin: 0; font-size: 14px; opacity: 0.9;">Using simplified version. Some features may be limited.</p>
         `;
@@ -1104,9 +1104,9 @@
     <script type="module">
       console.log('🚀 STEP 3: Activating WASM Backend Integration...');
       
-      // Import BaseGameUI from ui-modules
+      // Import BaseGameUI from local modules
       try {
-        const { BaseGameUI } = await import('https://www.maxkuelshammer.de/LogicCastle/assets/js/ui-modules/index.js');
+        const { BaseGameUI } = await import('./js/modules/core/BaseGameUI.js');
         console.log('✅ BaseGameUI imported successfully');
         
         // Import Connect4 Config
