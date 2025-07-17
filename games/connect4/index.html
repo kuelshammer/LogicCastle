@@ -257,13 +257,13 @@
     <script>
       console.log('🚀 CDN-ONLY SYSTEM INITIALIZATION...');
       
-      // CDN Module URLs (jsDelivr)
+      // CDN Module URLs (GitHub Raw als Fallback für jsdelivr Probleme)
       const CDN_MODULES = {
-        'BaseGameUI': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/assets/js/ui-modules/core/BaseGameUI.js',
-        'ElementBinder': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/assets/js/ui-modules/core/ElementBinder.js',
-        'EventDispatcher': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/assets/js/ui-modules/core/EventDispatcher.js',
-        'BoardRenderer': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/games/connect4/js/components/BoardRenderer.js',
-        'Connect4Config': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/games/connect4/js/connect4-config.js'
+        'BaseGameUI': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/assets/js/ui-modules/core/BaseGameUI.js',
+        'ElementBinder': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/assets/js/ui-modules/core/ElementBinder.js',
+        'EventDispatcher': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/assets/js/ui-modules/core/EventDispatcher.js',
+        'BoardRenderer': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/games/connect4/js/components/BoardRenderer.js',
+        'Connect4Config': 'https://raw.githubusercontent.com/kuelshammer/LogicCastle/main/games/connect4/js/connect4-config.js'
       };
       
       // Einfacher CDN Module Loader
