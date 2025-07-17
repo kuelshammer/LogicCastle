@@ -1,0 +1,2 @@
+class n{constructor(){this.messageContainer=document.createElement("div"),this.messageContainer.className="message-system",document.body.appendChild(this.messageContainer)}showMessage(s,t="info"){const e=document.createElement("div");e.className=`message ${t}`,e.textContent=s,this.messageContainer.appendChild(e),setTimeout(()=>{e.remove()},3e3)}}export{n as MessageSystem};
+//# sourceMappingURL=MessageSystem-qRdWVvXR.js.map

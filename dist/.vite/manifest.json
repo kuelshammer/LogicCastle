@@ -1,0 +1,245 @@
+{
+  "_DOMUtils-DkhNr1PH.js": {
+    "file": "assets/DOMUtils-DkhNr1PH.js",
+    "name": "DOMUtils",
+    "imports": [
+      "_preload-helper-DDWtIbF5.js"
+    ],
+    "dynamicImports": [
+      "assets/js/ui-modules/components/ModalManager.js",
+      "assets/js/ui-modules/components/MessageSystem.js",
+      "assets/js/ui-modules/components/KeyboardController.js"
+    ]
+  },
+  "_game_engine-DD1aZRKp.js": {
+    "file": "assets/game_engine-DD1aZRKp.js",
+    "name": "game_engine",
+    "assets": [
+      "assets/game_engine_bg-BVGesn8u.wasm"
+    ]
+  },
+  "_modulepreload-polyfill-B5Qt9EMX.js": {
+    "file": "assets/modulepreload-polyfill-B5Qt9EMX.js",
+    "name": "modulepreload-polyfill"
+  },
+  "_preload-helper-DDWtIbF5.js": {
+    "file": "assets/preload-helper-DDWtIbF5.js",
+    "name": "preload-helper"
+  },
+  "assets/demo-design-system.html": {
+    "file": "assets/design-system-DbXPYF9k.js",
+    "name": "design-system",
+    "src": "assets/demo-design-system.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js",
+      "games/lgame/js/components/SoundManager.js"
+    ]
+  },
+  "assets/js/ui-modules/components/KeyboardController.js": {
+    "file": "assets/KeyboardController-C86JQDqf.js",
+    "name": "KeyboardController",
+    "src": "assets/js/ui-modules/components/KeyboardController.js",
+    "isDynamicEntry": true
+  },
+  "assets/js/ui-modules/components/MessageSystem.js": {
+    "file": "assets/MessageSystem-BpGT2Bc_.js",
+    "name": "MessageSystem",
+    "src": "assets/js/ui-modules/components/MessageSystem.js",
+    "isDynamicEntry": true
+  },
+  "assets/js/ui-modules/components/ModalManager.js": {
+    "file": "assets/ModalManager-BhmvPGU8.js",
+    "name": "ModalManager",
+    "src": "assets/js/ui-modules/components/ModalManager.js",
+    "isDynamicEntry": true
+  },
+  "game_engine/pkg/game_engine_bg.wasm": {
+    "file": "assets/game_engine_bg-BVGesn8u.wasm",
+    "src": "game_engine/pkg/game_engine_bg.wasm"
+  },
+  "games/connect4/index.html": {
+    "file": "assets/connect4-DG8bBE23.js",
+    "name": "connect4",
+    "src": "games/connect4/index.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js",
+      "games/connect4/js/modules/core/BaseGameUI.js",
+      "games/connect4/js/components/BoardRenderer.js",
+      "games/connect4/js/game.js",
+      "games/connect4/js/connect4-config.js",
+      "_preload-helper-DDWtIbF5.js",
+      "_game_engine-DD1aZRKp.js"
+    ],
+    "dynamicImports": [
+      "games/connect4/js/modules/core/BaseGameUI.js",
+      "games/connect4/js/connect4-config.js",
+      "games/connect4/js/components/BoardRenderer.js",
+      "games/connect4/js/game.js"
+    ],
+    "css": [
+      "assets/connect4-Ddes7ABA.css"
+    ]
+  },
+  "games/connect4/js/components/BoardRenderer.js": {
+    "file": "assets/BoardRenderer-qmcA1BJL.js",
+    "name": "BoardRenderer",
+    "src": "games/connect4/js/components/BoardRenderer.js",
+    "isDynamicEntry": true
+  },
+  "games/connect4/js/components/KeyboardController.js": {
+    "file": "assets/KeyboardController-_k43I76b.js",
+    "name": "KeyboardController",
+    "src": "games/connect4/js/components/KeyboardController.js",
+    "isDynamicEntry": true
+  },
+  "games/connect4/js/components/MessageSystem.js": {
+    "file": "assets/MessageSystem-qRdWVvXR.js",
+    "name": "MessageSystem",
+    "src": "games/connect4/js/components/MessageSystem.js",
+    "isDynamicEntry": true
+  },
+  "games/connect4/js/components/ModalManager.js": {
+    "file": "assets/ModalManager-DFHthtFA.js",
+    "name": "ModalManager",
+    "src": "games/connect4/js/components/ModalManager.js",
+    "isDynamicEntry": true
+  },
+  "games/connect4/js/connect4-config.js": {
+    "file": "assets/connect4-config-4khcFxLH.js",
+    "name": "connect4-config",
+    "src": "games/connect4/js/connect4-config.js",
+    "isDynamicEntry": true
+  },
+  "games/connect4/js/game.js": {
+    "file": "assets/game-CEJv9Ek5.js",
+    "name": "game",
+    "src": "games/connect4/js/game.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_game_engine-DD1aZRKp.js"
+    ]
+  },
+  "games/connect4/js/modules/core/BaseGameUI.js": {
+    "file": "assets/BaseGameUI-B3-5pT0q.js",
+    "name": "BaseGameUI",
+    "src": "games/connect4/js/modules/core/BaseGameUI.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_preload-helper-DDWtIbF5.js"
+    ],
+    "dynamicImports": [
+      "games/connect4/js/components/ModalManager.js",
+      "games/connect4/js/components/MessageSystem.js",
+      "games/connect4/js/components/KeyboardController.js"
+    ]
+  },
+  "games/gomoku/index.html": {
+    "file": "assets/gomoku-D2Xe14mk.js",
+    "name": "gomoku",
+    "src": "games/gomoku/index.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js",
+      "_preload-helper-DDWtIbF5.js"
+    ],
+    "dynamicImports": [
+      "games/gomoku/js/game-bitpacked.js",
+      "games/gomoku/js/ui-production.js"
+    ],
+    "css": [
+      "assets/gomoku-DbYwQZus.css"
+    ]
+  },
+  "games/gomoku/js/game-bitpacked.js": {
+    "file": "assets/game-bitpacked-wtQyIXuP.js",
+    "name": "game-bitpacked",
+    "src": "games/gomoku/js/game-bitpacked.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_game_engine-DD1aZRKp.js"
+    ]
+  },
+  "games/gomoku/js/ui-production.js": {
+    "file": "assets/ui-production-BPB11lUc.js",
+    "name": "ui-production",
+    "src": "games/gomoku/js/ui-production.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_DOMUtils-DkhNr1PH.js",
+      "_preload-helper-DDWtIbF5.js"
+    ]
+  },
+  "games/hex/index.html": {
+    "file": "assets/hex-qMf7dKzJ.js",
+    "name": "hex",
+    "src": "games/hex/index.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js",
+      "games/lgame/js/components/SoundManager.js",
+      "_DOMUtils-DkhNr1PH.js",
+      "_preload-helper-DDWtIbF5.js"
+    ]
+  },
+  "games/lgame/index.html": {
+    "file": "assets/lgame-8ARrmcya.js",
+    "name": "lgame",
+    "src": "games/lgame/index.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js",
+      "games/lgame/js/components/SoundManager.js",
+      "_game_engine-DD1aZRKp.js",
+      "_preload-helper-DDWtIbF5.js"
+    ],
+    "dynamicImports": [
+      "games/lgame/js/components/ParticleEngine.js",
+      "games/lgame/js/components/SoundManager.js"
+    ]
+  },
+  "games/lgame/js/components/ParticleEngine.js": {
+    "file": "assets/ParticleEngine-gbcPFTkt.js",
+    "name": "ParticleEngine",
+    "src": "games/lgame/js/components/ParticleEngine.js",
+    "isDynamicEntry": true
+  },
+  "games/lgame/js/components/SoundManager.js": {
+    "file": "assets/SoundManager-l0sNRNKZ.js",
+    "name": "SoundManager",
+    "src": "games/lgame/js/components/SoundManager.js",
+    "isDynamicEntry": true
+  },
+  "games/trio/index.html": {
+    "file": "assets/trio-BM9uFnI3.js",
+    "name": "trio",
+    "src": "games/trio/index.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js",
+      "_DOMUtils-DkhNr1PH.js",
+      "_game_engine-DD1aZRKp.js",
+      "_preload-helper-DDWtIbF5.js"
+    ]
+  },
+  "index.html": {
+    "file": "assets/main-CRqiyXAB.js",
+    "name": "main",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_modulepreload-polyfill-B5Qt9EMX.js"
+    ],
+    "css": [
+      "assets/main-C7WBd-uV.css"
+    ],
+    "assets": [
+      "assets/manifest-BI0hwqpo.json"
+    ]
+  },
+  "manifest.json": {
+    "file": "assets/manifest-BI0hwqpo.json",
+    "src": "manifest.json"
+  }
+}
