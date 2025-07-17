@@ -253,7 +253,241 @@
       </div>
     </div>
 
-    <!-- STEP 3: Modular Architecture Activation - WASM Backend Integration -->
+    <!-- EMERGENCY DIRECT MINIMAL CONNECT4 - BYPASS MODULE SYSTEM -->
+    <script>
+      console.log('🚨 DIRECT MINIMAL CONNECT4 INITIALIZATION...');
+      
+      // DIRECT MINIMAL IMPLEMENTATION - NO MODULE IMPORTS
+      function initializeMinimalConnect4() {
+        console.log('🔧 Emergency minimal Connect4 initialization...');
+        
+        // Simple game state
+        const gameState = {
+          board: Array(6).fill(null).map(() => Array(7).fill(0)),
+          currentPlayer: 1,
+          gameOver: false,
+          winner: null,
+          moveCount: 0
+        };
+        
+        // Create board
+        const gameBoard = document.getElementById('gameBoard');
+        if (gameBoard) {
+          gameBoard.innerHTML = '';
+          
+          // Create 42 cells
+          for (let row = 0; row < 6; row++) {
+            for (let col = 0; col < 7; col++) {
+              const cell = document.createElement('div');
+              cell.className = 'game-slot relative bg-blue-500 rounded-full border-2 border-blue-700 cursor-pointer aspect-square flex items-center justify-center';
+              cell.dataset.row = row;
+              cell.dataset.col = col;
+              
+              const disc = document.createElement('div');
+              disc.className = 'disc empty w-[85%] h-[85%] rounded-full';
+              disc.style.background = 'rgba(255, 255, 255, 0.1)';
+              disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+              
+              cell.appendChild(disc);
+              gameBoard.appendChild(cell);
+              
+              // Add click handler
+              cell.addEventListener('click', () => makeMove(col));
+            }
+          }
+          
+          console.log('✅ Emergency board created with 42 cells');
+        }
+        
+        // Make move function
+        function makeMove(col) {
+          if (gameState.gameOver || col < 0 || col >= 7) return;
+          
+          // Find lowest empty row
+          let targetRow = -1;
+          for (let row = 5; row >= 0; row--) {
+            if (gameState.board[row][col] === 0) {
+              targetRow = row;
+              break;
+            }
+          }
+          
+          if (targetRow === -1) return; // Column full
+          
+          // Make move
+          gameState.board[targetRow][col] = gameState.currentPlayer;
+          gameState.moveCount++;
+          
+          // Update visual
+          const cell = document.querySelector(`[data-row="${targetRow}"][data-col="${col}"]`);
+          if (cell) {
+            const disc = cell.querySelector('.disc');
+            if (disc) {
+              disc.classList.remove('empty');
+              disc.classList.add(gameState.currentPlayer === 1 ? 'yellow' : 'red');
+              
+              if (gameState.currentPlayer === 1) {
+                disc.style.background = 'linear-gradient(135deg, #FFD700, #FFA000)';
+                disc.style.border = '3px solid #FF8F00';
+                disc.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.6)';
+              } else {
+                disc.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                disc.style.border = '3px solid #C62828';
+                disc.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.6)';
+              }
+            }
+          }
+          
+          // Check win
+          if (checkWin(targetRow, col)) {
+            gameState.gameOver = true;
+            gameState.winner = gameState.currentPlayer;
+            const winnerName = gameState.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+            
+            const statusEl = document.getElementById('gameStatus');
+            if (statusEl) {
+              statusEl.textContent = `${winnerName} gewinnt!`;
+              statusEl.className = 'font-semibold text-yellow-400';
+            }
+            
+            console.log(`🏆 ${winnerName} gewinnt!`);
+          } else if (gameState.moveCount === 42) {
+            gameState.gameOver = true;
+            gameState.winner = 0;
+            
+            const statusEl = document.getElementById('gameStatus');
+            if (statusEl) {
+              statusEl.textContent = 'Unentschieden!';
+              statusEl.className = 'font-semibold text-gray-400';
+            }
+            
+            console.log('🤝 Unentschieden!');
+          } else {
+            // Switch player
+            gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
+            updatePlayerIndicator();
+          }
+        }
+        
+        // Check win function
+        function checkWin(row, col) {
+          const player = gameState.board[row][col];
+          const directions = [
+            [0, 1], [1, 0], [1, 1], [1, -1]
+          ];
+          
+          for (const [dr, dc] of directions) {
+            let count = 1;
+            
+            // Check positive direction
+            for (let i = 1; i < 4; i++) {
+              const r = row + i * dr;
+              const c = col + i * dc;
+              if (r >= 0 && r < 6 && c >= 0 && c < 7 && gameState.board[r][c] === player) {
+                count++;
+              } else {
+                break;
+              }
+            }
+            
+            // Check negative direction
+            for (let i = 1; i < 4; i++) {
+              const r = row - i * dr;
+              const c = col - i * dc;
+              if (r >= 0 && r < 6 && c >= 0 && c < 7 && gameState.board[r][c] === player) {
+                count++;
+              } else {
+                break;
+              }
+            }
+            
+            if (count >= 4) return true;
+          }
+          
+          return false;
+        }
+        
+        // Update player indicator
+        function updatePlayerIndicator() {
+          const indicator = document.getElementById('currentPlayerIndicator');
+          if (indicator) {
+            const disc = indicator.querySelector('.player-disc');
+            const name = indicator.querySelector('.player-name');
+            if (disc && name) {
+              if (gameState.currentPlayer === 1) {
+                disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg';
+                name.textContent = 'Spieler 1';
+              } else {
+                disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-red-500 to-red-700 shadow-lg';
+                name.textContent = 'Spieler 2';
+              }
+            }
+          }
+        }
+        
+        // Set up new game button
+        const newGameBtn = document.getElementById('newGameBtn');
+        if (newGameBtn) {
+          newGameBtn.addEventListener('click', () => {
+            // Reset game state
+            gameState.board = Array(6).fill(null).map(() => Array(7).fill(0));
+            gameState.currentPlayer = 1;
+            gameState.gameOver = false;
+            gameState.winner = null;
+            gameState.moveCount = 0;
+            
+            // Reset all cells
+            const cells = document.querySelectorAll('.game-slot');
+            cells.forEach(cell => {
+              const disc = cell.querySelector('.disc');
+              if (disc) {
+                disc.classList.remove('yellow', 'red');
+                disc.classList.add('empty');
+                disc.style.background = 'rgba(255, 255, 255, 0.1)';
+                disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                disc.style.boxShadow = 'none';
+              }
+            });
+            
+            // Reset UI
+            const statusEl = document.getElementById('gameStatus');
+            if (statusEl) {
+              statusEl.textContent = 'Spiel läuft';
+              statusEl.className = 'font-semibold text-green-400';
+            }
+            
+            updatePlayerIndicator();
+            console.log('🔄 New game started');
+          });
+        }
+        
+        // Initialize UI
+        updatePlayerIndicator();
+        
+        // Make available for debugging
+        window.game = {
+          state: gameState,
+          makeMove: makeMove,
+          checkWin: checkWin
+        };
+        
+        console.log('✅ Emergency minimal Connect4 initialized successfully!');
+      }
+      
+      // IMMEDIATE INITIALIZATION - NO WAITING FOR MODULES
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('🚨 DOM LOADED - STARTING MINIMAL CONNECT4 IMMEDIATELY');
+        initializeMinimalConnect4();
+      });
+      
+      // If DOM already loaded, run immediately
+      if (document.readyState !== 'loading') {
+        console.log('🚨 DOM ALREADY LOADED - STARTING MINIMAL CONNECT4 NOW');
+        initializeMinimalConnect4();
+      }
+    </script>
+    
+    <!-- ORIGINAL MODULAR SYSTEM (COMMENTED OUT FOR NOW)
     <script type="module">
       console.log('🚀 STEP 3: Activating WASM Backend Integration...');
       
@@ -1134,5 +1368,6 @@
         console.log('✅ Emergency minimal Connect4 initialized successfully!');
       }
     </script>
+    <!-- END OF MODULAR SYSTEM - COMMENTED OUT -->
   </body>
 </html>
