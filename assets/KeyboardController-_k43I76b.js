@@ -1,0 +1,2 @@
+class i{constructor(e){this.keymap=e,this.listeners={},this.init()}init(){document.addEventListener("keydown",e=>this.handleKeyDown(e))}handleKeyDown(e){const t=this.keymap[e.key];t&&this.listeners[t]&&(e.preventDefault(),this.listeners[t]())}register(e,t,s){this.keymap[e]=t,this.listeners[t]=s}destroy(){document.removeEventListener("keydown",e=>this.handleKeyDown(e))}}export{i as KeyboardController};
+//# sourceMappingURL=KeyboardController-_k43I76b.js.map

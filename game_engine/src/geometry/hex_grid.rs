@@ -330,8 +330,8 @@ mod tests {
         
         // Player 1 and Player 2 should have different path counts
         // (depends on implementation, but they should exist)
-        assert!(grid.winning_paths_player1.len() > 0);
-        assert!(grid.winning_paths_player2.len() > 0);
+        assert!(!grid.winning_paths_player1.is_empty());
+        assert!(!grid.winning_paths_player2.is_empty());
     }
     
     #[test]

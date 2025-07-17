@@ -292,6 +292,61 @@ export const TrioDistribution = Object.freeze({
     Official: 3, "3": "Official",
 });
 
+const AiMoveFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_aimove_free(ptr >>> 0, 1));
+/**
+ * A struct to represent an AI move for wasm-bindgen.
+ */
+export class AiMove {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(AiMove.prototype);
+        obj.__wbg_ptr = ptr;
+        AiMoveFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        AiMoveFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_aimove_free(ptr, 0);
+    }
+    /**
+     * @returns {number}
+     */
+    get row() {
+        const ret = wasm.__wbg_get_aimove_row(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set row(arg0) {
+        wasm.__wbg_set_aimove_row(this.__wbg_ptr, arg0);
+    }
+    /**
+     * @returns {number}
+     */
+    get col() {
+        const ret = wasm.__wbg_get_aimove_col(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * @param {number} arg0
+     */
+    set col(arg0) {
+        wasm.__wbg_set_aimove_col(this.__wbg_ptr, arg0);
+    }
+}
+
 const BoardFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_board_free(ptr >>> 0, 1));
@@ -1715,7 +1770,7 @@ export class GomokuGame {
         return ret !== 0;
     }
     /**
-     * Get AI move suggestion
+     * Get AI move suggestion (modern API with Option return type)
      * @returns {Uint32Array}
      */
     get_ai_move() {
@@ -1730,6 +1785,14 @@ export class GomokuGame {
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
         }
+    }
+    /**
+     * Get AI move suggestion (internal API with proper Option type)
+     * @returns {AiMove | undefined}
+     */
+    get_ai_move_option() {
+        const ret = wasm.gomokugame_get_ai_move_option(this.__wbg_ptr);
+        return ret === 0 ? undefined : AiMove.__wrap(ret);
     }
     /**
      * Get AI move suggestion for specific player
@@ -1810,6 +1873,52 @@ export class GomokuGame {
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
         }
+    }
+    /**
+     * Analyze position (Connect4-compatible API)
+     * @returns {string}
+     */
+    analyze_position() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_analyze_position(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Get threatening moves for current player
+     * @returns {Uint32Array}
+     */
+    get_threatening_moves() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.gomokugame_get_threatening_moves(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU32FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 4, 4);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Create hypothetical state for AI evaluation
+     * @param {Player} hypothetical_player
+     * @returns {GomokuGame | undefined}
+     */
+    create_hypothetical_state(hypothetical_player) {
+        const ret = wasm.gomokugame_create_hypothetical_state(this.__wbg_ptr, hypothetical_player);
+        return ret === 0 ? undefined : GomokuGame.__wrap(ret);
     }
 }
 
@@ -2016,27 +2125,27 @@ export class PositionAnalysis {
      * @returns {number}
      */
     get current_player_threats() {
-        const ret = wasm.__wbg_get_positionanalysis_current_player_threats(this.__wbg_ptr);
+        const ret = wasm.__wbg_get_aimove_row(this.__wbg_ptr);
         return ret >>> 0;
     }
     /**
      * @param {number} arg0
      */
     set current_player_threats(arg0) {
-        wasm.__wbg_set_positionanalysis_current_player_threats(this.__wbg_ptr, arg0);
+        wasm.__wbg_set_aimove_row(this.__wbg_ptr, arg0);
     }
     /**
      * @returns {number}
      */
     get opponent_threats() {
-        const ret = wasm.__wbg_get_positionanalysis_opponent_threats(this.__wbg_ptr);
+        const ret = wasm.__wbg_get_aimove_col(this.__wbg_ptr);
         return ret >>> 0;
     }
     /**
      * @param {number} arg0
      */
     set opponent_threats(arg0) {
-        wasm.__wbg_set_positionanalysis_opponent_threats(this.__wbg_ptr, arg0);
+        wasm.__wbg_set_aimove_col(this.__wbg_ptr, arg0);
     }
     /**
      * @returns {number}
@@ -2377,16 +2486,17 @@ const TrioGameFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_triogame_free(ptr >>> 0, 1));
 /**
- * Trio Game using BitPackedBoard<7,7,4> for memory efficiency
+ * Trio Game using 3-Layer Architecture for clean separation of concerns
  *
  * Trio is a mathematical puzzle game where players find combinations
- * of three numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
+ * of three LINEAR numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
  *
  * Features:
  * - 7×7 board filled with numbers 1-9
  * - BitPacked storage: 4 bits per cell (supports 0-15, perfect for 1-9)
+ * - Linear constraints: Only straight lines (horizontal/vertical/diagonal) allowed
+ * - Optimized algorithm: 120 linear patterns instead of 117,649 brute force
  * - Memory efficient: 25 bytes vs 49 bytes naive implementation (49% reduction)
- * - No AI opponent needed - pure puzzle game
  */
 export class TrioGame {
 
@@ -2438,7 +2548,7 @@ export class TrioGame {
         return ret;
     }
     /**
-     * Validate a trio combination (a×b+c or a×b-c = target)
+     * Validate a trio combination with adjacency check
      * Returns the calculated result if valid, or -1 if invalid
      * @param {number} row1
      * @param {number} col1
@@ -2462,8 +2572,8 @@ export class TrioGame {
         return ret;
     }
     /**
-     * Find all possible trio solutions on the current board
-     * Returns array of solutions as [row1, col1, row2, col2, row3, col3, result]
+     * Find all possible trio solutions using optimized adjacency algorithm
+     * Optimization: Only check valid adjacent triplets (~200) instead of all combinations (117,649)
      * @returns {Uint8Array}
      */
     find_all_solutions() {
@@ -2511,6 +2621,66 @@ export class TrioGame {
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
         }
+    }
+    /**
+     * Get count of adjacent patterns for performance info
+     * @returns {number}
+     */
+    get_adjacency_pattern_count() {
+        const ret = wasm.triogame_get_adjacency_pattern_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Connect4-compatible API: Get current player
+     * @returns {number}
+     */
+    get_current_player() {
+        const ret = wasm.triogame_get_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Connect4-compatible API: Make a move (mark found solution)
+     * @param {number} row1
+     * @param {number} col1
+     * @param {number} row2
+     * @param {number} col2
+     * @param {number} row3
+     * @param {number} col3
+     * @returns {boolean}
+     */
+    make_move(row1, col1, row2, col2, row3, col3) {
+        const ret = wasm.triogame_make_move(this.__wbg_ptr, row1, col1, row2, col2, row3, col3);
+        return ret !== 0;
+    }
+    /**
+     * Connect4-compatible API: Reset game
+     */
+    reset() {
+        wasm.triogame_reset(this.__wbg_ptr);
+    }
+    /**
+     * Connect4-compatible API: Get move count
+     * @returns {number}
+     */
+    get_move_count() {
+        const ret = wasm.triogame_get_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Connect4-compatible API: Get winner (puzzle completed when all solutions found)
+     * @returns {number}
+     */
+    get_winner() {
+        const ret = wasm.triogame_get_winner(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get game phase for UI consistency
+     * @returns {number}
+     */
+    get_game_phase() {
+        const ret = wasm.triogame_get_game_phase(this.__wbg_ptr);
+        return ret;
     }
 }
 

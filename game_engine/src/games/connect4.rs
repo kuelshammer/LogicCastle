@@ -352,7 +352,7 @@ impl Connect4Game {
         
         PositionAnalysis {
             current_player_threats: current_threats,
-            opponent_threats: opponent_threats,
+            opponent_threats,
             total_pieces: self.move_count,
             connectivity_score: connectivity,
             game_phase: phase,
@@ -513,10 +513,8 @@ impl Connect4Game {
             if self.is_valid_move(col) {
                 // Simulate move
                 let mut test_game = self.clone();
-                if test_game.make_move(col).is_ok() {
-                    if test_game.winner() == Some(player) {
-                        winning_moves.push(col);
-                    }
+                if test_game.make_move(col).is_ok() && test_game.winner() == Some(player) {
+                    winning_moves.push(col);
                 }
             }
         }
@@ -534,10 +532,8 @@ impl Connect4Game {
             if self.is_valid_move(col) {
                 // Simulate opponent move
                 let mut test_game = self.create_hypothetical_state(opponent);
-                if test_game.make_move(col).is_ok() {
-                    if test_game.winner() == Some(opponent) {
-                        blocking_moves.push(col);
-                    }
+                if test_game.make_move(col).is_ok() && test_game.winner() == Some(opponent) {
+                    blocking_moves.push(col);
                 }
             }
         }

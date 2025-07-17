@@ -1,7 +1,7 @@
 /// Gemini AI Test Cases - Complete 13 Test Suite
 /// Based on reports: 20250708-100500_Connect4_AI_Test_Cases.md and 20250708-101500_Connect4_AI_Test_Cases_Corrected.md
 
-use super::test_data::{AITestCase, extract_move_from_boards, test_ai_case_xor};
+use crate::ai::test_data::{AITestCase, test_ai_case_xor};
 
 /// Get all 13 Gemini test cases organized by categories
 pub fn get_gemini_test_cases() -> Vec<AITestCase> {
@@ -617,7 +617,8 @@ pub fn run_all_gemini_tests() -> (usize, usize, Vec<String>) {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
+    use crate::ai::get_gemini_test_cases;
     
     #[test]
     fn test_gemini_cases_count() {
@@ -643,7 +644,7 @@ mod tests {
         
         for test_case in test_cases {
             // Test that move extraction works for all test cases
-            let result = extract_move_from_boards(
+            let result = crate::ai::test_data::extract_move_from_boards(
                 test_case.board_before,
                 test_case.board_after
             );
@@ -663,7 +664,7 @@ mod tests {
     
     #[test]
     fn test_gemini_ai_integration() {
-        let (passed, failed, failures) = run_all_gemini_tests();
+        let (passed, failed, failures) = crate::ai::gemini_test_cases::run_all_gemini_tests();
         
         println!("\n=== GEMINI AI TEST INTEGRATION RESULTS ===");
         println!("Total tests: {}", passed + failed);

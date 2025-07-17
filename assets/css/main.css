@@ -17,7 +17,11 @@
    * ========================================== */
   
   .game-board-grid { 
-    @apply grid gap-1 p-2 bg-gray-800 rounded-lg;
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    background-color: rgb(31 41 55);
+    border-radius: 0.5rem;
   }
   
   .game-board-container {

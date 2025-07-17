@@ -1,7 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./games/connect4/**/*.{html,js}",
+    "./games/**/*.{html,js}",
+    "./index.html",
+    "./assets/**/*.{html,js}",
   ],
   theme: {
     extend: {},

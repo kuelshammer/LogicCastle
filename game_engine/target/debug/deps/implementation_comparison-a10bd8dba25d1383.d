@@ -5,5 +5,5 @@
 tests/implementation_comparison.rs:
 Cargo.toml:
 
-# env-dep:CLIPPY_ARGS=-W__CLIPPY_HACKERY__clippy::unwrap_used__CLIPPY_HACKERY__
+# env-dep:CLIPPY_ARGS=--no-deps__CLIPPY_HACKERY__
 # env-dep:CLIPPY_CONF_DIR

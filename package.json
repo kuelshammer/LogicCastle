@@ -32,7 +32,6 @@
     "preview": "vite preview",
     "serve": "http-server . -p 8080 -o",
     "ci": "npm run lint:check && npm run format:check && npm run test && npm run test:gomoku-lite && npm run build",
-    "tailwind:build": "node ./node_modules/tailwindcss/dist/lib.mjs -i ./assets/css/main.css -o ./dist/assets/css/main.css",
     "wasm:build": "PATH=$HOME/.cargo/bin:$PATH wasm-pack build game_engine --target web --out-dir pkg",
     "watch:rust": "./watch-rust.sh",
     "dev:rust": "concurrently \"npm run watch:rust\" \"npm run dev\""

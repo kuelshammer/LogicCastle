@@ -22,7 +22,7 @@ impl<const ROWS: usize, const COLS: usize, const BITS_PER_CELL: usize> BitPacked
         const BITS_PER_U64: usize = 64;
         let cells_per_u64 = BITS_PER_U64 / BITS_PER_CELL;
         let total_cells = ROWS * COLS;
-        let data_size = (total_cells + cells_per_u64 - 1) / cells_per_u64;
+        let data_size = total_cells.div_ceil(cells_per_u64);
         let mask = (1u64 << BITS_PER_CELL) - 1;
         
         Self {

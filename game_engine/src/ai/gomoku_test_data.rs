@@ -169,7 +169,7 @@ pub fn is_valid_gomoku_state(ascii: &str) -> Result<bool, String> {
     // - Black has one more (Black just moved)
     let count_diff = black_count - white_count;
     
-    if count_diff < 0 || count_diff > 1 {
+    if !(0..=1).contains(&count_diff) {
         return Ok(false); // Invalid stone count difference
     }
     

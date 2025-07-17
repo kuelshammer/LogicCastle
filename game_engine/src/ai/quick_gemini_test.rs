@@ -1,6 +1,3 @@
-/// Quick test to see which Gemini test cases work
-use crate::ai::gemini_gomoku_tests::get_gemini_gomoku_test_cases;
-use crate::ai::gomoku_test_data::{parse_gomoku_ascii_to_boards, extract_gomoku_move_from_boards};
 
 #[cfg(test)]
 #[test]

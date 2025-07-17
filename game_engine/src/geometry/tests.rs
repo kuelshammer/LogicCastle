@@ -1,10 +1,9 @@
-use crate::data::BitPackedBoard;
-use crate::geometry::{BoardGeometry, PatternProvider, QuadraticGrid, HexGrid, Connect4Grid, StandardHexGrid};
-use std::time::Instant;
 
 #[cfg(test)]
 mod pattern_performance_tests {
-    use super::*;
+    use std::time::Instant;
+    use crate::{Connect4Grid, StandardHexGrid};
+    use crate::geometry::{QuadraticGrid, HexGrid, BitPackedBoard, BoardGeometry, PatternProvider};
 
     #[test]
     fn test_connect4_pattern_generation_performance() {
@@ -353,7 +352,8 @@ mod pattern_performance_tests {
 
 #[cfg(test)]
 mod integration_tests {
-    use super::*;
+    use crate::{Connect4Grid, StandardHexGrid};
+    use crate::geometry::{QuadraticGrid, HexGrid, BitPackedBoard, BoardGeometry, PatternProvider};
 
     #[test]
     fn test_three_layer_integration() {

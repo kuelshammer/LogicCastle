@@ -8,7 +8,6 @@
     <title>Hex - LogicCastle</title>
     
     <!-- Central CSS Architecture -->
-    <link rel="stylesheet" href="../../assets/css/main.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -22,6 +21,11 @@
             }
         }
     </script>
+  <script type="module" crossorigin src="/LogicCastle/assets/hex-qMf7dKzJ.js"></script>
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/SoundManager-l0sNRNKZ.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/preload-helper-DDWtIbF5.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/DOMUtils-DkhNr1PH.js">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-purple-500 to-pink-600 font-sans">
     <!-- Header -->
@@ -305,68 +309,5 @@
     </div>
 
     <!-- JavaScript Modules -->
-    <script type="module">
-        // import init, { HexGame } from '../../game_engine/pkg/game_engine.js'; // Temporarily disabled for dev server
-        import { HexUINew } from './js/ui-new.js';
-        
-        async function initializeHexGame() {
-            try {
-                console.log('⬡ Starting Hex Game with UI Module System...');
-                
-                // Initialize WASM module
-                await init();
-                
-                // Create mock game for now (until proper game integration)
-                const mockGame = {
-                    isInitialized: true,
-                    getCurrentPlayer: () => 'red',
-                    switchPlayer: () => console.log('Switching player'),
-                    resetGame: () => console.log('Resetting game'),
-                    on: () => {},
-                    emit: () => {},
-                    undoMove: () => false,
-                    makeMove: () => false,
-                    getValidMoves: () => [],
-                    getBoardState: () => ({}),
-                    findPath: () => [],
-                    checkWinCondition: () => null,
-                    getBoardSize: () => 11,
-                    isValidPosition: (row, col) => row >= 0 && row < 11 && col >= 0 && col < 11,
-                    getCellState: () => 'empty'
-                };
-                
-                // Initialize UI with UI Module System
-                const ui = new HexUINew(mockGame);
-                await ui.init();
-                
-                // Make objects globally available for debugging
-                window.game = mockGame;
-                window.ui = ui;
-                window.HexGame = HexGame;
-                
-                console.log('✅ Hex Game initialization complete with UI Module System!');
-                
-            } catch (error) {
-                console.error('❌ Hex Game initialization failed:', error);
-                
-                // Show error to user
-                const errorDisplay = document.getElementById('error-display');
-                if (errorDisplay) {
-                    errorDisplay.style.display = 'block';
-                    const errorMessage = errorDisplay.querySelector('#error-message');
-                    if (errorMessage) {
-                        errorMessage.textContent = `Initialisierung fehlgeschlagen: ${error.message}`;
-                    }
-                }
-            }
-        }
-        
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeHexGame);
-        } else {
-            initializeHexGame();
-        }
-    </script>
 </body>
 </html>

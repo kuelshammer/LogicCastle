@@ -8,7 +8,6 @@
     <title>L-Game - LogicCastle</title>
     
     <!-- Central CSS Architecture -->
-    <link rel="stylesheet" href="../../assets/css/main.css">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -22,6 +21,11 @@
             }
         }
     </script>
+  <script type="module" crossorigin src="/LogicCastle/assets/lgame-8ARrmcya.js"></script>
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/SoundManager-l0sNRNKZ.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/game_engine-DD1aZRKp.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/preload-helper-DDWtIbF5.js">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 font-sans">
     <!-- Header -->
@@ -159,100 +163,5 @@
     </div>
 
     <!-- JavaScript Modules -->
-    <script type="module">
-        import { LGameUI } from './js/ui-production.js';
-        
-        async function initializeLGame() {
-            try {
-                console.log('🧩 Starting L-Game with BitPacked Engine...');
-                
-                // Hide loading overlay
-                const loadingOverlay = document.getElementById('loading-overlay');
-                const loadingProgress = document.getElementById('loading-progress');
-                
-                if (loadingProgress) {
-                    loadingProgress.textContent = 'BitPacked Engine wird initialisiert...';
-                }
-                
-                // Initialize UI with BitPacked engine
-                const ui = new LGameUI();
-                await ui.init();
-                
-                // Update system status
-                const wasmStatus = document.getElementById('wasm-status');
-                const gameEngineStatus = document.getElementById('game-engine-status');
-                
-                if (wasmStatus) {
-                    wasmStatus.textContent = 'Geladen';
-                    wasmStatus.className = 'font-bold text-green-600';
-                }
-                
-                if (gameEngineStatus) {
-                    gameEngineStatus.textContent = 'BitPacked Ready';
-                    gameEngineStatus.className = 'font-bold text-green-600';
-                }
-                
-                // Hide loading overlay
-                if (loadingOverlay) {
-                    loadingOverlay.style.display = 'none';
-                }
-                
-                // Make objects globally available for debugging
-                window.ui = ui;
-                window.gameEngine = ui.gameEngine;
-                
-                console.log('✅ L-Game BitPacked initialization complete!');
-                console.log('🎯 Performance:', ui.gameEngine.getPerformanceStats());
-                
-            } catch (error) {
-                console.error('❌ L-Game initialization failed:', error);
-                
-                // Show error modal
-                const errorModal = document.getElementById('error-modal');
-                const errorMessage = document.getElementById('error-message');
-                const loadingOverlay = document.getElementById('loading-overlay');
-                
-                if (loadingOverlay) {
-                    loadingOverlay.style.display = 'none';
-                }
-                
-                if (errorModal) {
-                    errorModal.classList.remove('hidden');
-                }
-                
-                if (errorMessage) {
-                    errorMessage.textContent = `BitPacked Engine Fehler: ${error.message}`;
-                }
-            }
-        }
-        
-        // Retry button handler
-        document.addEventListener('DOMContentLoaded', () => {
-            const retryButton = document.getElementById('retry-button');
-            const closeErrorButton = document.getElementById('close-error');
-            
-            if (retryButton) {
-                retryButton.addEventListener('click', () => {
-                    location.reload();
-                });
-            }
-            
-            if (closeErrorButton) {
-                closeErrorButton.addEventListener('click', () => {
-                    const errorModal = document.getElementById('error-modal');
-                    if (errorModal) {
-                        errorModal.classList.add('hidden');
-                    }
-                });
-            }
-        });
-        
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeLGame);
-        } else {
-            initializeLGame();
-        }
-    </script>
 </body>
 </html>

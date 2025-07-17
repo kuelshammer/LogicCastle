@@ -149,7 +149,7 @@ impl GomokuAI {
             for i in 1..5 {
                 let r = row as i32 + i * dr;
                 let c = col as i32 + i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             count += 1;
@@ -168,7 +168,7 @@ impl GomokuAI {
             for i in 1..5 {
                 let r = row as i32 - i * dr;
                 let c = col as i32 - i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             count += 1;
@@ -322,7 +322,7 @@ impl GomokuAI {
                 let r = row as i32 + dr;
                 let c = col as i32 + dc;
                 
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if black_board.get_bit(index) || white_board.get_bit(index) {
                             return true;
@@ -397,7 +397,7 @@ impl GomokuAI {
             for i in 1..5 {
                 let r = row as i32 + i * dr;
                 let c = col as i32 + i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             pos_count += 1;
@@ -420,7 +420,7 @@ impl GomokuAI {
             for i in 1..5 {
                 let r = row as i32 - i * dr;
                 let c = col as i32 - i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             neg_count += 1;
@@ -470,9 +470,9 @@ impl GomokuAI {
         
         for row in 0..15 {
             for col in 0..15 {
-                if let Some(index) = geometry.to_index((row as i32, col as i32)) {
+                if let Some(index) = geometry.to_index((row, col)) {
                     if player_board.get_bit(index) {
-                        let distance = ((row as i32 - center).abs() + (col as i32 - center).abs()) as usize;
+                        let distance = ((row - center).abs() + (col - center).abs()) as usize;
                         score += match distance {
                             0 => self.center_weight * 4,      // Center position
                             1..=2 => self.center_weight * 2,  // Near center
@@ -533,7 +533,7 @@ impl GomokuAI {
             for i in 1..4 {
                 let r = row as i32 + i * dr;
                 let c = col as i32 + i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             count += 1;
@@ -552,7 +552,7 @@ impl GomokuAI {
             for i in 1..4 {
                 let r = row as i32 - i * dr;
                 let c = col as i32 - i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             count += 1;
@@ -590,7 +590,7 @@ impl GomokuAI {
             for i in 1..3 {
                 let r = row as i32 + i * dr;
                 let c = col as i32 + i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             count += 1;
@@ -609,7 +609,7 @@ impl GomokuAI {
             for i in 1..3 {
                 let r = row as i32 - i * dr;
                 let c = col as i32 - i * dc;
-                if r >= 0 && r < 15 && c >= 0 && c < 15 {
+                if (0..15).contains(&r) && (0..15).contains(&c) {
                     if let Some(index) = geometry.to_index((r, c)) {
                         if player_board.get_bit(index) {
                             count += 1;

@@ -280,12 +280,7 @@ impl Board {
         if col >= self.cols {
             return None;
         }
-        for row in (0..self.rows).rev() {
-            if self.get_cell(row, col).unwrap_or(1) == 0 {
-                return Some(row);
-            }
-        }
-        None
+        (0..self.rows).rev().find(|&row| self.get_cell(row, col).unwrap_or(1) == 0)
     }
 }
 
@@ -579,10 +574,7 @@ impl Game {
     /// Simulate a move efficiently (WASM-compatible version)
     #[wasm_bindgen]
     pub fn simulate_move_connect4_js(&self, col: usize) -> Option<Game> {
-        match self.simulate_move_connect4(col) {
-            Ok(simulated_game) => Some(simulated_game),
-            Err(_) => None
-        }
+        self.simulate_move_connect4(col).ok()
     }
     
     /// Check if game is in terminal state (win/draw)
@@ -848,10 +840,8 @@ impl Game {
             // Gobang-style: check all empty positions
             for row in 0..self.board.rows {
                 for col in 0..self.board.cols {
-                    if self.board.get_cell(row, col).unwrap_or(1) == 0 {
-                        if self.would_win_at(row, col, player_val) {
-                            winning_moves += 1;
-                        }
+                    if self.board.get_cell(row, col).unwrap_or(1) == 0 && self.would_win_at(row, col, player_val) {
+                        winning_moves += 1;
                     }
                 }
             }
@@ -956,8 +946,8 @@ impl Game {
     /// Calculate positional value of a square
     fn calculate_position_value(&self, row: usize, col: usize, center_row: usize, center_col: usize) -> i32 {
         // Distance from center (closer = better)
-        let row_dist = (row as isize - center_row as isize).abs() as usize;
-        let col_dist = (col as isize - center_col as isize).abs() as usize;
+        let row_dist = (row as isize - center_row as isize).unsigned_abs();
+        let col_dist = (col as isize - center_col as isize).unsigned_abs();
         let total_dist = row_dist + col_dist;
         
         // Base positional value (center is worth more)
@@ -1017,7 +1007,7 @@ impl Game {
                     center_pieces += 1;
                 }
             }
-            score += center_pieces as i32 * 15;
+            score += center_pieces * 15;
         }
         
         // Penalty for edge play too early
@@ -1101,10 +1091,8 @@ impl Game {
                         let new_row = row as isize + dr;
                         let new_col = col as isize + dc;
                         
-                        if self.board.is_within_bounds(new_row, new_col) {
-                            if self.board.get_cell(new_row as usize, new_col as usize).unwrap_or(0) == current_val {
-                                adjacent_count += 1;
-                            }
+                        if self.board.is_within_bounds(new_row, new_col) && self.board.get_cell(new_row as usize, new_col as usize).unwrap_or(0) == current_val {
+                            adjacent_count += 1;
                         }
                     }
                     
@@ -1131,11 +1119,9 @@ impl Game {
                         let new_row = row as isize + dr;
                         let new_col = col as isize + dc;
                         
-                        if self.board.is_within_bounds(new_row, new_col) {
-                            if self.board.get_cell(new_row as usize, new_col as usize).unwrap_or(0) == player_val {
-                                has_adjacent = true;
-                                break;
-                            }
+                        if self.board.is_within_bounds(new_row, new_col) && self.board.get_cell(new_row as usize, new_col as usize).unwrap_or(0) == player_val {
+                            has_adjacent = true;
+                            break;
                         }
                     }
                     
@@ -1298,7 +1284,7 @@ impl Game {
                             break;
                         }
                     }
-                    1 | 2 | 3 => { // Middle three must be our pieces
+                    1..=3 => { // Middle three must be our pieces
                         if cell_val == player_val {
                             our_piece_count += 1;
                         } else if cell_val != 0 {
@@ -1464,7 +1450,7 @@ impl Game {
         
         // Check if this move wins immediately
         let mut temp_board = self.board.fast_clone();
-        if let Err(_) = temp_board.set_cell(row, col, player as i8) {
+        if temp_board.set_cell(row, col, player as i8).is_err() {
             return 0; // Invalid position, no threat
         }
         if self.would_win_at(row, col, player as i8) {
@@ -1513,10 +1499,8 @@ impl Game {
             let check_row = row as isize + dr;
             let check_col = col as isize + dc;
             
-            if self.board.is_within_bounds(check_row, check_col) {
-                if self.board.get_cell(check_row as usize, check_col as usize).unwrap_or(0) == player_val {
-                    count += 1;
-                }
+            if self.board.is_within_bounds(check_row, check_col) && self.board.get_cell(check_row as usize, check_col as usize).unwrap_or(0) == player_val {
+                count += 1;
             }
         }
         
@@ -1553,11 +1537,9 @@ impl Game {
         
         for row in 0..self.board.rows {
             for col in 0..self.board.cols {
-                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
-                    if self.would_win_at(row, col, player_val) {
-                        winning_moves.push(row);
-                        winning_moves.push(col);
-                    }
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 && self.would_win_at(row, col, player_val) {
+                    winning_moves.push(row);
+                    winning_moves.push(col);
                 }
             }
         }
@@ -1573,11 +1555,9 @@ impl Game {
         
         for row in 0..self.board.rows {
             for col in 0..self.board.cols {
-                if self.board.get_cell(row, col).unwrap_or(1) == 0 {
-                    if self.would_win_at(row, col, opponent_val) {
-                        blocking_moves.push(row);
-                        blocking_moves.push(col);
-                    }
+                if self.board.get_cell(row, col).unwrap_or(1) == 0 && self.would_win_at(row, col, opponent_val) {
+                    blocking_moves.push(row);
+                    blocking_moves.push(col);
                 }
             }
         }
@@ -1641,13 +1621,13 @@ impl TrioGameLegacy {
         for r in 0..7 {
             for c in 0..7 {
                 if let Some(&num) = numbers_to_place.get(cell_idx) {
-                    if let Err(_) = board.set_cell(r, c, num as i8) {
+                    if board.set_cell(r, c, num as i8).is_err() {
                         // Invalid position during initialization, skip
                         continue;
                     }
                 } else {
                     // This should not happen
-                    if let Err(_) = board.set_cell(r, c, 0) {
+                    if board.set_cell(r, c, 0).is_err() {
                         // Invalid position during initialization, skip
                         continue;
                     }
@@ -2143,7 +2123,7 @@ impl TrioGameLegacy {
         };
         
         // Ensure target is in reasonable range
-        if target >= 1 && target <= 90 {
+        if (1..=90).contains(&target) {
             target as u8
         } else {
             // Fallback to a simple target

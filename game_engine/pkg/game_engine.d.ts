@@ -62,6 +62,15 @@ export enum TrioDistribution {
   Challenging = 2,
   Official = 3,
 }
+/**
+ * A struct to represent an AI move for wasm-bindgen.
+ */
+export class AiMove {
+  private constructor();
+  free(): void;
+  row: number;
+  col: number;
+}
 export class Board {
   free(): void;
   constructor(rows: number, cols: number);
@@ -537,9 +546,13 @@ export class GomokuGame {
   newGame(): void;
   undoMove(): boolean;
   /**
-   * Get AI move suggestion
+   * Get AI move suggestion (modern API with Option return type)
    */
   get_ai_move(): Uint32Array;
+  /**
+   * Get AI move suggestion (internal API with proper Option type)
+   */
+  get_ai_move_option(): AiMove | undefined;
   /**
    * Get AI move suggestion for specific player
    */
@@ -564,6 +577,18 @@ export class GomokuGame {
    * Get blocking moves (prevent opponent from winning)
    */
   get_blocking_moves(): Uint32Array;
+  /**
+   * Analyze position (Connect4-compatible API)
+   */
+  analyze_position(): string;
+  /**
+   * Get threatening moves for current player
+   */
+  get_threatening_moves(): Uint32Array;
+  /**
+   * Create hypothetical state for AI evaluation
+   */
+  create_hypothetical_state(hypothetical_player: Player): GomokuGame | undefined;
 }
 /**
  * L-Game implementation using 3 separate BitPackedBoard<4,4,1>
@@ -679,16 +704,17 @@ export class SolutionAnalysis {
   readonly get_difficulty_score: number;
 }
 /**
- * Trio Game using BitPackedBoard<7,7,4> for memory efficiency
+ * Trio Game using 3-Layer Architecture for clean separation of concerns
  * 
  * Trio is a mathematical puzzle game where players find combinations
- * of three numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
+ * of three LINEAR numbers (a, b, c) that satisfy: a×b+c = target OR a×b-c = target
  * 
  * Features:
  * - 7×7 board filled with numbers 1-9
  * - BitPacked storage: 4 bits per cell (supports 0-15, perfect for 1-9)
+ * - Linear constraints: Only straight lines (horizontal/vertical/diagonal) allowed
+ * - Optimized algorithm: 120 linear patterns instead of 117,649 brute force
  * - Memory efficient: 25 bytes vs 49 bytes naive implementation (49% reduction)
- * - No AI opponent needed - pure puzzle game
  */
 export class TrioGame {
   free(): void;
@@ -709,7 +735,7 @@ export class TrioGame {
    */
   get_difficulty(): number;
   /**
-   * Validate a trio combination (a×b+c or a×b-c = target)
+   * Validate a trio combination with adjacency check
    * Returns the calculated result if valid, or -1 if invalid
    */
   validate_trio(row1: number, col1: number, row2: number, col2: number, row3: number, col3: number): number;
@@ -718,8 +744,8 @@ export class TrioGame {
    */
   generate_new_board(difficulty: number): number;
   /**
-   * Find all possible trio solutions on the current board
-   * Returns array of solutions as [row1, col1, row2, col2, row3, col3, result]
+   * Find all possible trio solutions using optimized adjacency algorithm
+   * Optimization: Only check valid adjacent triplets (~200) instead of all combinations (117,649)
    */
   find_all_solutions(): Uint8Array;
   /**
@@ -734,6 +760,34 @@ export class TrioGame {
    * Get entire board as flat array for JavaScript
    */
   get_board_array(): Uint8Array;
+  /**
+   * Get count of adjacent patterns for performance info
+   */
+  get_adjacency_pattern_count(): number;
+  /**
+   * Connect4-compatible API: Get current player
+   */
+  get_current_player(): number;
+  /**
+   * Connect4-compatible API: Make a move (mark found solution)
+   */
+  make_move(row1: number, col1: number, row2: number, col2: number, row3: number, col3: number): boolean;
+  /**
+   * Connect4-compatible API: Reset game
+   */
+  reset(): void;
+  /**
+   * Connect4-compatible API: Get move count
+   */
+  get_move_count(): number;
+  /**
+   * Connect4-compatible API: Get winner (puzzle completed when all solutions found)
+   */
+  get_winner(): number;
+  /**
+   * Get game phase for UI consistency
+   */
+  get_game_phase(): number;
 }
 export class TrioGameLegacy {
   free(): void;
@@ -800,6 +854,11 @@ export interface InitOutput {
   readonly connect4game_newGame: (a: number) => void;
   readonly connect4game_undoMove: (a: number) => number;
   readonly connect4game_getAIMove: (a: number) => number;
+  readonly __wbg_aimove_free: (a: number, b: number) => void;
+  readonly __wbg_get_aimove_row: (a: number) => number;
+  readonly __wbg_set_aimove_row: (a: number, b: number) => void;
+  readonly __wbg_get_aimove_col: (a: number) => number;
+  readonly __wbg_set_aimove_col: (a: number, b: number) => void;
   readonly __wbg_gomokugame_free: (a: number, b: number) => void;
   readonly gomokugame_new: () => number;
   readonly gomokugame_new_with_starting_player: (a: number) => number;
@@ -826,12 +885,16 @@ export interface InitOutput {
   readonly gomokugame_newGame: (a: number) => void;
   readonly gomokugame_undoMove: (a: number) => number;
   readonly gomokugame_get_ai_move: (a: number, b: number) => void;
+  readonly gomokugame_get_ai_move_option: (a: number) => number;
   readonly gomokugame_get_ai_move_for_player: (a: number, b: number, c: number) => void;
   readonly gomokugame_evaluate_position: (a: number) => number;
   readonly gomokugame_evaluate_position_for_player: (a: number, b: number) => number;
   readonly gomokugame_get_threat_level: (a: number, b: number, c: number, d: number) => number;
   readonly gomokugame_get_winning_moves: (a: number, b: number) => void;
   readonly gomokugame_get_blocking_moves: (a: number, b: number) => void;
+  readonly gomokugame_analyze_position: (a: number, b: number) => void;
+  readonly gomokugame_get_threatening_moves: (a: number, b: number) => void;
+  readonly gomokugame_create_hypothetical_state: (a: number, b: number) => number;
   readonly __wbg_lgame_free: (a: number, b: number) => void;
   readonly lgame_new: () => number;
   readonly lgame_current_player: (a: number) => number;
@@ -857,6 +920,13 @@ export interface InitOutput {
   readonly triogame_memory_usage: (a: number) => number;
   readonly triogame_memory_efficiency: (a: number) => number;
   readonly triogame_get_board_array: (a: number, b: number) => void;
+  readonly triogame_get_adjacency_pattern_count: (a: number) => number;
+  readonly triogame_get_current_player: (a: number) => number;
+  readonly triogame_make_move: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
+  readonly triogame_reset: (a: number) => void;
+  readonly triogame_get_move_count: (a: number) => number;
+  readonly triogame_get_winner: (a: number) => number;
+  readonly triogame_get_game_phase: (a: number) => number;
   readonly difficulty_to_number: (a: number, b: number) => number;
   readonly difficulty_to_string: (a: number, b: number) => void;
   readonly __wbg_connect4ai_free: (a: number, b: number) => void;
@@ -872,10 +942,6 @@ export interface InitOutput {
   readonly connect4ai_get_quick_move: (a: number, b: number) => number;
   readonly main: () => void;
   readonly __wbg_positionanalysis_free: (a: number, b: number) => void;
-  readonly __wbg_get_positionanalysis_current_player_threats: (a: number) => number;
-  readonly __wbg_set_positionanalysis_current_player_threats: (a: number, b: number) => void;
-  readonly __wbg_get_positionanalysis_opponent_threats: (a: number) => number;
-  readonly __wbg_set_positionanalysis_opponent_threats: (a: number, b: number) => void;
   readonly __wbg_get_positionanalysis_total_pieces: (a: number) => number;
   readonly __wbg_set_positionanalysis_total_pieces: (a: number, b: number) => void;
   readonly __wbg_get_positionanalysis_connectivity_score: (a: number) => number;
@@ -969,6 +1035,10 @@ export interface InitOutput {
   readonly triogamelegacy_count_solutions_for_target_wasm: (a: number, b: number) => number;
   readonly triogamelegacy_categorize_target_difficulty_wasm: (a: number, b: number) => number;
   readonly triogamelegacy_comprehensive_gap_analysis: (a: number) => void;
+  readonly __wbg_get_positionanalysis_current_player_threats: (a: number) => number;
+  readonly __wbg_get_positionanalysis_opponent_threats: (a: number) => number;
+  readonly __wbg_set_positionanalysis_current_player_threats: (a: number, b: number) => void;
+  readonly __wbg_set_positionanalysis_opponent_threats: (a: number, b: number) => void;
   readonly game_is_terminal: (a: number) => number;
   readonly connect4game_move_count: (a: number) => number;
   readonly connect4game_get_current_player: (a: number) => number;

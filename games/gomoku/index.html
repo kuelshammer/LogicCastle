@@ -4,8 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>5 Gewinnt (Gomoku) - LogicCastle Production</title>
-    <link rel="stylesheet" href="css/game-new.css?v=20250711_production" />
-    <link rel="stylesheet" href="css/animations.css?v=20250711_production" />
+    <script type="module" crossorigin src="/LogicCastle/assets/gomoku-D2Xe14mk.js"></script>
+    <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="/LogicCastle/assets/preload-helper-DDWtIbF5.js">
+    <link rel="stylesheet" crossorigin href="/LogicCastle/assets/gomoku-DbYwQZus.css">
   </head>
   <body>
     <div class="game-container">
@@ -255,36 +257,5 @@
     </div>
 
     <!-- Game Scripts -->
-    <script type="module">
-      // Initialize game when DOM is loaded
-      document.addEventListener('DOMContentLoaded', async () => {
-        console.log('🚀 Initializing Gomoku Production...');
-        
-        try {
-          // Import BitPacked game and UI
-          const { GomokuGameBitPacked } = await import('./js/game-bitpacked.js');
-          const { GomokuUI } = await import('./js/ui-production.js');
-          
-          // Create BitPacked game instance
-          const bitPackedGame = new GomokuGameBitPacked();
-          await bitPackedGame.init();
-          
-          // Create UI with BitPacked game
-          window.ui = new GomokuUI(bitPackedGame);
-          
-          // Initialize UI
-          await window.ui.init();
-          
-          console.log('✅ Gomoku Production initialized successfully');
-          
-          // Make available for debugging
-          window.gomokuGame = bitPackedGame;
-          window.gomokuUI = window.ui;
-          
-        } catch (error) {
-          console.error('❌ Failed to initialize Gomoku Production:', error);
-        }
-      });
-    </script>
   </body>
 </html>

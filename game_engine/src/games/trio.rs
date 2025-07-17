@@ -2,8 +2,7 @@ use wasm_bindgen::prelude::*;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 use crate::data::BitPackedBoard;
-use crate::geometry::{BoardGeometry, PatternProvider};
-use crate::{GamePhase, PositionAnalysis, Player};
+use crate::Player;
 
 /// Trio Game using 3-Layer Architecture for clean separation of concerns
 /// 
@@ -63,6 +62,12 @@ pub enum TrioDifficultyNew {
     Vollspektrum = 2,        // Medium: balanced distribution
     Strategisch = 3,         // Hard: more complex numbers, fewer easy solutions
     Analytisch = 4,          // Expert: complex patterns, advanced calculations
+}
+
+impl Default for TrioGrid {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TrioGrid {
@@ -268,7 +273,7 @@ impl TrioGame {
     /// Get memory efficiency compared to naive implementation
     #[wasm_bindgen]
     pub fn memory_efficiency(&self) -> f32 {
-        let naive_size = 7 * 7 * 1; // 49 bytes for u8 array
+        let naive_size = 7 * 7; // 49 bytes for u8 array
         let bitpacked_size = self.memory_usage();
         ((naive_size as f32 - bitpacked_size as f32) / naive_size as f32) * 100.0
     }
@@ -297,6 +302,7 @@ impl TrioGame {
         match self.current_player {
             Player::Yellow => 1,
             Player::Red => 2,
+            _ => 0, // Default for other players not in Trio
         }
     }
     
@@ -462,15 +468,15 @@ impl TrioGame {
         }
         
         // Generate target based on difficulty
-        let target = match difficulty {
+        
+        
+        match difficulty {
             1 => rng.gen_range(3..=15), // Easy targets
             2 => rng.gen_range(5..=25), // Medium targets
             3 => rng.gen_range(10..=40), // Hard targets
             4 => rng.gen_range(15..=60), // Expert targets
             _ => rng.gen_range(5..=25),   // Default
-        };
-        
-        target
+        }
     }
     
     /// Check if the generated board has at least one solution using optimized algorithm

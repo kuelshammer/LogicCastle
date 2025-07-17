@@ -151,7 +151,7 @@ mod tests {
         assert_eq!(game.get_cell(5, 4), 0, "Position (5,4) should be empty");
         
         // Valid blocking moves for Yellow: columns 0, 2, 4
-        let valid_columns = vec![0, 2, 4];
+        let valid_columns = [0, 2, 4];
         assert!(
             valid_columns.contains(&ai_move),
             "AI should choose column 0, 2, or 4 to block .O.O., but chose {}",

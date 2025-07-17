@@ -223,8 +223,8 @@ impl Connect4AI {
         &self,
         game: &Connect4Game,
         depth: usize,
-        mut alpha: i32,
-        mut beta: i32,
+        alpha: i32,
+        beta: i32,
         maximizing: bool,
     ) -> (Option<usize>, i32) {
         // Call the original minimax implementation
@@ -489,7 +489,7 @@ impl Connect4AI {
                 ];
                 
                 let cells: Vec<u8> = positions.iter()
-                    .map(|&(r, c)| game.get_cell(r as usize, c as usize))
+                    .map(|&(r, c)| game.get_cell(r, c))
                     .collect();
                 
                 // Pattern: .Y.Y (positions 0 and 2 empty, 1 and 3 have opponent)
@@ -524,7 +524,7 @@ impl Connect4AI {
                 ];
                 
                 let cells: Vec<u8> = positions.iter()
-                    .map(|&(r, c)| game.get_cell(r as usize, c as usize))
+                    .map(|&(r, c)| game.get_cell(r, c))
                     .collect();
                 
                 if self.is_zwickmuehle_pattern(&cells, opponent) {
@@ -549,7 +549,7 @@ impl Connect4AI {
                 ];
                 
                 let cells: Vec<u8> = positions.iter()
-                    .map(|&(r, c)| game.get_cell(r as usize, c as usize))
+                    .map(|&(r, c)| game.get_cell(r, c))
                     .collect();
                 
                 if self.is_zwickmuehle_pattern(&cells, opponent) {
@@ -887,7 +887,7 @@ mod tests {
         
         // Check for reasonable scaling (not too explosive)
         let scaling_factor = depth2_report.states_created as f64 / depth1_report.states_created as f64;
-        assert!(scaling_factor >= 2.0 && scaling_factor <= 20.0, 
+        assert!((2.0..=20.0).contains(&scaling_factor), 
                "Scaling factor should be reasonable, got {}", scaling_factor);
     }
     

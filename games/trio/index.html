@@ -63,6 +63,11 @@
             100% { transform: rotate(360deg); }
         }
     </style>
+  <script type="module" crossorigin src="/LogicCastle/assets/trio-BM9uFnI3.js"></script>
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/preload-helper-DDWtIbF5.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/DOMUtils-DkhNr1PH.js">
+  <link rel="modulepreload" crossorigin href="/LogicCastle/assets/game_engine-DD1aZRKp.js">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
     <!-- Background decoration -->
@@ -248,84 +253,5 @@
     </div>
 
     <!-- Game Script -->
-    <script type="module">
-        import { TrioUIBitPacked } from './js/TrioUIBitPacked.js';
-
-        // Initialize the game
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                console.log('🚀 Initializing Trio BitPacked...');
-                
-                const trioUI = new TrioUIBitPacked();
-                const success = await trioUI.init();
-                
-                if (success) {
-                    console.log('✅ Trio BitPacked initialized successfully');
-                    
-                    // Hide loading screen
-                    const loadingScreen = document.getElementById('loadingScreen');
-                    if (loadingScreen) {
-                        loadingScreen.style.display = 'none';
-                    }
-                    
-                    // Setup additional button handlers
-                    document.getElementById('newGameBtn').addEventListener('click', () => {
-                        trioUI.newGame();
-                    });
-                    
-                    document.getElementById('clearSelectionBtn').addEventListener('click', () => {
-                        trioUI.clearSelection();
-                    });
-                    
-                    document.getElementById('submitSolutionBtn').addEventListener('click', () => {
-                        trioUI.submitSolution();
-                    });
-                    
-                    document.getElementById('showSolutionBtn').addEventListener('click', () => {
-                        trioUI.showSolution();
-                    });
-                    
-                    // Help modal
-                    document.getElementById('helpBtn')?.addEventListener('click', () => {
-                        document.getElementById('helpModal').classList.remove('hidden');
-                    });
-                    
-                    document.getElementById('closeHelpBtn').addEventListener('click', () => {
-                        document.getElementById('helpModal').classList.add('hidden');
-                    });
-                    
-                    // Keyboard shortcuts
-                    document.addEventListener('keydown', (e) => {
-                        if (e.key === 'F1') {
-                            e.preventDefault();
-                            document.getElementById('helpModal').classList.toggle('hidden');
-                        }
-                    });
-                    
-                    // Store reference for debugging
-                    window.trioUI = trioUI;
-                    
-                } else {
-                    console.error('❌ Failed to initialize Trio BitPacked');
-                    document.getElementById('loadingScreen').innerHTML = `
-                        <div class="glass rounded-2xl p-8 text-center">
-                            <div class="text-red-500 text-6xl mb-4">❌</div>
-                            <h2 class="text-2xl font-bold text-white mb-2">Fehler beim Laden</h2>
-                            <p class="text-white opacity-75">Trio konnte nicht initialisiert werden</p>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                console.error('❌ Error initializing Trio:', error);
-                document.getElementById('loadingScreen').innerHTML = `
-                    <div class="glass rounded-2xl p-8 text-center">
-                        <div class="text-red-500 text-6xl mb-4">❌</div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Initialisierungsfehler</h2>
-                        <p class="text-white opacity-75">${error.message}</p>
-                    </div>
-                `;
-            }
-        });
-    </script>
 </body>
 </html>

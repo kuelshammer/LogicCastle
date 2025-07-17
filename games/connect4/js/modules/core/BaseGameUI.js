@@ -222,7 +222,7 @@ export class BaseGameUI {
             // Modal Manager
             if (this.config.modals && Object.keys(this.config.modals).length > 0) {
                 try {
-                    const { ModalManager } = await import('../components/ModalManager.js');
+                    const { ModalManager } = await import('../../components/ModalManager.js');
                     const modalManager = new ModalManager(this.config.modals);
                     this.modules.set('modals', modalManager);
                     console.log(`🪟 Modal Manager loaded with ${Object.keys(this.config.modals).length} modals`);
@@ -235,7 +235,7 @@ export class BaseGameUI {
             // Message System
             if (this.config.messages) {
                 try {
-                    const { MessageSystem } = await import('../components/MessageSystem.js');
+                    const { MessageSystem } = await import('../../components/MessageSystem.js');
                     const messageSystem = new MessageSystem(this.config.messages);
                     this.modules.set('messages', messageSystem);
                     console.log('📢 Message System loaded');
@@ -277,7 +277,7 @@ export class BaseGameUI {
     async setupKeyboard() {
         if (this.config.keyboard && Object.keys(this.config.keyboard).length > 0) {
             try {
-                const { KeyboardController } = await import('../components/KeyboardController.js');
+                const { KeyboardController } = await import('../../components/KeyboardController.js');
                 const keyboardController = new KeyboardController(this.config.keyboard);
                 
                 // Bind keyboard actions to UI methods

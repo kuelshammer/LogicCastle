@@ -4,6 +4,14 @@ use crate::geometry::{GomokuGrid, BoardGeometry, PatternProvider};
 use crate::ai::GomokuAI;
 use crate::{GamePhase, Player};
 
+/// A struct to represent an AI move for wasm-bindgen.
+#[wasm_bindgen]
+#[derive(Clone, Copy, Debug)]
+pub struct AiMove {
+    pub row: usize,
+    pub col: usize,
+}
+
 /// Gomoku/Gobang game implementation using the Three-Layer Architecture
 /// Composes geometry and data layers for clean separation of concerns
 #[wasm_bindgen]
@@ -372,8 +380,8 @@ impl GomokuGame {
     }
     
     /// Get AI move suggestion (internal API with proper Option type)
-    pub fn get_ai_move_option(&self) -> Option<(usize, usize)> {
-        self.ai.get_best_move(self)
+    pub fn get_ai_move_option(&self) -> Option<AiMove> {
+        self.ai.get_best_move(self).map(|(row, col)| AiMove { row, col })
     }
     
     /// Get AI move suggestion for specific player
@@ -709,7 +717,7 @@ mod tests {
     
     #[test]
     fn test_board_bounds() {
-        let mut game = GomokuGame::new();
+        let game = GomokuGame::new();
         
         // Test valid moves
         assert!(game.is_valid_move(0, 0));

@@ -56,7 +56,7 @@ impl PatternEvaluator {
         // This is much faster than 42 get_cell() calls (6x7)
         for row in 0..6 {
             for col in 0..7 {
-                if let Some(index) = game.geometry().to_index((row as i32, col as i32)) {
+                if let Some(index) = game.geometry().to_index((row, col)) {
                     let cell_value = if yellow_board.get_bit(index) {
                         1u64 // Yellow
                     } else if red_board.get_bit(index) {

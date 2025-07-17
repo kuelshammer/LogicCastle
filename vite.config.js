@@ -31,10 +31,7 @@ export default defineConfig({
       
       // Optimize bundle splitting
       output: {
-        manualChunks: {
-          'game-base': ['./assets/js/game-base.js'],
-          'coord-utils': ['./assets/js/coord-utils.js']
-        }
+        manualChunks: {}
       }
     },
     
@@ -47,10 +44,6 @@ export default defineConfig({
 
   // Plugin configuration
   plugins: [
-    // Legacy browser support
-    legacy({
-      targets: ['defaults', 'not IE 11']
-    })
   ],
 
   // CSS configuration is handled by postcss.config.js
