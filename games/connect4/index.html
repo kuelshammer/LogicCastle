@@ -253,9 +253,583 @@
       </div>
     </div>
 
-    <!-- EMERGENCY DIRECT MINIMAL CONNECT4 - BYPASS MODULE SYSTEM -->
+    <!-- VEREINFACHTES CDN-ONLY SYSTEM -->
     <script>
-      console.log('🚨 DIRECT MINIMAL CONNECT4 INITIALIZATION...');
+      console.log('🚀 CDN-ONLY SYSTEM INITIALIZATION...');
+      
+      // CDN Module URLs (jsDelivr)
+      const CDN_MODULES = {
+        'BaseGameUI': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/assets/js/ui-modules/core/BaseGameUI.js',
+        'ElementBinder': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/assets/js/ui-modules/core/ElementBinder.js',
+        'EventDispatcher': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/assets/js/ui-modules/core/EventDispatcher.js',
+        'BoardRenderer': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/games/connect4/js/components/BoardRenderer.js',
+        'Connect4Config': 'https://cdn.jsdelivr.net/gh/kuelshammer/LogicCastle@main/games/connect4/js/connect4-config.js'
+      };
+      
+      // Einfacher CDN Module Loader
+      async function loadCDNModule(moduleName) {
+        const cdnUrl = CDN_MODULES[moduleName];
+        console.log(`📦 Loading ${moduleName} from CDN: ${cdnUrl}`);
+        
+        try {
+          const module = await import(cdnUrl);
+          console.log(`✅ CDN success for ${moduleName}`);
+          return module;
+        } catch (error) {
+          console.error(`❌ CDN failed for ${moduleName}:`, error.message);
+          throw error;
+        }
+      }
+      
+      // Initialize modular Connect4 with CDN-only
+      async function initializeCDNConnect4() {
+        console.log('🎮 Initializing CDN Connect4...');
+        
+        try {
+          // Load modules from CDN
+          const baseGameUI = await loadCDNModule('BaseGameUI');
+          const boardRenderer = await loadCDNModule('BoardRenderer');
+          const connect4Config = await loadCDNModule('Connect4Config');
+          
+          const BaseGameUI = baseGameUI.BaseGameUI;
+          const BoardRenderer = boardRenderer.BoardRenderer;
+          const configModule = connect4Config;
+          
+          console.log('✅ All CDN modules loaded successfully');
+          
+          // Create configuration
+          const config = configModule.createConnect4Config ? 
+            configModule.createConnect4Config('two-player') : 
+            configModule.CONNECT4_UI_CONFIG;
+          
+          // Create modular game class
+          class CDNConnect4Game extends BaseGameUI {
+              constructor() {
+                super(null, config);
+                this.boardRenderer = null;
+                
+                // Game state
+                this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.winner = null;
+                this.moveCount = 0;
+                this.gameHistory = [];
+                this.scores = { yellow: 0, red: 0 };
+                
+                console.log('🎮 CDNConnect4Game created with modular architecture');
+              }
+              
+              async init() {
+                console.log('🔄 Initializing CDN Connect4...');
+                
+                try {
+                  await super.init();
+                  console.log('✅ BaseGameUI initialized');
+                } catch (error) {
+                  console.warn('⚠️ BaseGameUI init failed, continuing anyway:', error);
+                }
+                
+                // Initialize BoardRenderer if available
+                if (BoardRenderer) {
+                  this.initializeBoardRenderer();
+                }
+                
+                // Initialize game
+                this.createBoard();
+                this.setupEventListeners();
+                this.updateUI();
+                
+                console.log('✅ CDN Connect4 initialized successfully');
+                return true;
+              }
+              
+              initializeBoardRenderer() {
+                const gameBoard = document.getElementById('gameBoard');
+                const topCoords = document.getElementById('topCoords');
+                const bottomCoords = document.getElementById('bottomCoords');
+                
+                if (gameBoard && BoardRenderer) {
+                  this.boardRenderer = new BoardRenderer(gameBoard, topCoords, bottomCoords);
+                  console.log('🎯 BoardRenderer initialized from CDN');
+                } else {
+                  console.warn('⚠️ BoardRenderer not available or gameBoard not found');
+                }
+              }
+              
+              createBoard() {
+                // Use BoardRenderer if available
+                if (this.boardRenderer) {
+                  const success = this.boardRenderer.initializeBoard();
+                  if (success) {
+                    this.boardRenderer.createCoordinateLabels();
+                    console.log('🎯 Board created using CDN BoardRenderer');
+                    return;
+                  }
+                }
+                
+                // Fallback to manual board creation
+                this.createBoardManually();
+              }
+              
+              createBoardManually() {
+                const gameBoard = document.getElementById('gameBoard');
+                if (!gameBoard) {
+                  console.error('❌ Game board element not found');
+                  return;
+                }
+                
+                gameBoard.innerHTML = '';
+                
+                // Create 42 cells
+                for (let row = 0; row < 6; row++) {
+                  for (let col = 0; col < 7; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'game-slot relative bg-blue-500 rounded-full border-2 border-blue-700 cursor-pointer aspect-square flex items-center justify-center';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    const disc = document.createElement('div');
+                    disc.className = 'disc empty w-[85%] h-[85%] rounded-full';
+                    disc.style.background = 'rgba(255, 255, 255, 0.1)';
+                    disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                    
+                    cell.appendChild(disc);
+                    gameBoard.appendChild(cell);
+                  }
+                }
+                
+                console.log('🎯 Board created manually (42 cells)');
+              }
+              
+              setupEventListeners() {
+                // Board click handler
+                const gameBoard = document.getElementById('gameBoard');
+                if (gameBoard) {
+                  gameBoard.addEventListener('click', (e) => {
+                    const cell = e.target.closest('.game-slot');
+                    if (cell && !this.gameOver) {
+                      const col = parseInt(cell.dataset.col);
+                      this.makeMove(col);
+                    }
+                  });
+                }
+                
+                // Column coordinates click handler
+                document.querySelectorAll('.coord').forEach((coord, index) => {
+                  coord.addEventListener('click', () => {
+                    if (!this.gameOver) {
+                      this.makeMove(index);
+                    }
+                  });
+                });
+                
+                // Button handlers
+                const newGameBtn = document.getElementById('newGameBtn');
+                if (newGameBtn) {
+                  newGameBtn.addEventListener('click', () => this.resetGame());
+                }
+                
+                const undoBtn = document.getElementById('undoBtn');
+                if (undoBtn) {
+                  undoBtn.addEventListener('click', () => this.undoMove());
+                }
+                
+                const resetScoreBtn = document.getElementById('resetScoreBtn');
+                if (resetScoreBtn) {
+                  resetScoreBtn.addEventListener('click', () => this.resetScore());
+                }
+                
+                // Modal handlers
+                const helpBtn = document.getElementById('helpBtn');
+                if (helpBtn) {
+                  helpBtn.addEventListener('click', () => this.showModal('helpModal'));
+                }
+                
+                const assistanceBtn = document.getElementById('assistanceBtn');
+                if (assistanceBtn) {
+                  assistanceBtn.addEventListener('click', () => this.showModal('assistanceModal'));
+                }
+                
+                // Close modal handlers
+                const closeHelpModal = document.getElementById('closeHelpModal');
+                if (closeHelpModal) {
+                  closeHelpModal.addEventListener('click', () => this.hideModal('helpModal'));
+                }
+                
+                const closeAssistanceModal = document.getElementById('closeAssistanceModal');
+                if (closeAssistanceModal) {
+                  closeAssistanceModal.addEventListener('click', () => this.hideModal('assistanceModal'));
+                }
+                
+                // Keyboard controls
+                document.addEventListener('keydown', (e) => {
+                  if (e.key >= '1' && e.key <= '7' && !this.gameOver) {
+                    const col = parseInt(e.key) - 1;
+                    this.makeMove(col);
+                  } else if (e.key === 'n' || e.key === 'N') {
+                    this.resetGame();
+                  } else if (e.key === 'u' || e.key === 'U') {
+                    this.undoMove();
+                  } else if (e.key === 'F1') {
+                    e.preventDefault();
+                    this.toggleModal('helpModal');
+                  } else if (e.key === 'F2') {
+                    e.preventDefault();
+                    this.toggleModal('assistanceModal');
+                  } else if (e.key === 'F3') {
+                    e.preventDefault();
+                    this.resetScore();
+                  } else if (e.key === 'Escape') {
+                    this.hideModal('helpModal');
+                    this.hideModal('assistanceModal');
+                  }
+                });
+                
+                console.log('🎮 Event listeners set up for CDN Connect4');
+              }
+              
+              makeMove(col) {
+                if (this.gameOver || col < 0 || col >= 7) return false;
+                
+                // Find lowest empty row in column
+                let targetRow = -1;
+                for (let row = 5; row >= 0; row--) {
+                  if (this.board[row][col] === 0) {
+                    targetRow = row;
+                    break;
+                  }
+                }
+                
+                if (targetRow === -1) return false; // Column full
+                
+                // Save move for undo
+                this.gameHistory.push({
+                  row: targetRow,
+                  col: col,
+                  player: this.currentPlayer,
+                  board: this.board.map(row => [...row])
+                });
+                
+                // Make the move
+                this.board[targetRow][col] = this.currentPlayer;
+                this.moveCount++;
+                
+                // Update visual
+                this.updateCell(targetRow, col, this.currentPlayer);
+                
+                // Check for win
+                if (this.checkWin(targetRow, col)) {
+                  this.gameOver = true;
+                  this.winner = this.currentPlayer;
+                  this.showWin(targetRow, col);
+                  this.updateScore();
+                } else if (this.moveCount === 42) {
+                  this.gameOver = true;
+                  this.winner = 0; // Draw
+                  this.showDraw();
+                } else {
+                  // Switch player
+                  this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                }
+                
+                this.updateUI();
+                return true;
+              }
+              
+              updateCell(row, col, player) {
+                // Use BoardRenderer if available
+                if (this.boardRenderer && this.boardRenderer.updateBoardVisual) {
+                  this.boardRenderer.updateBoardVisual(row, col, player);
+                } else {
+                  // Fallback to direct DOM manipulation
+                  const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                  if (cell) {
+                    const disc = cell.querySelector('.disc');
+                    if (disc) {
+                      disc.classList.remove('empty', 'yellow', 'red');
+                      disc.classList.add(player === 1 ? 'yellow' : 'red');
+                      
+                      if (player === 1) {
+                        disc.style.background = 'linear-gradient(135deg, #FFD700, #FFA000)';
+                        disc.style.border = '3px solid #FF8F00';
+                        disc.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.6)';
+                      } else {
+                        disc.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                        disc.style.border = '3px solid #C62828';
+                        disc.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.6)';
+                      }
+                    }
+                  }
+                }
+              }
+              
+              checkWin(row, col) {
+                const player = this.board[row][col];
+                const directions = [
+                  [0, 1],  // horizontal
+                  [1, 0],  // vertical
+                  [1, 1],  // diagonal /
+                  [1, -1]  // diagonal \
+                ];
+                
+                for (const [dr, dc] of directions) {
+                  let count = 1;
+                  const line = [[row, col]];
+                  
+                  // Check positive direction
+                  for (let i = 1; i < 4; i++) {
+                    const r = row + i * dr;
+                    const c = col + i * dc;
+                    if (r >= 0 && r < 6 && c >= 0 && c < 7 && this.board[r][c] === player) {
+                      count++;
+                      line.push([r, c]);
+                    } else {
+                      break;
+                    }
+                  }
+                  
+                  // Check negative direction
+                  for (let i = 1; i < 4; i++) {
+                    const r = row - i * dr;
+                    const c = col - i * dc;
+                    if (r >= 0 && r < 6 && c >= 0 && c < 7 && this.board[r][c] === player) {
+                      count++;
+                      line.push([r, c]);
+                    } else {
+                      break;
+                    }
+                  }
+                  
+                  if (count >= 4) {
+                    this.winningLine = line;
+                    return true;
+                  }
+                }
+                
+                return false;
+              }
+              
+              showWin(row, col) {
+                const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+                
+                // Highlight winning pieces
+                if (this.winningLine) {
+                  this.winningLine.forEach(([r, c]) => {
+                    const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    if (cell) {
+                      const disc = cell.querySelector('.disc');
+                      if (disc) {
+                        disc.classList.add('winning-disc');
+                      }
+                    }
+                  });
+                }
+                
+                // Update status
+                const gameStatus = document.getElementById('gameStatus');
+                if (gameStatus) {
+                  gameStatus.textContent = `${winnerName} gewinnt!`;
+                  gameStatus.className = 'font-semibold text-yellow-400';
+                }
+                
+                console.log(`🏆 ${winnerName} gewinnt!`);
+              }
+              
+              showDraw() {
+                const gameStatus = document.getElementById('gameStatus');
+                if (gameStatus) {
+                  gameStatus.textContent = 'Unentschieden!';
+                  gameStatus.className = 'font-semibold text-gray-400';
+                }
+                
+                console.log('🤝 Unentschieden!');
+              }
+              
+              updateScore() {
+                if (this.winner === 1) {
+                  this.scores.yellow++;
+                } else if (this.winner === 2) {
+                  this.scores.red++;
+                }
+                
+                const yellowScore = document.getElementById('yellowScore');
+                const redScore = document.getElementById('redScore');
+                
+                if (yellowScore) yellowScore.textContent = this.scores.yellow;
+                if (redScore) redScore.textContent = this.scores.red;
+              }
+              
+              resetScore() {
+                this.scores = { yellow: 0, red: 0 };
+                
+                const yellowScore = document.getElementById('yellowScore');
+                const redScore = document.getElementById('redScore');
+                
+                if (yellowScore) yellowScore.textContent = '0';
+                if (redScore) redScore.textContent = '0';
+                
+                console.log('🔄 Score reset');
+              }
+              
+              undoMove() {
+                if (this.gameHistory.length === 0) return false;
+                
+                const lastMove = this.gameHistory.pop();
+                this.board = lastMove.board;
+                this.currentPlayer = lastMove.player;
+                this.moveCount--;
+                this.gameOver = false;
+                this.winner = null;
+                
+                // Update all cells
+                for (let row = 0; row < 6; row++) {
+                  for (let col = 0; col < 7; col++) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    if (cell) {
+                      const disc = cell.querySelector('.disc');
+                      if (disc) {
+                        disc.classList.remove('empty', 'yellow', 'red', 'winning-disc');
+                        if (this.board[row][col] === 0) {
+                          disc.classList.add('empty');
+                          disc.style.background = 'rgba(255, 255, 255, 0.1)';
+                          disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                          disc.style.boxShadow = 'none';
+                        } else if (this.board[row][col] === 1) {
+                          disc.classList.add('yellow');
+                          disc.style.background = 'linear-gradient(135deg, #FFD700, #FFA000)';
+                          disc.style.border = '3px solid #FF8F00';
+                          disc.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.6)';
+                        } else if (this.board[row][col] === 2) {
+                          disc.classList.add('red');
+                          disc.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
+                          disc.style.border = '3px solid #C62828';
+                          disc.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.6)';
+                        }
+                      }
+                    }
+                  }
+                }
+                
+                this.updateUI();
+                return true;
+              }
+              
+              resetGame() {
+                this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.winner = null;
+                this.moveCount = 0;
+                this.gameHistory = [];
+                this.winningLine = null;
+                
+                // Use BoardRenderer if available
+                if (this.boardRenderer && this.boardRenderer.clearBoard) {
+                  this.boardRenderer.clearBoard();
+                } else {
+                  // Fallback to direct DOM manipulation
+                  const cells = document.querySelectorAll('.game-slot');
+                  cells.forEach(cell => {
+                    const disc = cell.querySelector('.disc');
+                    if (disc) {
+                      disc.classList.remove('yellow', 'red', 'winning-disc');
+                      disc.classList.add('empty');
+                      disc.style.background = 'rgba(255, 255, 255, 0.1)';
+                      disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                      disc.style.boxShadow = 'none';
+                    }
+                  });
+                }
+                
+                this.updateUI();
+                console.log('🔄 New game started');
+              }
+              
+              updateUI() {
+                // Update current player indicator
+                const indicator = document.getElementById('currentPlayerIndicator');
+                if (indicator) {
+                  const disc = indicator.querySelector('.player-disc');
+                  const name = indicator.querySelector('.player-name');
+                  if (disc && name) {
+                    if (this.currentPlayer === 1) {
+                      disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg';
+                      name.textContent = 'Spieler 1';
+                    } else {
+                      disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-red-500 to-red-700 shadow-lg';
+                      name.textContent = 'Spieler 2';
+                    }
+                  }
+                }
+                
+                // Update move counter
+                const moveCounter = document.getElementById('moveCounter');
+                if (moveCounter) {
+                  moveCounter.textContent = this.moveCount;
+                }
+                
+                // Update game status if not game over
+                if (!this.gameOver) {
+                  const gameStatus = document.getElementById('gameStatus');
+                  if (gameStatus) {
+                    gameStatus.textContent = 'Spiel läuft';
+                    gameStatus.className = 'font-semibold text-green-400';
+                  }
+                }
+                
+                // Update undo button
+                const undoBtn = document.getElementById('undoBtn');
+                if (undoBtn) {
+                  undoBtn.disabled = this.gameHistory.length === 0;
+                }
+              }
+              
+              showModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                  modal.classList.remove('hidden');
+                  document.body.style.overflow = 'hidden';
+                }
+              }
+              
+              hideModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                  modal.classList.add('hidden');
+                  document.body.style.overflow = '';
+                }
+              }
+              
+              toggleModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                  if (modal.classList.contains('hidden')) {
+                    this.showModal(modalId);
+                  } else {
+                    this.hideModal(modalId);
+                  }
+                }
+              }
+            }
+            
+          // Create and initialize CDN game
+          const game = new CDNConnect4Game();
+          await game.init();
+          
+          window.game = game; // For debugging
+          
+          console.log('✅ CDN Connect4 Game initialized successfully!');
+          return true;
+          
+        } catch (error) {
+          console.error('❌ CDN initialization failed:', error);
+          throw error;
+        }
+      }
+      
+      // EMERGENCY MINIMAL IMPLEMENTATION (SAME AS BEFORE)
+      console.log('🚨 DEFINING MINIMAL CONNECT4 FALLBACK...');
       
       // DIRECT MINIMAL IMPLEMENTATION - NO MODULE IMPORTS
       function initializeMinimalConnect4() {
@@ -474,20 +1048,59 @@
         console.log('✅ Emergency minimal Connect4 initialized successfully!');
       }
       
-      // IMMEDIATE INITIALIZATION - NO WAITING FOR MODULES
+      // SYSTEM INITIALIZATION - CDN-ONLY mit Error Fallback
+      async function initializeConnect4System() {
+        console.log('🚀 Starting Connect4 System Initialization...');
+        
+        try {
+          // Try CDN system
+          await initializeCDNConnect4();
+          console.log('✅ CDN Connect4 system activated successfully!');
+        } catch (error) {
+          console.error('❌ CDN system failed:', error);
+          
+          // Show user-friendly error message
+          showCDNError(error);
+          
+          // Fallback to minimal system
+          console.log('🔄 Falling back to minimal implementation...');
+          initializeMinimalConnect4();
+        }
+      }
+      
+      // Show CDN error to user
+      function showCDNError(error) {
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(244, 67, 54, 0.9); color: white; padding: 15px; border-radius: 12px; z-index: 10000; max-width: 350px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); backdrop-filter: blur(10px);';
+        errorDiv.innerHTML = `
+          <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
+            <strong>CDN Module Loading Failed</strong>
+          </div>
+          <p style="margin: 0; font-size: 14px; opacity: 0.9;">Using simplified version. Some features may be limited.</p>
+        `;
+        document.body.appendChild(errorDiv);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          errorDiv.style.opacity = '0';
+          errorDiv.style.transform = 'translateX(100%)';
+          setTimeout(() => errorDiv.remove(), 300);
+        }, 5000);
+      }
+      
+      // IMMEDIATE INITIALIZATION
       document.addEventListener('DOMContentLoaded', () => {
-        console.log('🚨 DOM LOADED - STARTING MINIMAL CONNECT4 IMMEDIATELY');
-        initializeMinimalConnect4();
+        console.log('🚨 DOM LOADED - STARTING CONNECT4 SYSTEM');
+        initializeConnect4System();
       });
       
       // If DOM already loaded, run immediately
       if (document.readyState !== 'loading') {
-        console.log('🚨 DOM ALREADY LOADED - STARTING MINIMAL CONNECT4 NOW');
-        initializeMinimalConnect4();
+        console.log('🚨 DOM ALREADY LOADED - STARTING CONNECT4 SYSTEM NOW');
+        initializeConnect4System();
       }
     </script>
-    
-    <!-- ORIGINAL MODULAR SYSTEM (COMMENTED OUT FOR NOW)
     <script type="module">
       console.log('🚀 STEP 3: Activating WASM Backend Integration...');
       
@@ -1367,7 +1980,63 @@
         
         console.log('✅ Emergency minimal Connect4 initialized successfully!');
       }
+      
+      // SYSTEM INITIALIZATION - CDN + FALLBACK + MINIMAL
+      async function initializeConnect4System() {
+        console.log('🚀 Starting Connect4 System Initialization...');
+        
+        try {
+          // Try modular system first (CDN + Fallback)
+          const modularSuccess = await initializeModularConnect4();
+          if (modularSuccess) {
+            console.log('✅ Modular Connect4 system activated successfully!');
+            return;
+          }
+        } catch (error) {
+          console.error('❌ Modular system failed completely:', error);
+        }
+        
+        // Fallback to minimal system
+        console.log('🔄 Falling back to minimal implementation...');
+        try {
+          initializeMinimalConnect4();
+          console.log('✅ Minimal Connect4 system activated successfully!');
+        } catch (error) {
+          console.error('❌ Even minimal system failed:', error);
+          
+          // Last resort error message
+          const errorDiv = document.createElement('div');
+          errorDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #f44336; color: white; padding: 20px; border-radius: 8px; z-index: 9999; text-align: center;';
+          errorDiv.innerHTML = `
+            <h3>❌ Connect4 Initialization Failed</h3>
+            <p>Please refresh the page or contact support.</p>
+          `;
+          document.body.appendChild(errorDiv);
+        }
+      }
+      
+      // IMMEDIATE INITIALIZATION - MULTIPLE TRIGGER POINTS
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('🚨 DOM LOADED - STARTING CONNECT4 SYSTEM');
+        initializeConnect4System();
+      });
+      
+      // If DOM already loaded, run immediately
+      if (document.readyState !== 'loading') {
+        console.log('🚨 DOM ALREADY LOADED - STARTING CONNECT4 SYSTEM NOW');
+        initializeConnect4System();
+      }
+      
+      // Backup timer for very slow environments
+      setTimeout(() => {
+        const gameBoard = document.getElementById('gameBoard');
+        const cells = gameBoard ? gameBoard.querySelectorAll('.game-slot') : [];
+        
+        if (cells.length === 0) {
+          console.log('🔄 Backup timer triggered - no cells found, forcing initialization...');
+          initializeConnect4System();
+        }
+      }, 2000);
     </script>
-    <!-- END OF MODULAR SYSTEM - COMMENTED OUT -->
   </body>
 </html>
