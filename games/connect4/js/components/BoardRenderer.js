@@ -119,11 +119,7 @@ export class BoardRenderer {
         
         cell.appendChild(disc);
         
-        // Store references
-        this.cells.push(cell);
-        this.discs.push(disc);
-        
-        return cell;
+        return { cell, disc };
     }
 
     /**

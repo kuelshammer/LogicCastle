@@ -99,7 +99,7 @@ test-*.html
 *.old
 
 # Build outputs
-# dist/  # Temporarily allow dist/ for GitHub Pages manual deployment
+dist/
 build/
 out/
 
