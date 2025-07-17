@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4 Gewinnt - LogicCastle</title>
-    <!-- Production-optimized Tailwind CSS build -->
-    <link rel="stylesheet" href="css/tailwind-built.css" />
-    <!-- Legacy CSS for gradual migration -->
-    <link rel="stylesheet" href="css/game.css" />
-    <link rel="stylesheet" href="css/ui.css" />
+    <script type="module" src="/games/connect4/js/main.js"></script>
+    <link rel="stylesheet" href="/assets/css/main-v4.css" />
     <style>
+      /* Essential Connect4 styles */
       .game-slot {
         cursor: pointer;
         transition: all 0.2s ease;
@@ -33,23 +31,6 @@
       .disc.empty {
         background: rgba(255, 255, 255, 0.1) !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-      }
-      .winning-disc {
-        animation: winningGlow 1s ease-in-out infinite;
-      }
-      @keyframes winningGlow {
-        0%, 100% { 
-          box-shadow: 0 0 20px rgba(255, 215, 0, 0.8),
-                      0 0 40px rgba(255, 215, 0, 0.6),
-                      inset 0 0 15px rgba(255, 255, 255, 0.3);
-          transform: scale(1);
-        }
-        50% { 
-          box-shadow: 0 0 40px rgba(255, 215, 0, 1),
-                      0 0 80px rgba(255, 215, 0, 0.8),
-                      inset 0 0 25px rgba(255, 255, 255, 0.5);
-          transform: scale(1.1);
-        }
       }
     </style>
   </head>
