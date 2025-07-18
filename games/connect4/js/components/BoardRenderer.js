@@ -61,19 +61,14 @@ export class BoardRenderer {
     }
 
     /**
-     * Apply modern Tailwind CSS Grid styles with glassmorphism
+     * Apply pure Tailwind CSS Grid styles - NO inline styles
      * @private
      */
     _applyBoardStyles() {
-        // Modern Tailwind approach with glassmorphism
-        this.gameBoard.className = 'grid grid-cols-7 grid-rows-6 gap-2 p-6 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 shadow-2xl max-w-2xl mx-auto aspect-[7/6]';
+        // Pure Tailwind approach - no inline styles needed
+        this.gameBoard.className = 'game-board grid grid-cols-7 grid-rows-6 gap-2 p-4 rounded-2xl shadow-2xl bg-gradient-to-br from-blue-600 to-blue-800 aspect-[7/6] max-w-2xl mx-auto';
         
-        // Add glassmorphism overlay effect
-        this.gameBoard.style.backdropFilter = 'blur(10px)';
-        this.gameBoard.style.background = 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.9))';
-        this.gameBoard.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
-        
-        console.log('🎨 Applied modern Tailwind CSS Grid with glassmorphism');
+        console.log('🎨 Applied pure Tailwind CSS Grid - No inline styles');
     }
 
     /**
@@ -93,29 +88,19 @@ export class BoardRenderer {
     }
 
     /**
-     * Create individual cell with disc placeholder using Tailwind classes
+     * Create individual cell with disc placeholder using pure Tailwind classes
      * @private
      */
     _createCell(row, col) {
         const cell = document.createElement('div');
-        cell.className = 'cell game-slot flex items-center justify-center relative cursor-pointer aspect-square rounded-full bg-blue-500 border-4 border-blue-800 hover:bg-blue-400 transition-all duration-200';
+        cell.className = 'game-slot w-full h-full min-h-[30px] rounded-full border-2 border-blue-700 bg-blue-500 flex items-center justify-center relative cursor-pointer aspect-square transition-all duration-200 hover:scale-105';
         cell.dataset.row = row;
         cell.dataset.col = col;
         cell.dataset.index = row * this.cols + col;
         
-        // Add glassmorphism effect for cells
-        cell.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.9), rgba(29, 78, 216, 0.8))';
-        cell.style.boxShadow = 'inset 0 2px 8px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15)';
-        
-        // Add empty disc placeholder with Tailwind
+        // Add empty disc placeholder with pure Tailwind
         const disc = document.createElement('div');
-        disc.className = 'disc empty w-[85%] h-[85%] rounded-full transition-all duration-300 relative';
-        
-        // Modern glassmorphism for empty disc slots
-        disc.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))';
-        disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-        disc.style.backdropFilter = 'blur(8px)';
-        disc.style.boxShadow = 'inset 0 1px 2px rgba(255, 255, 255, 0.1)';
+        disc.className = 'disc empty w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
         
         cell.appendChild(disc);
         
@@ -217,40 +202,24 @@ export class BoardRenderer {
     }
 
     /**
-     * Apply CSS Grid styles to coordinate containers
+     * Apply pure Tailwind CSS Grid styles to coordinate containers
      * @private
      */
     _applyCoordinateGridStyles(coordElement) {
-        Object.assign(coordElement.style, {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(7, 1fr)',
-            gap: '8px',
-            width: '100%',
-            maxWidth: 'min(80vw, calc(70vh * 7 / 6))',
-            maxHeight: 'min(70vh, calc(80vw * 6 / 7))',
-            padding: '20px', // CRITICAL: Match gameBoard padding exactly
-            margin: '0.25rem auto',
-            boxSizing: 'border-box'
-        });
+        // Pure Tailwind approach - no inline styles
+        coordElement.className = 'grid grid-cols-7 gap-2 px-4 max-w-2xl mx-auto mb-4';
         
-        console.log(`🎯 Forced CSS Grid alignment for ${coordElement.id}:`, coordElement.style);
+        console.log(`🎯 Applied pure Tailwind Grid alignment for ${coordElement.id}`);
     }
 
     /**
-     * Create individual coordinate label
+     * Create individual coordinate label with pure Tailwind
      * @private
      */
     _createCoordinateLabel(col) {
         const coord = document.createElement('div');
-        coord.className = 'coord text-center font-bold text-sm';
+        coord.className = 'coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded transition-all duration-200';
         coord.dataset.col = col - 1; // 0-indexed for interactions
-        
-        Object.assign(coord.style, {
-            color: '#666',
-            transition: 'all 0.3s ease',
-            padding: '0.25rem',
-            cursor: 'pointer'
-        });
         
         coord.textContent = col;
         return coord;
@@ -283,7 +252,7 @@ export class BoardRenderer {
     }
 
     /**
-     * Update board visual representation after move
+     * Update board visual representation after move - Pure Tailwind approach
      * Extracted from Connect4UINew.updateBoardVisual()
      */
     updateBoardVisual(row, col, player) {
@@ -295,53 +264,25 @@ export class BoardRenderer {
                 disc.classList.remove('empty', 'preview');
                 disc.classList.add(player === 1 ? 'yellow' : 'red');
                 
-                // Apply player-specific colors directly
-                if (player === 1) {
-                    Object.assign(disc.style, {
-                        background: '#FFD700', // Yellow
-                        border: '3px solid #FFA000',
-                        boxShadow: '0 2px 8px rgba(255, 215, 0, 0.6)'
-                    });
-                } else {
-                    Object.assign(disc.style, {
-                        background: '#F44336', // Red
-                        border: '3px solid #D32F2F',
-                        boxShadow: '0 2px 8px rgba(244, 67, 54, 0.6)'
-                    });
-                }
-                
-                console.log(`🔴 Disc placed at (${row}, ${col}) for player ${player}`);
+                console.log(`🔴 Disc placed at (${row}, ${col}) for player ${player} using CSS classes`);
             }
         }
     }
 
     /**
-     * Update individual disc visual based on cell value
+     * Update individual disc visual based on cell value - Pure CSS class approach
      * @private
      */
     _updateDiscVisual(disc, cellValue) {
         if (cellValue === 0) {
             // Empty cell
-            disc.className = 'disc empty';
-            disc.style.background = 'transparent';
-            disc.style.border = 'none';
-            disc.style.boxShadow = 'none';
+            disc.className = 'disc empty w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
         } else if (cellValue === 1) {
             // Yellow player
-            disc.className = 'disc yellow';
-            Object.assign(disc.style, {
-                background: '#FFD700',
-                border: '3px solid #FFA000',
-                boxShadow: '0 2px 8px rgba(255, 215, 0, 0.6)'
-            });
+            disc.className = 'disc yellow w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
         } else if (cellValue === 2) {
             // Red player
-            disc.className = 'disc red';
-            Object.assign(disc.style, {
-                background: '#F44336',
-                border: '3px solid #D32F2F',
-                boxShadow: '0 2px 8px rgba(244, 67, 54, 0.6)'
-            });
+            disc.className = 'disc red w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
         }
     }
 
@@ -363,14 +304,11 @@ export class BoardRenderer {
     }
 
     /**
-     * Clear all board visual state
+     * Clear all board visual state - Pure Tailwind approach
      */
     clearBoard() {
         for (const disc of this.discs) {
-            disc.className = 'disc empty';
-            disc.style.background = 'transparent';
-            disc.style.border = 'none';
-            disc.style.boxShadow = 'none';
+            disc.className = 'disc empty w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
         }
     }
 

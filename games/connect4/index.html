@@ -6,7 +6,9 @@
     <title>4 Gewinnt - LogicCastle</title>
     <!-- Minimal CSS fallback only -->
     <style>
-      /* Victory animations that can't be done with Tailwind */
+      /* ESSENTIAL CSS ONLY - Victory Animations & Glassmorphism */
+      
+      /* Victory Animations (Can't be done with Tailwind) */
       @keyframes victory-glow {
         0% { 
           box-shadow: 0 0 20px currentColor;
@@ -30,10 +32,14 @@
         100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
       }
       
+      @keyframes victory-pulse {
+        0%, 100% { opacity: 0.1; }
+        50% { opacity: 0.3; }
+      }
+      
       .winning-disc {
         animation: victory-glow 1.5s ease-in-out infinite, 
                    victory-celebration 0.8s ease-in-out;
-        z-index: 10 !important;
       }
       
       .victory-background {
@@ -56,197 +62,7 @@
         background: radial-gradient(circle at center, #ef4444 0%, transparent 70%);
       }
       
-      @keyframes victory-pulse {
-        0%, 100% { opacity: 0.1; }
-        50% { opacity: 0.3; }
-      }
-      /* Game-specific styles that extend Tailwind */
-      .game-slot {
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .game-slot:hover {
-        transform: scale(1.05);
-      }
-      .disc {
-        transition: all 0.5s ease;
-      }
-      .disc.yellow {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-        border: 3px solid #d97706 !important;
-        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.6) !important;
-      }
-      .disc.red {
-        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-        border: 3px solid #b91c1c !important;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6) !important;
-      }
-      .disc.empty {
-        background: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-      }
-
-      /* Missing Tailwind CSS Classes */
-      body, html {
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #1e3a8a, #581c87, #312e81);
-        color: white;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-      
-      .min-h-screen {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #1e3a8a, #581c87, #312e81);
-        color: white;
-      }
-      .text-center { text-align: center; }
-      .text-white { color: white; }
-      .text-xl { font-size: 1.25rem; }
-      .text-4xl { font-size: 2.25rem; }
-      .font-bold { font-weight: bold; }
-      .font-semibold { font-weight: 600; }
-      .opacity-90 { opacity: 0.9; }
-      .p-4 { padding: 1rem; }
-      .p-6 { padding: 1.5rem; }
-      .p-8 { padding: 2rem; }
-      .mb-2 { margin-bottom: 0.5rem; }
-      .mb-4 { margin-bottom: 1rem; }
-      .mt-4 { margin-top: 1rem; }
-      .flex { display: flex; }
-      .items-center { align-items: center; }
-      .justify-center { justify-content: center; }
-      .justify-between { justify-content: space-between; }
-      .max-w-2xl { max-width: 42rem; }
-      .mx-auto { margin-left: auto; margin-right: auto; }
-      .rounded-2xl { border-radius: 1rem; }
-      .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-      
-      /* Game board uses Tailwind classes directly - no override needed */
-      
-      .game-slot {
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 30px !important;
-        border-radius: 50% !important;
-        border: 2px solid #1e40af !important;
-        background-color: #3b82f6 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        position: relative !important;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.9), rgba(29, 78, 216, 0.8)) !important;
-        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        aspect-ratio: 1 !important;
-      }
-      
-      .disc {
-        width: 85% !important;
-        height: 85% !important;
-        min-width: 25px !important;
-        min-height: 25px !important;
-        border-radius: 50% !important;
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        aspect-ratio: 1 !important;
-      }
-      
-      .disc.yellow {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-        border: 3px solid #d97706 !important;
-        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.6) !important;
-      }
-      
-      .disc.red {
-        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-        border: 3px solid #b91c1c !important;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6) !important;
-      }
-      
-      .disc.empty {
-        background: rgba(255, 255, 255, 0.3) !important;
-        border: 2px solid rgba(255, 255, 255, 0.5) !important;
-      }
-      
-      /* Complete UI Layout */
-      .fixed { position: fixed; }
-      .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-      .overflow-hidden { overflow: hidden; }
-      .pointer-events-none { pointer-events: none; }
-      .absolute { position: absolute; }
-      .-top-40 { top: -10rem; }
-      .-right-40 { right: -10rem; }
-      .-left-40 { left: -10rem; }
-      .-bottom-40 { bottom: -10rem; }
-      .top-40 { top: 10rem; }
-      .left-1\/2 { left: 50%; }
-      .w-80 { width: 20rem; }
-      .h-80 { height: 20rem; }
-      .bg-blue-500 { background-color: #3b82f6; }
-      .bg-purple-500 { background-color: #8b5cf6; }
-      .bg-indigo-500 { background-color: #6366f1; }
-      .rounded-full { border-radius: 9999px; }
-      .mix-blend-multiply { mix-blend-mode: multiply; }
-      .filter { filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast); }
-      .blur-xl { --tw-blur: blur(24px); filter: var(--tw-blur); }
-      .opacity-70 { opacity: 0.7; }
-      .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-      
-      /* Grid Layout */
-      .grid { display: grid; }
-      .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-      .xl\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .xl\\:col-span-3 { grid-column: span 3 / span 3; }
-      .gap-6 { gap: 1.5rem; }
-      
-      /* Spacing */
-      .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
-      .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
-      
-      /* Container Styles */
-      .max-w-7xl { max-width: 80rem; }
-      .max-w-4xl { max-width: 56rem; }
-      
-      /* Animations */
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: .5; }
-      }
-      
-      /* Victory Animation */
-      @keyframes victory-glow {
-        0% { 
-          box-shadow: 0 0 20px currentColor;
-          transform: translate(-50%, -50%) scale(1);
-        }
-        50% { 
-          box-shadow: 0 0 40px currentColor, 0 0 60px currentColor;
-          transform: translate(-50%, -50%) scale(1.1);
-        }
-        100% { 
-          box-shadow: 0 0 20px currentColor;
-          transform: translate(-50%, -50%) scale(1);
-        }
-      }
-      
-      @keyframes victory-celebration {
-        0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-        25% { transform: translate(-50%, -50%) scale(1.2) rotate(10deg); }
-        50% { transform: translate(-50%, -50%) scale(1.1) rotate(-10deg); }
-        75% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
-        100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-      }
-      
-      .winning-disc {
-        animation: victory-glow 1.5s ease-in-out infinite, 
-                   victory-celebration 0.8s ease-in-out;
-        z-index: 10 !important;
-      }
-      
-      /* Glassmorphism Classes */
+      /* Glassmorphism Effects */
       .glass {
         backdrop-filter: blur(16px);
         background: rgba(255, 255, 255, 0.1);
@@ -277,270 +93,72 @@
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.2);
       }
-
-      /* Winner celebration background effect */
-      .victory-background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 5;
+      
+      /* Game Element Styling - No !important */
+      .game-slot {
+        cursor: pointer;
+        transition: all 0.2s ease;
       }
       
-      .victory-background.yellow {
-        background: radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 70%);
-        animation: victory-pulse 2s ease-in-out infinite;
+      .game-slot:hover {
+        transform: scale(1.05);
       }
       
-      /* Sidebar Text Colors */
-      .text-yellow-400 { color: #facc15 !important; }
-      .text-red-400 { color: #f87171 !important; }
-      .text-green-400 { color: #4ade80 !important; }
-      .text-white { color: #ffffff !important; }
-
-      /* Gradients for Player Indicators */
-      .bg-gradient-to-br { 
-        background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)) !important; 
+      .disc {
+        transition: all 0.5s ease;
       }
-      .from-yellow-400 { 
-        --tw-gradient-from: #facc15; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(250 204 21 / 0)); 
-      }
-      .to-yellow-600 { --tw-gradient-to: #ca8a04; }
-      .from-red-500 { 
-        --tw-gradient-from: #ef4444; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(239 68 68 / 0)); 
-      }
-      .to-red-700 { --tw-gradient-to: #b91c1c; }
-
-      /* Button Gradients */
-      .from-green-500 { 
-        --tw-gradient-from: #22c55e; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(34 197 94 / 0)); 
-      }
-      .to-emerald-600 { --tw-gradient-to: #059669; }
-      .from-green-600 { 
-        --tw-gradient-from: #16a34a; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(22 163 74 / 0)); 
-      }
-      .to-emerald-700 { --tw-gradient-to: #047857; }
-      .from-blue-500 { 
-        --tw-gradient-from: #3b82f6; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(59 130 246 / 0)); 
-      }
-      .to-cyan-600 { --tw-gradient-to: #0891b2; }
-      .from-blue-600 { 
-        --tw-gradient-from: #2563eb; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(37 99 235 / 0)); 
-      }
-      .to-cyan-700 { --tw-gradient-to: #0e7490; }
-      .from-orange-500 { 
-        --tw-gradient-from: #f97316; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(249 115 22 / 0)); 
-      }
-      .to-red-600 { --tw-gradient-to: #dc2626; }
-      .from-orange-600 { 
-        --tw-gradient-from: #ea580c; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(234 88 12 / 0)); 
-      }
-      .from-purple-500 { 
-        --tw-gradient-from: #a855f7; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(168 85 247 / 0)); 
-      }
-      .to-pink-600 { --tw-gradient-to: #db2777; }
-      .from-purple-600 { 
-        --tw-gradient-from: #9333ea; 
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(147 51 234 / 0)); 
-      }
-      .to-pink-700 { --tw-gradient-to: #be185d; }
-
-      /* Layout & Spacing */
-      .shadow-xl { 
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important; 
-      }
-      .shadow-lg { 
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important; 
-      }
-      .rounded-2xl { border-radius: 1rem !important; }
-      .rounded-xl { border-radius: 0.75rem !important; }
-      .rounded-full { border-radius: 50% !important; }
-      .space-y-3 > * + * { margin-top: 0.75rem !important; }
-      .space-y-4 > * + * { margin-top: 1rem !important; }
-      .space-y-6 > * + * { margin-top: 1.5rem !important; }
-
-      /* Player Disc Specific Styling */
-      .player-disc {
-        display: inline-block !important;
-        width: 2rem !important;
-        height: 2rem !important;
-        border-radius: 50% !important;
-        margin-right: 0.75rem !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-      }
-
-      /* Font Weights and Sizes */
-      .font-bold { font-weight: 700 !important; }
-      .font-semibold { font-weight: 600 !important; }
-      .text-xl { font-size: 1.25rem !important; line-height: 1.75rem !important; }
-      .text-2xl { font-size: 1.5rem !important; line-height: 2rem !important; }
-
-      /* Ultra-Wide Responsive Layout */
-      .container-ultra-wide { 
-        max-width: 1800px !important; 
-        margin: 0 auto !important; 
-      }
-
-      /* 2XL+ Breakpoint Grid System */
-      @media (min-width: 1536px) {
-        .\\32 xl\\:grid-cols-5 { 
-          grid-template-columns: repeat(5, minmax(0, 1fr)) !important; 
-        }
-        .\\32 xl\\:col-span-1 { 
-          grid-column: span 1 / span 1 !important; 
-        }
-        .\\32 xl\\:col-span-2 { 
-          grid-column: span 2 / span 2 !important; 
-        }
-        .\\32 xl\\:col-span-3 { 
-          grid-column: span 3 / span 3 !important; 
-        }
-        .\\32 xl\\:space-y-0 > * + * { 
-          margin-top: 0 !important; 
-        }
-        .\\32 xl\\:grid { 
-          display: grid !important; 
-        }
-        .\\32 xl\\:grid-cols-2 { 
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
-        }
-        .\\32 xl\\:gap-4 { 
-          gap: 1rem !important; 
-        }
-      }
-
-      /* Responsive Game Board Scaling */
       
-      /* Mobile Small (< 480px) */
+      .disc.yellow {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        border: 3px solid #d97706;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.6);
+      }
+      
+      .disc.red {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        border: 3px solid #b91c1c;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6);
+      }
+      
+      .disc.empty {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      /* Responsive Game Board Scaling - Essential for game functionality */
       @media (max-width: 479px) {
-        
-        .game-slot {
-          min-height: 25px !important;
-          border-width: 1px !important;
-        }
-        
-        .disc {
-          min-width: 20px !important;
-          min-height: 20px !important;
-        }
+        .game-slot { min-height: 25px; border-width: 1px; }
+        .disc { min-width: 20px; min-height: 20px; }
       }
       
-      /* Mobile Extra Small (< 360px) */
       @media (max-width: 359px) {
-        
-        .game-slot {
-          min-height: 20px !important;
-          border-width: 1px !important;
-        }
-        
-        .disc {
-          min-width: 18px !important;
-          min-height: 18px !important;
-        }
-        
-        /* Reduce container padding on ultra-narrow displays */
-        .glass.rounded-3xl {
-          padding: 1rem !important;
-        }
-        
-        main {
-          padding: 0.5rem !important;
-        }
+        .game-slot { min-height: 20px; border-width: 1px; }
+        .disc { min-width: 18px; min-height: 18px; }
       }
       
-      /* Mobile Medium (480px - 767px) */
       @media (min-width: 480px) and (max-width: 767px) {
-        
-        .game-slot {
-          min-height: 35px !important;
-        }
-        
-        .disc {
-          min-width: 28px !important;
-          min-height: 28px !important;
-        }
+        .game-slot { min-height: 35px; }
+        .disc { min-width: 28px; min-height: 28px; }
       }
       
-      /* Tablet (768px - 1023px) */
       @media (min-width: 768px) and (max-width: 1023px) {
-        
-        .game-slot {
-          min-height: 45px !important;
-        }
-        
-        .disc {
-          min-width: 35px !important;
-          min-height: 35px !important;
-        }
+        .game-slot { min-height: 45px; }
+        .disc { min-width: 35px; min-height: 35px; }
       }
       
-      /* Desktop Medium (1024px - 1279px) */
       @media (min-width: 1024px) and (max-width: 1279px) {
-        
-        .game-slot {
-          min-height: 55px !important;
-        }
-        
-        .disc {
-          min-width: 45px !important;
-          min-height: 45px !important;
-        }
+        .game-slot { min-height: 55px; }
+        .disc { min-width: 45px; min-height: 45px; }
       }
       
-      /* Desktop Large (1280px - 1535px) */
       @media (min-width: 1280px) and (max-width: 1535px) {
-        
-        .game-slot {
-          min-height: 65px !important;
-          border-width: 3px !important;
-        }
-        
-        .disc {
-          min-width: 55px !important;
-          min-height: 55px !important;
-        }
+        .game-slot { min-height: 65px; border-width: 3px; }
+        .disc { min-width: 55px; min-height: 55px; }
       }
 
-      /* Ultra-Wide (1536px+) */
       @media (min-width: 1536px) {
-        
-        .game-slot {
-          min-height: 75px !important;
-          border-width: 3px !important;
-        }
-        
-        .disc {
-          min-width: 65px !important;
-          min-height: 65px !important;
-        }
-      }
-
-      .victory-background.red {
-        background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, transparent 70%);
-        animation: victory-pulse 2s ease-in-out infinite;
-      }
-      
-      @keyframes victory-pulse {
-        0% { opacity: 0; }
-        50% { opacity: 1; }
-        100% { opacity: 0; }
-      }
-      
-      /* Responsive breakpoints */
-      @media (min-width: 1280px) {
-        .xl\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .xl\\:col-span-3 { grid-column: span 3 / span 3; }
+        .game-slot { min-height: 75px; border-width: 3px; }
+        .disc { min-width: 65px; min-height: 65px; }
       }
     </style>
     <script type="module" crossorigin src="/LogicCastle/assets/connect4-CUfPBd9w.js"></script>
