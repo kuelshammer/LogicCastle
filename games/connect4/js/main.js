@@ -148,6 +148,29 @@ class ModularConnect4Game extends BaseGameUI {
       this.showModal('assistanceModal');
     });
 
+    // 2XL Sidebar Event Listeners (if elements exist)
+    const newGameBtn2xl = document.getElementById('newGameBtn2xl');
+    const undoBtn2xl = document.getElementById('undoBtn2xl');
+    const resetScoreBtn2xl = document.getElementById('resetScoreBtn2xl');
+    const assistanceBtn2xl = document.getElementById('assistanceBtn2xl');
+    const helpBtn2xl = document.getElementById('helpBtn2xl');
+
+    if (newGameBtn2xl) {
+      newGameBtn2xl.addEventListener('click', () => this.resetGame());
+    }
+    if (undoBtn2xl) {
+      undoBtn2xl.addEventListener('click', () => this.undoMove());
+    }
+    if (resetScoreBtn2xl) {
+      resetScoreBtn2xl.addEventListener('click', () => this.resetScore());
+    }
+    if (assistanceBtn2xl) {
+      assistanceBtn2xl.addEventListener('click', () => this.showModal('assistanceModal'));
+    }
+    if (helpBtn2xl) {
+      helpBtn2xl.addEventListener('click', () => this.showModal('helpModal'));
+    }
+
     document.getElementById('closeHelpModal').addEventListener('click', () => {
       this.hideModal('helpModal');
     });
@@ -407,14 +430,28 @@ class ModularConnect4Game extends BaseGameUI {
       this.scores.red++;
     }
 
+    // Update both main and 2XL sidebar scores
     document.getElementById('yellowScore').textContent = this.scores.yellow;
     document.getElementById('redScore').textContent = this.scores.red;
+    
+    const yellowScore2xl = document.getElementById('yellowScore2xl');
+    const redScore2xl = document.getElementById('redScore2xl');
+    if (yellowScore2xl) yellowScore2xl.textContent = this.scores.yellow;
+    if (redScore2xl) redScore2xl.textContent = this.scores.red;
   }
 
   resetScore() {
     this.scores = { yellow: 0, red: 0 };
+    
+    // Update both main and 2XL sidebar scores
     document.getElementById('yellowScore').textContent = '0';
     document.getElementById('redScore').textContent = '0';
+    
+    const yellowScore2xl = document.getElementById('yellowScore2xl');
+    const redScore2xl = document.getElementById('redScore2xl');
+    if (yellowScore2xl) yellowScore2xl.textContent = '0';
+    if (redScore2xl) redScore2xl.textContent = '0';
+    
     console.log('🔄 Score reset');
   }
 
@@ -532,6 +569,7 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   updateUI() {
+    // Update main current player indicator
     const indicator = document.getElementById('currentPlayerIndicator');
     if (indicator) {
       const disc = indicator.querySelector('.player-disc');
@@ -547,23 +585,48 @@ class ModularConnect4Game extends BaseGameUI {
       }
     }
 
-    const moveCounter = document.getElementById('moveCounter');
-    if (moveCounter) {
-      moveCounter.textContent = this.moveCount;
+    // Update 2XL current player indicator
+    const indicator2xl = document.getElementById('currentPlayerIndicator2xl');
+    if (indicator2xl) {
+      const disc = indicator2xl.querySelector('.player-disc');
+      const name = indicator2xl.querySelector('.player-name');
+      if (disc && name) {
+        if (this.currentPlayer === 1) {
+          disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg';
+          name.textContent = 'Spieler 1';
+        } else {
+          disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-red-500 to-red-700 shadow-lg';
+          name.textContent = 'Spieler 2';
+        }
+      }
     }
 
+    // Update move counters
+    const moveCounter = document.getElementById('moveCounter');
+    const moveCounter2xl = document.getElementById('moveCounter2xl');
+    if (moveCounter) moveCounter.textContent = this.moveCount;
+    if (moveCounter2xl) moveCounter2xl.textContent = this.moveCount;
+
+    // Update game status
     if (!this.gameOver) {
       const gameStatus = document.getElementById('gameStatus');
+      const gameStatus2xl = document.getElementById('gameStatus2xl');
       if (gameStatus) {
         gameStatus.textContent = 'Spiel läuft';
         gameStatus.className = 'font-semibold text-green-400';
       }
+      if (gameStatus2xl) {
+        gameStatus2xl.textContent = 'Spiel läuft';
+        gameStatus2xl.className = 'font-semibold text-green-400';
+      }
     }
 
+    // Update undo buttons
     const undoBtn = document.getElementById('undoBtn');
-    if (undoBtn) {
-      undoBtn.disabled = this.gameHistory.length === 0;
-    }
+    const undoBtn2xl = document.getElementById('undoBtn2xl');
+    const canUndo = this.gameHistory.length === 0;
+    if (undoBtn) undoBtn.disabled = canUndo;
+    if (undoBtn2xl) undoBtn2xl.disabled = canUndo;
   }
 
   showModal(modalId) {
