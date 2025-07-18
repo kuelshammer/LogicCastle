@@ -137,6 +137,7 @@ class ModularConnect4Game extends BaseGameUI {
       this.gameMode = e.target.value;
       this.isBot = e.target.value.includes('bot');
       console.log(`🎮 Game mode changed to: ${this.gameMode}, AI enabled: ${this.isBot}`);
+      console.log(`🎮 Current game state: player=${this.currentPlayer}, gameOver=${this.gameOver}, isProcessingMove=${this.isProcessingMove}`);
       this.resetGame(); // Reset game when changing mode
     });
 
@@ -247,8 +248,12 @@ class ModularConnect4Game extends BaseGameUI {
         this.updateUI();
         
         // Trigger AI move after human player's move (WASM version)
+        console.log(`🎮 WASM Move completed: isBot=${this.isBot}, currentPlayer=${this.currentPlayer}, gameOver=${this.gameOver}, isProcessingMove=${this.isProcessingMove}`);
         if (this.isBot && this.currentPlayer === 2 && !this.gameOver) {
+          console.log(`🤖 Triggering WASM AI move in 500ms...`);
           setTimeout(() => this.makeAIMove(), 500);
+        } else {
+          console.log(`🎮 WASM AI move NOT triggered: isBot=${this.isBot}, currentPlayer=${this.currentPlayer}, gameOver=${this.gameOver}`);
         }
         
         return true;
@@ -310,8 +315,12 @@ class ModularConnect4Game extends BaseGameUI {
     this.updateUI();
     
     // Trigger AI move after human player's move
+    console.log(`🎮 Move completed: isBot=${this.isBot}, currentPlayer=${this.currentPlayer}, gameOver=${this.gameOver}, isProcessingMove=${this.isProcessingMove}`);
     if (this.isBot && this.currentPlayer === 2 && !this.gameOver) {
+      console.log(`🤖 Triggering AI move in 500ms...`);
       setTimeout(() => this.makeAIMove(), 500);
+    } else {
+      console.log(`🎮 AI move NOT triggered: isBot=${this.isBot}, currentPlayer=${this.currentPlayer}, gameOver=${this.gameOver}`);
     }
     
     return true;
@@ -662,7 +671,9 @@ class ModularConnect4Game extends BaseGameUI {
    * Make AI move
    */
   async makeAIMove() {
+    console.log(`🤖 makeAIMove() called: isBot=${this.isBot}, gameOver=${this.gameOver}, isProcessingMove=${this.isProcessingMove}`);
     if (!this.isBot || this.gameOver || this.isProcessingMove) {
+      console.log(`🤖 makeAIMove() aborted: isBot=${this.isBot}, gameOver=${this.gameOver}, isProcessingMove=${this.isProcessingMove}`);
       return;
     }
 
