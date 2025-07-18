@@ -4,47 +4,63 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4 Gewinnt - LogicCastle</title>
-    <!-- Fallback if CSS fails to load -->
+    <!-- Minimal CSS fallback only -->
     <style>
-      .connect4-board {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: repeat(6, 1fr);
-        gap: 4px;
-        background: #1e40af;
-        padding: 20px;
-        border-radius: 12px;
-        margin: 20px auto;
-        max-width: 600px;
+      /* Victory animations that can't be done with Tailwind */
+      @keyframes victory-glow {
+        0% { 
+          box-shadow: 0 0 20px currentColor;
+          transform: translate(-50%, -50%) scale(1);
+        }
+        50% { 
+          box-shadow: 0 0 40px currentColor, 0 0 60px currentColor;
+          transform: translate(-50%, -50%) scale(1.1);
+        }
+        100% { 
+          box-shadow: 0 0 20px currentColor;
+          transform: translate(-50%, -50%) scale(1);
+        }
       }
-      .game-slot {
-        background: white;
-        border-radius: 50%;
-        aspect-ratio: 1;
-        cursor: pointer;
-        transition: all 0.2s ease;
+      
+      @keyframes victory-celebration {
+        0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        25% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+        50% { transform: translate(-50%, -50%) scale(1.1) rotate(-5deg); }
+        75% { transform: translate(-50%, -50%) scale(1.15) rotate(3deg); }
+        100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
       }
-      .game-slot:hover {
-        transform: scale(1.05);
-        background: #fbbf24;
+      
+      .winning-disc {
+        animation: victory-glow 1.5s ease-in-out infinite, 
+                   victory-celebration 0.8s ease-in-out;
+        z-index: 10 !important;
       }
-      .game-piece {
+      
+      .victory-background {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
-        border-radius: 50%;
-        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.1;
+        animation: victory-pulse 2s ease-in-out infinite;
       }
-      .game-piece.player-yellow {
-        background: #fbbf24;
-        border: 2px solid #d97706;
+      
+      .victory-background.yellow {
+        background: radial-gradient(circle at center, #fbbf24 0%, transparent 70%);
       }
-      .game-piece.player-red {
-        background: #ef4444;
-        border: 2px solid #dc2626;
+      
+      .victory-background.red {
+        background: radial-gradient(circle at center, #ef4444 0%, transparent 70%);
       }
-    </style>
-    <style>
-      /* Essential Connect4 styles */
+      
+      @keyframes victory-pulse {
+        0%, 100% { opacity: 0.1; }
+        50% { opacity: 0.3; }
+      }
+      /* Game-specific styles that extend Tailwind */
       .game-slot {
         cursor: pointer;
         transition: all 0.2s ease;
@@ -56,14 +72,14 @@
         transition: all 0.5s ease;
       }
       .disc.yellow {
-        background: linear-gradient(135deg, #FFD700, #FFA000) !important;
-        border: 3px solid #FF8F00 !important;
-        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6) !important;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
+        border: 3px solid #d97706 !important;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.6) !important;
       }
       .disc.red {
-        background: linear-gradient(135deg, #F44336, #D32F2F) !important;
-        border: 3px solid #C62828 !important;
-        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.6) !important;
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+        border: 3px solid #b91c1c !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.6) !important;
       }
       .disc.empty {
         background: rgba(255, 255, 255, 0.1) !important;

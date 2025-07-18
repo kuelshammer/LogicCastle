@@ -465,27 +465,43 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   undoMove() {
-    if (this.wasmGame && this.wasmGame.initialized && this.wasmGame.canUndo()) {
+    // WASM-first approach for undo
+    if (this.wasmGame && this.wasmGame.initialized) {
       try {
-        const undoResult = this.wasmGame.undoMove();
+        if (this.wasmGame.canUndo()) {
+          console.log('🔄 Undoing move using WASM backend');
+          const undoResult = this.wasmGame.undoMove();
 
-        this.board = undoResult.currentState.board;
-        this.currentPlayer = undoResult.currentState.currentPlayer;
-        this.moveCount = undoResult.currentState.moveCount;
-        this.gameOver = undoResult.currentState.isGameOver;
-        this.winner = undoResult.currentState.winner;
+          // Sync state from WASM undo result
+          if (undoResult && undoResult.currentState) {
+            this.board = undoResult.currentState.board;
+            this.currentPlayer = undoResult.currentState.currentPlayer;
+            this.moveCount = undoResult.currentState.moveCount;
+            this.gameOver = undoResult.currentState.isGameOver;
+            this.winner = undoResult.currentState.winner;
 
-        this.updateBoardFromState();
-        this.updateUI();
-        return true;
-
+            this.updateBoardFromState();
+            this.updateUI();
+            
+            console.log('✅ Move undone using WASM backend');
+            console.log(`🔄 WASM state after undo: player=${this.currentPlayer}, moves=${this.moveCount}`);
+            return true;
+          } else {
+            throw new Error('WASM undo returned invalid result');
+          }
+        } else {
+          console.log('🔄 No moves to undo in WASM backend');
+          return false;
+        }
       } catch (error) {
         console.error('❌ WASM undo failed:', error);
         console.log('🔄 Falling back to legacy undo logic...');
+        return this.legacyUndoMove();
       }
+    } else {
+      console.log('🔄 WASM not available, using legacy undo');
+      return this.legacyUndoMove();
     }
-
-    return this.legacyUndoMove();
   }
 
   legacyUndoMove() {
@@ -525,7 +541,49 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   resetGame() {
-    // Always use legacy reset logic to avoid WASM initialization issues
+    // WASM-first approach: Use WASM if available, fallback to legacy only if necessary
+    if (this.wasmGame && this.wasmGame.initialized) {
+      try {
+        console.log('🔄 Resetting game using WASM backend');
+        this.wasmGame.newGame();
+        
+        // Sync state from WASM
+        const wasmState = this.wasmGame.getGameState();
+        if (wasmState) {
+          this.board = wasmState.board;
+          this.currentPlayer = wasmState.currentPlayer;
+          this.gameOver = wasmState.isGameOver;
+          this.winner = wasmState.winner;
+          this.moveCount = wasmState.moveCount;
+          this.gameHistory = [];
+          this.winningLine = null;
+          
+          console.log('✅ Game reset using WASM backend');
+          console.log(`🔄 WASM Game state: player=${this.currentPlayer}, moves=${this.moveCount}, gameOver=${this.gameOver}`);
+        } else {
+          throw new Error('WASM getGameState() returned null');
+        }
+      } catch (error) {
+        console.error('❌ WASM reset failed, falling back to legacy:', error);
+        this.legacyResetGame();
+      }
+    } else {
+      console.log('🔄 WASM not available, using legacy reset');
+      this.legacyResetGame();
+    }
+
+    // Remove victory background effect
+    const victoryBg = document.getElementById('victoryBackground');
+    if (victoryBg) {
+      victoryBg.remove();
+    }
+
+    // Update visual board
+    this.updateBoardVisual();
+    this.updateUI();
+  }
+
+  legacyResetGame() {
     this.board = Array(6).fill(null).map(() => Array(7).fill(0));
     this.currentPlayer = 1;
     this.gameOver = false;
@@ -535,14 +593,10 @@ class ModularConnect4Game extends BaseGameUI {
     this.winningLine = null;
 
     console.log('🔄 New game started using legacy logic');
-    console.log(`🔄 Game state after reset: isBot=${this.isBot}, currentPlayer=${this.currentPlayer}, gameOver=${this.gameOver}`);
+    console.log(`🔄 Legacy game state: player=${this.currentPlayer}, moves=${this.moveCount}, gameOver=${this.gameOver}`);
+  }
 
-    // Remove victory background effect
-    const victoryBg = document.getElementById('victoryBackground');
-    if (victoryBg) {
-      victoryBg.remove();
-    }
-
+  updateBoardVisual() {
     if (this.boardRenderer) {
       this.boardRenderer.clearBoard();
     } else {
@@ -555,8 +609,6 @@ class ModularConnect4Game extends BaseGameUI {
         }
       });
     }
-
-    this.updateUI();
   }
 
   updateUI() {
