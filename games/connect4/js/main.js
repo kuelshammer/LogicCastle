@@ -330,26 +330,39 @@ class ModularConnect4Game extends BaseGameUI {
 
   showWin(row, col) {
     const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+    const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
 
+    // Animate winning line
     if (this.winningLine) {
-      this.winningLine.forEach(([r, c]) => {
-        const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-        if (cell) {
-          const disc = cell.querySelector('.disc');
-          if (disc) {
-            disc.classList.add('winning-disc');
+      this.winningLine.forEach(([r, c], index) => {
+        setTimeout(() => {
+          const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+          if (cell) {
+            const disc = cell.querySelector('.disc');
+            if (disc) {
+              disc.classList.add('winning-disc');
+            }
           }
-        }
+        }, index * 100); // Staggered animation
       });
     }
 
+    // Create victory background effect
+    const victoryBg = document.createElement('div');
+    victoryBg.className = `victory-background ${winnerColor}`;
+    victoryBg.id = 'victoryBackground';
+    document.body.appendChild(victoryBg);
+
+    // Update game status with winner color
     const gameStatus = document.getElementById('gameStatus');
     if (gameStatus) {
       gameStatus.textContent = `${winnerName} gewinnt!`;
-      gameStatus.className = 'font-semibold text-yellow-400';
+      gameStatus.className = `font-semibold ${winnerColor === 'yellow' ? 'text-yellow-400' : 'text-red-400'}`;
     }
 
+    // Play victory sound effect (if available)
     console.log(`🏆 ${winnerName} gewinnt!`);
+    console.log(`🎉 Victory animation started for ${winnerColor} player`);
   }
 
   showDraw() {
@@ -469,6 +482,12 @@ class ModularConnect4Game extends BaseGameUI {
       this.winningLine = null;
 
       console.log('🔄 New game started using legacy logic');
+    }
+
+    // Remove victory background effect
+    const victoryBg = document.getElementById('victoryBackground');
+    if (victoryBg) {
+      victoryBg.remove();
     }
 
     if (this.boardRenderer) {
