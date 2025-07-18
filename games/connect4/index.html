@@ -123,23 +123,7 @@
       .rounded-2xl { border-radius: 1rem; }
       .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
       
-      /* Enhanced Game Board Styling */
-      #gameBoard {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        grid-template-rows: repeat(6, 1fr) !important;
-        gap: 2px !important;
-        padding: 10px !important;
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.9)) !important;
-        border-radius: 16px !important;
-        max-width: 100% !important;
-        width: 100% !important;
-        margin: 20px auto !important;
-        aspect-ratio: 7/6 !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-      }
+      /* Game board uses Tailwind classes directly - no override needed */
       
       .game-slot {
         width: 100% !important;
@@ -440,11 +424,6 @@
       
       /* Mobile Small (< 480px) */
       @media (max-width: 479px) {
-        #gameBoard {
-          gap: 1px !important;
-          padding: 4px !important;
-          margin: 10px auto !important;
-        }
         
         .game-slot {
           min-height: 25px !important;
@@ -459,11 +438,6 @@
       
       /* Mobile Extra Small (< 360px) */
       @media (max-width: 359px) {
-        #gameBoard {
-          gap: 0px !important;
-          padding: 2px !important;
-          margin: 5px auto !important;
-        }
         
         .game-slot {
           min-height: 20px !important;
@@ -487,11 +461,6 @@
       
       /* Mobile Medium (480px - 767px) */
       @media (min-width: 480px) and (max-width: 767px) {
-        #gameBoard {
-          max-width: 400px !important;
-          gap: 3px !important;
-          padding: 12px !important;
-        }
         
         .game-slot {
           min-height: 35px !important;
@@ -505,11 +474,6 @@
       
       /* Tablet (768px - 1023px) */
       @media (min-width: 768px) and (max-width: 1023px) {
-        #gameBoard {
-          max-width: 500px !important;
-          gap: 4px !important;
-          padding: 15px !important;
-        }
         
         .game-slot {
           min-height: 45px !important;
@@ -523,11 +487,6 @@
       
       /* Desktop Medium (1024px - 1279px) */
       @media (min-width: 1024px) and (max-width: 1279px) {
-        #gameBoard {
-          max-width: 550px !important;
-          gap: 6px !important;
-          padding: 18px !important;
-        }
         
         .game-slot {
           min-height: 55px !important;
@@ -541,11 +500,6 @@
       
       /* Desktop Large (1280px - 1535px) */
       @media (min-width: 1280px) and (max-width: 1535px) {
-        #gameBoard { 
-          max-width: 600px !important;
-          gap: 8px !important;
-          padding: 20px !important;
-        }
         
         .game-slot {
           min-height: 65px !important;
@@ -560,11 +514,6 @@
 
       /* Ultra-Wide (1536px+) */
       @media (min-width: 1536px) {
-        #gameBoard { 
-          max-width: 700px !important;
-          gap: 10px !important;
-          padding: 25px !important;
-        }
         
         .game-slot {
           min-height: 75px !important;
