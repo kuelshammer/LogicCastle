@@ -525,35 +525,17 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   resetGame() {
-    if (this.wasmGame && this.wasmGame.initialized) {
-      try {
-        this.wasmGame.newGame();
+    // Always use legacy reset logic to avoid WASM initialization issues
+    this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+    this.currentPlayer = 1;
+    this.gameOver = false;
+    this.winner = null;
+    this.moveCount = 0;
+    this.gameHistory = [];
+    this.winningLine = null;
 
-        this.board = Array(6).fill(null).map(() => Array(7).fill(0));
-        this.currentPlayer = 1;
-        this.gameOver = false;
-        this.winner = null;
-        this.moveCount = 0;
-        this.gameHistory = [];
-        this.winningLine = null;
-
-        console.log('🔄 New game started using WASM backend');
-
-      } catch (error) {
-        console.error('❌ WASM reset failed:', error);
-        console.log('🔄 Falling back to legacy reset logic...');
-      }
-    } else {
-      this.board = Array(6).fill(null).map(() => Array(7).fill(0));
-      this.currentPlayer = 1;
-      this.gameOver = false;
-      this.winner = null;
-      this.moveCount = 0;
-      this.gameHistory = [];
-      this.winningLine = null;
-
-      console.log('🔄 New game started using legacy logic');
-    }
+    console.log('🔄 New game started using legacy logic');
+    console.log(`🔄 Game state after reset: isBot=${this.isBot}, currentPlayer=${this.currentPlayer}, gameOver=${this.gameOver}`);
 
     // Remove victory background effect
     const victoryBg = document.getElementById('victoryBackground');
@@ -691,6 +673,8 @@ class ModularConnect4Game extends BaseGameUI {
           console.error('❌ WASM AI failed:', error);
           bestMove = null;
         }
+      } else {
+        console.log('🤖 WASM not initialized, using fallback AI');
       }
 
       // Fallback to simple AI if WASM fails
@@ -721,9 +705,12 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   /**
-   * Simple fallback AI - random valid move
+   * Simple fallback AI - basic strategy
    */
   getFallbackAIMove() {
+    console.log('🤖 Calculating fallback AI move...');
+    
+    // Get all valid columns
     const validColumns = [];
     for (let col = 0; col < 7; col++) {
       if (this.board[0][col] === 0) {
@@ -732,14 +719,63 @@ class ModularConnect4Game extends BaseGameUI {
     }
 
     if (validColumns.length === 0) {
+      console.log('🤖 No valid columns found');
       return null;
     }
 
-    // Add some simple strategy - prefer center columns
+    console.log(`🤖 Valid columns: ${validColumns.join(', ')}`);
+
+    // Simple strategy: 
+    // 1. Check if AI can win in one move
+    for (let col of validColumns) {
+      if (this.canWinInColumn(col, 2)) { // Player 2 is AI
+        console.log(`🤖 AI can win in column ${col}`);
+        return col;
+      }
+    }
+
+    // 2. Check if AI needs to block human player
+    for (let col of validColumns) {
+      if (this.canWinInColumn(col, 1)) { // Player 1 is human
+        console.log(`🤖 AI blocks human win in column ${col}`);
+        return col;
+      }
+    }
+
+    // 3. Prefer center columns
     const centerCols = validColumns.filter(col => col >= 2 && col <= 4);
     const preferredCols = centerCols.length > 0 ? centerCols : validColumns;
     
-    return preferredCols[Math.floor(Math.random() * preferredCols.length)];
+    const chosenCol = preferredCols[Math.floor(Math.random() * preferredCols.length)];
+    console.log(`🤖 AI chooses column ${chosenCol} (strategy: center preference)`);
+    return chosenCol;
+  }
+
+  /**
+   * Check if a player can win by playing in a specific column
+   */
+  canWinInColumn(col, player) {
+    // Find the row where the disc would land
+    let targetRow = -1;
+    for (let row = 5; row >= 0; row--) {
+      if (this.board[row][col] === 0) {
+        targetRow = row;
+        break;
+      }
+    }
+
+    if (targetRow === -1) return false; // Column is full
+
+    // Temporarily place the disc
+    this.board[targetRow][col] = player;
+    
+    // Check if this creates a winning line
+    const isWin = this.checkWin(targetRow, col);
+    
+    // Remove the temporary disc
+    this.board[targetRow][col] = 0;
+    
+    return isWin;
   }
 
   /**
