@@ -112,21 +112,23 @@
         display: grid !important;
         grid-template-columns: repeat(7, 1fr) !important;
         grid-template-rows: repeat(6, 1fr) !important;
-        gap: 8px !important;
-        padding: 20px !important;
+        gap: 2px !important;
+        padding: 10px !important;
         background: linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(29, 78, 216, 0.9)) !important;
         border-radius: 16px !important;
-        max-width: 600px !important;
+        max-width: 100% !important;
+        width: 100% !important;
         margin: 20px auto !important;
         aspect-ratio: 7/6 !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
       }
       
       .game-slot {
-        width: 70px !important;
-        height: 70px !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 30px !important;
         border-radius: 50% !important;
-        border: 3px solid #1e40af !important;
+        border: 2px solid #1e40af !important;
         background-color: #3b82f6 !important;
         display: flex !important;
         align-items: center !important;
@@ -134,16 +136,20 @@
         position: relative !important;
         background: radial-gradient(circle, rgba(59, 130, 246, 0.9), rgba(29, 78, 216, 0.8)) !important;
         box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        aspect-ratio: 1 !important;
       }
       
       .disc {
-        width: 55px !important;
-        height: 55px !important;
+        width: 85% !important;
+        height: 85% !important;
+        min-width: 25px !important;
+        min-height: 25px !important;
         border-radius: 50% !important;
         position: absolute !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
+        aspect-ratio: 1 !important;
       }
       
       .disc.yellow {
@@ -412,27 +418,116 @@
         }
       }
 
-      /* Enhanced Game Board Scaling */
-      @media (min-width: 1280px) and (max-width: 1535px) {
-        #gameBoard { 
-          max-width: 600px !important; 
-        }
-      }
-
-      @media (min-width: 1536px) {
-        #gameBoard { 
-          max-width: 700px !important; 
+      /* Responsive Game Board Scaling */
+      
+      /* Mobile Small (< 480px) */
+      @media (max-width: 479px) {
+        #gameBoard {
+          gap: 1px !important;
+          padding: 8px !important;
+          margin: 10px auto !important;
         }
         
-        /* Larger game slots for ultra-wide displays */
         .game-slot {
-          width: 80px !important;
-          height: 80px !important;
+          min-height: 25px !important;
+          border-width: 1px !important;
         }
         
         .disc {
-          width: 65px !important;
-          height: 65px !important;
+          min-width: 20px !important;
+          min-height: 20px !important;
+        }
+      }
+      
+      /* Mobile Medium (480px - 767px) */
+      @media (min-width: 480px) and (max-width: 767px) {
+        #gameBoard {
+          max-width: 400px !important;
+          gap: 3px !important;
+          padding: 12px !important;
+        }
+        
+        .game-slot {
+          min-height: 35px !important;
+        }
+        
+        .disc {
+          min-width: 28px !important;
+          min-height: 28px !important;
+        }
+      }
+      
+      /* Tablet (768px - 1023px) */
+      @media (min-width: 768px) and (max-width: 1023px) {
+        #gameBoard {
+          max-width: 500px !important;
+          gap: 4px !important;
+          padding: 15px !important;
+        }
+        
+        .game-slot {
+          min-height: 45px !important;
+        }
+        
+        .disc {
+          min-width: 35px !important;
+          min-height: 35px !important;
+        }
+      }
+      
+      /* Desktop Medium (1024px - 1279px) */
+      @media (min-width: 1024px) and (max-width: 1279px) {
+        #gameBoard {
+          max-width: 550px !important;
+          gap: 6px !important;
+          padding: 18px !important;
+        }
+        
+        .game-slot {
+          min-height: 55px !important;
+        }
+        
+        .disc {
+          min-width: 45px !important;
+          min-height: 45px !important;
+        }
+      }
+      
+      /* Desktop Large (1280px - 1535px) */
+      @media (min-width: 1280px) and (max-width: 1535px) {
+        #gameBoard { 
+          max-width: 600px !important;
+          gap: 8px !important;
+          padding: 20px !important;
+        }
+        
+        .game-slot {
+          min-height: 65px !important;
+          border-width: 3px !important;
+        }
+        
+        .disc {
+          min-width: 55px !important;
+          min-height: 55px !important;
+        }
+      }
+
+      /* Ultra-Wide (1536px+) */
+      @media (min-width: 1536px) {
+        #gameBoard { 
+          max-width: 700px !important;
+          gap: 10px !important;
+          padding: 25px !important;
+        }
+        
+        .game-slot {
+          min-height: 75px !important;
+          border-width: 3px !important;
+        }
+        
+        .disc {
+          min-width: 65px !important;
+          min-height: 65px !important;
         }
       }
 
