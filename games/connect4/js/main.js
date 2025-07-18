@@ -17,6 +17,11 @@ class ModularConnect4Game extends BaseGameUI {
     this.gameHistory = [];
     this.scores = { yellow: 0, red: 0 };
     this.boardRenderer = null;
+    
+    // AI Mode properties
+    this.gameMode = 'two-player';
+    this.isBot = false;
+    this.isProcessingMove = false;
 
     console.log('🎮 ModularConnect4Game created with BaseGameUI + BoardRenderer + WASM');
   }
@@ -127,6 +132,14 @@ class ModularConnect4Game extends BaseGameUI {
       this.resetScore();
     });
 
+    // Game Mode selector
+    document.getElementById('gameMode').addEventListener('change', (e) => {
+      this.gameMode = e.target.value;
+      this.isBot = e.target.value.includes('bot');
+      console.log(`🎮 Game mode changed to: ${this.gameMode}, AI enabled: ${this.isBot}`);
+      this.resetGame(); // Reset game when changing mode
+    });
+
     document.getElementById('helpBtn').addEventListener('click', () => {
       this.showModal('helpModal');
     });
@@ -209,6 +222,12 @@ class ModularConnect4Game extends BaseGameUI {
         }
 
         this.updateUI();
+        
+        // Trigger AI move after human player's move (WASM version)
+        if (this.isBot && this.currentPlayer === 2 && !this.gameOver) {
+          setTimeout(() => this.makeAIMove(), 500);
+        }
+        
         return true;
 
       } catch (error) {
@@ -266,6 +285,12 @@ class ModularConnect4Game extends BaseGameUI {
     }
 
     this.updateUI();
+    
+    // Trigger AI move after human player's move
+    if (this.isBot && this.currentPlayer === 2 && !this.gameOver) {
+      setTimeout(() => this.makeAIMove(), 500);
+    }
+    
     return true;
   }
 
@@ -566,6 +591,88 @@ class ModularConnect4Game extends BaseGameUI {
         this.hideModal(modalId);
       }
     }
+  }
+
+  // ==================== AI FUNCTIONALITY ====================
+
+  /**
+   * Make AI move
+   */
+  async makeAIMove() {
+    if (!this.isBot || this.gameOver || this.isProcessingMove) {
+      return;
+    }
+
+    try {
+      this.isProcessingMove = true;
+      console.log('🤖 KI denkt nach...');
+
+      // Use WASM AI if available
+      let bestMove = null;
+      if (this.wasmGame && this.wasmGame.initialized) {
+        try {
+          bestMove = this.wasmGame.getAIMove();
+          console.log(`🤖 WASM AI suggests move: ${bestMove}`);
+        } catch (error) {
+          console.error('❌ WASM AI failed:', error);
+          bestMove = null;
+        }
+      }
+
+      // Fallback to simple AI if WASM fails
+      if (bestMove === null || bestMove < 0 || bestMove >= 7) {
+        bestMove = this.getFallbackAIMove();
+        console.log(`🤖 Fallback AI suggests move: ${bestMove}`);
+      }
+
+      // Validate and execute move
+      if (bestMove !== null && bestMove >= 0 && bestMove < 7) {
+        await new Promise(resolve => setTimeout(resolve, 300)); // Brief pause for thinking animation
+        
+        const success = this.makeMove(bestMove);
+        if (success) {
+          console.log(`✅ AI move executed successfully: ${bestMove}`);
+        } else {
+          console.error(`❌ AI move failed: ${bestMove}`);
+        }
+      } else {
+        console.warn('⚠️ No valid AI move found');
+      }
+
+    } catch (error) {
+      console.error('❌ AI move error:', error);
+    } finally {
+      this.isProcessingMove = false;
+    }
+  }
+
+  /**
+   * Simple fallback AI - random valid move
+   */
+  getFallbackAIMove() {
+    const validColumns = [];
+    for (let col = 0; col < 7; col++) {
+      if (this.board[0][col] === 0) {
+        validColumns.push(col);
+      }
+    }
+
+    if (validColumns.length === 0) {
+      return null;
+    }
+
+    // Add some simple strategy - prefer center columns
+    const centerCols = validColumns.filter(col => col >= 2 && col <= 4);
+    const preferredCols = centerCols.length > 0 ? centerCols : validColumns;
+    
+    return preferredCols[Math.floor(Math.random() * preferredCols.length)];
+  }
+
+  /**
+   * Check if current mode is AI mode
+   */
+  isAIMode() {
+    return this.isBot && this.gameMode.includes('bot');
   }
 }
 
