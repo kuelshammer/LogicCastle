@@ -121,6 +121,8 @@
         margin: 20px auto !important;
         aspect-ratio: 7/6 !important;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
       }
       
       .game-slot {
@@ -424,7 +426,7 @@
       @media (max-width: 479px) {
         #gameBoard {
           gap: 1px !important;
-          padding: 8px !important;
+          padding: 4px !important;
           margin: 10px auto !important;
         }
         
@@ -436,6 +438,34 @@
         .disc {
           min-width: 20px !important;
           min-height: 20px !important;
+        }
+      }
+      
+      /* Mobile Extra Small (< 360px) */
+      @media (max-width: 359px) {
+        #gameBoard {
+          gap: 0px !important;
+          padding: 2px !important;
+          margin: 5px auto !important;
+        }
+        
+        .game-slot {
+          min-height: 20px !important;
+          border-width: 1px !important;
+        }
+        
+        .disc {
+          min-width: 18px !important;
+          min-height: 18px !important;
+        }
+        
+        /* Reduce container padding on ultra-narrow displays */
+        .glass.rounded-3xl {
+          padding: 1rem !important;
+        }
+        
+        main {
+          padding: 0.5rem !important;
         }
       }
       
