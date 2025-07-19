@@ -255,6 +255,64 @@
           transform: none;
         }
       }
+      
+      /* CRITICAL LAYOUT FIX - Missing Tailwind Classes */
+      /* Production build is missing essential responsive utilities */
+      
+      /* Max-width utilities */
+      .max-w-7xl {
+        max-width: 80rem; /* 1280px */
+      }
+      
+      /* Padding utilities */
+      .p-6 {
+        padding: 1.5rem; /* 24px */
+      }
+      
+      /* Gap utilities */
+      .gap-6 {
+        gap: 1.5rem; /* 24px */
+      }
+      
+      /* Responsive Grid Columns - XL Breakpoint (1280px+) */
+      @media (min-width: 1280px) {
+        .xl\:grid-cols-4 {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+      
+      /* Responsive Grid Columns - 2XL Breakpoint (1536px+) */
+      @media (min-width: 1536px) {
+        .2xl\:grid-cols-5 {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+        
+        .2xl\:col-span-1 {
+          grid-column: span 1 / span 1;
+        }
+        
+        .2xl\:col-span-3 {
+          grid-column: span 3 / span 3;
+        }
+      }
+      
+      /* XL Grid Columns */
+      @media (min-width: 1280px) {
+        .xl\:col-span-3 {
+          grid-column: span 3 / span 3;
+        }
+      }
+      
+      /* Container utilities */
+      .container-ultra-wide {
+        max-width: 90rem; /* 1440px */
+      }
+      
+      @media (min-width: 1536px) {
+        .2xl\:container-ultra-wide {
+          max-width: 90rem; /* 1440px */
+        }
+      }
     </style>
     <script type="module" crossorigin src="/LogicCastle/assets/connect4-CUfPBd9w.js"></script>
     <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
