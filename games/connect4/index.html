@@ -247,8 +247,67 @@
       }
       
       .disc.empty {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(2px);
+      }
+      
+      /* VISUAL POLISH - Enhanced Disc Effects */
+      .disc {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform, box-shadow;
+      }
+      
+      /* Enhanced Yellow Player Disc */
+      .disc.yellow {
+        background: linear-gradient(135deg, 
+          #fbbf24 0%, 
+          #f59e0b 50%, 
+          #d97706 100%);
+        border: 2px solid #b45309;
+        box-shadow: 
+          0 4px 12px rgba(251, 191, 36, 0.6),
+          0 2px 6px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+      
+      /* Enhanced Red Player Disc */
+      .disc.red {
+        background: linear-gradient(135deg, 
+          #ef4444 0%, 
+          #dc2626 50%, 
+          #b91c1c 100%);
+        border: 2px solid #991b1b;
+        box-shadow: 
+          0 4px 12px rgba(239, 68, 68, 0.6),
+          0 2px 6px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+      
+      /* Disc Hover Effects for Empty Slots */
+      .game-slot:hover .disc.empty {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%) scale(1.05);
+        backdrop-filter: blur(4px);
+      }
+      
+      /* RESPONSIVE COORDINATE LABELS */
+      .coord {
+        transition: all 0.2s ease;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      
+      .coord:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
       
       /* RESPONSIVE GAME-SLOT SCALING - Proper Connect4 Dimensions */
@@ -569,6 +628,152 @@
       
       .text-red-400 {
         color: #f87171;
+      }
+      
+      /* BUTTON & UI CONTROL UTILITIES */
+      
+      /* Padding utilities for buttons */
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      
+      .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      
+      .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+      
+      /* Width utilities */
+      .w-full {
+        width: 100%;
+      }
+      
+      /* Button styling */
+      button {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      /* Green Button Gradients */
+      .from-green-500 {
+        --tw-gradient-from: #10b981;
+        --tw-gradient-to: rgb(16 185 129 / 0);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+      }
+      
+      .to-emerald-600 {
+        --tw-gradient-to: #059669;
+      }
+      
+      .hover\:from-green-600:hover {
+        --tw-gradient-from: #059669;
+      }
+      
+      .hover\:to-emerald-700:hover {
+        --tw-gradient-to: #047857;
+      }
+      
+      /* Orange/Red Button Gradients */
+      .from-orange-500 {
+        --tw-gradient-from: #f97316;
+        --tw-gradient-to: rgb(249 115 22 / 0);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+      }
+      
+      .to-red-600 {
+        --tw-gradient-to: #dc2626;
+      }
+      
+      .hover\:from-orange-600:hover {
+        --tw-gradient-from: #ea580c;
+      }
+      
+      .hover\:to-red-700:hover {
+        --tw-gradient-to: #b91c1c;
+      }
+      
+      /* Blue Button Gradients */
+      .from-blue-500 {
+        --tw-gradient-from: #3b82f6;
+        --tw-gradient-to: rgb(59 130 246 / 0);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+      }
+      
+      .to-cyan-600 {
+        --tw-gradient-to: #0891b2;
+      }
+      
+      .hover\:from-blue-600:hover {
+        --tw-gradient-from: #2563eb;
+      }
+      
+      .hover\:to-cyan-700:hover {
+        --tw-gradient-to: #0e7490;
+      }
+      
+      /* Purple Button Gradients */
+      .from-purple-500 {
+        --tw-gradient-from: #a855f7;
+        --tw-gradient-to: rgb(168 85 247 / 0);
+        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+      }
+      
+      .to-pink-600 {
+        --tw-gradient-to: #db2777;
+      }
+      
+      .hover\:from-purple-600:hover {
+        --tw-gradient-from: #9333ea;
+      }
+      
+      .hover\:to-pink-700:hover {
+        --tw-gradient-to: #be185d;
+      }
+      
+      /* Additional text colors */
+      .text-green-400 {
+        color: #4ade80;
+      }
+      
+      .text-gray-400 {
+        color: #9ca3af;
+      }
+      
+      /* Hover background utilities */
+      .hover\:bg-white:hover {
+        background-color: rgb(255 255 255);
+      }
+      
+      .hover\:bg-opacity-20:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      
+      .hover\:bg-opacity-10:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      /* Transition utilities */
+      .transition-all {
+        transition: all 0.2s ease;
+      }
+      
+      .duration-200 {
+        transition-duration: 0.2s;
+      }
+      
+      /* Shadow utilities for buttons */
+      .shadow-lg {
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       }
     </style>
     <script type="module" crossorigin src="/LogicCastle/assets/connect4-CUfPBd9w.js"></script>
