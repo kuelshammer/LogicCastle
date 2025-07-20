@@ -791,9 +791,6 @@
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
       }
     </style>
-    <script type="module" crossorigin src="/LogicCastle/assets/connect4-CUfPBd9w.js"></script>
-    <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
-    <link rel="stylesheet" crossorigin href="/LogicCastle/assets/connect4-Ddes7ABA.css">
   </head>
   <body class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
     <!-- Background decoration -->
@@ -1076,6 +1073,275 @@
 
     <!-- Load our modular Connect4 system -->
     <script type="module" src="./js/main.js"></script>
+    
+    <!-- FALLBACK: Simple Connect4 for testing when modules fail -->
+    <script>
+      if (!window.game) {
+        setTimeout(() => {
+          if (!window.game) {
+            console.log('🔄 Module loading failed, creating simple fallback game...');
+            
+            // Hide the error message
+            const errorDiv = document.querySelector('.bg-red-500');
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            // Simple Connect4 Game Class
+            class SimpleConnect4 {
+              constructor() {
+                this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.winner = null;
+                this.winningLine = [];
+                this.scores = { yellow: 0, red: 0 };
+                
+                this.init();
+              }
+              
+              init() {
+                this.createBoard();
+                this.updateUI();
+                console.log('✅ Simple Connect4 initialized');
+              }
+              
+              createBoard() {
+                const boardContainer = document.querySelector('.game-board-container');
+                if (!boardContainer) return;
+                
+                boardContainer.innerHTML = \`
+                  <div class="game-board grid grid-cols-7 grid-rows-6 gap-2 p-6 rounded-2xl" id="gameBoard">
+                    \${Array(42).fill(0).map((_, i) => {
+                      const row = Math.floor(i / 7);
+                      const col = i % 7;
+                      return \`<div class="game-slot glass relative rounded-full aspect-square cursor-pointer hover:scale-105 transition-transform" data-row="\${row}" data-col="\${col}" onclick="window.game.makeMove(\${col})">
+                        <div class="disc empty absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 rounded-full"></div>
+                      </div>\`;
+                    }).join('')}
+                  </div>
+                \`;
+                
+                // Update scores display
+                document.getElementById('yellowScore').textContent = this.scores.yellow;
+                document.getElementById('redScore').textContent = this.scores.red;
+                document.getElementById('gameStatus').textContent = 'Spieler 1 (Gelb) ist dran';
+              }
+              
+              makeMove(col) {
+                if (this.gameOver) return;
+                
+                // Find lowest empty row in column
+                let row = -1;
+                for (let r = 5; r >= 0; r--) {
+                  if (this.board[r][col] === 0) {
+                    row = r;
+                    break;
+                  }
+                }
+                
+                if (row === -1) return; // Column full
+                
+                // Place piece
+                this.board[row][col] = this.currentPlayer;
+                this.updateCell(row, col);
+                
+                // Check for win
+                if (this.checkWin(row, col)) {
+                  this.showWin(row, col);
+                  return;
+                }
+                
+                // Switch player
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.updateUI();
+              }
+              
+              updateCell(row, col) {
+                const cell = document.querySelector(\`[data-row="\${row}"][data-col="\${col}"] .disc\`);
+                if (cell) {
+                  cell.className = 'disc absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 rounded-full';
+                  cell.classList.add(this.currentPlayer === 1 ? 'yellow' : 'red');
+                }
+              }
+              
+              checkWin(row, col) {
+                const directions = [
+                  [0, 1], [1, 0], [1, 1], [1, -1]
+                ];
+                
+                for (const [dr, dc] of directions) {
+                  let count = 1;
+                  const line = [[row, col]];
+                  
+                  // Check positive direction
+                  for (let i = 1; i < 4; i++) {
+                    const nr = row + dr * i;
+                    const nc = col + dc * i;
+                    if (nr >= 0 && nr < 6 && nc >= 0 && nc < 7 && this.board[nr][nc] === this.currentPlayer) {
+                      count++;
+                      line.push([nr, nc]);
+                    } else break;
+                  }
+                  
+                  // Check negative direction  
+                  for (let i = 1; i < 4; i++) {
+                    const nr = row - dr * i;
+                    const nc = col - dc * i;
+                    if (nr >= 0 && nr < 6 && nc >= 0 && nc < 7 && this.board[nr][nc] === this.currentPlayer) {
+                      count++;
+                      line.unshift([nr, nc]);
+                    } else break;
+                  }
+                  
+                  if (count >= 4) {
+                    this.winningLine = line.slice(0, 4);
+                    this.winner = this.currentPlayer;
+                    this.gameOver = true;
+                    return true;
+                  }
+                }
+                return false;
+              }
+              
+              showWin(row, col) {
+                const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+                const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
+                const winnerHex = this.currentPlayer === 1 ? '#fde047' : '#ef4444';
+
+                console.log(\`🏆 \${winnerName} gewinnt! Starting 3-phase victory sequence...\`);
+
+                // Update score immediately 
+                this.scores[winnerColor]++;
+                document.getElementById(winnerColor + 'Score').textContent = this.scores[winnerColor];
+
+                // PHASE 1: Highlight winning line for 1 second
+                this.showVictoryPhase1(winnerColor, winnerName);
+
+                // PHASE 2: Confetti fireworks for 0.5 seconds  
+                setTimeout(() => {
+                  this.showVictoryPhase2(winnerColor, winnerHex);
+                }, 1000);
+
+                // PHASE 3: Score update and clean transition
+                setTimeout(() => {
+                  this.showVictoryPhase3(winnerName, winnerColor);
+                }, 1500);
+              }
+              
+              showVictoryPhase1(winnerColor, winnerName) {
+                console.log(\`🎯 PHASE 1: Highlighting winning line...\`);
+                document.getElementById('gameStatus').textContent = \`🏆 \${winnerName} gewinnt!\`;
+                
+                // Highlight winning discs
+                this.winningLine.forEach(([r, c]) => {
+                  const disc = document.querySelector(\`[data-row="\${r}"][data-col="\${c}"] .disc\`);
+                  if (disc) {
+                    disc.style.boxShadow = \`0 0 20px \${winnerColor === 'yellow' ? '#fde047' : '#ef4444'}\`;
+                    disc.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    disc.style.zIndex = '100';
+                  }
+                });
+              }
+              
+              showVictoryPhase2(winnerColor, winnerHex) {
+                console.log(\`🎆 PHASE 2: Creating confetti...\`);
+                this.createConfetti(winnerColor);
+              }
+              
+              showVictoryPhase3(winnerName, winnerColor) {
+                console.log(\`✨ PHASE 3: Starting new game...\`);
+                
+                // Clean up visual effects
+                document.querySelectorAll('.disc').forEach(disc => {
+                  disc.style.boxShadow = '';
+                  disc.style.transform = 'translate(-50%, -50%)';
+                  disc.style.zIndex = '';
+                });
+                
+                // Auto-start new game after 2 seconds
+                setTimeout(() => {
+                  this.newGame();
+                }, 2000);
+              }
+              
+              createConfetti(winnerColor) {
+                const confettiContainer = document.createElement('div');
+                confettiContainer.id = 'confetti-container';
+                confettiContainer.style.cssText = \`
+                  position: fixed !important;
+                  top: 0 !important;
+                  left: 0 !important;
+                  width: 100vw !important;
+                  height: 100vh !important;
+                  pointer-events: none !important;
+                  z-index: 10000 !important;
+                \`;
+                document.body.appendChild(confettiContainer);
+                
+                const colors = winnerColor === 'yellow' ? 
+                  ['#fde047', '#facc15', '#eab308', '#ca8a04'] : 
+                  ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
+                
+                for (let i = 0; i < 50; i++) {
+                  const confetti = document.createElement('div');
+                  const startX = Math.random() * 100;
+                  const delay = Math.random() * 500;
+                  const duration = 2000 + Math.random() * 1000;
+                  const size = 8 + Math.random() * 8;
+                  const color = colors[Math.floor(Math.random() * colors.length)];
+                  
+                  confetti.style.cssText = \`
+                    left: \${startX}% !important;
+                    top: -20px !important;
+                    width: \${size}px !important;
+                    height: \${size}px !important;
+                    background-color: \${color} !important;
+                    border-radius: 50% !important;
+                    position: absolute !important;
+                    animation: confetti-fall \${duration}ms ease-out \${delay}ms forwards !important;
+                    opacity: 0.9 !important;
+                    z-index: 10000 !important;
+                  \`;
+                  
+                  confettiContainer.appendChild(confetti);
+                }
+                
+                setTimeout(() => {
+                  if (confettiContainer.parentNode) {
+                    confettiContainer.parentNode.removeChild(confettiContainer);
+                  }
+                }, 3000);
+              }
+              
+              newGame() {
+                this.board = Array(6).fill(null).map(() => Array(7).fill(0));
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.winner = null;
+                this.winningLine = [];
+                
+                // Clear board visually
+                document.querySelectorAll('.disc').forEach(disc => {
+                  disc.className = 'disc empty absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 rounded-full';
+                });
+                
+                this.updateUI();
+                console.log('🔄 New game started');
+              }
+              
+              updateUI() {
+                const status = document.getElementById('gameStatus');
+                if (status && !this.gameOver) {
+                  status.textContent = \`Spieler \${this.currentPlayer} (\${this.currentPlayer === 1 ? 'Gelb' : 'Rot'}) ist dran\`;
+                }
+              }
+            }
+            
+            // Create the game
+            window.game = new SimpleConnect4();
+          }
+        }, 1000);
+      }
+    </script>
     
     <!-- Simple fallback for older browsers -->
     <script>
