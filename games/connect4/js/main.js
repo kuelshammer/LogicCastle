@@ -225,19 +225,25 @@ class ModularConnect4Game extends BaseGameUI {
       try {
         const moveResult = this.wasmGame.makeMove(col);
 
+        // CRITICAL BUG FIX: Board state synchronization debugging
+        console.log(`🔍 BEFORE UPDATE - Col ${col}, Player ${moveResult.player}`);
+        console.log(`🔍 WASM Board:`, moveResult.board);
+        console.log(`🔍 Local Board:`, this.board);
+
         this.board = moveResult.board;
         this.currentPlayer = moveResult.player === 1 ? 2 : 1;
         this.moveCount = moveResult.moveNumber;
         this.gameOver = moveResult.isGameOver;
         this.winner = moveResult.winner;
 
-        const targetRow = this.findMoveRow(col, moveResult.board);
-        if (targetRow !== -1) {
-          this.updateCell(targetRow, col, moveResult.player);
-        }
+        console.log(`🔍 AFTER SYNC - Local Board:`, this.board);
 
+        // CRITICAL BUG FIX: Use ONLY full board update to prevent race conditions
+        // Individual updates can conflict with full board refresh from WASM state
+        
         if (moveResult.isGameOver) {
-          if (moveResult.winner) {
+          const targetRow = this.findMoveRow(col, moveResult.board);
+          if (moveResult.winner && targetRow !== -1) {
             this.showWin(targetRow, col);
             this.updateScore();
           } else {
@@ -245,6 +251,11 @@ class ModularConnect4Game extends BaseGameUI {
           }
         }
 
+        // Single comprehensive update from WASM board state
+        console.log(`🔄 Calling updateBoardFromState() - SINGLE UPDATE STRATEGY`);
+        this.updateBoardFromState();
+        
+        console.log(`🔄 Calling updateUI() for UI elements`);
         this.updateUI();
         
         // Trigger AI move after human player's move (WASM version)
@@ -297,8 +308,7 @@ class ModularConnect4Game extends BaseGameUI {
     this.board[targetRow][col] = this.currentPlayer;
     this.moveCount++;
 
-    this.updateCell(targetRow, col, this.currentPlayer);
-
+    // CRITICAL BUG FIX: Use single board update strategy in legacy mode too
     if (this.checkWin(targetRow, col)) {
       this.gameOver = true;
       this.winner = this.currentPlayer;
@@ -312,6 +322,8 @@ class ModularConnect4Game extends BaseGameUI {
       this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
     }
 
+    console.log(`🔄 Legacy: updateBoardFromState() called`);
+    this.updateBoardFromState();
     this.updateUI();
     
     // Trigger AI move after human player's move
@@ -520,19 +532,35 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   updateBoardFromState() {
+    console.log(`🔄 updateBoardFromState() called`);
+    console.log(`🔍 Current local board state:`, this.board);
+    
     for (let row = 0; row < 6; row++) {
       for (let col = 0; col < 7; col++) {
         const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
         if (cell) {
           const disc = cell.querySelector('.disc');
           if (disc) {
+            const oldClasses = disc.className;
             disc.classList.remove('empty', 'yellow', 'red', 'winning-disc');
+            
+            let newClass = '';
             if (this.board[row][col] === 0) {
               disc.classList.add('empty');
+              newClass = 'empty';
             } else if (this.board[row][col] === 1) {
               disc.classList.add('yellow');
+              newClass = 'yellow';
             } else if (this.board[row][col] === 2) {
               disc.classList.add('red');
+              newClass = 'red';
+            }
+            
+            if (this.board[row][col] !== 0) {
+              console.log(`🎨 Position (${row},${col}): value=${this.board[row][col]} → ${newClass}`);
+              if (oldClasses !== disc.className) {
+                console.log(`🔄 Classes changed: "${oldClasses}" → "${disc.className}"`);
+              }
             }
           }
         }

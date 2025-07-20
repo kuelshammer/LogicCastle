@@ -252,7 +252,7 @@ export class BoardRenderer {
     }
 
     /**
-     * Update board visual representation after move - Pure Tailwind approach
+     * Update board visual representation after move - FIXED: Consistent CSS class approach
      * Extracted from Connect4UINew.updateBoardVisual()
      */
     updateBoardVisual(row, col, player) {
@@ -261,7 +261,8 @@ export class BoardRenderer {
         if (slot) {
             const disc = slot.querySelector('.disc');
             if (disc) {
-                disc.classList.remove('empty', 'preview');
+                // CRITICAL FIX: Remove all color classes to prevent conflicts
+                disc.classList.remove('empty', 'yellow', 'red', 'preview', 'winning-disc');
                 disc.classList.add(player === 1 ? 'yellow' : 'red');
                 
                 console.log(`🔴 Disc placed at (${row}, ${col}) for player ${player} using CSS classes`);
@@ -270,19 +271,28 @@ export class BoardRenderer {
     }
 
     /**
-     * Update individual disc visual based on cell value - Pure CSS class approach
+     * Update individual disc visual based on cell value - FIXED: Consistent CSS class approach
      * @private
      */
     _updateDiscVisual(disc, cellValue) {
+        // CRITICAL FIX: Use classList instead of className = to prevent Tailwind class conflicts
+        // Remove all existing color classes first
+        disc.classList.remove('empty', 'yellow', 'red', 'preview', 'winning-disc');
+        
         if (cellValue === 0) {
-            // Empty cell
-            disc.className = 'disc empty w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
+            // Empty cell - only add empty class, preserve positioning
+            disc.classList.add('empty');
         } else if (cellValue === 1) {
-            // Yellow player
-            disc.className = 'disc yellow w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
+            // Yellow player - add yellow class, preserve positioning  
+            disc.classList.add('yellow');
         } else if (cellValue === 2) {
-            // Red player
-            disc.className = 'disc red w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
+            // Red player - add red class, preserve positioning
+            disc.classList.add('red');
+        }
+        
+        // Ensure base disc classes are always present (fallback)
+        if (!disc.classList.contains('disc')) {
+            disc.classList.add('disc');
         }
     }
 
@@ -304,11 +314,18 @@ export class BoardRenderer {
     }
 
     /**
-     * Clear all board visual state - Pure Tailwind approach
+     * Clear all board visual state - FIXED: Consistent CSS class approach
      */
     clearBoard() {
         for (const disc of this.discs) {
-            disc.className = 'disc empty w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
+            // CRITICAL FIX: Use classList instead of className = to preserve positioning classes
+            disc.classList.remove('yellow', 'red', 'preview', 'winning-disc');
+            disc.classList.add('empty');
+            
+            // Ensure base disc class is present
+            if (!disc.classList.contains('disc')) {
+                disc.classList.add('disc');
+            }
         }
     }
 
