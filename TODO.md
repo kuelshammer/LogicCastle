@@ -76,14 +76,16 @@ Solution:
 
 ## ✅ ABGESCHLOSSEN
 
-### **TRIO BITPACKED 3-LAYER GOLDSTANDARD**
+### **TRIO BITPACKED 3-LAYER GOLDSTANDARD** ✅
 - [x] **TRIO WASM ENGINE:** trio.rs mit BitPackedBoard<7,7,4> erstellen
-- [x] **TRIO RUST:** Board-Generierung mit Zahlen 1-9 implementieren
+- [x] **TRIO RUST:** Board-Generierung mit Zahlen 1-9 implementieren  
 - [x] **TRIO RUST:** Trio-Validierung (a×b+c, a×b-c) implementieren
 - [x] **TRIO RUST:** Lösungssuche-Algorithmus (keine AI!) implementieren
 - [x] **TRIO JS:** TrioGameBitPacked.js Wrapper erstellen
 - [x] **TRIO UI:** Moderne TrioUI mit UI Module System
 - [x] **TRIO INTEGRATION:** WASM Build und Export testen
+
+**Status: BACKEND COMPLETE - Frontend UI benötigt Connect4 Hybrid CSS Pattern**
 
 ### **CONNECT4 COMPLETE GOLDSTANDARD (2025-07-20)**
 - [x] **27 Gemini AI Test Cases** - Erweiterte Test-Suite mit 100% Pass Rate
@@ -103,17 +105,35 @@ Solution:
 - [x] **CSS Specificity Wars** - Ultra-high specificity fixes für externe CSS conflicts
 - [x] **Rust-WASM Integration** - Performance Backend mit JavaScript Fallback
 
-## 🔧 WARTUNG & VERBESSERUNGEN
+## 🎯 NÄCHSTE PRIORITÄTEN (2025-07-20)
 
-### **L-GAME**
+### **TRIO UI MODERNISIERUNG** (HIGH PRIORITY)
+- [ ] **Apply Connect4 Hybrid CSS Pattern** - Tailwind + Inline CSS für Victory Sequence
+- [ ] **3-Phasen Victory Animation** - Nach Connect4 Goldstandard implementieren  
+- [ ] **CSS Specificity Fixes** - Ultra-high specificity für clean visuals
+- [ ] **Module Loading Fallback** - Robust ES6 + Fallback wie Connect4
+
+### **GOMOKU COMPLETE REWRITE** (MEDIUM PRIORITY)
+- [ ] **Backend 3-Layer Architecture** - Nach Connect4 + Trio Pattern
+- [ ] **Rust-WASM Integration** - Performance Backend mit JavaScript Fallback
+- [ ] **Intersektions-System Modernisierung** - 2-Schichten Visual + Interaction
+- [ ] **Hybrid CSS + Victory Sequence** - Connect4 Goldstandard implementieren
+
+### **L-GAME ENHANCEMENT** (LOW PRIORITY)
 - [ ] Color-System Optimierung
-- [ ] Interaction Handler Verbesserungen
+- [ ] Interaction Handler Verbesserungen  
+- [ ] Connect4 Pattern Application
+
+### **GOBANG COMPLETE REWRITE** (FUTURE)
+- [ ] **Vollständiger Neuaufbau** nach Connect4 Goldstandard erforderlich
+
+## 🔧 WARTUNG & QUALITÄT
 
 ### **CONNECT4** ✅ 
-**Status: COMPLETE - Keine weiteren Aufgaben**
+**Status: COMPLETE - Goldstandard erreicht**
 
 ### **ALLGEMEIN**
-- [ ] Test-Coverage erhöhen
+- [ ] Test-Coverage erhöhen für alle Spiele
 - [x] **Dokumentation vervollständigen** - CLAUDE.md + TODO.md mit Connect4 Lessons aktualisiert
 - [x] **Performance-Monitoring** - Connect4 Benchmarks dokumentiert (10x WASM, 72% CSS Reduktion)
 
