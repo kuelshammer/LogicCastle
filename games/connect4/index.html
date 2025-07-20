@@ -258,30 +258,69 @@
         aspect-ratio: 1;
       }
       
-      /* Enhanced Yellow Player Disc - REAL YELLOW */
-      .disc.yellow {
+      /* CRITICAL CSS SPECIFICITY FIX - Enhanced Yellow Player Disc - REAL YELLOW */
+      .disc.yellow,
+      .game-slot .disc.yellow,
+      div.disc.yellow {
         background: linear-gradient(135deg, 
           #fde047 0%, 
           #facc15 50%, 
-          #eab308 100%);
-        border: 2px solid #ca8a04;
+          #eab308 100%) !important;
+        border: 2px solid #ca8a04 !important;
         box-shadow: 
           0 4px 12px rgba(250, 204, 21, 0.7),
           0 2px 6px rgba(0, 0, 0, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
       }
       
-      /* Enhanced Red Player Disc */
-      .disc.red {
+      /* CRITICAL CSS SPECIFICITY FIX - Enhanced Red Player Disc */
+      .disc.red,
+      .game-slot .disc.red,
+      div.disc.red {
         background: linear-gradient(135deg, 
           #ef4444 0%, 
           #dc2626 50%, 
-          #b91c1c 100%);
-        border: 2px solid #991b1b;
+          #b91c1c 100%) !important;
+        border: 2px solid #991b1b !important;
         box-shadow: 
           0 4px 12px rgba(239, 68, 68, 0.6),
           0 2px 6px rgba(0, 0, 0, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      }
+      
+      /* ULTRA HIGH SPECIFICITY - FINAL OVERRIDE FOR ANY EXTERNAL CSS */
+      #gameBoard .game-slot .disc.yellow,
+      #gameBoard div.game-slot div.disc.yellow,
+      .game-board .game-slot .disc.yellow {
+        background: linear-gradient(135deg, 
+          #fde047 0%, 
+          #facc15 50%, 
+          #eab308 100%) !important;
+        border: 2px solid #ca8a04 !important;
+        /* Ensure perfect positioning is maintained */
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 85% !important;
+        height: 85% !important;
+      }
+      
+      #gameBoard .game-slot .disc.red,
+      #gameBoard div.game-slot div.disc.red,
+      .game-board .game-slot .disc.red {
+        background: linear-gradient(135deg, 
+          #ef4444 0%, 
+          #dc2626 50%, 
+          #b91c1c 100%) !important;
+        border: 2px solid #991b1b !important;
+        /* Ensure perfect positioning is maintained */
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 85% !important;
+        height: 85% !important;
       }
       
       /* Disc Hover Effects for Empty Slots */
