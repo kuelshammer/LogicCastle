@@ -65,7 +65,7 @@ confetti.style.cssText = `
 
 #### 📚 **API DOCUMENTATION STANDARD**
 - **✅ Connect4**: [Backend API Reference](docs/Connect4-Backend-API.md) + [Usage Analysis](docs/Connect4-API-Usage-Analysis.md)
-- **🔄 Gomoku**: API Documentation benötigt (WASM Backend verfügbar)
+- **✅ Gomoku**: [Backend API Reference](docs/Gomoku-Backend-API.md) + [Usage Analysis](docs/Gomoku-API-Usage-Analysis.md)
 - **🔄 Trio**: API Documentation benötigt (WASM Backend verfügbar)  
 - **❌ L-Game**: Backend + API Documentation benötigt
 
