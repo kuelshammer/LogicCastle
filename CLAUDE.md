@@ -68,7 +68,6 @@ confetti.style.cssText = `
 - **🔄 Gomoku**: API Documentation benötigt (WASM Backend verfügbar)
 - **🔄 Trio**: API Documentation benötigt (WASM Backend verfügbar)  
 - **❌ L-Game**: Backend + API Documentation benötigt
-- **❌ Gobang**: Vollständiger Neuaufbau erforderlich
 
 **REGEL: Jedes Spiel benötigt vollständige API-Dokumentation für Wartbarkeit**
 
@@ -101,11 +100,6 @@ confetti.style.cssText = `
 - **Backend**: BitPackedBoard mit TrioGrid-Geometrie
 - **TODO**: UI auf Connect4 Tailwind Standard modernisieren
 
-### 🔄 GOBANG (LEGACY - NEEDS MODERNIZATION)
-- **Status**: VERALTET - funktioniert nicht korrekt
-- **Bot-Modus**: KI macht keine Züge
-- **Hilfen-System**: Defekte visueller Hinweise
-- **Priorität**: NIEDRIG - erst nach anderen Spielen
 
 ---
 
@@ -113,8 +107,7 @@ confetti.style.cssText = `
 
 ### Phase 1: UI Standards Enforcement ⏳
 1. **Trio → Connect4 UI Standard**: Tailwind CSS + Glassmorphism
-2. **Gomoku → Connect4 UI Standard**: Komponenten-Modernisierung  
-3. **Gobang → Complete Rewrite**: Nach Connect4 Goldstandard
+2. **Gomoku → Connect4 UI Standard**: Komponenten-Modernisierung
 
 ### Phase 2: Component Library 🔮
 1. **Shared UI Components**: Extrahiere Connect4 Komponenten

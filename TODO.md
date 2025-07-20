@@ -111,8 +111,6 @@ Gomoku benötigt vollständigen Neuaufbau nach Connect4 + Trio Lessons:
 - [ ] **Interaction Handler Verbesserungen** - Modernisierung
 - [ ] **Connect4 Pattern Application** - UI Modernisierung
 
-### **GOBANG COMPLETE REWRITE** (FUTURE)
-- [ ] **Vollständiger Neuaufbau** nach Connect4 Goldstandard erforderlich
 
 ## 📚 API DOCUMENTATION INITIATIVE (2025-07-20)
 
@@ -140,10 +138,9 @@ Basierend auf Connect4 Erfolg benötigt **jedes Spiel**:
 
 ### **🎯 DOKUMENTATIONS-ROADMAP**
 1. **✅ Connect4**: COMPLETE - Template erstellt
-2. **🔄 Gomoku**: NÄCHSTE PRIORITÄT - WASM Backend vorhanden
+2. **🔄 Gomoku**: NÄCHSTE PRIORITÄT - WASM Backend vorhanden (5-in-a-row, ersetzt Gobang)
 3. **🔄 Trio**: MEDIUM - WASM Backend vorhanden  
 4. **🔄 L-Game**: LOW - Backend Status unklar
-5. **❌ Gobang**: FUTURE - Vollständiger Neuaufbau
 
 **ZIEL: Wartbare, dokumentierte Codebase mit einheitlichen Standards**
 
@@ -171,7 +168,7 @@ Basierend auf Connect4 Erfolg benötigt **jedes Spiel**:
 - **L-Game**: LOW Priority - Enhancement nach Connect4 Pattern
 
 ### 🚫 **LEGACY (FUTURE):**
-- **Gobang**: Vollständiger Neuaufbau erforderlich
+- **Keine Legacy-Spiele** - Alle aktiven Spiele haben WASM Backends
 
 ---
 
