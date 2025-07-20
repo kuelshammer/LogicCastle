@@ -62,6 +62,7 @@ confetti.style.cssText = `
 - **Fallback**: JavaScript Implementation wenn WASM fehlschlägt  
 - **Architecture**: 3-Layer mit WASM ↔ JavaScript Bridge
 - **Benefits**: 10x+ Performance für complex game state operations
+- **📚 API Documentation**: [Connect4 Backend API Reference](docs/Connect4-Backend-API.md)
 
 #### 🎨 **CSS ARCHITECTURE LESSONS**
 - **Hybrid Approach**: Tailwind für statische UI + Inline CSS für Dynamik
