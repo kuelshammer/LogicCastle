@@ -2,7 +2,7 @@
   "name": "logiccastle-games",
   "version": "1.0.0",
   "type": "module",
-  "description": "Collection of logic games: Connect4, Trio, and Gobang",
+  "description": "Collection of logic games: Connect4, Trio, and Gomoku",
   "main": "index.html",
   "scripts": {
     "test": "vitest run",
@@ -78,7 +78,7 @@
     "games",
     "connect4",
     "trio",
-    "gobang",
+    "gomoku",
     "javascript",
     "browser-games"
   ],
