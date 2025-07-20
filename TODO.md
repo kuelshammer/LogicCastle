@@ -43,36 +43,19 @@ Solution:
 
 ---
 
-## 🚀 GOMOKU MODERNISIERUNG PLAN (NÄCHSTE PRIORITÄT)
+## 🎯 IMPLEMENTIERUNGS-ROADMAP
 
-### **Phase 1: Backend-Refactoring (KRITISCH)**
-- [ ] **🔴 HIGH: 3-Schicht Architektur** - Trennung Daten/Geometrie/KI nach Connect4 Goldstandard
-- [ ] **🔴 HIGH: AI-Layer Entkopplung** - `GomokuAI` aus `GomokuGame` separieren
-- [ ] **🔴 HIGH: Geometrie-Konsolidierung** - Alle geometrischen Berechnungen in `GomokuGrid`
+### **TRIO UI → Connect4 Pattern (Nächster Schritt)**
+Trio hat bereits solide 3-Layer Backend Architecture - benötigt nur UI Modernisierung:
+- **Hybrid CSS Pattern anwenden** (Tailwind + Inline CSS)
+- **3-Phasen Victory Sequence** implementieren
+- **Module Loading Robustness** hinzufügen
 
-### **Phase 2: Frontend-Modernisierung (NACH CONNECT4 PATTERN)**
-- [ ] **🔴 HIGH: Hybrid CSS Pattern** - Tailwind für statische UI + Inline CSS für Dynamik
-- [ ] **🔴 HIGH: Victory Sequence** - 3-Phasen Animation (Highlight → Confetti → Auto-Reset)
-- [ ] **🟡 MEDIUM: Intersektions-System** - 2-Schichten-Methode (Visual + Interaction)
-- [ ] **🟡 MEDIUM: Module Loading Fallback** - Robust fallback für ES6 Module failures
-- [ ] **🟡 MEDIUM: CSS Specificity Wars** - Ultra-high specificity für externe conflicts
-
-### **Phase 3: API-Erweiterung (STANDARD)**
-- [ ] **🟡 MEDIUM: API-Enhancement** - Frontend-Methoden nach Connect4 Standard
-- [ ] **🟢 LOW: Rückgabetyp-Fix** - `get_ai_move` von `Vec<usize>` zu `Option<(usize, usize)>`
-- [ ] **🟢 LOW: Hypothetische Zustände** - `create_hypothetical_state` für KI
-
-## 🎯 TECHNISCHE DETAILS
-
-### **Backend-Refactoring:**
-- **Schichtentrennung:** `GomokuGame` als Zustands-Container
-- **KI-Integration:** `self.ai.get_best_move(self)` Pattern
-- **API-Angleichung:** `analyze_position()`, `get_winning_moves()`, `get_blocking_moves()`
-
-### **Frontend-Modernisierung:**
-- **2-Schichten-Methode:** Visual Background + Interaction Grid
-- **CSS-Performance:** Gitter als `background-image` statt DOM-Elemente
-- **Präzise Platzierung:** Grid-System für perfekte Zentrierung
+### **GOMOKU → Complete Rewrite Strategy**  
+Gomoku benötigt vollständigen Neuaufbau nach Connect4 + Trio Lessons:
+- **Backend**: 3-Layer Architecture (Data/Geometry/AI) 
+- **Frontend**: Intersektions-System + Hybrid CSS
+- **Integration**: Rust-WASM + JavaScript Fallback
 
 ## ✅ ABGESCHLOSSEN
 
