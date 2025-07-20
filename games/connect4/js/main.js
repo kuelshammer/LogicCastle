@@ -419,16 +419,21 @@ class ModularConnect4Game extends BaseGameUI {
   }
 
   showVictoryPhase1(winnerColor, winnerName) {
-    console.log(`🎯 PHASE 1: Highlighting winning line for 1s...`);
+    console.log(`🎯 PHASE 1: Highlighting winning line for 1s... winnerColor=${winnerColor}, winnerName=${winnerName}`);
+    const timestamp = Date.now();
 
     // Enhanced winning line animation with staggered appearance
     if (this.winningLine) {
+      console.log(`🎯 PHASE 1: Animating ${this.winningLine.length} winning discs:`, this.winningLine);
+      
       this.winningLine.forEach(([r, c], index) => {
         setTimeout(() => {
           const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
           if (cell) {
             const disc = cell.querySelector('.disc');
             if (disc) {
+              console.log(`🎯 PHASE 1: Highlighting disc at (${r},${c}) - disc found:`, disc.className);
+              
               // Pure Tailwind victory animation
               disc.classList.add(
                 'animate-pulse', 
@@ -440,10 +445,16 @@ class ModularConnect4Game extends BaseGameUI {
                 'duration-500'
               );
               disc.style.filter = `drop-shadow(0 0 20px ${winnerColor === 'yellow' ? '#fde047' : '#ef4444'})`;
+            } else {
+              console.warn(`🎯 PHASE 1: No disc found at (${r},${c})`);
             }
+          } else {
+            console.warn(`🎯 PHASE 1: No cell found at (${r},${c})`);
           }
         }, index * 150); // Staggered animation every 150ms
       });
+    } else {
+      console.warn(`🎯 PHASE 1: No winning line found!`);
     }
 
     // Update game status with Tailwind classes
@@ -451,38 +462,54 @@ class ModularConnect4Game extends BaseGameUI {
     if (gameStatus) {
       gameStatus.textContent = `${winnerName} gewinnt!`;
       gameStatus.className = `font-bold text-2xl ${winnerColor === 'yellow' ? 'text-yellow-400' : 'text-red-400'} animate-bounce`;
+      console.log(`🎯 PHASE 1: Game status updated - ${winnerName} gewinnt!`);
     }
+    
+    console.log(`🎯 PHASE 1: Setup complete, elapsed: ${Date.now() - timestamp}ms`);
   }
 
   showVictoryPhase2(winnerColor, winnerHex) {
-    console.log(`🎆 PHASE 2: Confetti fireworks for 0.5s...`);
+    console.log(`🎆 PHASE 2: Confetti fireworks for 0.5s... winnerColor=${winnerColor}`);
+    const timestamp = Date.now();
 
     // Remove phase1 highlighting with Tailwind cleanup
-    document.querySelectorAll('.animate-pulse').forEach(disc => {
-      disc.classList.remove('animate-pulse', 'scale-125', 'z-50', 'drop-shadow-2xl', 'shadow-yellow-400', 'shadow-red-400');
+    const phase1Elements = document.querySelectorAll('.animate-pulse');
+    console.log(`🧹 PHASE 2: Cleaning ${phase1Elements.length} phase1 elements`);
+    
+    phase1Elements.forEach(disc => {
+      disc.classList.remove('animate-pulse', 'scale-125', 'z-50', 'drop-shadow-2xl', 'shadow-yellow-400', 'shadow-red-400', 'transition-all', 'duration-500');
       disc.style.filter = '';
     });
 
-    // Create CSS confetti with Tailwind
+    // Create CSS confetti with enhanced debugging
+    console.log(`🎆 PHASE 2: Creating Tailwind confetti with color=${winnerColor}`);
     this.createTailwindConfetti(winnerColor);
 
     // Create victory background with pure Tailwind
     const victoryBg = document.createElement('div');
-    victoryBg.className = `fixed inset-0 pointer-events-none z-40 ${winnerColor === 'yellow' ? 'bg-gradient-to-br from-yellow-400/20 via-yellow-500/10 to-yellow-600/20' : 'bg-gradient-to-br from-red-400/20 via-red-500/10 to-red-600/20'} animate-pulse`;
+    victoryBg.className = `fixed inset-0 pointer-events-none z-30 ${winnerColor === 'yellow' ? 'bg-gradient-to-br from-yellow-400/30 via-yellow-500/20 to-yellow-600/30' : 'bg-gradient-to-br from-red-400/30 via-red-500/20 to-red-600/30'} animate-pulse`;
     victoryBg.id = 'victoryBackground';
     document.body.appendChild(victoryBg);
+    
+    console.log(`🎆 PHASE 2: Victory background created, elapsed: ${Date.now() - timestamp}ms`);
   }
 
   showVictoryPhase3(winnerName, winnerColor) {
-    console.log(`✨ PHASE 3: Score update and clean transition...`);
+    console.log(`✨ PHASE 3: Score update and clean transition... winnerName=${winnerName}, winnerColor=${winnerColor}`);
+    const timestamp = Date.now();
 
     // Update score with Tailwind animation
     this.updateScoreWithAnimation();
 
-    // Clean up all victory effects
+    // Clean up all victory effects with logging
     setTimeout(() => {
+      console.log(`🧹 PHASE 3: Starting cleanup after 1s...`);
+      
       // Remove all Tailwind victory classes
-      document.querySelectorAll('.disc').forEach(disc => {
+      const victoryDiscs = document.querySelectorAll('.disc');
+      console.log(`🧹 PHASE 3: Cleaning ${victoryDiscs.length} discs...`);
+      
+      victoryDiscs.forEach(disc => {
         disc.classList.remove('animate-pulse', 'scale-125', 'z-50', 'drop-shadow-2xl', 'shadow-yellow-400', 'shadow-red-400', 'transition-all', 'duration-500');
         disc.style.filter = '';
       });
@@ -491,29 +518,53 @@ class ModularConnect4Game extends BaseGameUI {
       const gameStatus = document.getElementById('gameStatus');
       if (gameStatus) {
         gameStatus.classList.remove('animate-bounce');
+        console.log(`🧹 PHASE 3: Game status animation cleared`);
       }
+      
+      // Remove victory background
+      const victoryBg = document.getElementById('victoryBackground');
+      if (victoryBg) {
+        victoryBg.remove();
+        console.log(`🧹 PHASE 3: Victory background removed`);
+      }
+      
+      console.log(`🧹 PHASE 3: Cleanup complete, elapsed: ${Date.now() - timestamp + 1000}ms`);
     }, 1000);
 
     // Show ready state after 2 seconds
     setTimeout(() => {
-      console.log(`🔄 Victory sequence complete. Ready for new game!`);
+      console.log(`🔄 PHASE 3: Victory sequence complete. Ready for new game!`);
       
-      // Reset game status to normal with Tailwind
+      // Reset game status to normal with Tailwind (only if game still over)
       const gameStatus = document.getElementById('gameStatus');
-      if (gameStatus && !this.gameOver) {
-        gameStatus.textContent = 'Spiel läuft';
-        gameStatus.className = 'font-semibold text-green-400';
+      if (gameStatus && this.gameOver) {
+        console.log(`🔄 PHASE 3: Game still over, keeping victory message`);
       }
+      
+      console.log(`✅ VICTORY SEQUENCE COMPLETE: Total time ${Date.now() - timestamp + 2000}ms`);
     }, 2000);
   }
 
   createTailwindConfetti(winnerColor) {
+    console.log(`🎆 Creating confetti container...`);
+    
     const confettiContainer = document.createElement('div');
-    confettiContainer.className = 'fixed inset-0 pointer-events-none z-50';
+    confettiContainer.className = 'fixed inset-0 pointer-events-none z-[9999]';
     confettiContainer.id = 'tailwind-confetti';
+    confettiContainer.style.cssText = `
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 9999 !important;
+      pointer-events: none !important;
+    `;
     document.body.appendChild(confettiContainer);
+    
+    console.log(`🎆 Confetti container created, now creating 50 pieces...`);
 
-    // Create 50 confetti pieces with pure Tailwind
+    // Create 50 confetti pieces with enhanced visibility
     for (let i = 0; i < 50; i++) {
       const confetti = document.createElement('div');
       
@@ -522,7 +573,7 @@ class ModularConnect4Game extends BaseGameUI {
       const duration = 1500 + Math.random() * 1000;
       const delay = Math.random() * 200;
       
-      // Tailwind classes for confetti pieces
+      // Enhanced Tailwind classes for better visibility
       const colorClasses = winnerColor === 'yellow' ? [
         'bg-yellow-400', 'bg-yellow-500', 'bg-yellow-300', 'bg-amber-400', 'bg-orange-400'
       ] : [
@@ -530,39 +581,40 @@ class ModularConnect4Game extends BaseGameUI {
       ];
       
       const randomColor = colorClasses[Math.floor(Math.random() * colorClasses.length)];
-      const randomSize = ['w-2 h-2', 'w-3 h-3', 'w-1 h-4', 'w-4 h-1'][Math.floor(Math.random() * 4)];
+      const randomSize = ['w-3 h-3', 'w-4 h-4', 'w-2 h-6', 'w-6 h-2'][Math.floor(Math.random() * 4)];
       
-      confetti.className = `absolute ${randomColor} ${randomSize} rounded animate-bounce`;
+      // NO animate-bounce to avoid conflicts - pure custom animation
+      confetti.className = `absolute ${randomColor} ${randomSize} rounded-full shadow-lg`;
       confetti.style.cssText = `
         left: ${startX}%;
-        top: -10px;
-        animation-duration: ${duration}ms;
-        animation-delay: ${delay}ms;
-        animation-fill-mode: forwards;
+        top: -20px;
+        z-index: 10000;
+        animation: confetti-fall ${duration}ms ease-out ${delay}ms forwards;
         transform: rotate(${Math.random() * 360}deg);
+        opacity: 0.9;
       `;
-      
-      // Custom falling animation
-      confetti.style.animation = `confetti-fall ${duration}ms ease-out ${delay}ms forwards`;
       
       confettiContainer.appendChild(confetti);
     }
+
+    console.log(`🎆 All 50 confetti pieces created and animated`);
 
     // Clean up confetti after animation
     setTimeout(() => {
       if (confettiContainer && confettiContainer.parentNode) {
         confettiContainer.parentNode.removeChild(confettiContainer);
-        console.log(`🎆 Tailwind confetti animation complete!`);
+        console.log(`🎆 Tailwind confetti cleanup complete!`);
       }
-    }, 2000);
+    }, 2500);
   }
 
   updateScoreWithAnimation() {
+    // CRITICAL BUGFIX: Score bereits in updateScore() erhöht - nur Animation hier
+    console.log(`🎯 PHASE 3: Score animation for winner ${this.winner} - current scores:`, this.scores);
+    
     if (this.winner === 1) {
-      this.scores.yellow++;
       this.animateScoreUpdate('yellowScore', 'yellowScore2xl');
     } else if (this.winner === 2) {
-      this.scores.red++;
       this.animateScoreUpdate('redScore', 'redScore2xl');
     }
   }
