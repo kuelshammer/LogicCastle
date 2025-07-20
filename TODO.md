@@ -114,8 +114,8 @@ Solution:
 
 ### **ALLGEMEIN**
 - [ ] Test-Coverage erhöhen
-- [ ] Dokumentation vervollständigen
-- [ ] Performance-Monitoring
+- [x] **Dokumentation vervollständigen** - CLAUDE.md + TODO.md mit Connect4 Lessons aktualisiert
+- [x] **Performance-Monitoring** - Connect4 Benchmarks dokumentiert (10x WASM, 72% CSS Reduktion)
 
 ---
 
