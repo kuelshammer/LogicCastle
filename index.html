@@ -25,23 +25,108 @@
                 extend: {
                     fontFamily: {
                         'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif']
+                    },
+                    backdropBlur: {
+                        xs: '2px',
                     }
                 }
             }
         }
     </script>
+    
+    <style>
+        /* GLASSMORPHISM EFFECTS FOR LANDINGPAGE */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 16px 48px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .glass-header {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .game-preview {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        /* PREMIUM ANIMATIONS */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .float-animation:nth-child(2) {
+            animation-delay: -2s;
+        }
+        
+        .float-animation:nth-child(3) {
+            animation-delay: -4s;
+        }
+        
+        /* GRADIENT TEXT */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* REDUCED MOTION */
+        @media (prefers-reduced-motion: reduce) {
+            .glass-card, .float-animation {
+                animation: none;
+                transition: none;
+            }
+            .glass-card:hover {
+                transform: none;
+            }
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 font-sans text-gray-800">
-    <header class="text-center text-white p-4 md:p-8" role="banner">
-        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-shadow-lg">🏰 LogicCastle</h1>
-        <p class="text-lg md:text-xl opacity-90">Eine Sammlung mathematischer Spiele</p>
+<body class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 font-sans text-gray-800 relative overflow-x-hidden">
+    <!-- Background Decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 float-animation"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 float-animation"></div>
+        <div class="absolute top-40 left-1/2 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 float-animation"></div>
+    </div>
+
+    <header class="glass-header text-center text-white p-6 md:p-12 relative z-10" role="banner">
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-4 gradient-text">
+            🏰 LogicCastle
+        </h1>
+        <p class="text-xl md:text-2xl opacity-90 font-medium">Eine Sammlung mathematischer Spiele</p>
+        <div class="mt-4 text-sm opacity-75">
+            Modular • BitPacked • KI-Enhanced
+        </div>
     </header>
 
-    <main class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 lg:gap-8 p-4 md:p-8 max-w-6xl mx-auto" role="main" aria-label="Spielesammlung">
-        <a href="games/connect4/" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="connect4" data-key="1" role="button" aria-label="4 Gewinnt spielen - Klassisches Strategiespiel">
-            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">1</div>
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">4 Gewinnt</h2>
-            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+    <main class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 lg:gap-10 p-6 md:p-12 max-w-7xl mx-auto relative z-10" role="main" aria-label="Spielesammlung">
+        <a href="games/connect4/" class="glass-card rounded-3xl p-8 transition-all duration-500 cursor-pointer outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 relative min-h-[360px] block text-decoration-none group" data-game="connect4" data-key="1" role="button" aria-label="4 Gewinnt spielen - Klassisches Strategiespiel">
+            <div class="absolute top-6 right-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg">1</div>
+            <h2 class="text-3xl font-bold mb-6 text-white group-hover:text-blue-100 transition-colors">4 Gewinnt</h2>
+            <div class="flex items-center justify-center h-40 game-preview rounded-2xl p-6 mb-6 shadow-inner">
                 <div class="bg-blue-500 rounded-lg p-2">
                     <div class="grid grid-cols-4 grid-rows-3 gap-1">
                         <div class="w-6 h-6 bg-white rounded-full border-2 border-blue-700"></div>
@@ -59,13 +144,13 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 leading-relaxed">Klassisches Strategiespiel - Verbinde vier Steine in einer Reihe!</p>
+            <p class="text-white text-lg leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity">Klassisches Strategiespiel - Verbinde vier Steine in einer Reihe!</p>
         </a>
 
-        <a href="games/gomoku/index-production.html" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="gomoku" data-key="2" role="button" aria-label="5 Gewinnt Gomoku spielen - Setze fünf Steine in eine Reihe">
-            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">2</div>
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">5 Gewinnt (Gomoku)</h2>
-            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+        <a href="games/gomoku/index-production.html" class="glass-card rounded-3xl p-8 transition-all duration-500 cursor-pointer outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 relative min-h-[360px] block text-decoration-none group" data-game="gomoku" data-key="2" role="button" aria-label="5 Gewinnt Gomoku spielen - Setze fünf Steine in eine Reihe">
+            <div class="absolute top-6 right-6 bg-gradient-to-br from-amber-500 to-amber-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg">2</div>
+            <h2 class="text-3xl font-bold mb-6 text-white group-hover:text-amber-100 transition-colors">5 Gewinnt (Gomoku)</h2>
+            <div class="flex items-center justify-center h-40 game-preview rounded-2xl p-6 mb-6 shadow-inner">
                 <div class="bg-amber-700 rounded-lg p-2">
                     <div class="grid grid-cols-5 grid-rows-5 gap-0.5">
                         <div class="w-4 h-4 bg-amber-200 border border-amber-800 relative"></div>
@@ -96,13 +181,13 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 leading-relaxed">Setze fünf Steine in eine Reihe auf dem Go-Brett!</p>
+            <p class="text-white text-lg leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity">Setze fünf Steine in eine Reihe auf dem Go-Brett!</p>
         </a>
 
-        <a href="games/trio/" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="trio" data-key="3" role="button" aria-label="Trio spielen - Mathematisches Strategiespiel mit Zahlen">
-            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">3</div>
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">Trio</h2>
-            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+        <a href="games/trio/" class="glass-card rounded-3xl p-8 transition-all duration-500 cursor-pointer outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 relative min-h-[360px] block text-decoration-none group" data-game="trio" data-key="3" role="button" aria-label="Trio spielen - Mathematisches Strategiespiel mit Zahlen">
+            <div class="absolute top-6 right-6 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg">3</div>
+            <h2 class="text-3xl font-bold mb-6 text-white group-hover:text-indigo-100 transition-colors">Trio</h2>
+            <div class="flex items-center justify-center h-40 game-preview rounded-2xl p-6 mb-6 shadow-inner">
                 <div class="bg-white rounded-lg border-2 border-gray-300">
                     <div class="grid grid-cols-3 grid-rows-3 gap-0.5">
                         <div class="w-8 h-8 bg-red-500 text-white flex items-center justify-center font-bold text-sm rounded">3</div>
@@ -117,13 +202,13 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 leading-relaxed">Mathematisches Strategiespiel mit Zahlen und Farben!</p>
+            <p class="text-white text-lg leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity">Mathematisches Strategiespiel mit Zahlen und Farben!</p>
         </a>
 
-        <a href="games/lgame/" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="lgame" data-key="4" role="button" aria-label="L-Game spielen - Edward de Bono's strategisches Blockade-Spiel">
-            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">4</div>
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">L-Game</h2>
-            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+        <a href="games/lgame/" class="glass-card rounded-3xl p-8 transition-all duration-500 cursor-pointer outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 relative min-h-[360px] block text-decoration-none group" data-game="lgame" data-key="4" role="button" aria-label="L-Game spielen - Edward de Bono's strategisches Blockade-Spiel">
+            <div class="absolute top-6 right-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg">4</div>
+            <h2 class="text-3xl font-bold mb-6 text-white group-hover:text-purple-100 transition-colors">L-Game</h2>
+            <div class="flex items-center justify-center h-40 game-preview rounded-2xl p-6 mb-6 shadow-inner">
                 <div class="bg-amber-600 rounded-lg p-2">
                     <div class="grid grid-cols-4 grid-rows-4 gap-0.5">
                         <div class="w-5 h-5 bg-blue-500 rounded"></div>
@@ -145,13 +230,13 @@
                     </div>
                 </div>
             </div>
-            <p class="text-gray-600 leading-relaxed">Edward de Bono's strategisches Blockade-Spiel auf 4x4 Brett!</p>
+            <p class="text-white text-lg leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity">Edward de Bono's strategisches Blockade-Spiel auf 4x4 Brett!</p>
         </a>
 
-        <a href="games/hex/" class="game-card bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer outline-none focus:ring-4 focus:ring-indigo-300 relative min-h-[300px] block text-decoration-none" data-game="hex" data-key="5" role="button" aria-label="Hex spielen - Strategisches Verbindungsspiel auf hexagonalem Brett">
-            <div class="absolute top-4 right-4 bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg">5</div>
-            <h2 class="text-2xl font-bold mb-4 text-gray-800">Hex ⬡</h2>
-            <div class="flex items-center justify-center h-36 bg-gray-50 rounded-xl p-4 mb-4">
+        <a href="games/hex/" class="glass-card rounded-3xl p-8 transition-all duration-500 cursor-pointer outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 relative min-h-[360px] block text-decoration-none group" data-game="hex" data-key="5" role="button" aria-label="Hex spielen - Strategisches Verbindungsspiel auf hexagonalem Brett">
+            <div class="absolute top-6 right-6 bg-gradient-to-br from-green-500 to-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl shadow-lg">5</div>
+            <h2 class="text-3xl font-bold mb-6 text-white group-hover:text-green-100 transition-colors">Hex ⬡</h2>
+            <div class="flex items-center justify-center h-40 game-preview rounded-2xl p-6 mb-6 shadow-inner">
                 <svg width="120" height="100" viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
                     <!-- Background -->
                     <rect width="120" height="100" fill="#f8f9fa" rx="8"/>
@@ -192,11 +277,11 @@
                     <rect x="20" y="89" width="80" height="3" fill="#007bff" opacity="0.8"/>
                 </svg>
             </div>
-            <p class="text-gray-600 leading-relaxed">Verbinde deine Seiten auf dem hexagonalen Brett - BitPackedBoard!</p>
+            <p class="text-white text-lg leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity">Verbinde deine Seiten auf dem hexagonalen Brett - BitPackedBoard!</p>
         </a>
     </main>
 
-    <footer class="text-center p-8 text-white opacity-80" role="contentinfo">
+    <footer class="glass-header text-center p-8 text-white opacity-90 relative z-10 mt-12" role="contentinfo">
         <p class="text-lg mb-4">Verwende die Tasten 1-5 oder klicke auf ein Spiel zum Starten</p>
         <div class="text-sm opacity-60">
             <div class="mb-1">Letzte Aktualisierung: 03.07.2025 - 14:30 Uhr</div>
