@@ -91,24 +91,61 @@ Gomoku benötigt vollständigen Neuaufbau nach Connect4 + Trio Lessons:
 ## 🎯 NÄCHSTE PRIORITÄTEN (2025-07-20)
 
 ### **TRIO UI MODERNISIERUNG** (HIGH PRIORITY)
+- [ ] **API Documentation erstellen** - Backend API Reference + Usage Analysis nach Connect4 Muster
 - [ ] **Apply Connect4 Hybrid CSS Pattern** - Tailwind + Inline CSS für Victory Sequence
 - [ ] **3-Phasen Victory Animation** - Nach Connect4 Goldstandard implementieren  
 - [ ] **CSS Specificity Fixes** - Ultra-high specificity für clean visuals
 - [ ] **Module Loading Fallback** - Robust ES6 + Fallback wie Connect4
 
-### **GOMOKU COMPLETE REWRITE** (MEDIUM PRIORITY)
-- [ ] **Backend 3-Layer Architecture** - Nach Connect4 + Trio Pattern
-- [ ] **Rust-WASM Integration** - Performance Backend mit JavaScript Fallback
-- [ ] **Intersektions-System Modernisierung** - 2-Schichten Visual + Interaction
+### **GOMOKU UI MODERNISIERUNG** (MEDIUM PRIORITY)
+- [ ] **API Documentation erstellen** - Backend API Reference + Usage Analysis (WASM Backend bereits vorhanden!)
+- [ ] **UI Integration Analysis** - Prüfen welche WASM APIs die aktuelle UI nutzt
+- [ ] **Intersektions-System Modernisierung** - 2-Schichten Visual + Interaction  
 - [ ] **Hybrid CSS + Victory Sequence** - Connect4 Goldstandard implementieren
+- [ ] **Module Loading Fallback** - Robust ES6 + Fallback wie Connect4
 
 ### **L-GAME ENHANCEMENT** (LOW PRIORITY)
-- [ ] Color-System Optimierung
-- [ ] Interaction Handler Verbesserungen  
-- [ ] Connect4 Pattern Application
+- [ ] **API Documentation erstellen** - Backend API Reference + Usage Analysis 
+- [ ] **WASM Backend überprüfen** - Prüfen ob vollständig implementiert
+- [ ] **Color-System Optimierung** - Nach Connect4 Pattern
+- [ ] **Interaction Handler Verbesserungen** - Modernisierung
+- [ ] **Connect4 Pattern Application** - UI Modernisierung
 
 ### **GOBANG COMPLETE REWRITE** (FUTURE)
 - [ ] **Vollständiger Neuaufbau** nach Connect4 Goldstandard erforderlich
+
+## 📚 API DOCUMENTATION INITIATIVE (2025-07-20)
+
+### **NEUER STANDARD: Vollständige API-Dokumentation für alle Spiele**
+
+Basierend auf Connect4 Erfolg benötigt **jedes Spiel**:
+
+#### **📋 TEMPLATE: Backend API Reference**  
+- **Constructor & Initialization** - Wie Connect4-Backend-API.md
+- **Core Game Actions** - make_move, is_valid_move, reset
+- **Game State Access** - get_cell, get_board, current_player, winner  
+- **AI Integration** - get_ai_move, set_ai_difficulty, evaluate_position
+- **Advanced Analysis** - get_winning_moves, get_blocking_moves, analyze_position
+- **Undo System** - can_undo, undo_move
+- **Utility & Debug** - board_string, memory_usage
+- **Architecture Notes** - BitPacked, 3-Layer, Performance Benchmarks
+
+#### **📊 TEMPLATE: API Usage Analysis**
+- **Coverage Assessment** - Welche APIs nutzt die UI?
+- **Architecture Analysis** - WASM-First vs. Fallback patterns  
+- **Performance Review** - State synchronization quality
+- **Unused Opportunities** - Verfügbare aber nicht genutzte Features
+- **Recommendations** - Verbesserungsvorschläge
+- **Template Rating** - A+ bis F Assessment
+
+### **🎯 DOKUMENTATIONS-ROADMAP**
+1. **✅ Connect4**: COMPLETE - Template erstellt
+2. **🔄 Gomoku**: NÄCHSTE PRIORITÄT - WASM Backend vorhanden
+3. **🔄 Trio**: MEDIUM - WASM Backend vorhanden  
+4. **🔄 L-Game**: LOW - Backend Status unklar
+5. **❌ Gobang**: FUTURE - Vollständiger Neuaufbau
+
+**ZIEL: Wartbare, dokumentierte Codebase mit einheitlichen Standards**
 
 ## 🔧 WARTUNG & QUALITÄT
 

@@ -62,7 +62,15 @@ confetti.style.cssText = `
 - **Fallback**: JavaScript Implementation wenn WASM fehlschlägt  
 - **Architecture**: 3-Layer mit WASM ↔ JavaScript Bridge
 - **Benefits**: 10x+ Performance für complex game state operations
-- **📚 API Documentation**: [Connect4 Backend API Reference](docs/Connect4-Backend-API.md)
+
+#### 📚 **API DOCUMENTATION STANDARD**
+- **✅ Connect4**: [Backend API Reference](docs/Connect4-Backend-API.md) + [Usage Analysis](docs/Connect4-API-Usage-Analysis.md)
+- **🔄 Gomoku**: API Documentation benötigt (WASM Backend verfügbar)
+- **🔄 Trio**: API Documentation benötigt (WASM Backend verfügbar)  
+- **❌ L-Game**: Backend + API Documentation benötigt
+- **❌ Gobang**: Vollständiger Neuaufbau erforderlich
+
+**REGEL: Jedes Spiel benötigt vollständige API-Dokumentation für Wartbarkeit**
 
 #### 🎨 **CSS ARCHITECTURE LESSONS**
 - **Hybrid Approach**: Tailwind für statische UI + Inline CSS für Dynamik
