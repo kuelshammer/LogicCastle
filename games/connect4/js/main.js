@@ -573,25 +573,39 @@ class ModularConnect4Game extends BaseGameUI {
       const duration = 1500 + Math.random() * 1000;
       const delay = Math.random() * 200;
       
-      // Enhanced Tailwind classes for better visibility
-      const colorClasses = winnerColor === 'yellow' ? [
-        'bg-yellow-400', 'bg-yellow-500', 'bg-yellow-300', 'bg-amber-400', 'bg-orange-400'
+      // FIXED: Use inline CSS instead of Tailwind classes for dynamic confetti
+      const colorValues = winnerColor === 'yellow' ? [
+        '#fbbf24', '#f59e0b', '#f3f4f6', '#fbbf24', '#fb923c'
       ] : [
-        'bg-red-400', 'bg-red-500', 'bg-red-300', 'bg-pink-400', 'bg-rose-400'
+        '#f87171', '#ef4444', '#fca5a5', '#ec4899', '#f43f5e'
       ];
       
-      const randomColor = colorClasses[Math.floor(Math.random() * colorClasses.length)];
-      const randomSize = ['w-3 h-3', 'w-4 h-4', 'w-2 h-6', 'w-6 h-2'][Math.floor(Math.random() * 4)];
+      const randomColor = colorValues[Math.floor(Math.random() * colorValues.length)];
+      const sizes = [
+        {width: 12, height: 12}, 
+        {width: 16, height: 16}, 
+        {width: 8, height: 24}, 
+        {width: 24, height: 8}
+      ];
+      const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
       
-      // NO animate-bounce to avoid conflicts - pure custom animation
-      confetti.className = `absolute ${randomColor} ${randomSize} rounded-full shadow-lg`;
+      // ULTIMATE FIX: Force all properties with !important
+      confetti.className = '';
       confetti.style.cssText = `
-        left: ${startX}%;
-        top: -20px;
-        z-index: 10000;
-        animation: confetti-fall ${duration}ms ease-out ${delay}ms forwards;
-        transform: rotate(${Math.random() * 360}deg);
-        opacity: 0.9;
+        left: ${startX}% !important;
+        top: -20px !important;
+        width: ${randomSize.width}px !important;
+        height: ${randomSize.height}px !important;
+        background-color: ${randomColor} !important;
+        border-radius: 50% !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+        z-index: 10000 !important;
+        position: absolute !important;
+        animation: confetti-fall ${duration}ms ease-out ${delay}ms forwards !important;
+        transform: rotate(${Math.random() * 360}deg) !important;
+        opacity: 0.9 !important;
+        display: block !important;
+        pointer-events: none !important;
       `;
       
       confettiContainer.appendChild(confetti);
