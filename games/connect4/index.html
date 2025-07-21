@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v2.3-PERFECT</title>
-    <meta name="cache-bust" content="2025-07-21-perfect-alignment">
-    <meta name="version" content="2.3-perfect-alignment">
+    <title>4 Gewinnt - LogicCastle - v2.4-DEBUG</title>
+    <meta name="cache-bust" content="2025-07-21-victory-debug">
+    <meta name="version" content="2.4-victory-debug">
     <!-- Minimal CSS fallback only -->
     <style>
       /* MINIMAL CSS - Only keyframes that Tailwind can't do */
@@ -857,7 +857,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">v2.3-PERFECT • Perfect Column Alignment • Optimal Spacing</p>
+          <p class="text-lg md:text-xl text-white opacity-90">v2.4-DEBUG • Victory Detection Debug • Konfetti Fix</p>
         </div>
       </header>
 
@@ -1162,7 +1162,11 @@
               }
               
               makeMove(col) {
-                if (this.gameOver) return;
+                console.log(\`🎮 makeMove called: Player \${this.currentPlayer} to column \${col}\`);
+                if (this.gameOver) {
+                  console.log('❌ Game already over, move rejected');
+                  return;
+                }
                 
                 // Find lowest empty row in column
                 let row = -1;
@@ -1173,10 +1177,18 @@
                   }
                 }
                 
-                if (row === -1) return; // Column full
+                if (row === -1) {
+                  console.log(\`❌ Column \${col} full, move rejected\`);
+                  return; // Column full
+                }
                 
                 // Place piece
                 this.board[row][col] = this.currentPlayer;
+                console.log(\`✅ Piece placed at (\${row}, \${col}) for player \${this.currentPlayer}\`);
+                console.log('📋 Current board state:');
+                for (let r = 0; r < 6; r++) {
+                  console.log(\`Row \${r}: \`, this.board[r]);
+                }
                 this.updateCell(row, col);
                 
                 // Check for win
@@ -1199,6 +1211,7 @@
               }
               
               checkWin(row, col) {
+                console.log(\`🔍 Checking win for player \${this.currentPlayer} at (\${row}, \${col})\`);
                 const directions = [
                   [0, 1], [1, 0], [1, 1], [1, -1]
                 ];
@@ -1228,12 +1241,14 @@
                   }
                   
                   if (count >= 4) {
+                    console.log(\`🏆 WIN DETECTED! Player \${this.currentPlayer} has \${count} in a row: \`, line.slice(0, 4));
                     this.winningLine = line.slice(0, 4);
                     this.winner = this.currentPlayer;
                     this.gameOver = true;
                     return true;
                   }
                 }
+                console.log(\`❌ No win detected for player \${this.currentPlayer} at (\${row}, \${col})\`);
                 return false;
               }
               
