@@ -1163,6 +1163,7 @@
               
               makeMove(col) {
                 console.log(\`🎮 makeMove called: Player \${this.currentPlayer} to column \${col}\`);
+                console.log(\`🎮 makeMove: gameOver status = \${this.gameOver}\`);
                 if (this.gameOver) {
                   console.log('❌ Game already over, move rejected');
                   return;
@@ -1192,7 +1193,11 @@
                 this.updateCell(row, col);
                 
                 // Check for win
-                if (this.checkWin(row, col)) {
+                console.log('🔍 About to check win...');
+                const winResult = this.checkWin(row, col);
+                console.log(\`🔍 checkWin result: \${winResult}\`);
+                if (winResult) {
+                  console.log('🏆 CALLING showWin()...');
                   this.showWin(row, col);
                   return;
                 }
@@ -1263,6 +1268,7 @@
               }
               
               showWin(row, col) {
+                console.log('🎯 showWin() CALLED! Starting victory sequence...');
                 const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
                 const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
                 const winnerHex = this.currentPlayer === 1 ? '#fde047' : '#ef4444';
