@@ -185,13 +185,38 @@ export class GomokuGameBitPacked {
     }
     
     /**
-     * Undo last move (placeholder - WASM doesn't support undo yet)
+     * Undo last move (WASM supported)
      */
     undoMove() {
-        // TODO: Implement undo functionality
-        // For now, return failure since WASM API doesn't support undo
-        console.warn('⚠️ Undo not supported by WASM API yet');
-        return { success: false, reason: 'Undo not supported by WASM API' };
+        if (!this.initialized) {
+            return { success: false, reason: 'Game not initialized' };
+        }
+        
+        try {
+            const success = this.board.undo_move();
+            if (success) {
+                this.gameHistory.pop();
+                console.log('🔄 Move undone successfully');
+                return { success: true };
+            } else {
+                return { success: false, reason: 'No moves to undo' };
+            }
+        } catch (error) {
+            console.warn('⚠️ Undo failed:', error);
+            return { success: false, reason: 'Undo operation failed' };
+        }
+    }
+    
+    /**
+     * Check if undo is possible
+     */
+    canUndo() {
+        if (!this.initialized) return false;
+        try {
+            return this.board.can_undo();
+        } catch (error) {
+            return false;
+        }
     }
     
     /**
@@ -322,6 +347,204 @@ export class GomokuGameBitPacked {
      */
     supportsAdvancedAI() {
         return this.initialized; // BitPackedBoard is optimized for AI
+    }
+    
+    // === AI INTEGRATION (nach Connect4 Muster) ===
+    
+    /**
+     * Get AI move suggestion for current player
+     * @returns {Object|null} {row, col} or null if no move available
+     */
+    getAIMove() {
+        if (!this.initialized) {
+            console.warn('⚠️ AI move requested but game not initialized');
+            return null;
+        }
+        
+        try {
+            console.log('🤖 WASM AI calculating move...');
+            const aiMoveArray = this.board.get_ai_move();
+            
+            if (aiMoveArray && aiMoveArray.length >= 2) {
+                const move = {
+                    row: aiMoveArray[0],
+                    col: aiMoveArray[1]
+                };
+                
+                console.log(`🤖 WASM AI suggests move: (${move.row}, ${move.col})`);
+                return move;
+            } else {
+                console.log('🤖 WASM AI: No moves available');
+                return null;
+            }
+        } catch (error) {
+            console.error('❌ WASM AI move failed:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Make AI move for current player (Black=1)
+     * @returns {Promise<Object>} Move result with success flag
+     */
+    async makeAIMove() {
+        const currentPlayer = this.getCurrentPlayer();
+        console.log(`🤖 AI move requested for player ${currentPlayer}`);
+        
+        // AI spielt als Schwarz (Player 1)
+        if (currentPlayer !== 1) {
+            return { 
+                success: false, 
+                reason: 'AI only plays as Black (Player 1)',
+                currentPlayer 
+            };
+        }
+        
+        const aiMove = this.getAIMove();
+        if (!aiMove) {
+            return { 
+                success: false, 
+                reason: 'No AI move available',
+                currentPlayer 
+            };
+        }
+        
+        // Make the AI move
+        const moveResult = this.makeMove(aiMove.row, aiMove.col);
+        
+        if (moveResult.success) {
+            console.log(`🤖 AI (Black) played: (${aiMove.row}, ${aiMove.col})`);
+            return {
+                success: true,
+                move: aiMove,
+                gameWon: moveResult.gameWon,
+                winner: moveResult.winner
+            };
+        } else {
+            console.error('❌ AI move failed:', moveResult.reason);
+            return {
+                success: false,
+                reason: moveResult.reason,
+                attemptedMove: aiMove
+            };
+        }
+    }
+    
+    /**
+     * Get winning moves for current player
+     * @returns {Array} Array of {row, col} winning positions
+     */
+    getWinningMoves() {
+        if (!this.initialized) return [];
+        
+        try {
+            const winningArray = this.board.get_winning_moves();
+            const moves = [];
+            
+            // Parse pairs [row, col, row, col, ...]
+            for (let i = 0; i < winningArray.length; i += 2) {
+                if (i + 1 < winningArray.length) {
+                    moves.push({
+                        row: winningArray[i],
+                        col: winningArray[i + 1]
+                    });
+                }
+            }
+            
+            return moves;
+        } catch (error) {
+            console.warn('⚠️ Get winning moves failed:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Get blocking moves against opponent
+     * @returns {Array} Array of {row, col} blocking positions
+     */
+    getBlockingMoves() {
+        if (!this.initialized) return [];
+        
+        try {
+            const blockingArray = this.board.get_blocking_moves();
+            const moves = [];
+            
+            // Parse pairs [row, col, row, col, ...]
+            for (let i = 0; i < blockingArray.length; i += 2) {
+                if (i + 1 < blockingArray.length) {
+                    moves.push({
+                        row: blockingArray[i],
+                        col: blockingArray[i + 1]
+                    });
+                }
+            }
+            
+            return moves;
+        } catch (error) {
+            console.warn('⚠️ Get blocking moves failed:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Get threatening moves for current player
+     * @returns {Array} Array of {row, col} threatening positions
+     */
+    getThreateningMoves() {
+        if (!this.initialized) return [];
+        
+        try {
+            const threateningArray = this.board.get_threatening_moves();
+            const moves = [];
+            
+            // Parse pairs [row, col, row, col, ...]
+            for (let i = 0; i < threateningArray.length; i += 2) {
+                if (i + 1 < threateningArray.length) {
+                    moves.push({
+                        row: threateningArray[i],
+                        col: threateningArray[i + 1]
+                    });
+                }
+            }
+            
+            return moves;
+        } catch (error) {
+            console.warn('⚠️ Get threatening moves failed:', error);
+            return [];
+        }
+    }
+    
+    /**
+     * Evaluate position strength for current player
+     * @returns {number} Position evaluation (-10000 to +10000)
+     */
+    evaluatePosition() {
+        if (!this.initialized) return 0;
+        
+        try {
+            return this.board.evaluate_position();
+        } catch (error) {
+            console.warn('⚠️ Position evaluation failed:', error);
+            return 0;
+        }
+    }
+    
+    /**
+     * Get threat level at specific position
+     * @param {number} row Row (0-14)
+     * @param {number} col Column (0-14) 
+     * @param {number} player Player (1=black, 2=white)
+     * @returns {number} Threat level (0-5)
+     */
+    getThreatLevel(row, col, player) {
+        if (!this.initialized) return 0;
+        
+        try {
+            return this.board.get_threat_level(row, col, player);
+        } catch (error) {
+            console.warn('⚠️ Threat level check failed:', error);
+            return 0;
+        }
     }
 }
 

@@ -32,7 +32,7 @@ export class GomokuUI extends BaseGameUI {
         this.ai = null;
         this.gameMode = 'two-player';
         this.isProcessingMove = false;
-        this.aiPlayer = 2; // White player (WASM Player.White)
+        this.aiPlayer = 1; // Black player (WASM Player.Black) - AI spielt als Schwarz
         this.scores = { black: 0, white: 0 };
         
         // Settings from legacy
@@ -131,6 +131,9 @@ export class GomokuUI extends BaseGameUI {
         
         // Make testModalSystem available globally for debugging
         window.testModalSystem = () => this.testModalSystem();
+        
+        // Set up game mode event listener
+        this.setupGameModeHandler();
         
         // Mark as initialized
         this.initialized = true;
@@ -329,11 +332,14 @@ export class GomokuUI extends BaseGameUI {
                     this.handleGameOver();
                 }
                 
-                // Handle AI move if in single-player mode
+                // Handle AI move if in single-player mode and it's AI's turn (Black = 1)
                 if (this.gameMode === 'single-player' && !this.game.isGameOver()) {
-                    setTimeout(() => {
-                        this.makeAIMove();
-                    }, this.aiThinkingDelay);
+                    const nextPlayer = this.game.getCurrentPlayer();
+                    if (nextPlayer === this.aiPlayer) { // AI spielt als Schwarz (Player 1)
+                        setTimeout(() => {
+                            this.makeAIMove();
+                        }, this.aiThinkingDelay);
+                    }
                 }
             }
         } catch (error) {
@@ -344,28 +350,75 @@ export class GomokuUI extends BaseGameUI {
     }
 
     /**
-     * Handle AI move (if applicable)
+     * Handle AI move (if applicable) - AI spielt als Schwarz (Player 1)
      */
     async makeAIMove() {
         if (!this.game || this.game.isGameOver() || this.gameMode !== 'single-player') {
             return;
         }
         
-        console.log('🤖 AI is thinking...');
+        // Verify it's AI's turn (Black = Player 1)
+        const currentPlayer = this.game.getCurrentPlayer();
+        if (currentPlayer !== this.aiPlayer) {
+            console.log(`🤖 Not AI's turn (current: ${currentPlayer}, AI: ${this.aiPlayer})`);
+            return;
+        }
+        
+        console.log('🤖 AI (Schwarz) is thinking...');
+        this.showMessage('🤖 AI überlegt...', 'info');
         
         try {
-            // Use WASM AI if available
+            // Use new WASM AI wrapper method from game-bitpacked.js
+            if (this.game.makeAIMove && typeof this.game.makeAIMove === 'function') {
+                const aiResult = await this.game.makeAIMove();
+                
+                if (aiResult && aiResult.success) {
+                    console.log(`🤖 AI (Schwarz) played: (${aiResult.move.row}, ${aiResult.move.col})`);
+                    
+                    // Update visual state through BoardRenderer
+                    if (this.boardRenderer) {
+                        this.boardRenderer.placeStone(aiResult.move.row, aiResult.move.col, this.aiPlayer);
+                    }
+                    
+                    // Trigger move animation
+                    if (this.animationManager) {
+                        this.animationManager.animateStonePlace(aiResult.move.row, aiResult.move.col, this.aiPlayer);
+                    }
+                    
+                    // Update UI
+                    this.updateUI();
+                    this.updateAssistanceHighlights();
+                    
+                    // Check for game over
+                    if (aiResult.gameWon) {
+                        console.log('🏁 AI won the game!');
+                        this.handleGameOver();
+                    }
+                    
+                    return;
+                } else {
+                    console.warn('⚠️ AI move failed:', aiResult?.reason || 'Unknown reason');
+                }
+            } else {
+                console.warn('⚠️ makeAIMove method not available on game instance');
+            }
+            
+            // Fallback: Use legacy AI method
             if (this.game.getAIMove && typeof this.game.getAIMove === 'function') {
                 const aiMove = this.game.getAIMove();
                 if (aiMove && aiMove.row !== undefined && aiMove.col !== undefined) {
+                    console.log(`🤖 Fallback AI move: (${aiMove.row}, ${aiMove.col})`);
                     await this.makeMove(aiMove.row, aiMove.col);
                     return;
                 }
             }
             
-            console.warn('⚠️ AI move not available');
+            console.error('❌ No AI move available');
+            this.showMessage('❌ AI-Zug nicht verfügbar', 'error');
+            
         } catch (error) {
-            console.error('❌ Error getting AI move:', error);
+            console.error('❌ Error making AI move:', error);
+            this.showMessage('❌ AI-Fehler', 'error');
         }
     }
 
@@ -677,12 +730,51 @@ export class GomokuUI extends BaseGameUI {
     // ==================== GAME MODE HANDLING ====================
 
     /**
+     * Set up game mode dropdown event handler
+     */
+    setupGameModeHandler() {
+        const gameModeSelector = document.getElementById('gameMode');
+        const gameModeDisplay = document.getElementById('gameModeDisplay');
+        
+        if (gameModeSelector) {
+            gameModeSelector.addEventListener('change', (e) => {
+                const selectedMode = e.target.value;
+                this.onGameModeChange(selectedMode);
+                
+                // Update display text
+                if (gameModeDisplay) {
+                    const displayText = selectedMode === 'single-player' ? 'Gegen KI' : '2 Spieler';
+                    gameModeDisplay.textContent = displayText;
+                }
+            });
+            
+            console.log('🎮 Game mode handler set up successfully');
+        } else {
+            console.warn('⚠️ Game mode selector not found');
+        }
+    }
+
+    /**
      * Handle game mode change
      */
     onGameModeChange(mode) {
         console.log(`🎮 Game mode changed to: ${mode}`);
         this.gameMode = mode;
         this.config = createGomokuConfig(mode);
+        
+        // Update AI player message based on mode
+        if (mode === 'single-player') {
+            this.showMessage('🤖 Single-Player Modus: AI spielt als Schwarz', 'info');
+            
+            // If it's currently Black's turn (AI's turn), make AI move
+            if (this.game && this.game.getCurrentPlayer() === this.aiPlayer && !this.game.isGameOver()) {
+                setTimeout(() => {
+                    this.makeAIMove();
+                }, this.aiThinkingDelay);
+            }
+        } else {
+            this.showMessage('👥 2-Spieler Modus aktiviert', 'info');
+        }
         
         // Restart game with new mode
         this.newGame();
