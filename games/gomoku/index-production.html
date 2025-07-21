@@ -4,46 +4,173 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>5 Gewinnt (Gomoku) - LogicCastle Production</title>
+    
+    <!-- Tailwind CSS for Hybrid Pattern (Static UI) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif']
+            },
+            backdropBlur: {
+              xs: '2px',
+            },
+            animation: {
+              'confetti-fall': 'confetti-fall 3s ease-out forwards',
+              'stone-place': 'stone-place 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              'victory-pulse': 'victory-pulse 1s ease-in-out infinite',
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Minimal CSS: Only keyframes & Ultra-high specificity fixes -->
+    <style>
+      /* GLASSMORPHISM EFFECTS (Connect4 Pattern) */
+      .glass {
+        backdrop-filter: blur(16px) saturate(180%) brightness(105%);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 
+          0 8px 32px rgba(0, 0, 0, 0.12),
+          0 2px 8px rgba(0, 0, 0, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        will-change: backdrop-filter, transform;
+      }
+
+      .glass-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-hover:hover {
+        background: rgba(255, 255, 255, 0.22);
+        backdrop-filter: blur(20px) saturate(200%) brightness(110%);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 
+          0 16px 48px rgba(0, 0, 0, 0.15),
+          0 4px 12px rgba(0, 0, 0, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      /* KEYFRAMES for Victory Sequence */
+      @keyframes confetti-fall {
+        0% { 
+          transform: translateY(-100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% { 
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+
+      @keyframes stone-place {
+        0% { 
+          transform: scale(0.8);
+          opacity: 0.7;
+        }
+        50% { 
+          transform: scale(1.1);
+          opacity: 0.9;
+        }
+        100% { 
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes victory-pulse {
+        0%, 100% { 
+          transform: scale(1);
+          box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        50% { 
+          transform: scale(1.05);
+          box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+        }
+      }
+
+      /* ULTRA-HIGH SPECIFICITY for CSS conflicts */
+      #gameBoard .intersection .stone.black {
+        background: radial-gradient(circle at 30% 30%, #444, #000) !important;
+        border: 2px solid #222 !important;
+      }
+
+      #gameBoard .intersection .stone.white {
+        background: radial-gradient(circle at 30% 30%, #fff, #ddd) !important;
+        border: 2px solid #ccc !important;
+      }
+
+      #gameBoard .intersection.winning-stone {
+        animation: victory-pulse 1s ease-in-out infinite !important;
+      }
+
+      /* Reduced Motion Support */
+      @media (prefers-reduced-motion: reduce) {
+        .glass-hover, .stone, .intersection {
+          animation: none !important;
+          transition: none !important;
+        }
+        .glass-hover:hover {
+          transform: none !important;
+        }
+      }
+    </style>
+    
+    <!-- Legacy CSS (will be phased out) -->
     <link rel="stylesheet" href="css/game-new.css?v=20250711_production" />
     <link rel="stylesheet" href="css/animations.css?v=20250711_production" />
   </head>
-  <body>
-    <div class="game-container">
+  <body class="min-h-screen bg-gradient-to-br from-amber-900 via-amber-800 to-orange-900 font-sans">
+    <!-- Background Glassmorphism Decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-yellow-400 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-400 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse" style="animation-delay: -2s"></div>
+      <div class="absolute top-40 left-1/2 w-80 h-80 bg-amber-400 rounded-full mix-blend-multiply filter blur-xl opacity-50 animate-pulse" style="animation-delay: -4s"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 relative z-10">
       <!-- Game Header -->
-      <div class="game-header">
-        <div class="header-left">
-          <a href="../../" class="back-button">← Zurück</a>
-          <h1>⚫ Gomoku</h1>
+      <div class="glass glass-hover rounded-2xl p-4 md:p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4 flex-1">
+          <a href="../../" class="text-white hover:text-amber-200 transition-colors text-lg font-medium">← Zurück</a>
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center md:text-left">⚫ Gomoku</h1>
         </div>
         
-        <div class="header-controls">
-          <div class="game-mode-selector">
-            <select id="gameMode" class="form-select">
-              <option value="two-player">2 Spieler</option>
-              <option value="single-player">Gegen KI</option>
+        <div class="flex gap-3">
+          <div class="glass rounded-lg p-2">
+            <select id="gameMode" class="bg-white/20 text-white rounded-md px-3 py-2 border border-white/30 focus:border-white/50 focus:outline-none focus:ring-2 focus:ring-white/20 transition-colors">
+              <option value="two-player" class="text-gray-800">2 Spieler</option>
+              <option value="single-player" class="text-gray-800">Gegen KI</option>
             </select>
           </div>
         </div>
       </div>
 
       <!-- Main Game Area -->
-      <div class="game-main">
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 lg:gap-8">
         <!-- Game Board Area -->
-        <div class="game-board-area">
-          <div class="game-board-container">
-            <!-- Game Status -->
-            <div id="gameStatus" class="game-status">Bereit</div>
-            
-            <!-- Current Player Indicator -->
-            <div id="currentPlayerIndicator" class="current-player-section">
-              <span class="player-indicator active">
-                <span class="player-stone black"></span>
-                Schwarz ist am Zug
-              </span>
+        <div class="xl:col-span-3 flex flex-col items-center">
+          <!-- Game Status -->
+          <div class="glass rounded-xl p-4 mb-4 text-center min-w-64">
+            <div id="gameStatus" class="text-2xl font-bold text-white">Bereit</div>
+          </div>
+          
+          <!-- Current Player Indicator -->
+          <div class="glass rounded-xl p-4 mb-6 text-center min-w-64">
+            <div id="currentPlayerIndicator" class="flex items-center justify-center gap-3">
+              <span class="w-6 h-6 bg-black rounded-full border-2 border-gray-300"></span>
+              <span class="text-xl font-semibold text-white">Schwarz ist am Zug</span>
             </div>
-            
+          </div>
+          
+          <!-- Game Board Container -->
+          <div class="glass glass-hover rounded-3xl p-6 lg:p-8">
             <!-- Game Board -->
-            <div class="game-board" id="gameBoard">
+            <div class="game-board gomoku-board game-board-intersections" id="gameBoard">
               <!-- 15x15 grid = 225 intersections -->
               <!-- Generated dynamically by JavaScript -->
             </div>
@@ -51,205 +178,226 @@
         </div>
 
         <!-- Sidebar Game Info -->
-        <div class="game-info-compact">
+        <div class="xl:col-span-1 flex flex-col gap-6">
           <!-- Current Player Section -->
-          <div class="current-player-section">
-            <h3>Aktueller Spieler</h3>
-            <div id="currentPlayerDisplay" class="player-indicator active">
-              <span class="player-stone black"></span>
-              <span>Schwarz</span>
+          <div class="glass glass-hover rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-4">Aktueller Spieler</h3>
+            <div id="currentPlayerDisplay" class="flex items-center gap-3">
+              <span class="w-8 h-8 bg-black rounded-full border-2 border-gray-300"></span>
+              <span class="text-lg font-semibold text-white">Schwarz</span>
             </div>
           </div>
 
           <!-- Game Status Section -->
-          <div class="game-status-section">
-            <h3>Spielstand</h3>
-            <div class="score-display">
-              <div class="score-item black">
-                <div class="score-label">Schwarz</div>
-                <div class="score-value" id="blackScore">0</div>
+          <div class="glass glass-hover rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-4">Spielstand</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center p-3 bg-white/10 rounded-lg">
+                <div class="text-sm text-white/80 mb-1">Schwarz</div>
+                <div class="text-2xl font-bold text-white" id="blackScore">0</div>
               </div>
-              <div class="score-item white">
-                <div class="score-label">Weiß</div>
-                <div class="score-value" id="whiteScore">0</div>
+              <div class="text-center p-3 bg-white/10 rounded-lg">
+                <div class="text-sm text-white/80 mb-1">Weiß</div>
+                <div class="text-2xl font-bold text-white" id="whiteScore">0</div>
               </div>
             </div>
           </div>
 
           <!-- Game Info Section -->
-          <div class="game-info-section">
-            <h3>Spiel-Info</h3>
-            <div class="info-item">
-              <span class="info-label">Züge</span>
-              <span class="info-value" id="moveCounter">0</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Modus</span>
-              <span class="info-value" id="gameModeDisplay">2 Spieler</span>
+          <div class="glass glass-hover rounded-2xl p-6">
+            <h3 class="text-xl font-bold text-white mb-4">Spiel-Info</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-white/80">Züge</span>
+                <span class="text-white font-bold" id="moveCounter">0</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-white/80">Modus</span>
+                <span class="text-white font-bold" id="gameModeDisplay">2 Spieler</span>
+              </div>
             </div>
           </div>
 
           <!-- Control Buttons -->
-          <div class="button-group">
-            <button class="btn btn-primary" id="newGameBtn">
-              <span class="btn-icon">🆕</span>
+          <div class="flex flex-col gap-3">
+            <button class="glass glass-hover rounded-xl p-4 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="newGameBtn">
+              <span class="text-lg mr-3">🆕</span>
               Neues Spiel (N)
             </button>
-            <button class="btn btn-secondary" id="undoBtn">
-              <span class="btn-icon">↩️</span>
+            <button class="glass glass-hover rounded-xl p-4 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="undoBtn">
+              <span class="text-lg mr-3">↩️</span>
               Rückgängig (U)
             </button>
-            <button class="btn btn-success" id="assistanceBtn">
-              <span class="btn-icon">💡</span>
+            <button class="glass glass-hover rounded-xl p-4 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="assistanceBtn">
+              <span class="text-lg mr-3">💡</span>
               Spielerhilfen (F2)
             </button>
-            <button class="btn btn-info" id="helpBtn">
-              <span class="btn-icon">❓</span>
+            <button class="glass glass-hover rounded-xl p-4 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="helpBtn">
+              <span class="text-lg mr-3">❓</span>
               Hilfe (F1)
             </button>
           </div>
         </div>
       </div>
     </div>
+      </div>
+    </div>
 
     <!-- Help Modal -->
-    <div class="modal-overlay" id="helpModal">
-      <div class="modal help-modal">
-        <div class="modal-header">
-          <h2>⚫ Gomoku - Spielanleitung</h2>
-          <button class="modal-close" id="closeHelpBtn">&times;</button>
-        </div>
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 transition-all duration-300" id="helpModal">
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="glass rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+          <div class="flex justify-between items-center p-6 border-b border-white/20">
+            <h2 class="text-2xl font-bold text-white">⚫ Gomoku - Spielanleitung</h2>
+            <button class="text-white hover:text-amber-200 text-3xl font-light transition-colors" id="closeHelpBtn">&times;</button>
+          </div>
 
-        <div class="modal-body">
-          <div class="help-content">
-            <div class="help-section">
-              <h3>🎯 Spielziel</h3>
-              <p>
+          <div class="p-6 text-white space-y-6">
+            <div class="space-y-4">
+              <h3 class="text-xl font-bold text-amber-200">🎯 Spielziel</h3>
+              <p class="text-white/90 leading-relaxed">
                 Platziere fünf deiner Steine in einer geraden Linie (horizontal, vertikal oder diagonal) 
                 auf dem 15×15 Spielbrett, um zu gewinnen.
               </p>
             </div>
 
-            <div class="help-section">
-              <h3>🎮 Spielregeln</h3>
-              <ul>
-                <li><strong>Schwarz</strong> beginnt das Spiel</li>
-                <li>Abwechselnd setzen die Spieler ihre Steine auf freie Kreuzungspunkte</li>
-                <li>Gewonnen hat, wer zuerst 5 Steine in einer Reihe hat</li>
-                <li>Reihen können horizontal, vertikal oder diagonal verlaufen</li>
-                <li>Gesetzte Steine können nicht mehr bewegt werden</li>
+            <div class="space-y-4">
+              <h3 class="text-xl font-bold text-amber-200">🎮 Spielregeln</h3>
+              <ul class="text-white/90 space-y-2">
+                <li>• <strong>Schwarz</strong> beginnt das Spiel</li>
+                <li>• Abwechselnd setzen die Spieler ihre Steine auf freie Kreuzungspunkte</li>
+                <li>• Gewonnen hat, wer zuerst 5 Steine in einer Reihe hat</li>
+                <li>• Reihen können horizontal, vertikal oder diagonal verlaufen</li>
+                <li>• Gesetzte Steine können nicht mehr bewegt werden</li>
               </ul>
             </div>
 
-            <div class="help-section">
-              <h3>⌨️ Tastenkombinationen</h3>
-              <ul>
-                <li><kbd>F1</kbd> - Diese Hilfe öffnen/schließen</li>
-                <li><kbd>F2</kbd> - Spielerhilfen öffnen/schließen</li>
-                <li><kbd>N</kbd> - Neues Spiel starten</li>
-                <li><kbd>U</kbd> - Letzten Zug rückgängig machen</li>
-                <li><kbd>Strg+Z</kbd> - Letzten Zug rückgängig machen</li>
-                <li><kbd>1-9</kbd> - Spalte 1-9 fokussieren</li>
-                <li><kbd>0</kbd> - Spalte 10 fokussieren</li>
-                <li><kbd>Q-T</kbd> - Spalten 11-15 fokussieren</li>
+            <div class="space-y-4">
+              <h3 class="text-xl font-bold text-amber-200">⌨️ Tastenkombinationen</h3>
+              <ul class="text-white/90 space-y-2">
+                <li>• <kbd class="px-2 py-1 bg-white/20 rounded text-sm">F1</kbd> - Diese Hilfe öffnen/schließen</li>
+                <li>• <kbd class="px-2 py-1 bg-white/20 rounded text-sm">F2</kbd> - Spielerhilfen öffnen/schließen</li>
+                <li>• <kbd class="px-2 py-1 bg-white/20 rounded text-sm">N</kbd> - Neues Spiel starten</li>
+                <li>• <kbd class="px-2 py-1 bg-white/20 rounded text-sm">U</kbd> - Letzten Zug rückgängig machen</li>
+                <li>• <kbd class="px-2 py-1 bg-white/20 rounded text-sm">Strg+Z</kbd> - Letzten Zug rückgängig machen</li>
               </ul>
             </div>
 
-            <div class="help-section">
-              <h3>💡 Strategietipps</h3>
-              <ul>
-                <li>Kontrolliere das Zentrum des Brettes</li>
-                <li>Erstelle mehrere Bedrohungen gleichzeitig</li>
-                <li>Blockiere gegnerische Dreier-Reihen</li>
-                <li>Nutze die Spielerhilfen zum Lernen</li>
+            <div class="space-y-4">
+              <h3 class="text-xl font-bold text-amber-200">💡 Strategietipps</h3>
+              <ul class="text-white/90 space-y-2">
+                <li>• Kontrolliere das Zentrum des Brettes</li>
+                <li>• Erstelle mehrere Bedrohungen gleichzeitig</li>
+                <li>• Blockiere gegnerische Dreier-Reihen</li>
+                <li>• Nutze die Spielerhilfen zum Lernen</li>
               </ul>
             </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button class="btn btn-primary" id="closeHelpFooterBtn">Verstanden</button>
+          <div class="flex justify-end p-6 border-t border-white/20">
+            <button class="glass glass-hover rounded-xl px-6 py-3 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="closeHelpFooterBtn">Verstanden</button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Assistance Modal -->
-    <div class="modal-overlay" id="assistanceModal">
-      <div class="modal assistance-modal">
-        <div class="modal-header">
-          <h2>💡 Spielerhilfen</h2>
-          <button class="modal-close" id="closeAssistanceBtn">&times;</button>
-        </div>
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 transition-all duration-300" id="assistanceModal">
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="glass rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+          <div class="flex justify-between items-center p-6 border-b border-white/20">
+            <h2 class="text-2xl font-bold text-white">💡 Spielerhilfen</h2>
+            <button class="text-white hover:text-amber-200 text-3xl font-light transition-colors" id="closeAssistanceBtn">&times;</button>
+          </div>
 
-        <div class="modal-body">
-          <div class="assistance-content">
-            <div class="assistance-section">
-              <h3>⚫ Spieler 1 (Schwarz)</h3>
-              <div class="assistance-options">
-                <label class="assistance-option">
-                  <input type="checkbox" id="player1-threats" class="assist-checkbox" data-assist="threats">
-                  <span class="option-label">🚨 Bedrohungen anzeigen</span>
-                  <span class="option-description">Zeigt Positionen, wo der Gegner gewinnen könnte</span>
-                </label>
-                
-                <label class="assistance-option">
-                  <input type="checkbox" id="player1-winning-moves" class="assist-checkbox" data-assist="winning-moves">
-                  <span class="option-label">🏆 Gewinnzüge anzeigen</span>
-                  <span class="option-description">Zeigt Positionen für sofortige Siege</span>
-                </label>
-                
-                <label class="assistance-option">
-                  <input type="checkbox" id="player1-blocked-positions" class="assist-checkbox" data-assist="blocked-positions">
-                  <span class="option-label">🚫 Blockierte Positionen</span>
-                  <span class="option-description">Zeigt ungünstige oder blockierte Züge</span>
-                </label>
-                
-                <label class="assistance-option">
-                  <input type="checkbox" id="player1-undo" class="assist-checkbox" data-assist="undo">
-                  <span class="option-label">↩️ Rückgängig erlauben</span>
-                  <span class="option-description">Erlaubt das Rückgängigmachen von Zügen</span>
-                </label>
+          <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-8">
+              <!-- Player 1 Section -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-white">⚫ Spieler 1 (Schwarz)</h3>
+                <div class="space-y-3">
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player1-threats" class="assist-checkbox mt-1" data-assist="threats">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">🚨 Bedrohungen anzeigen</div>
+                      <div class="text-white/70 text-sm">Zeigt Positionen, wo der Gegner gewinnen könnte</div>
+                    </div>
+                  </label>
+                  
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player1-winning-moves" class="assist-checkbox mt-1" data-assist="winning-moves">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">🏆 Gewinnzüge anzeigen</div>
+                      <div class="text-white/70 text-sm">Zeigt Positionen für sofortige Siege</div>
+                    </div>
+                  </label>
+                  
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player1-blocked-positions" class="assist-checkbox mt-1" data-assist="blocked-positions">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">🚫 Blockierte Positionen</div>
+                      <div class="text-white/70 text-sm">Zeigt ungünstige oder blockierte Züge</div>
+                    </div>
+                  </label>
+                  
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player1-undo" class="assist-checkbox mt-1" data-assist="undo">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">↩️ Rückgängig erlauben</div>
+                      <div class="text-white/70 text-sm">Erlaubt das Rückgängigmachen von Zügen</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Player 2 Section -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-white">⚪ Spieler 2 (Weiß)</h3>
+                <div class="space-y-3">
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player2-threats" class="assist-checkbox mt-1" data-assist="threats">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">🚨 Bedrohungen anzeigen</div>
+                      <div class="text-white/70 text-sm">Zeigt Positionen, wo der Gegner gewinnen könnte</div>
+                    </div>
+                  </label>
+                  
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player2-winning-moves" class="assist-checkbox mt-1" data-assist="winning-moves">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">🏆 Gewinnzüge anzeigen</div>
+                      <div class="text-white/70 text-sm">Zeigt Positionen für sofortige Siege</div>
+                    </div>
+                  </label>
+                  
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player2-blocked-positions" class="assist-checkbox mt-1" data-assist="blocked-positions">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">🚫 Blockierte Positionen</div>
+                      <div class="text-white/70 text-sm">Zeigt ungünstige oder blockierte Züge</div>
+                    </div>
+                  </label>
+                  
+                  <label class="flex items-start gap-3 p-3 glass rounded-lg cursor-pointer hover:bg-white/10 transition-colors">
+                    <input type="checkbox" id="player2-undo" class="assist-checkbox mt-1" data-assist="undo">
+                    <div class="flex-1">
+                      <div class="text-white font-medium">↩️ Rückgängig erlauben</div>
+                      <div class="text-white/70 text-sm">Erlaubt das Rückgängigmachen von Zügen</div>
+                    </div>
+                  </label>
+                </div>
               </div>
             </div>
 
-            <div class="assistance-section">
-              <h3>⚪ Spieler 2 (Weiß)</h3>
-              <div class="assistance-options">
-                <label class="assistance-option">
-                  <input type="checkbox" id="player2-threats" class="assist-checkbox" data-assist="threats">
-                  <span class="option-label">🚨 Bedrohungen anzeigen</span>
-                  <span class="option-description">Zeigt Positionen, wo der Gegner gewinnen könnte</span>
-                </label>
-                
-                <label class="assistance-option">
-                  <input type="checkbox" id="player2-winning-moves" class="assist-checkbox" data-assist="winning-moves">
-                  <span class="option-label">🏆 Gewinnzüge anzeigen</span>
-                  <span class="option-description">Zeigt Positionen für sofortige Siege</span>
-                </label>
-                
-                <label class="assistance-option">
-                  <input type="checkbox" id="player2-blocked-positions" class="assist-checkbox" data-assist="blocked-positions">
-                  <span class="option-label">🚫 Blockierte Positionen</span>
-                  <span class="option-description">Zeigt ungünstige oder blockierte Züge</span>
-                </label>
-                
-                <label class="assistance-option">
-                  <input type="checkbox" id="player2-undo" class="assist-checkbox" data-assist="undo">
-                  <span class="option-label">↩️ Rückgängig erlauben</span>
-                  <span class="option-description">Erlaubt das Rückgängigmachen von Zügen</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="assistance-info">
-              <p><strong>Hinweis:</strong> Die Spielerhilfen sind Lernwerkzeuge. Für ein authentisches Spielerlebnis können sie ausgeschaltet werden.</p>
+            <div class="mt-8 p-4 glass rounded-lg">
+              <p class="text-white/80 text-center"><strong>Hinweis:</strong> Die Spielerhilfen sind Lernwerkzeuge. Für ein authentisches Spielerlebnis können sie ausgeschaltet werden.</p>
             </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button class="btn btn-secondary" id="resetAssistanceBtn">Zurücksetzen</button>
-          <button class="btn btn-primary" id="closeAssistanceFooterBtn">Speichern</button>
+          <div class="flex justify-between p-6 border-t border-white/20">
+            <button class="glass glass-hover rounded-xl px-6 py-3 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="resetAssistanceBtn">Zurücksetzen</button>
+            <button class="glass glass-hover rounded-xl px-6 py-3 text-white font-semibold transition-all hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-white/20" id="closeAssistanceFooterBtn">Speichern</button>
+          </div>
         </div>
       </div>
     </div>

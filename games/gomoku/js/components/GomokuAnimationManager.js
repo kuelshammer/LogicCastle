@@ -2,12 +2,16 @@
  * GomokuAnimationManager - Gomoku Animation & Visual Effects
  * 
  * Adapted from Connect4 AnimationManager for Gomoku gameplay.
- * Handles all visual animations and celebratory effects.
+ * Implements Connect4 Goldstandard 3-Phase Victory Sequence:
+ * Phase 1 (1000ms): Winning line highlight with stagger
+ * Phase 2 (3000ms): Confetti explosion from winning stones
+ * Phase 3 (Auto-Reset): Board clearing + new game trigger
  * 
  * Features:
  * - Stone placement animations
- * - Winning line animations
- * - Confetti and celebration effects
+ * - 3-Phase victory sequence with premium effects
+ * - Particle engine integration
+ * - Sound manager integration
  * - Smooth transitions and visual feedback
  */
 
@@ -18,15 +22,86 @@ export class GomokuAnimationManager {
         // Animation configuration
         this.animationDuration = 300;
         this.particleCount = 150;
-        this.confettiDuration = 4000;
+        this.confettiDuration = 3000;
+        
+        // Victory sequence timing (Connect4 Pattern)
+        this.victoryTiming = {
+            phase1Duration: 1000,  // Highlight phase
+            phase2Duration: 3000,  // Confetti phase
+            phase3Delay: 2000      // Auto-reset delay
+        };
         
         // Active animations for cleanup
         this.activeAnimations = new Set();
         this.activeTimeouts = new Set();
         
-        // Particle engine state
+        // Premium effects engines
         this.particleEngine = null;
+        this.soundManager = null;
         this.isAnimating = false;
+        
+        // Victory sequence state
+        this.victorySequenceActive = false;
+        this.currentPhase = null;
+        
+        // Initialize premium effects
+        this.initializePremiumEffects();
+    }
+
+    /**
+     * Initialize premium effects systems
+     * @private
+     */
+    async initializePremiumEffects() {
+        try {
+            // Initialize particle engine
+            await this.initializeParticleEngine();
+            
+            // Initialize sound manager
+            await this.initializeSoundManager();
+            
+            console.log('✨ GomokuAnimationManager premium effects initialized');
+        } catch (error) {
+            console.warn('⚠️ Premium effects initialization failed:', error.message);
+        }
+    }
+
+    /**
+     * Initialize particle engine for confetti effects
+     * @private
+     */
+    async initializeParticleEngine() {
+        try {
+            const { GomokuParticleEngine } = await import('./GomokuParticleEngine.js');
+            
+            // Create canvas for particles
+            let canvas = document.getElementById('gomokuParticleCanvas');
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+                canvas.id = 'gomokuParticleCanvas';
+                document.body.appendChild(canvas);
+            }
+            
+            this.particleEngine = new GomokuParticleEngine(canvas);
+            console.log('🎊 GomokuParticleEngine initialized');
+        } catch (error) {
+            console.warn('⚠️ Failed to initialize particle engine:', error.message);
+        }
+    }
+
+    /**
+     * Initialize sound manager for audio effects
+     * @private
+     */
+    async initializeSoundManager() {
+        try {
+            const { GomokuSoundManager } = await import('./GomokuSoundManager.js');
+            
+            this.soundManager = new GomokuSoundManager();
+            console.log('🔊 GomokuSoundManager initialized');
+        } catch (error) {
+            console.warn('⚠️ Failed to initialize sound manager:', error.message);
+        }
     }
 
     /**
@@ -66,24 +141,121 @@ export class GomokuAnimationManager {
     }
 
     /**
-     * Show winning animation
+     * Start 3-Phase Victory Sequence (Connect4 Goldstandard Pattern)
+     * Phase 1: Winning line highlight with stagger animation
+     * Phase 2: Confetti explosion from winning stones  
+     * Phase 3: Auto-reset after delay
      */
-    showWinningAnimation(winner) {
-        console.log(`🏆 Showing winning animation for player ${winner}`);
-        
-        // Get winning line if available
-        if (this.game && this.game.getWinningLine) {
-            const winningLine = this.game.getWinningLine();
-            if (winningLine && winningLine.length > 0) {
-                this.highlightWinningLine(winningLine);
-            }
+    start3PhaseVictorySequence(winner, winningLine, gameInstance) {
+        if (this.victorySequenceActive) {
+            console.log('🏆 Victory sequence already active, skipping');
+            return;
         }
         
-        // Start confetti celebration
-        this.startConfettiCelebration(winner);
+        this.victorySequenceActive = true;
+        this.gameInstance = gameInstance;
         
-        // Show victory message animation
-        this.showVictoryMessage(winner);
+        console.log(`🏆 Starting 3-Phase Victory Sequence for player ${winner}`);
+        
+        // Play victory sound
+        if (this.soundManager) {
+            this.soundManager.playVictory();
+        }
+        
+        // PHASE 1: Winning line highlight (1000ms)
+        this.startPhase1(winningLine);
+        
+        // PHASE 2: Confetti explosion (3000ms) - starts after Phase 1
+        const phase2Timeout = setTimeout(() => {
+            this.startPhase2(winner, winningLine);
+            this.activeTimeouts.delete(phase2Timeout);
+        }, this.victoryTiming.phase1Duration);
+        this.activeTimeouts.add(phase2Timeout);
+        
+        // PHASE 3: Auto-reset - starts after Phase 2
+        const phase3Timeout = setTimeout(() => {
+            this.startPhase3();
+            this.activeTimeouts.delete(phase3Timeout);
+        }, this.victoryTiming.phase1Duration + this.victoryTiming.phase2Duration + this.victoryTiming.phase3Delay);
+        this.activeTimeouts.add(phase3Timeout);
+    }
+    
+    /**
+     * PHASE 1: Winning line highlight with stagger animation
+     * @private
+     */
+    startPhase1(winningLine) {
+        this.currentPhase = 'phase1';
+        console.log('🏆 PHASE 1: Highlighting winning line');
+        
+        if (!winningLine || winningLine.length === 0) {
+            console.warn('⚠️ No winning line provided for Phase 1');
+            return;
+        }
+        
+        // Highlight each stone in the winning line with stagger
+        winningLine.forEach((position, index) => {
+            const staggerDelay = index * 150; // 150ms stagger between stones
+            
+            const staggerTimeout = setTimeout(() => {
+                const intersection = this.boardRenderer.getIntersectionAt(position.row, position.col);
+                if (intersection) {
+                    intersection.classList.add('winning-stone');
+                    console.log(`🏆 Highlighted winning stone ${index + 1}/${winningLine.length} at (${position.row}, ${position.col})`);
+                }
+                this.activeTimeouts.delete(staggerTimeout);
+            }, staggerDelay);
+            
+            this.activeTimeouts.add(staggerTimeout);
+        });
+    }
+    
+    /**
+     * PHASE 2: Confetti explosion from winning stones
+     * @private
+     */
+    startPhase2(winner, winningLine) {
+        this.currentPhase = 'phase2';
+        console.log('🏆 PHASE 2: Confetti explosion');
+        
+        if (this.particleEngine && winningLine && winningLine.length > 0) {
+            this.particleEngine.createVictoryExplosion(winningLine, winner);
+        } else {
+            console.warn('⚠️ ParticleEngine not available or no winning line for confetti');
+        }
+    }
+    
+    /**
+     * PHASE 3: Auto-reset board and start new game
+     * @private
+     */
+    startPhase3() {
+        this.currentPhase = 'phase3';
+        console.log('🏆 PHASE 3: Auto-reset');
+        
+        // Clear all effects
+        this.clearAllEffects();
+        
+        // Trigger new game through game instance
+        if (this.gameInstance && typeof this.gameInstance.newGame === 'function') {
+            this.gameInstance.newGame();
+            console.log('🏆 Auto-reset: New game started');
+        } else {
+            console.warn('⚠️ Game instance not available for auto-reset');
+        }
+        
+        // Reset victory sequence state
+        this.victorySequenceActive = false;
+        this.currentPhase = null;
+        this.gameInstance = null;
+    }
+    
+    /**
+     * Legacy method for backward compatibility
+     */
+    showWinningAnimation(winner, winningLine, gameInstance) {
+        // Forward to new 3-phase system
+        this.start3PhaseVictorySequence(winner, winningLine, gameInstance);
     }
 
     /**
@@ -395,5 +567,86 @@ export class GomokuAnimationManager {
      */
     isAnimationActive() {
         return this.isAnimating || this.activeTimeouts.size > 0;
+    }
+
+    /**
+     * Clear all effects (animations, particles, sounds, highlights)
+     */
+    clearAllEffects() {
+        // Clear all timeouts
+        this.activeTimeouts.forEach(timeout => {
+            clearTimeout(timeout);
+        });
+        this.activeTimeouts.clear();
+        
+        // Clear particle effects
+        if (this.particleEngine) {
+            this.particleEngine.clear();
+        }
+        
+        // Clear all winning stone highlights
+        const gameBoard = document.getElementById('gameBoard');
+        if (gameBoard) {
+            const winningStones = gameBoard.querySelectorAll('.winning-stone');
+            winningStones.forEach(stone => {
+                stone.classList.remove('winning-stone');
+            });
+            
+            // Clear threat highlights
+            const threatHighlights = gameBoard.querySelectorAll('.threat-highlight');
+            threatHighlights.forEach(highlight => {
+                highlight.classList.remove('threat-highlight');
+            });
+        }
+        
+        // Clear victory overlays
+        const victoryOverlays = document.querySelectorAll('.victory-overlay');
+        victoryOverlays.forEach(overlay => {
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+        });
+        
+        // Reset animation state
+        this.isAnimating = false;
+        this.victorySequenceActive = false;
+        this.currentPhase = null;
+        
+        console.log('🧹 All effects cleared');
+    }
+    
+    /**
+     * Get current victory sequence status
+     */
+    getVictorySequenceStatus() {
+        return {
+            active: this.victorySequenceActive,
+            phase: this.currentPhase,
+            hasParticleEngine: !!this.particleEngine,
+            hasSoundManager: !!this.soundManager
+        };
+    }
+    
+    /**
+     * Cleanup resources
+     */
+    destroy() {
+        this.clearAllEffects();
+        
+        if (this.particleEngine) {
+            this.particleEngine.destroy();
+        }
+        
+        if (this.soundManager) {
+            this.soundManager.destroy();
+        }
+        
+        // Clear references
+        this.boardRenderer = null;
+        this.particleEngine = null;
+        this.soundManager = null;
+        this.gameInstance = null;
+        
+        console.log('🎬 GomokuAnimationManager destroyed');
     }
 }
