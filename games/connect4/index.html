@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v2.2-HORIZONTAL</title>
-    <meta name="cache-bust" content="2025-07-21-horizontal-fix">
-    <meta name="version" content="2.2-horizontal-layout">
+    <title>4 Gewinnt - LogicCastle - v2.3-PERFECT</title>
+    <meta name="cache-bust" content="2025-07-21-perfect-alignment">
+    <meta name="version" content="2.3-perfect-alignment">
     <!-- Minimal CSS fallback only -->
     <style>
       /* MINIMAL CSS - Only keyframes that Tailwind can't do */
@@ -452,7 +452,27 @@
         width: 100% !important;
         max-width: min(70vw, 560px) !important;
         margin: 0 auto !important;
-        padding: 12px !important;
+        padding: 8px !important; /* Reduced from 12px to 8px */
+      }
+
+      /* PERFECT COORDINATE BUTTON ALIGNMENT */
+      /* Ensure perfect text centering in coordinate buttons */
+      .coord {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        border-radius: 6px !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+      }
+
+      .coord:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        transform: scale(1.05) !important;
       }
 
       /* CRITICAL LAYOUT FIX - Missing Tailwind Classes */
@@ -807,7 +827,7 @@
       }
     </style>
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-version="2.2-horizontal" data-cache-bust="2025-07-21">
+  <body class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-version="2.3-perfect" data-cache-bust="2025-07-21">
     <!-- Background decoration -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
@@ -837,7 +857,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">v2.2-HORIZONTAL • Spalten-Layout-Fix • Cache-Bust</p>
+          <p class="text-lg md:text-xl text-white opacity-90">v2.3-PERFECT • Perfect Column Alignment • Optimal Spacing</p>
         </div>
       </header>
 
@@ -883,16 +903,16 @@
           <!-- Game Board Section (responsive width) -->
           <div class="xl:col-span-3 2xl:col-span-3">
             <div class="glass rounded-3xl p-8 shadow-2xl" data-current-player="1">
-              <!-- Column Coordinates Top - FORCE HORIZONTAL LAYOUT -->
-              <div class="max-w-2xl mx-auto mb-4">
-                <div class="grid grid-cols-7 gap-2 p-4 bg-black bg-opacity-20 rounded-lg" id="topCoords">
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">1</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">2</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">3</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">4</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">5</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">6</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">7</div>
+              <!-- Column Coordinates Top - PERFECT ALIGNMENT -->
+              <div class="max-w-2xl mx-auto mb-2">
+                <div class="grid grid-cols-7 gap-2 p-2 bg-black bg-opacity-20 rounded-lg" id="topCoords">
+                  <div class="coord text-white">1</div>
+                  <div class="coord text-white">2</div>
+                  <div class="coord text-white">3</div>
+                  <div class="coord text-white">4</div>
+                  <div class="coord text-white">5</div>
+                  <div class="coord text-white">6</div>
+                  <div class="coord text-white">7</div>
                 </div>
               </div>
               
@@ -907,16 +927,16 @@
                 </canvas>
               </div>
               
-              <!-- Column Coordinates Bottom - FORCE HORIZONTAL LAYOUT -->
-              <div class="max-w-2xl mx-auto mt-4">
-                <div class="grid grid-cols-7 gap-2 p-4 bg-black bg-opacity-20 rounded-lg" id="bottomCoords">
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">1</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">2</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">3</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">4</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">5</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">6</div>
-                  <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">7</div>
+              <!-- Column Coordinates Bottom - PERFECT ALIGNMENT -->
+              <div class="max-w-2xl mx-auto mt-2">
+                <div class="grid grid-cols-7 gap-2 p-2 bg-black bg-opacity-20 rounded-lg" id="bottomCoords">
+                  <div class="coord text-white">1</div>
+                  <div class="coord text-white">2</div>
+                  <div class="coord text-white">3</div>
+                  <div class="coord text-white">4</div>
+                  <div class="coord text-white">5</div>
+                  <div class="coord text-white">6</div>
+                  <div class="coord text-white">7</div>
                 </div>
               </div>
             </div>
