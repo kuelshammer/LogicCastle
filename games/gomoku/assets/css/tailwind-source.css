@@ -1,0 +1,168 @@
+/* Tailwind CSS Source - Gomoku Production Build */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* GLASSMORPHISM SYSTEM (Connect4 Pattern) */
+@layer components {
+  .glass {
+    backdrop-filter: blur(16px) saturate(180%) brightness(105%);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    will-change: backdrop-filter, transform;
+  }
+
+  .glass-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(20px) saturate(200%) brightness(110%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 16px 48px rgba(0, 0, 0, 0.15),
+      0 4px 12px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* KEYFRAMES for Victory Sequence */
+@keyframes confetti-fall {
+  0% { 
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes stone-place {
+  0% { 
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes victory-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+  }
+}
+
+@keyframes game-over-overlay {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes board-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ULTRA-HIGH SPECIFICITY for CSS conflicts (Connect4 Pattern) */
+@layer utilities {
+  #gameBoard .intersection .stone.black {
+    background: radial-gradient(circle at 30% 30%, #444, #000) !important;
+    border: 2px solid #222 !important;
+  }
+
+  #gameBoard .intersection .stone.white {
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd) !important;
+    border: 2px solid #ccc !important;
+  }
+
+  #gameBoard .intersection.winning-stone {
+    animation: victory-pulse 1s ease-in-out infinite !important;
+  }
+
+  #gameBoard .intersection.threat-highlight {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+
+  #gameBoard .intersection.assistance-highlight {
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5) !important;
+    background-color: rgba(34, 197, 94, 0.1) !important;
+  }
+
+  #gameBoard .intersection.keyboard-focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
+    border: 2px solid #3b82f6 !important;
+    z-index: 10 !important;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .glass-hover, .stone, .intersection {
+    animation: none !important;
+    transition: none !important;
+  }
+  .glass-hover:hover {
+    transform: none !important;
+  }
+  
+  /* Disable confetti animation for reduced motion */
+  .confetti-particle {
+    display: none !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  
+  .glass-hover:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+}
+
+/* Print styles */
+@media print {
+  .glass, .glass-hover {
+    background: white !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .confetti-particle {
+    display: none !important;
+  }
+}

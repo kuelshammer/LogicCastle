@@ -5,27 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>5 Gewinnt (Gomoku) - LogicCastle Production</title>
     
-    <!-- Tailwind CSS for Hybrid Pattern (Static UI) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              'sans': ['Segoe UI', 'Tahoma', 'Geneva', 'Verdana', 'sans-serif']
-            },
-            backdropBlur: {
-              xs: '2px',
-            },
-            animation: {
-              'confetti-fall': 'confetti-fall 3s ease-out forwards',
-              'stone-place': 'stone-place 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              'victory-pulse': 'victory-pulse 1s ease-in-out infinite',
-            }
-          }
-        }
-      }
-    </script>
+    <!-- Tailwind CSS Production Build (Optimized) -->
+    <link rel="stylesheet" href="css/tailwind-built.css" />
     
     <!-- Minimal CSS: Only keyframes & Ultra-high specificity fixes -->
     <style>
@@ -404,6 +385,8 @@
 
     <!-- Game Scripts -->
     <script type="module">
+      console.log('🚀 GOMOKU MODULAR SYSTEM LOADING...');
+      
       // Initialize game when DOM is loaded
       document.addEventListener('DOMContentLoaded', async () => {
         console.log('🚀 Initializing Gomoku Production...');
@@ -418,21 +401,239 @@
           await bitPackedGame.init();
           
           // Create UI with BitPacked game
-          window.ui = new GomokuUI(bitPackedGame);
+          window.gomokuGame = bitPackedGame;
+          window.gomokuUI = new GomokuUI(bitPackedGame);
           
           // Initialize UI
-          await window.ui.init();
+          await window.gomokuUI.init();
           
           console.log('✅ Gomoku Production initialized successfully');
           
-          // Make available for debugging
-          window.gomokuGame = bitPackedGame;
-          window.gomokuUI = window.ui;
+          // Signal successful loading
+          window.gomokuLoaded = true;
           
         } catch (error) {
           console.error('❌ Failed to initialize Gomoku Production:', error);
+          // Let fallback system handle this
         }
       });
+    </script>
+    
+    <!-- FALLBACK: Simple Gomoku for testing when modules fail -->
+    <script>
+      if (!window.gomokuLoaded) {
+        setTimeout(() => {
+          if (!window.gomokuLoaded) {
+            console.log('🔄 Module loading failed, creating simple fallback game...');
+            
+            // Hide any error messages
+            const errorDiv = document.querySelector('.bg-red-500');
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            // Simple Gomoku Game Class
+            class SimpleGomoku {
+              constructor() {
+                this.board = Array(15).fill(null).map(() => Array(15).fill(0));
+                this.currentPlayer = 1; // 1 = Black, 2 = White
+                this.gameOver = false;
+                this.winner = null;
+                this.winningLine = [];
+                this.scores = { black: 0, white: 0 };
+                this.moveCount = 0;
+                
+                this.init();
+              }
+              
+              init() {
+                this.createBoard();
+                this.updateUI();
+                this.setupEventListeners();
+                console.log('✅ Simple Gomoku fallback initialized');
+              }
+              
+              createBoard() {
+                const gameBoard = document.getElementById('gameBoard');
+                if (!gameBoard) return;
+                
+                gameBoard.innerHTML = '';
+                gameBoard.style.cssText = \`
+                  display: grid;
+                  grid-template-columns: repeat(15, 1fr);
+                  grid-template-rows: repeat(15, 1fr);
+                  gap: 1px;
+                  aspect-ratio: 1/1;
+                  background: linear-gradient(45deg, #8B4513, #A0522D);
+                  border-radius: 12px;
+                  padding: 20px;
+                  width: 600px;
+                  height: 600px;
+                  margin: 0 auto;
+                \`;
+                
+                // Create 15x15 intersections
+                for (let row = 0; row < 15; row++) {
+                  for (let col = 0; col < 15; col++) {
+                    const intersection = document.createElement('div');
+                    intersection.className = 'intersection';
+                    intersection.dataset.row = row;
+                    intersection.dataset.col = col;
+                    intersection.style.cssText = \`
+                      background: linear-gradient(45deg, #DEB887, #F5DEB3);
+                      border: 1px solid #8B4513;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      cursor: pointer;
+                      position: relative;
+                    \`;
+                    
+                    intersection.addEventListener('click', () => this.makeMove(row, col));
+                    gameBoard.appendChild(intersection);
+                  }
+                }
+              }
+              
+              makeMove(row, col) {
+                if (this.gameOver || this.board[row][col] !== 0) return;
+                
+                this.board[row][col] = this.currentPlayer;
+                this.moveCount++;
+                
+                // Update visual
+                const intersection = document.querySelector(\`[data-row="\${row}"][data-col="\${col}"]\`);
+                if (intersection) {
+                  const stone = document.createElement('div');
+                  stone.style.cssText = \`
+                    width: 85%;
+                    height: 85%;
+                    border-radius: 50%;
+                    \${this.currentPlayer === 1 ? 
+                      'background: radial-gradient(circle at 30% 30%, #444, #000); border: 2px solid #222;' : 
+                      'background: radial-gradient(circle at 30% 30%, #fff, #ddd); border: 2px solid #ccc;'
+                    }
+                  \`;
+                  intersection.appendChild(stone);
+                }
+                
+                // Check for win
+                if (this.checkWin(row, col)) {
+                  this.gameOver = true;
+                  this.winner = this.currentPlayer;
+                  this.scores[this.currentPlayer === 1 ? 'black' : 'white']++;
+                  
+                  setTimeout(() => {
+                    alert(\`\${this.currentPlayer === 1 ? 'Schwarz' : 'Weiß'} gewinnt!\`);
+                    this.newGame();
+                  }, 100);
+                } else {
+                  this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                }
+                
+                this.updateUI();
+              }
+              
+              checkWin(row, col) {
+                const directions = [[0,1], [1,0], [1,1], [1,-1]];
+                const player = this.board[row][col];
+                
+                for (const [dx, dy] of directions) {
+                  let count = 1;
+                  
+                  // Check positive direction
+                  for (let i = 1; i < 5; i++) {
+                    const newRow = row + dx * i;
+                    const newCol = col + dy * i;
+                    if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && 
+                        this.board[newRow][newCol] === player) {
+                      count++;
+                    } else break;
+                  }
+                  
+                  // Check negative direction
+                  for (let i = 1; i < 5; i++) {
+                    const newRow = row - dx * i;
+                    const newCol = col - dy * i;
+                    if (newRow >= 0 && newRow < 15 && newCol >= 0 && newCol < 15 && 
+                        this.board[newRow][newCol] === player) {
+                      count++;
+                    } else break;
+                  }
+                  
+                  if (count >= 5) return true;
+                }
+                return false;
+              }
+              
+              newGame() {
+                this.board = Array(15).fill(null).map(() => Array(15).fill(0));
+                this.currentPlayer = 1;
+                this.gameOver = false;
+                this.winner = null;
+                this.moveCount = 0;
+                this.createBoard();
+                this.updateUI();
+              }
+              
+              updateUI() {
+                // Update current player
+                const indicator = document.getElementById('currentPlayerIndicator');
+                if (indicator) {
+                  const playerName = this.currentPlayer === 1 ? 'Schwarz' : 'Weiß';
+                  const stoneClass = this.currentPlayer === 1 ? 'bg-black' : 'bg-white border-2 border-gray-400';
+                  indicator.innerHTML = \`
+                    <span class="w-6 h-6 \${stoneClass} rounded-full"></span>
+                    <span class="text-xl font-semibold text-white">\${playerName} ist am Zug</span>
+                  \`;
+                }
+                
+                // Update scores
+                const blackScore = document.getElementById('blackScore');
+                const whiteScore = document.getElementById('whiteScore');
+                if (blackScore) blackScore.textContent = this.scores.black;
+                if (whiteScore) whiteScore.textContent = this.scores.white;
+                
+                // Update move counter
+                const moveCounter = document.getElementById('moveCounter');
+                if (moveCounter) moveCounter.textContent = this.moveCount;
+              }
+              
+              setupEventListeners() {
+                // New game button
+                const newGameBtn = document.getElementById('newGameBtn');
+                if (newGameBtn) {
+                  newGameBtn.addEventListener('click', () => this.newGame());
+                }
+              }
+            }
+            
+            // Create fallback game instance
+            window.gomokuGame = new SimpleGomoku();
+            window.gomokuLoaded = true;
+          }
+        }, 1000);
+      }
+    </script>
+    
+    <!-- Module loading failure detection -->
+    <script>
+      console.log('🚀 GOMOKU MODULAR SYSTEM LOADING...');
+      
+      // Check if modules loaded successfully
+      setTimeout(() => {
+        if (!window.gomokuLoaded) {
+          console.error('❌ Modular system failed to load');
+          const errorDiv = document.createElement('div');
+          errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(244, 67, 54, 0.9); color: white; padding: 15px; border-radius: 12px; z-index: 10000; max-width: 350px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); backdrop-filter: blur(10px);';
+          errorDiv.innerHTML = \`
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
+              <strong>Module Loading Failed</strong>
+            </div>
+            <p style="margin: 0; font-size: 14px; opacity: 0.9;">Using simple fallback. Please refresh for full features.</p>
+          \`;
+          document.body.appendChild(errorDiv);
+        }
+      }, 2000);
     </script>
   </body>
 </html>

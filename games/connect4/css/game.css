@@ -261,24 +261,22 @@
   display: grid !important;
   grid-template-columns: repeat(7, 1fr) !important;
   gap: 8px !important;
-  /* Match board sizing exactly */
+  /* CRITICAL ALIGNMENT FIX: Match game-board dimensions exactly */
   width: 100% !important;
-  max-width: min(80vw, calc(70vh * 7 / 6)) !important;
-  max-height: min(70vh, calc(80vw * 6 / 7)) !important;
-  padding: 20px !important; /* CRITICAL FIX: Match gameBoard padding exactly (all sides) */
-  margin: 0.25rem auto !important; /* Center like board */
-  box-sizing: border-box !important;
+  max-width: 490px !important; /* Match .game-board max-width exactly */
+  padding: 20px !important; /* Match .game-board padding exactly */
+  margin: 0 auto !important; /* Perfect centering like .game-board */
+  box-sizing: border-box !important; /* Ensure consistent box model */
 }
 
 .board-coords.top {
-  width: 100%;
-  max-width: 490px;
   margin-top: 2.5rem !important; /* Increased space to prevent header overlap */
+  margin-bottom: 0.25rem !important; /* Small gap to board */
 }
 
 .board-coords.bottom {
-  width: 100%;
-  max-width: 490px;
+  margin-top: 0.25rem !important; /* Small gap from board */
+  margin-bottom: 0 !important;
 }
 
 .coord {
@@ -417,6 +415,7 @@
   max-width: 490px;
   aspect-ratio: 7/6;
   margin: 0 auto; /* Center the board */
+  box-sizing: border-box; /* CRITICAL: Match .board-coords box model */
 }
 
 .game-slot {
@@ -683,8 +682,9 @@
   }
   
   .board-coords {
-    max-width: 350px;
-    padding: 0 15px; /* Match board padding */
+    max-width: 350px !important; /* CRITICAL: Match .game-board exactly */
+    padding: 15px !important; /* CRITICAL: Match .game-board padding exactly (all sides) */
+    gap: 6px !important; /* CRITICAL: Match .game-board gap exactly */
   }
   
   .coord {
@@ -704,8 +704,9 @@
   }
   
   .board-coords {
-    max-width: 280px;
-    padding: 0 10px; /* Match board padding */
+    max-width: 280px !important; /* CRITICAL: Match .game-board exactly */
+    padding: 10px !important; /* CRITICAL: Match .game-board padding exactly (all sides) */
+    gap: 4px !important; /* CRITICAL: Match .game-board gap exactly */
   }
   
   .coord {
