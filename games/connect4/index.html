@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v2.4-DEBUG</title>
-    <meta name="cache-bust" content="2025-07-21-victory-debug">
-    <meta name="version" content="2.4-victory-debug">
+    <title>4 Gewinnt - LogicCastle - v2.5-FINAL</title>
+    <meta name="cache-bust" content="2025-07-21-final-fixes">
+    <meta name="version" content="2.5-final-fixes">
     <!-- Minimal CSS fallback only -->
     <style>
       /* MINIMAL CSS - Only keyframes that Tailwind can't do */
@@ -857,7 +857,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">v2.4-DEBUG • Victory Detection Debug • Konfetti Fix</p>
+          <p class="text-lg md:text-xl text-white opacity-90">v2.5-FINAL • Zero Gap Spacing • Enhanced Confetti System</p>
         </div>
       </header>
 
@@ -927,8 +927,8 @@
                 </canvas>
               </div>
               
-              <!-- Column Coordinates Bottom - ULTRA MINIMAL GAP -->
-              <div class="max-w-2xl mx-auto" style="margin-top: 4px;">
+              <!-- Column Coordinates Bottom - ZERO GAP -->
+              <div class="max-w-2xl mx-auto" style="margin-top: 0px;">
                 <div class="grid grid-cols-7 gap-2 p-2 bg-black bg-opacity-20 rounded-lg" id="bottomCoords">
                   <div class="coord text-white">1</div>
                   <div class="coord text-white">2</div>
@@ -1251,6 +1251,12 @@
                 console.log(\`❌ No win detected for player \${this.currentPlayer} at (\${row}, \${col})\`);
                 return false;
               }
+
+              // MANUAL CONFETTI TEST FUNCTION
+              testConfetti() {
+                console.log('🧪 MANUAL CONFETTI TEST TRIGGERED');
+                this.createConfetti('yellow');
+              }
               
               showWin(row, col) {
                 const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
@@ -1325,8 +1331,8 @@
                   width: 100vw !important;
                   height: 100vh !important;
                   pointer-events: none !important;
-                  z-index: 10000 !important;
-                  background: rgba(255, 0, 0, 0.1) !important;
+                  z-index: 99999 !important;
+                  background: rgba(255, 0, 0, 0.05) !important;
                 \`;
                 document.body.appendChild(confettiContainer);
                 console.log('🎊 Confetti container added to body');
@@ -1335,13 +1341,13 @@
                   ['#fde047', '#facc15', '#eab308', '#ca8a04'] : 
                   ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
                 
-                console.log('🎊 Creating 50 confetti particles...');
-                for (let i = 0; i < 50; i++) {
+                console.log('🎊 Creating 80 confetti particles...');
+                for (let i = 0; i < 80; i++) {
                   const confetti = document.createElement('div');
                   const startX = Math.random() * 100;
                   const delay = Math.random() * 500;
                   const duration = 2000 + Math.random() * 1000;
-                  const size = 8 + Math.random() * 8;
+                  const size = 10 + Math.random() * 12;
                   const color = colors[Math.floor(Math.random() * colors.length)];
                   
                   confetti.style.cssText = \`
@@ -1354,7 +1360,7 @@
                     position: absolute !important;
                     animation: confetti-fall \${duration}ms ease-out \${delay}ms forwards !important;
                     opacity: 0.9 !important;
-                    z-index: 10000 !important;
+                    z-index: 99999 !important;
                   \`;
                   
                   confettiContainer.appendChild(confetti);
