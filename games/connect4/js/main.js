@@ -535,11 +535,9 @@ class ModularConnect4Game extends BaseGameUI {
     setTimeout(() => {
       console.log(`🔄 PHASE 3: Victory sequence complete. Ready for new game!`);
       
-      // Reset game status to normal with Tailwind (only if game still over)
-      const gameStatus = document.getElementById('gameStatus');
-      if (gameStatus && this.gameOver) {
-        console.log(`🔄 PHASE 3: Game still over, keeping victory message`);
-      }
+      // AUTO-RESET: Start new game automatically after victory sequence
+      console.log(`🔄 PHASE 3: Auto-starting new game...`);
+      this.newGame();
       
       console.log(`✅ VICTORY SEQUENCE COMPLETE: Total time ${Date.now() - timestamp + 2000}ms`);
     }, 2000);
