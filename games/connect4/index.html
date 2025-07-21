@@ -1129,6 +1129,7 @@
                 this.winner = null;
                 this.winningLine = [];
                 this.scores = { yellow: 0, red: 0 };
+                this.processingMove = false;
                 
                 this.init();
               }
@@ -1164,10 +1165,20 @@
               makeMove(col) {
                 console.log(\`🎮 makeMove called: Player \${this.currentPlayer} to column \${col}\`);
                 console.log(\`🎮 makeMove: gameOver status = \${this.gameOver}\`);
+                
+                // CRITICAL FIX: Prevent moves during game over state
                 if (this.gameOver) {
                   console.log('❌ Game already over, move rejected');
                   return;
                 }
+                
+                // CRITICAL FIX: Prevent multiple simultaneous moves 
+                if (this.processingMove) {
+                  console.log('⏳ Move already in progress, ignoring');
+                  return;
+                }
+                
+                this.processingMove = true;
                 
                 // Find lowest empty row in column
                 let row = -1;
@@ -1199,11 +1210,13 @@
                 if (winResult) {
                   console.log('🏆 CALLING showWin()...');
                   this.showWin(row, col);
+                  // Note: processingMove stays true during victory sequence
                   return;
                 }
                 
-                // Switch player
+                // Switch player and reset processing flag
                 this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.processingMove = false;
                 this.updateUI();
               }
               
@@ -1390,6 +1403,7 @@
                 this.gameOver = false;
                 this.winner = null;
                 this.winningLine = [];
+                this.processingMove = false;
                 
                 // Clear board visually
                 document.querySelectorAll('.disc').forEach(disc => {
