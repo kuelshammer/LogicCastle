@@ -1,0 +1,527 @@
+/**
+ * Trio Modern CSS - Connect4 Goldstandard Enhanced Glassmorphism
+ * 
+ * PHASE 3: Premium Features CSS
+ * 
+ * Features:
+ * - Enhanced Glassmorphism Effects
+ * - 3-Phase Victory Animation System
+ * - Premium Cell Effects with Trio Color Themes
+ * - Responsive Grid Optimizations
+ * - Accessibility Support
+ * - Reduced Motion Compatibility
+ */
+
+/* ===== TRIO MODERN GLASSMORPHISM SYSTEM ===== */
+
+.trio-glass {
+    backdrop-filter: blur(16px) saturate(180%) brightness(105%);
+    background: linear-gradient(135deg, 
+        rgba(139, 69, 19, 0.15) 0%,
+        rgba(101, 67, 33, 0.12) 50%,
+        rgba(139, 69, 19, 0.1) 100%);
+    border: 1px solid rgba(139, 69, 19, 0.3);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    will-change: backdrop-filter, transform;
+}
+
+.trio-glass-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.trio-glass-hover:hover {
+    background: linear-gradient(135deg, 
+        rgba(139, 69, 19, 0.25) 0%,
+        rgba(101, 67, 33, 0.2) 50%,
+        rgba(139, 69, 19, 0.18) 100%);
+    backdrop-filter: blur(20px) saturate(200%) brightness(110%);
+    border: 1px solid rgba(139, 69, 19, 0.4);
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 0 20px rgba(139, 69, 19, 0.1);
+    transform: translateY(-1px);
+}
+
+.trio-glass-dark {
+    backdrop-filter: blur(16px) saturate(160%) brightness(85%);
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(139, 69, 19, 0.1) 50%,
+        rgba(0, 0, 0, 0.3) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ===== TRIO GAME BOARD - 7×7 GRID SYSTEM ===== */
+
+.trio-game-board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 8px;
+    
+    /* Board Dimensions */
+    aspect-ratio: 1;
+    max-width: min(70vw, 500px);
+    padding: 16px;
+    margin: 0 auto;
+    
+    /* Enhanced Glassmorphism */
+    backdrop-filter: blur(16px) saturate(150%);
+    background: linear-gradient(135deg, 
+        rgba(139, 69, 19, 0.2) 0%, 
+        rgba(101, 67, 33, 0.15) 50%, 
+        rgba(139, 69, 19, 0.18) 100%);
+    
+    /* Visual Polish */
+    border-radius: 20px;
+    border: 2px solid rgba(139, 69, 19, 0.3);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.25),
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    
+    /* Performance */
+    will-change: transform;
+}
+
+/* Board Inner Glow Effect */
+.trio-game-board::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    background: linear-gradient(135deg, 
+        rgba(139, 69, 19, 0.08) 0%, 
+        rgba(101, 67, 33, 0.1) 50%, 
+        rgba(139, 69, 19, 0.06) 100%);
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ===== TRIO CELL SYSTEM - NUMBER RANGES WITH COLORS ===== */
+
+.trio-cell {
+    /* Core Layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    min-width: 45px;
+    min-height: 45px;
+    
+    /* Typography */
+    font-family: 'SF Pro Display', system-ui, sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    
+    /* Base Styling */
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+    
+    /* Transition */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Default Glass Effect */
+    backdrop-filter: blur(8px) saturate(120%);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        inset 0 1px 4px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== TRIO NUMBER RANGE THEMES ===== */
+
+/* Range 1: Numbers 1-14 (Red Theme) */
+.trio-cell.range-1 {
+    background: linear-gradient(135deg, 
+        rgba(239, 68, 68, 0.2) 0%,
+        rgba(220, 38, 38, 0.15) 100%);
+    border: 2px solid rgba(239, 68, 68, 0.4);
+    color: #FCA5A5;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.trio-cell.range-1:hover {
+    background: linear-gradient(135deg, 
+        rgba(239, 68, 68, 0.3) 0%,
+        rgba(220, 38, 38, 0.25) 100%);
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.4);
+    transform: scale(1.05);
+}
+
+/* Range 2: Numbers 15-28 (Blue Theme) */
+.trio-cell.range-2 {
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.2) 0%,
+        rgba(37, 99, 235, 0.15) 100%);
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    color: #93C5FD;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.trio-cell.range-2:hover {
+    background: linear-gradient(135deg, 
+        rgba(59, 130, 246, 0.3) 0%,
+        rgba(37, 99, 235, 0.25) 100%);
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
+    transform: scale(1.05);
+}
+
+/* Range 3: Numbers 29-42 (Emerald Theme) */
+.trio-cell.range-3 {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.2) 0%,
+        rgba(5, 150, 105, 0.15) 100%);
+    border: 2px solid rgba(16, 185, 129, 0.4);
+    color: #6EE7B7;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.trio-cell.range-3:hover {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.3) 0%,
+        rgba(5, 150, 105, 0.25) 100%);
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+    transform: scale(1.05);
+}
+
+/* Range 4: Numbers 43-49 (Amber Theme) */
+.trio-cell.range-4 {
+    background: linear-gradient(135deg, 
+        rgba(245, 158, 11, 0.2) 0%,
+        rgba(217, 119, 6, 0.15) 100%);
+    border: 2px solid rgba(245, 158, 11, 0.4);
+    color: #FCD34D;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+.trio-cell.range-4:hover {
+    background: linear-gradient(135deg, 
+        rgba(245, 158, 11, 0.3) 0%,
+        rgba(217, 119, 6, 0.25) 100%);
+    border-color: rgba(245, 158, 11, 0.6);
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+    transform: scale(1.05);
+}
+
+/* ===== TRIO CELL STATE EFFECTS ===== */
+
+/* Selected State */
+.trio-cell.trio-selected {
+    background: linear-gradient(135deg, 
+        rgba(139, 69, 19, 0.4) 0%,
+        rgba(101, 67, 33, 0.3) 100%) !important;
+    border: 3px solid rgba(139, 69, 19, 0.7) !important;
+    color: #D2B48C !important;
+    transform: scale(1.1) !important;
+    box-shadow: 
+        0 0 20px rgba(139, 69, 19, 0.5) !important,
+        0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    z-index: 10;
+}
+
+/* Solution Highlight */
+.trio-cell.trio-solution {
+    background: linear-gradient(135deg, 
+        rgba(34, 197, 94, 0.4) 0%,
+        rgba(22, 163, 74, 0.3) 100%) !important;
+    border: 3px solid rgba(34, 197, 94, 0.8) !important;
+    color: #BBF7D0 !important;
+    transform: scale(1.15) !important;
+    box-shadow: 
+        0 0 24px rgba(34, 197, 94, 0.6) !important,
+        0 6px 20px rgba(0, 0, 0, 0.25) !important;
+    animation: trio-solution-pulse 2s ease-in-out infinite;
+    z-index: 15;
+}
+
+/* Invalid Trio Animation */
+.trio-cell.trio-invalid {
+    animation: trio-invalid-shake 0.6s ease-in-out;
+    background: linear-gradient(135deg, 
+        rgba(239, 68, 68, 0.4) 0%,
+        rgba(220, 38, 38, 0.3) 100%) !important;
+    border: 3px solid rgba(239, 68, 68, 0.8) !important;
+    color: #FECACA !important;
+}
+
+/* Victory Highlight */
+.trio-cell.trio-victory-highlight {
+    background: linear-gradient(135deg, 
+        rgba(251, 191, 36, 0.5) 0%,
+        rgba(245, 158, 11, 0.4) 100%) !important;
+    border: 3px solid rgba(251, 191, 36, 0.9) !important;
+    color: #FEF3C7 !important;
+    transform: scale(1.2) !important;
+    box-shadow: 
+        0 0 30px rgba(251, 191, 36, 0.7) !important,
+        0 8px 24px rgba(0, 0, 0, 0.3) !important;
+    animation: trio-victory-glow 1.5s ease-in-out infinite alternate;
+    z-index: 20;
+}
+
+/* Hint Highlight */
+.trio-cell.trio-hint-highlight {
+    background: linear-gradient(135deg, 
+        rgba(34, 197, 94, 0.3) 0%,
+        rgba(22, 163, 74, 0.2) 100%) !important;
+    border: 2px dashed rgba(34, 197, 94, 0.6) !important;
+    box-shadow: 
+        0 0 12px rgba(34, 197, 94, 0.4) !important,
+        0 4px 16px rgba(0, 0, 0, 0.15) !important;
+    animation: trio-hint-pulse 2s ease-in-out infinite;
+}
+
+/* ===== SELECTION RIPPLE EFFECT ===== */
+
+.trio-selection-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(139, 69, 19, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: trio-ripple 0.6s ease-out;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* ===== TRIO ANIMATIONS ===== */
+
+@keyframes trio-solution-pulse {
+    0%, 100% {
+        box-shadow: 
+            0 0 24px rgba(34, 197, 94, 0.6),
+            0 6px 20px rgba(0, 0, 0, 0.25);
+        transform: scale(1.15);
+    }
+    50% {
+        box-shadow: 
+            0 0 32px rgba(34, 197, 94, 0.8),
+            0 8px 24px rgba(0, 0, 0, 0.3);
+        transform: scale(1.18);
+    }
+}
+
+@keyframes trio-invalid-shake {
+    0%, 100% { transform: translateX(0) scale(1.1); }
+    20% { transform: translateX(-8px) scale(1.1); }
+    40% { transform: translateX(8px) scale(1.1); }
+    60% { transform: translateX(-4px) scale(1.1); }
+    80% { transform: translateX(4px) scale(1.1); }
+}
+
+@keyframes trio-victory-glow {
+    0% {
+        box-shadow: 
+            0 0 30px rgba(251, 191, 36, 0.7),
+            0 8px 24px rgba(0, 0, 0, 0.3);
+        transform: scale(1.2);
+    }
+    100% {
+        box-shadow: 
+            0 0 40px rgba(251, 191, 36, 0.9),
+            0 12px 32px rgba(0, 0, 0, 0.4);
+        transform: scale(1.25);
+    }
+}
+
+@keyframes trio-hint-pulse {
+    0%, 100% {
+        box-shadow: 
+            0 0 12px rgba(34, 197, 94, 0.4),
+            0 4px 16px rgba(0, 0, 0, 0.15);
+        opacity: 0.8;
+    }
+    50% {
+        box-shadow: 
+            0 0 20px rgba(34, 197, 94, 0.6),
+            0 6px 20px rgba(0, 0, 0, 0.2);
+        opacity: 1;
+    }
+}
+
+@keyframes trio-ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.8;
+    }
+    100% {
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+    }
+}
+
+/* ===== CONFETTI ANIMATIONS ===== */
+
+@keyframes trio-confetti-fall {
+    0% { 
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% { 
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile Portrait (320px-479px) */
+@media (max-width: 479px) {
+    .trio-game-board {
+        max-width: 320px;
+        padding: 12px;
+        gap: 6px;
+    }
+    
+    .trio-cell {
+        min-width: 35px;
+        min-height: 35px;
+        font-size: 0.875rem;
+        border-radius: 8px;
+    }
+}
+
+/* Mobile Landscape (480px-767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+    .trio-game-board {
+        max-width: 380px;
+        padding: 14px;
+        gap: 7px;
+    }
+    
+    .trio-cell {
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+}
+
+/* Tablet (768px-1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .trio-game-board {
+        max-width: 450px;
+        padding: 15px;
+        gap: 8px;
+    }
+    
+    .trio-cell {
+        min-width: 50px;
+        min-height: 50px;
+        font-size: 1rem;
+        border-radius: 11px;
+    }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+    .trio-game-board {
+        max-width: 500px;
+        padding: 16px;
+        gap: 8px;
+    }
+    
+    .trio-cell {
+        min-width: 55px;
+        min-height: 55px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+}
+
+/* ===== ACCESSIBILITY SUPPORT ===== */
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .trio-cell {
+        border-width: 3px;
+        font-weight: 700;
+    }
+    
+    .trio-cell.trio-selected {
+        border-width: 4px !important;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .trio-cell,
+    .trio-glass,
+    .trio-glass-hover {
+        transition: none;
+    }
+    
+    .trio-cell.trio-solution,
+    .trio-cell.trio-victory-highlight,
+    .trio-cell.trio-hint-highlight,
+    .trio-selection-ripple {
+        animation: none !important;
+    }
+    
+    .trio-glass-hover:hover {
+        transform: none;
+    }
+}
+
+/* Focus Indicators for Keyboard Navigation */
+.trio-cell:focus {
+    outline: 3px solid rgba(59, 130, 246, 0.8);
+    outline-offset: 2px;
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+/* GPU Acceleration for Smooth Animations */
+.trio-cell,
+.trio-glass,
+.trio-selection-ripple {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Optimize for 60fps Animations */
+@supports (will-change: transform) {
+    .trio-cell {
+        will-change: transform, box-shadow, background;
+    }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+
+@media (prefers-color-scheme: dark) {
+    .trio-glass {
+        background: linear-gradient(135deg, 
+            rgba(139, 69, 19, 0.2) 0%,
+            rgba(101, 67, 33, 0.15) 50%,
+            rgba(139, 69, 19, 0.18) 100%);
+    }
+    
+    .trio-cell {
+        color: rgba(255, 255, 255, 0.95);
+    }
+}
