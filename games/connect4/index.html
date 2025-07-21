@@ -927,8 +927,8 @@
                 </canvas>
               </div>
               
-              <!-- Column Coordinates Bottom - PERFECT ALIGNMENT -->
-              <div class="max-w-2xl mx-auto mt-2">
+              <!-- Column Coordinates Bottom - ULTRA MINIMAL GAP -->
+              <div class="max-w-2xl mx-auto" style="margin-top: 4px;">
                 <div class="grid grid-cols-7 gap-2 p-2 bg-black bg-opacity-20 rounded-lg" id="bottomCoords">
                   <div class="coord text-white">1</div>
                   <div class="coord text-white">2</div>
@@ -1279,6 +1279,7 @@
               
               showVictoryPhase2(winnerColor, winnerHex) {
                 console.log(\`🎆 PHASE 2: Creating confetti...\`);
+                console.log('🎆 Confetti system triggered! Winner:', winnerColor);
                 this.createConfetti(winnerColor);
               }
               
@@ -1299,6 +1300,7 @@
               }
               
               createConfetti(winnerColor) {
+                console.log('🎊 CREATING CONFETTI for', winnerColor);
                 const confettiContainer = document.createElement('div');
                 confettiContainer.id = 'confetti-container';
                 confettiContainer.style.cssText = \`
@@ -1309,13 +1311,16 @@
                   height: 100vh !important;
                   pointer-events: none !important;
                   z-index: 10000 !important;
+                  background: rgba(255, 0, 0, 0.1) !important;
                 \`;
                 document.body.appendChild(confettiContainer);
+                console.log('🎊 Confetti container added to body');
                 
                 const colors = winnerColor === 'yellow' ? 
                   ['#fde047', '#facc15', '#eab308', '#ca8a04'] : 
                   ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
                 
+                console.log('🎊 Creating 50 confetti particles...');
                 for (let i = 0; i < 50; i++) {
                   const confetti = document.createElement('div');
                   const startX = Math.random() * 100;
@@ -1338,6 +1343,7 @@
                   \`;
                   
                   confettiContainer.appendChild(confetti);
+                  if (i < 5) console.log(\`🎊 Confetti \${i}: \${color} at \${startX}%\`);
                 }
                 
                 setTimeout(() => {
