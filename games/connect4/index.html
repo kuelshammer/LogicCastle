@@ -442,6 +442,19 @@
         }
       }
       
+      /* CRITICAL HORIZONTAL LAYOUT ENFORCEMENT */
+      /* Force horizontal coordinates layout at ALL screen sizes */
+      #topCoords, #bottomCoords {
+        display: grid !important;
+        grid-template-columns: repeat(7, 1fr) !important;
+        grid-template-rows: 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+        max-width: min(70vw, 560px) !important;
+        margin: 0 auto !important;
+        padding: 12px !important;
+      }
+
       /* CRITICAL LAYOUT FIX - Missing Tailwind Classes */
       /* Production build is missing essential responsive utilities */
       
@@ -870,9 +883,9 @@
           <!-- Game Board Section (responsive width) -->
           <div class="xl:col-span-3 2xl:col-span-3">
             <div class="glass rounded-3xl p-8 shadow-2xl" data-current-player="1">
-              <!-- Column Coordinates Top -->
+              <!-- Column Coordinates Top - FORCE HORIZONTAL LAYOUT -->
               <div class="max-w-2xl mx-auto mb-4">
-                <div class="grid grid-cols-7 gap-2 p-4" id="topCoords">
+                <div class="grid grid-cols-7 gap-2 p-4 bg-black bg-opacity-20 rounded-lg" id="topCoords">
                   <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">1</div>
                   <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">2</div>
                   <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">3</div>
@@ -894,9 +907,9 @@
                 </canvas>
               </div>
               
-              <!-- Column Coordinates Bottom -->
+              <!-- Column Coordinates Bottom - FORCE HORIZONTAL LAYOUT -->
               <div class="max-w-2xl mx-auto mt-4">
-                <div class="grid grid-cols-7 gap-2 p-4" id="bottomCoords">
+                <div class="grid grid-cols-7 gap-2 p-4 bg-black bg-opacity-20 rounded-lg" id="bottomCoords">
                   <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">1</div>
                   <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">2</div>
                   <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">3</div>
