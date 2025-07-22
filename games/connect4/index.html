@@ -1362,16 +1362,15 @@
                 console.log('🎊 CREATING CONFETTI for', winnerColor);
                 const confettiContainer = document.createElement('div');
                 confettiContainer.id = 'confetti-container';
-                confettiContainer.style.cssText = \`
-                  position: fixed !important;
-                  top: 0 !important;
-                  left: 0 !important;
-                  width: 100vw !important;
-                  height: 100vh !important;
-                  pointer-events: none !important;
-                  z-index: 99999 !important;
-                  background: rgba(255, 0, 0, 0.05) !important;
-                \`;
+                confettiContainer.style.cssText = 
+                  'position: fixed !important;' +
+                  'top: 0 !important;' +
+                  'left: 0 !important;' +
+                  'width: 100vw !important;' +
+                  'height: 100vh !important;' +
+                  'pointer-events: none !important;' +
+                  'z-index: 99999 !important;' +
+                  'background: rgba(255, 0, 0, 0.05) !important;';
                 document.body.appendChild(confettiContainer);
                 console.log('🎊 Confetti container added to body');
                 
@@ -1388,21 +1387,20 @@
                   const size = 10 + Math.random() * 12;
                   const color = colors[Math.floor(Math.random() * colors.length)];
                   
-                  confetti.style.cssText = \`
-                    left: \${startX}% !important;
-                    top: -20px !important;
-                    width: \${size}px !important;
-                    height: \${size}px !important;
-                    background-color: \${color} !important;
-                    border-radius: 50% !important;
-                    position: absolute !important;
-                    animation: confetti-fall \${duration}ms ease-out \${delay}ms forwards !important;
-                    opacity: 0.9 !important;
-                    z-index: 99999 !important;
-                  \`;
+                  confetti.style.cssText = 
+                    'left: ' + startX + '% !important;' +
+                    'top: -20px !important;' +
+                    'width: ' + size + 'px !important;' +
+                    'height: ' + size + 'px !important;' +
+                    'background-color: ' + color + ' !important;' +
+                    'border-radius: 50% !important;' +
+                    'position: absolute !important;' +
+                    'animation: confetti-fall ' + duration + 'ms ease-out ' + delay + 'ms forwards !important;' +
+                    'opacity: 0.9 !important;' +
+                    'z-index: 99999 !important;';
                   
                   confettiContainer.appendChild(confetti);
-                  if (i < 5) console.log(\`🎊 Confetti \${i}: \${color} at \${startX}%\`);
+                  if (i < 5) console.log('🎊 Confetti ' + i + ': ' + color + ' at ' + startX + '%');
                 }
                 
                 setTimeout(() => {
