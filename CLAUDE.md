@@ -13,6 +13,7 @@
 - **⚡ Ultra-Fast Victory Sequence**: 3s Lightning-Fast 3-Phasen (2s max confetti + instant reset)
 - **🚀 Speed Optimized Confetti**: 12-20px/Frame fallend (4x ultra-schnell, 2s max)
 - **🔄 Auto-Reset Perfection**: Lightning flow Victory → Ultra-Fast Confetti → Instant Reset → New Game
+- **🎯 Smart Hover Preview**: Intelligente Drop-Position mit Player-spezifischen Farben (Gelb/Rot)
 - **🎨 Hybrid CSS Mastery**: Tailwind CSS + JavaScript Inline für dynamische Animation
 - **8 Modulare Komponenten**: BoardRenderer, InteractionHandler, AssistanceManager, AnimationManager, MemoryManager, SoundManager, ParticleEngine, GameState
 - **3-Layer Backend**: BitPacked Data Layer, Game Logic Layer, UI Layer
@@ -112,6 +113,32 @@ After v3.1:  Victory → 1s → Phase2 Confetti → 2s → Phase3 Reset = 3s TOT
 - **Solution**: Robustes Fallback-System mit inline JavaScript
 - **Architecture**: Primary Module → Fallback Detection → Simple Game Implementation
 - **Benefits**: 100% funktional auch bei Module-Loading Failures
+
+#### 🎯 **SMART HOVER PREVIEW SYSTEM**
+- **Problem**: Spieler sehen nur Hover auf aktueller Zelle, nicht wo Stein tatsächlich landen würde
+- **Solution**: Intelligente Drop-Position Preview mit Player-spezifischen Farben
+- **Implementation**:
+```javascript
+// Column Detection + Drop Position Logic
+setupColumnHover() {
+  for (let col = 0; col < 7; col++) {
+    const columnCells = document.querySelectorAll(`[data-col="${col}"]`);
+    columnCells.forEach(cell => {
+      cell.addEventListener('mouseenter', () => this.showDropPreview(col));
+      cell.addEventListener('mouseleave', () => this.hideDropPreview());
+    });
+  }
+}
+
+showDropPreview(col) {
+  const dropRow = this.findDropRow(col); // Exact landing position
+  if (dropRow === -1) return; // Column full
+  
+  disc.classList.add('drop-preview', `preview-player${this.currentPlayer}`);
+}
+```
+- **Visual Design**: Semi-transparent Player-Farben (Gelb/Rot), Soft Glow, Scale 0.95
+- **Benefits**: Strategische Planungshilfe + intuitive UX + Clean Cleanup
 
 ---
 

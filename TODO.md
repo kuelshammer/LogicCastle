@@ -2,11 +2,12 @@
 
 ## 🏆 CONNECT4: LIGHTNING-FAST GOLDSTANDARD ✅ (v3.1 - 2025-07-22)
 
-### ⚡ LIGHTNING-FAST ULTIMATE VICTORY - ALLE PROBLEME GELÖST:
+### ⚡ LIGHTNING-FAST ULTIMATE VICTORY + SMART UX - ALLE PROBLEME GELÖST:
 - **🎆 JavaScript Confetti Animation**: RequestAnimationFrame-based physics system (v3.1)
 - **⚡ Ultra-Fast Victory Sequence**: 3s Lightning-Fast 3-Phasen (v3.1-LIGHTNING-FAST)  
 - **🚀 Speed Optimized**: 4x schneller fallendes Konfetti (12-20px/Frame, 2s max)
 - **🔄 Auto-Reset Perfected**: Perfect 3s timing (1s Highlight + 2s Confetti + Reset)
+- **🎯 Smart Hover Preview**: Zeigt Drop-Position mit Player-spezifischen Farben (Gelb/Rot)
 - **✅ Complete Flow**: Victory → Ultra-Fast Confetti → Instant Auto-Reset → New Game
 - **🦀 Rust-WASM Integration**: Performance Backend mit JavaScript Fallback
 - **🎨 Hybrid CSS Mastery**: Tailwind + Inline CSS für dynamische Elemente
@@ -41,6 +42,17 @@ Solution:
 2. Detection: setTimeout check für window.game
 3. Fallback: Inline Simple Game Implementation
 ```
+
+#### 🎯 **SMART HOVER PREVIEW SYSTEM**
+```
+Problem: Spieler sehen nur Hover auf aktueller Zelle, nicht wo Stein tatsächlich landen würde
+Solution: 
+1. Column Detection: Hover über beliebige Zelle in Spalte
+2. Drop Position Logic: findDropRow() berechnet exakte Landing-Position  
+3. Player Colors: Semi-transparent Preview in Gelb/Rot je nach aktuellem Spieler
+4. Visual Feedback: Soft Glow + Scale 0.95 + smooth transitions
+```
+- **Benefits**: Strategische Planungshilfe + intuitive UX + Clean Cleanup
 
 ---
 
