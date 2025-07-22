@@ -505,270 +505,32 @@ class ModularConnect4Game extends BaseGameUI {
           }, 2000);
         });
     } else {
-      console.warn('⚠️ AnimationManager not available, using fallback');
-      // Fallback to old system
-      this.showWin(row, col);
+      console.warn('⚠️ AnimationManager not available, using simple fallback');
+      // Simple fallback: just reset after delay
+      setTimeout(() => {
+        this.resetGame();
+      }, 3000);
     }
   }
 
-  // OLD REDUNDANT SYSTEM: Will be removed in cleanup
-  showWin(row, col) {
-    const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
-    const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
-    const winnerHex = this.currentPlayer === 1 ? '#fde047' : '#ef4444';
+  // REDUNDANT METHODS REMOVED: Code-Drift eliminated, Goldstandard enforced
 
-    console.log(`🏆 ${winnerName} gewinnt! Starting 3-phase victory sequence...`);
-
-    // PHASE 1: Highlight winning line for 1 second (0-1000ms)
-    this.showVictoryPhase1(winnerColor, winnerName);
-
-    // PHASE 2: Confetti fireworks for 0.5 seconds (1000-1500ms)
-    setTimeout(() => {
-      this.showVictoryPhase2(winnerColor, winnerHex);
-    }, 1000);
-
-    // PHASE 3: Score update and clean transition (3000ms for ultra-fast timing)
-    setTimeout(() => {
-      this.showVictoryPhase3(winnerName, winnerColor);
-    }, 3000);
-  }
-
-  showVictoryPhase1(winnerColor, winnerName) {
-    console.log(`🎯 PHASE 1: Highlighting winning line for 1s... winnerColor=${winnerColor}, winnerName=${winnerName}`);
-    const timestamp = Date.now();
-
-    // Enhanced winning line animation with staggered appearance
-    if (this.winningLine) {
-      console.log(`🎯 PHASE 1: Animating ${this.winningLine.length} winning discs:`, this.winningLine);
-      
-      this.winningLine.forEach(([r, c], index) => {
-        setTimeout(() => {
-          const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-          if (cell) {
-            const disc = cell.querySelector('.disc');
-            if (disc) {
-              console.log(`🎯 PHASE 1: Highlighting disc at (${r},${c}) - disc found:`, disc.className);
-              
-              // Pure Tailwind victory animation
-              disc.classList.add(
-                'animate-pulse', 
-                'scale-125', 
-                'z-50',
-                'drop-shadow-2xl',
-                winnerColor === 'yellow' ? 'shadow-yellow-400' : 'shadow-red-400',
-                'transition-all',
-                'duration-500'
-              );
-              disc.style.filter = `drop-shadow(0 0 20px ${winnerColor === 'yellow' ? '#fde047' : '#ef4444'})`;
-            } else {
-              console.warn(`🎯 PHASE 1: No disc found at (${r},${c})`);
-            }
-          } else {
-            console.warn(`🎯 PHASE 1: No cell found at (${r},${c})`);
-          }
-        }, index * 150); // Staggered animation every 150ms
-      });
-    } else {
-      console.warn(`🎯 PHASE 1: No winning line found!`);
-    }
-
-    // Update game status with Tailwind classes
+  showDraw() {
     const gameStatus = document.getElementById('gameStatus');
     if (gameStatus) {
-      gameStatus.textContent = `${winnerName} gewinnt!`;
-      gameStatus.className = `font-bold text-2xl ${winnerColor === 'yellow' ? 'text-yellow-400' : 'text-red-400'} animate-bounce`;
-      console.log(`🎯 PHASE 1: Game status updated - ${winnerName} gewinnt!`);
+      gameStatus.textContent = 'Unentschieden!';
+      gameStatus.className = 'font-semibold text-gray-400';
     }
     
-    console.log(`🎯 PHASE 1: Setup complete, elapsed: ${Date.now() - timestamp}ms`);
-  }
-
-  showVictoryPhase2(winnerColor, winnerHex) {
-    console.log(`🎆 PHASE 2: Confetti fireworks for 0.5s... winnerColor=${winnerColor}`);
-    const timestamp = Date.now();
-
-    // Remove phase1 highlighting with Tailwind cleanup
-    const phase1Elements = document.querySelectorAll('.animate-pulse');
-    console.log(`🧹 PHASE 2: Cleaning ${phase1Elements.length} phase1 elements`);
-    
-    phase1Elements.forEach(disc => {
-      disc.classList.remove('animate-pulse', 'scale-125', 'z-50', 'drop-shadow-2xl', 'shadow-yellow-400', 'shadow-red-400', 'transition-all', 'duration-500');
-      disc.style.filter = '';
-    });
-
-    // Create CSS confetti with enhanced debugging
-    console.log(`🎆 PHASE 2: Creating Tailwind confetti with color=${winnerColor}`);
-    this.createTailwindConfetti(winnerColor);
-
-    // Create victory background with pure Tailwind
-    const victoryBg = document.createElement('div');
-    victoryBg.className = `fixed inset-0 pointer-events-none z-30 ${winnerColor === 'yellow' ? 'bg-gradient-to-br from-yellow-400/30 via-yellow-500/20 to-yellow-600/30' : 'bg-gradient-to-br from-red-400/30 via-red-500/20 to-red-600/30'} animate-pulse`;
-    victoryBg.id = 'victoryBackground';
-    document.body.appendChild(victoryBg);
-    
-    console.log(`🎆 PHASE 2: Victory background created, elapsed: ${Date.now() - timestamp}ms`);
-  }
-
-  showVictoryPhase3(winnerName, winnerColor) {
-    console.log(`✨ PHASE 3: Score update and clean transition... winnerName=${winnerName}, winnerColor=${winnerColor}`);
-    const timestamp = Date.now();
-
-    // Update score with Tailwind animation
-    this.updateScoreWithAnimation();
-
-    // Clean up all victory effects with logging
     setTimeout(() => {
-      console.log(`🧹 PHASE 3: Starting cleanup after 1s...`);
-      
-      // Remove all Tailwind victory classes
-      const victoryDiscs = document.querySelectorAll('.disc');
-      console.log(`🧹 PHASE 3: Cleaning ${victoryDiscs.length} discs...`);
-      
-      victoryDiscs.forEach(disc => {
-        disc.classList.remove('animate-pulse', 'scale-125', 'z-50', 'drop-shadow-2xl', 'shadow-yellow-400', 'shadow-red-400', 'transition-all', 'duration-500');
-        disc.style.filter = '';
-      });
-      
-      // Clean game status animation
-      const gameStatus = document.getElementById('gameStatus');
-      if (gameStatus) {
-        gameStatus.classList.remove('animate-bounce');
-        console.log(`🧹 PHASE 3: Game status animation cleared`);
-      }
-      
-      // Remove victory background
-      const victoryBg = document.getElementById('victoryBackground');
-      if (victoryBg) {
-        victoryBg.remove();
-        console.log(`🧹 PHASE 3: Victory background removed`);
-      }
-      
-      console.log(`🧹 PHASE 3: Cleanup complete, elapsed: ${Date.now() - timestamp + 1000}ms`);
-    }, 1000);
-
-    // Show ready state after 2 seconds
-    setTimeout(() => {
-      console.log(`🔄 PHASE 3: Victory sequence complete. Ready for new game!`);
-      
-      // AUTO-RESET: Start new game automatically after victory sequence
-      console.log(`🔄 PHASE 3: Auto-starting new game...`);
-      this.newGame();
-      
-      console.log(`✅ VICTORY SEQUENCE COMPLETE: Total time ${Date.now() - timestamp + 2000}ms`);
+      this.resetGame();
     }, 2000);
   }
 
-  createTailwindConfetti(winnerColor) {
-    console.log(`🎆 Creating confetti container...`);
-    
-    const confettiContainer = document.createElement('div');
-    confettiContainer.className = 'fixed inset-0 pointer-events-none z-[9999]';
-    confettiContainer.id = 'tailwind-confetti';
-    confettiContainer.style.cssText = `
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      z-index: 9999 !important;
-      pointer-events: none !important;
-    `;
-    document.body.appendChild(confettiContainer);
-    
-    console.log(`🎆 Confetti container created, now creating 150 ULTIMATE pieces...`);
 
-    // Create 150 ULTIMATE confetti pieces for maximum visibility
-    for (let i = 0; i < 150; i++) {
-      const confetti = document.createElement('div');
-      
-      // Enhanced random position and timing
-      const startX = Math.random() * 100;
-      const duration = 1500 + Math.random() * 500; // 1.5-2 seconds ultra-fast
-      const delay = Math.random() * 1000;
-      
-      // FIXED: Use inline CSS instead of Tailwind classes for dynamic confetti
-      const colorValues = winnerColor === 'yellow' ? [
-        '#fbbf24', '#f59e0b', '#f3f4f6', '#fbbf24', '#fb923c'
-      ] : [
-        '#f87171', '#ef4444', '#fca5a5', '#ec4899', '#f43f5e'
-      ];
-      
-      const randomColor = colorValues[Math.floor(Math.random() * colorValues.length)];
-      const sizes = [
-        {width: 20, height: 20}, 
-        {width: 25, height: 25}, 
-        {width: 15, height: 35}, 
-        {width: 35, height: 15}
-      ];
-      const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
-      
-      // ULTIMATE FIX: Force all properties with !important
-      confetti.className = '';
-      confetti.style.cssText = `
-        left: ${startX}% !important;
-        top: -20px !important;
-        width: ${randomSize.width}px !important;
-        height: ${randomSize.height}px !important;
-        background: linear-gradient(45deg, ${randomColor}, ${randomColor}80) !important;
-        border: 2px solid ${randomColor} !important;
-        border-radius: 50% !important;
-        box-shadow: 0 0 12px ${randomColor}80, 0 4px 8px rgba(0, 0, 0, 0.4) !important;
-        z-index: 10000 !important;
-        position: absolute !important;
-        animation: confetti-fall ${duration}ms linear ${delay}ms forwards !important;
-        opacity: 1 !important;
-        display: block !important;
-        pointer-events: none !important;
-        will-change: transform !important;
-      `;
-      
-      confettiContainer.appendChild(confetti);
-      
-      // Debug first 5 confetti pieces
-      if (i < 5) {
-        console.log(`🎊 ULTIMATE Confetti ${i}: ${randomColor} (${randomSize.width}x${randomSize.height}px) at ${startX}%, duration: ${duration}ms`);
-      }
-    }
 
-    console.log(`🎆 All 150 ULTIMATE confetti pieces created and animated!`);
 
-    // Extended cleanup for 8-second confetti animation
-    setTimeout(() => {
-      if (confettiContainer && confettiContainer.parentNode) {
-        confettiContainer.parentNode.removeChild(confettiContainer);
-        console.log(`🎆 ULTIMATE confetti cleanup complete after 10 seconds!`);
-      }
-    }, 10000);
-  }
 
-  updateScoreWithAnimation() {
-    // CRITICAL BUGFIX: Score bereits in updateScore() erhöht - nur Animation hier
-    console.log(`🎯 PHASE 3: Score animation for winner ${this.winner} - current scores:`, this.scores);
-    
-    if (this.winner === 1) {
-      this.animateScoreUpdate('yellowScore', 'yellowScore2xl');
-    } else if (this.winner === 2) {
-      this.animateScoreUpdate('redScore', 'redScore2xl');
-    }
-  }
-
-  animateScoreUpdate(scoreId, score2xlId) {
-    const scoreElement = document.getElementById(scoreId);
-    const score2xlElement = document.getElementById(score2xlId);
-    
-    [scoreElement, score2xlElement].forEach(el => {
-      if (el) {
-        // Tailwind bounce animation for score update
-        el.classList.add('animate-bounce', 'scale-125', 'text-2xl', 'font-bold');
-        el.textContent = this.winner === 1 ? this.scores.yellow : this.scores.red;
-        
-        // Remove animation after 1 second
-        setTimeout(() => {
-          el.classList.remove('animate-bounce', 'scale-125', 'text-2xl', 'font-bold');
-        }, 1000);
-      }
-    });
-  }
 
   showDraw() {
     const gameStatus = document.getElementById('gameStatus');
