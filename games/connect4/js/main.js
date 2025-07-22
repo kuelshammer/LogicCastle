@@ -1,5 +1,8 @@
 import { BaseGameUI } from './modules/core/BaseGameUI.js';
 import { BoardRenderer } from './components/BoardRenderer.js';
+import { AnimationManager } from './components/AnimationManager.js';
+import { ParticleEngine } from './components/ParticleEngine.js';
+import { SoundManager } from './components/SoundManager.js';
 import { Connect4GameBitPacked } from './game.js';
 import { createConnect4Config } from './connect4-config.js';
 
@@ -39,6 +42,7 @@ class ModularConnect4Game extends BaseGameUI {
 
     await super.init();
     this.initializeBoardRenderer();
+    this.initializeAnimationManager();
     this.createBoard();
     this.setupEventListeners();
     this.setupColumnHover();
@@ -58,6 +62,26 @@ class ModularConnect4Game extends BaseGameUI {
       console.log('🎯 BoardRenderer initialized');
     } else {
       console.error('❌ GameBoard element not found for BoardRenderer');
+    }
+  }
+
+  initializeAnimationManager() {
+    const gameBoard = document.getElementById('gameBoard');
+    const particleCanvas = document.getElementById('particleCanvas');
+    
+    if (gameBoard) {
+      // Initialize Goldstandard modules
+      this.soundManager = new SoundManager();
+      this.particleEngine = new ParticleEngine(particleCanvas);
+      this.animationManager = new AnimationManager(gameBoard, this.boardRenderer);
+      
+      // Connect the modules
+      this.animationManager.soundManager = this.soundManager;
+      this.animationManager.particleEngine = this.particleEngine;
+      
+      console.log('🎬 AnimationManager initialized with Goldstandard architecture');
+    } else {
+      console.error('❌ GameBoard element not found for AnimationManager');
     }
   }
 
@@ -300,7 +324,7 @@ class ModularConnect4Game extends BaseGameUI {
         if (moveResult.isGameOver) {
           const targetRow = this.findMoveRow(col, moveResult.board);
           if (moveResult.winner && targetRow !== -1) {
-            this.showWin(targetRow, col);
+            this.handleWin(targetRow, col);
             this.updateScore();
           } else {
             this.showDraw();
@@ -368,7 +392,7 @@ class ModularConnect4Game extends BaseGameUI {
     if (this.checkWin(targetRow, col)) {
       this.gameOver = true;
       this.winner = this.currentPlayer;
-      this.showWin(targetRow, col);
+      this.handleWin(targetRow, col);
       this.updateScore();
     } else if (this.moveCount === 42) {
       this.gameOver = true;
@@ -453,6 +477,41 @@ class ModularConnect4Game extends BaseGameUI {
     }
   }
 
+  // NEW GOLDSTANDARD: Use AnimationManager for victory sequence
+  handleWin(row, col) {
+    const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+    const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
+    
+    console.log(`🏆 ${winnerName} gewinnt! Using Goldstandard AnimationManager...`);
+    
+    // Convert winningLine format for AnimationManager
+    const winningPositions = this.winningLine.map(([row, col]) => ({ row, col }));
+    
+    if (this.animationManager) {
+      // Use Goldstandard AnimationManager with callback for reset
+      this.animationManager.triggerPremiumCelebration(winnerColor, winningPositions)
+        .then(() => {
+          console.log('🎬 Goldstandard victory sequence completed, starting new game');
+          // Auto-reset after victory sequence
+          setTimeout(() => {
+            this.resetGame();
+          }, 1000);
+        })
+        .catch(error => {
+          console.error('❌ AnimationManager error:', error);
+          // Fallback: reset immediately
+          setTimeout(() => {
+            this.resetGame();
+          }, 2000);
+        });
+    } else {
+      console.warn('⚠️ AnimationManager not available, using fallback');
+      // Fallback to old system
+      this.showWin(row, col);
+    }
+  }
+
+  // OLD REDUNDANT SYSTEM: Will be removed in cleanup
   showWin(row, col) {
     const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
     const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
