@@ -591,7 +591,7 @@ class ModularConnect4Game extends BaseGameUI {
       confetti.className = '';
       confetti.style.cssText = `
         left: ${startX}% !important;
-        top: -10px !important;
+        top: -20px !important;
         width: ${randomSize.width}px !important;
         height: ${randomSize.height}px !important;
         background: linear-gradient(45deg, ${randomColor}, ${randomColor}80) !important;
@@ -600,11 +600,11 @@ class ModularConnect4Game extends BaseGameUI {
         box-shadow: 0 0 12px ${randomColor}80, 0 4px 8px rgba(0, 0, 0, 0.4) !important;
         z-index: 10000 !important;
         position: absolute !important;
-        animation: confetti-fall ${duration}ms ease-in-out ${delay}ms forwards !important;
-        transform: rotate(${Math.random() * 360}deg) scale(1) !important;
+        animation: confetti-fall ${duration}ms linear ${delay}ms forwards !important;
         opacity: 1 !important;
         display: block !important;
         pointer-events: none !important;
+        will-change: transform !important;
       `;
       
       confettiContainer.appendChild(confetti);

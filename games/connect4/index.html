@@ -3,34 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v2.7-ULTIMATE-CONFETTI</title>
+    <title>4 Gewinnt - LogicCastle - v2.8-ANIMATION-FIXED</title>
     <meta name="cache-bust" content="2025-07-21-victory-detection-fix">
     <meta name="version" content="2.6-victory-detection-fix">
     <!-- Minimal CSS fallback only -->
     <style>
       /* MINIMAL CSS - Only keyframes that Tailwind can't do */
       
-      /* ULTIMATE CONFETTI FIX - Enhanced visibility and timing */
+      /* SIMPLIFIED CONFETTI ANIMATION - Maximum Browser Compatibility */
       @keyframes confetti-fall {
         0% { 
-          transform: translateY(-10px) rotate(0deg);
+          transform: translateY(-20px) rotate(0deg) translateZ(0);
           opacity: 1;
-          background-color: inherit !important;
-        }
-        25% {
-          transform: translateY(25vh) rotate(180deg);
-          opacity: 1;
-        }
-        50% {
-          transform: translateY(50vh) rotate(360deg);
-          opacity: 0.9;
-        }
-        75% {
-          transform: translateY(75vh) rotate(540deg);
-          opacity: 0.7;
         }
         100% { 
-          transform: translateY(110vh) rotate(720deg);
+          transform: translateY(calc(100vh + 50px)) rotate(360deg) translateZ(0);
           opacity: 0;
         }
       }
@@ -870,7 +857,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">v2.7-ULTIMATE-CONFETTI • 150 Particles • 8s Duration • 40px Size!</p>
+          <p class="text-lg md:text-xl text-white opacity-90">v2.8-ANIMATION-FIXED • Falling Confetti • 9s Auto-Reset • Transform Fix!</p>
         </div>
       </header>
 
@@ -1365,11 +1352,11 @@
                   disc.style.zIndex = '';
                 });
                 
-                // Auto-start new game after 4 seconds (allows confetti to finish)
+                // Auto-start new game after 9 seconds (allows 8s confetti to finish)
                 setTimeout(() => {
-                  console.log('✨ PHASE 3: Auto-starting new game after confetti celebration');
+                  console.log('✨ PHASE 3: Auto-starting new game after ULTIMATE confetti celebration');
                   this.newGame();
-                }, 4000);
+                }, 9000);
               }
               
               createConfetti(winnerColor) {
@@ -1404,19 +1391,19 @@
                   
                   confetti.style.cssText = 
                     'left: ' + startX + '% !important;' +
-                    'top: -10px !important;' +
+                    'top: -20px !important;' +
                     'width: ' + size + 'px !important;' +
                     'height: ' + size + 'px !important;' +
                     'background: linear-gradient(45deg, ' + color + ', ' + color + '80) !important;' +
                     'border: 2px solid ' + color + ' !important;' +
                     'border-radius: 50% !important;' +
                     'position: absolute !important;' +
-                    'animation: confetti-fall ' + duration + 'ms ease-in-out ' + delay + 'ms forwards !important;' +
+                    'animation: confetti-fall ' + duration + 'ms linear ' + delay + 'ms forwards !important;' +
                     'opacity: 1 !important;' +
                     'z-index: 999999 !important;' +
                     'box-shadow: 0 0 12px ' + color + '80, 0 4px 8px rgba(0,0,0,0.4) !important;' +
-                    'transform: scale(1) !important;' +
-                    'display: block !important;';
+                    'display: block !important;' +
+                    'will-change: transform !important;';
                   
                   confettiContainer.appendChild(confetti);
                   if (i < 5) console.log('🎊 Confetti ' + i + ': ' + color + ' at ' + startX + '%');
