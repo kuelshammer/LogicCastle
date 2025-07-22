@@ -412,10 +412,10 @@ class ModularConnect4Game extends BaseGameUI {
       this.showVictoryPhase2(winnerColor, winnerHex);
     }, 1000);
 
-    // PHASE 3: Score update and clean transition (1500ms+)
+    // PHASE 3: Score update and clean transition (3000ms for ultra-fast timing)
     setTimeout(() => {
       this.showVictoryPhase3(winnerName, winnerColor);
-    }, 1500);
+    }, 3000);
   }
 
   showVictoryPhase1(winnerColor, winnerName) {
@@ -568,7 +568,7 @@ class ModularConnect4Game extends BaseGameUI {
       
       // Enhanced random position and timing
       const startX = Math.random() * 100;
-      const duration = 5000 + Math.random() * 3000; // 5-8 seconds
+      const duration = 1500 + Math.random() * 500; // 1.5-2 seconds ultra-fast
       const delay = Math.random() * 1000;
       
       // FIXED: Use inline CSS instead of Tailwind classes for dynamic confetti

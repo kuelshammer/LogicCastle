@@ -1315,10 +1315,10 @@
                   this.showVictoryPhase2(winnerColor, winnerHex);
                 }, 1000);
 
-                // PHASE 3: Auto-Reset after confetti (optimized timing)
+                // PHASE 3: Auto-Reset after confetti (ultra-fast 2s timing)
                 setTimeout(() => {
                   this.showVictoryPhase3(winnerName, winnerColor);
-                }, 7000); // 7s total: 1s phase1 + 6s confetti time
+                }, 3000); // 3s total: 1s phase1 + 2s confetti time
               }
               
               showVictoryPhase1(winnerColor, winnerName) {
@@ -1383,7 +1383,7 @@
                   const confetti = document.createElement('div');
                   const startX = Math.random() * 100;
                   const delay = Math.random() * 1000;
-                  const duration = 5000 + Math.random() * 3000; // 5-8 seconds for maximum visibility
+                  const duration = 1500 + Math.random() * 500; // 1.5-2 seconds ultra-fast
                   const size = 20 + Math.random() * 20; // 20-40px for enhanced visibility
                   const color = colors[Math.floor(Math.random() * colors.length)];
                   
@@ -1410,7 +1410,7 @@
                   confetti.animData = {
                     startX: parseFloat(startX),
                     y: -20,
-                    fallSpeed: 6 + Math.random() * 6,
+                    fallSpeed: 12 + Math.random() * 8,
                     rotation: Math.random() * 360,
                     rotationSpeed: (Math.random() - 0.5) * 8,
                     drift: (Math.random() - 0.5) * 2,
@@ -1469,14 +1469,14 @@
                 // Start animation
                 animationId = requestAnimationFrame(animateConfetti);
                 
-                // Failsafe cleanup (reduced for faster reset)
+                // Failsafe cleanup (ultra-fast 3s timing)
                 setTimeout(() => {
                   if (animationId) cancelAnimationFrame(animationId);
                   if (confettiContainer.parentNode) {
                     confettiContainer.parentNode.removeChild(confettiContainer);
-                    console.log('🧹 Failsafe confetti cleanup after 8s');
+                    console.log('🧹 Failsafe confetti cleanup after 3s');
                   }
-                }, 8000);
+                }, 3000);
               }
               
               newGame() {
