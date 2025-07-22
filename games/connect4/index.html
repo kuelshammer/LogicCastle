@@ -1310,15 +1310,15 @@
                 // PHASE 1: Highlight winning line for 1 second
                 this.showVictoryPhase1(winnerColor, winnerName);
 
-                // PHASE 2: Confetti fireworks for 0.5 seconds  
+                // PHASE 2: Confetti fireworks for 3 seconds  
                 setTimeout(() => {
                   this.showVictoryPhase2(winnerColor, winnerHex);
                 }, 1000);
 
-                // PHASE 3: Score update and clean transition
+                // PHASE 3: Score update and clean transition (extended timing for confetti visibility)
                 setTimeout(() => {
                   this.showVictoryPhase3(winnerName, winnerColor);
-                }, 1500);
+                }, 4500);
               }
               
               showVictoryPhase1(winnerColor, winnerName) {
@@ -1352,10 +1352,11 @@
                   disc.style.zIndex = '';
                 });
                 
-                // Auto-start new game after 2 seconds
+                // Auto-start new game after 4 seconds (allows confetti to finish)
                 setTimeout(() => {
+                  console.log('✨ PHASE 3: Auto-starting new game after confetti celebration');
                   this.newGame();
-                }, 2000);
+                }, 4000);
               }
               
               createConfetti(winnerColor) {
@@ -1369,8 +1370,9 @@
                   'width: 100vw !important;' +
                   'height: 100vh !important;' +
                   'pointer-events: none !important;' +
-                  'z-index: 99999 !important;' +
-                  'background: rgba(255, 0, 0, 0.05) !important;';
+                  'z-index: 999999 !important;' +
+                  'background: rgba(255, 215, 0, 0.1) !important;' + // Golden debug background
+                  'border: 3px solid rgba(255, 215, 0, 0.3) !important;';
                 document.body.appendChild(confettiContainer);
                 console.log('🎊 Confetti container added to body');
                 
@@ -1378,13 +1380,13 @@
                   ['#fde047', '#facc15', '#eab308', '#ca8a04'] : 
                   ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
                 
-                console.log('🎊 Creating 80 confetti particles...');
-                for (let i = 0; i < 80; i++) {
+                console.log('🎊 Creating 100 ENHANCED confetti particles...');
+                for (let i = 0; i < 100; i++) {
                   const confetti = document.createElement('div');
                   const startX = Math.random() * 100;
-                  const delay = Math.random() * 500;
-                  const duration = 2000 + Math.random() * 1000;
-                  const size = 10 + Math.random() * 12;
+                  const delay = Math.random() * 800;
+                  const duration = 3000 + Math.random() * 2000; // 3-5 seconds instead of 2-3
+                  const size = 15 + Math.random() * 15; // 15-30px instead of 10-22px
                   const color = colors[Math.floor(Math.random() * colors.length)];
                   
                   confetti.style.cssText = 
@@ -1396,18 +1398,21 @@
                     'border-radius: 50% !important;' +
                     'position: absolute !important;' +
                     'animation: confetti-fall ' + duration + 'ms ease-out ' + delay + 'ms forwards !important;' +
-                    'opacity: 0.9 !important;' +
-                    'z-index: 99999 !important;';
+                    'opacity: 1 !important;' +
+                    'z-index: 999999 !important;' +
+                    'box-shadow: 0 0 8px rgba(0,0,0,0.3) !important;';
                   
                   confettiContainer.appendChild(confetti);
                   if (i < 5) console.log('🎊 Confetti ' + i + ': ' + color + ' at ' + startX + '%');
                 }
                 
+                // Extended cleanup time to match longer victory sequence
                 setTimeout(() => {
+                  console.log('🧹 Cleaning up confetti container');
                   if (confettiContainer.parentNode) {
                     confettiContainer.parentNode.removeChild(confettiContainer);
                   }
-                }, 3000);
+                }, 6000); // 6 seconds cleanup instead of 3
               }
               
               newGame() {
