@@ -497,6 +497,28 @@
         gap: 0.5rem; /* 8px */
       }
       
+      /* SMART HOVER PREVIEW SYSTEM */
+      /* Player-specific drop preview colors */
+      .drop-preview.preview-player1 {
+        background: linear-gradient(135deg, rgba(253, 224, 71, 0.5), rgba(251, 191, 36, 0.4)) !important;
+        border: 2px solid rgba(253, 224, 71, 0.7) !important;
+        box-shadow: 
+          0 0 12px rgba(253, 224, 71, 0.4) !important,
+          inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+        transform: translate(-50%, -50%) scale(0.95) !important;
+        transition: all 0.2s ease !important;
+      }
+      
+      .drop-preview.preview-player2 {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.5), rgba(220, 38, 38, 0.4)) !important;
+        border: 2px solid rgba(239, 68, 68, 0.7) !important;
+        box-shadow: 
+          0 0 12px rgba(239, 68, 68, 0.4) !important,
+          inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+        transform: translate(-50%, -50%) scale(0.95) !important;
+        transition: all 0.2s ease !important;
+      }
+      
       /* Responsive Grid Columns - XL Breakpoint (1280px+) */
       @media (min-width: 1280px) {
         .xl\:grid-cols-4 {
@@ -1136,6 +1158,7 @@
               
               init() {
                 this.createBoard();
+                this.setupColumnHover();
                 this.updateUI();
                 console.log('✅ Simple Connect4 initialized');
               }
@@ -1162,6 +1185,58 @@
                 document.getElementById('gameStatus').textContent = 'Spieler 1 (Gelb) ist dran';
               }
               
+              // SMART HOVER PREVIEW SYSTEM
+              setupColumnHover() {
+                console.log('🎯 Setting up smart column hover preview system');
+                for (let col = 0; col < 7; col++) {
+                  const columnCells = document.querySelectorAll(`[data-col="${col}"]`);
+                  columnCells.forEach(cell => {
+                    cell.addEventListener('mouseenter', () => this.showDropPreview(col));
+                    cell.addEventListener('mouseleave', () => this.hideDropPreview());
+                  });
+                }
+              }
+              
+              findDropRow(col) {
+                // Find the lowest empty row in the column (where disc would land)
+                for (let row = 5; row >= 0; row--) {
+                  if (this.board[row][col] === 0) {
+                    return row;
+                  }
+                }
+                return -1; // Column is full
+              }
+              
+              showDropPreview(col) {
+                if (this.gameOver) return;
+                
+                // Clear any existing preview
+                this.hideDropPreview();
+                
+                // Find where the disc would land
+                const dropRow = this.findDropRow(col);
+                if (dropRow === -1) return; // Column full
+                
+                // Show preview at drop position
+                const cell = document.querySelector(`[data-row="${dropRow}"][data-col="${col}"]`);
+                if (!cell) return;
+                
+                const disc = cell.querySelector('.disc');
+                if (!disc) return;
+                
+                // Add preview classes based on current player
+                disc.classList.add('drop-preview', `preview-player${this.currentPlayer}`);
+                
+                console.log(`🎯 Showing drop preview: Player ${this.currentPlayer}, Col ${col}, Row ${dropRow}`);
+              }
+              
+              hideDropPreview() {
+                // Remove all preview classes from all discs
+                document.querySelectorAll('.drop-preview').forEach(disc => {
+                  disc.classList.remove('drop-preview', 'preview-player1', 'preview-player2');
+                });
+              }
+              
               makeMove(col) {
                 console.log(\`🎮 makeMove called: Player \${this.currentPlayer} to column \${col}\`);
                 console.log(\`🎮 makeMove: gameOver status = \${this.gameOver}\`);
@@ -1179,6 +1254,9 @@
                 }
                 
                 this.processingMove = true;
+                
+                // Clear any hover preview when move is made
+                this.hideDropPreview();
                 
                 // Find lowest empty row in column
                 let row = -1;

@@ -41,6 +41,7 @@ class ModularConnect4Game extends BaseGameUI {
     this.initializeBoardRenderer();
     this.createBoard();
     this.setupEventListeners();
+    this.setupColumnHover();
     this.updateUI();
 
     console.log('✅ Modular Connect4 initialized successfully');
@@ -218,8 +219,63 @@ class ModularConnect4Game extends BaseGameUI {
     console.log('🎮 Event listeners set up');
   }
 
+  // SMART HOVER PREVIEW SYSTEM
+  setupColumnHover() {
+    console.log('🎯 Setting up smart column hover preview system');
+    for (let col = 0; col < 7; col++) {
+      const columnCells = document.querySelectorAll(`[data-col="${col}"]`);
+      columnCells.forEach(cell => {
+        cell.addEventListener('mouseenter', () => this.showDropPreview(col));
+        cell.addEventListener('mouseleave', () => this.hideDropPreview());
+      });
+    }
+  }
+
+  findDropRow(col) {
+    // Find the lowest empty row in the column (where disc would land)
+    for (let row = 5; row >= 0; row--) {
+      if (this.board[row][col] === 0) {
+        return row;
+      }
+    }
+    return -1; // Column is full
+  }
+
+  showDropPreview(col) {
+    if (this.gameOver) return;
+    
+    // Clear any existing preview
+    this.hideDropPreview();
+    
+    // Find where the disc would land
+    const dropRow = this.findDropRow(col);
+    if (dropRow === -1) return; // Column full
+    
+    // Show preview at drop position
+    const cell = document.querySelector(`[data-row="${dropRow}"][data-col="${col}"]`);
+    if (!cell) return;
+    
+    const disc = cell.querySelector('.disc');
+    if (!disc) return;
+    
+    // Add preview classes based on current player
+    disc.classList.add('drop-preview', `preview-player${this.currentPlayer}`);
+    
+    console.log(`🎯 Showing drop preview: Player ${this.currentPlayer}, Col ${col}, Row ${dropRow}`);
+  }
+
+  hideDropPreview() {
+    // Remove all preview classes from all discs
+    document.querySelectorAll('.drop-preview').forEach(disc => {
+      disc.classList.remove('drop-preview', 'preview-player1', 'preview-player2');
+    });
+  }
+
   makeMove(col) {
     if (this.gameOver || col < 0 || col >= 7) return false;
+
+    // Clear any hover preview when move is made
+    this.hideDropPreview();
 
     if (this.wasmGame && this.wasmGame.initialized) {
       try {
