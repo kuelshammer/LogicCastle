@@ -1223,8 +1223,24 @@
               updateCell(row, col) {
                 const cell = document.querySelector(\`[data-row="\${row}"][data-col="\${col}"] .disc\`);
                 if (cell) {
-                  cell.className = 'disc absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 rounded-full';
+                  // CRITICAL FIX: Use proper sizing and ensure visibility
+                  cell.className = 'disc w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
                   cell.classList.add(this.currentPlayer === 1 ? 'yellow' : 'red');
+                  
+                  // CRITICAL FIX: Force visibility with inline styles
+                  const color = this.currentPlayer === 1 ? 'yellow' : 'red';
+                  const gradient = color === 'yellow' ? 
+                    'linear-gradient(135deg, #fde047 0%, #facc15 50%, #eab308 100%)' :
+                    'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)';
+                  
+                  cell.style.cssText += \`
+                    background: \${gradient} !important;
+                    opacity: 1 !important;
+                    visibility: visible !important;
+                    z-index: 10 !important;
+                  \`;
+                  
+                  console.log(\`🎨 Updated cell (\${row}, \${col}) with \${color} styling\`);
                 }
               }
               
