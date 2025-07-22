@@ -3,21 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v2.6-VICTORY-FIX</title>
+    <title>4 Gewinnt - LogicCastle - v2.7-ULTIMATE-CONFETTI</title>
     <meta name="cache-bust" content="2025-07-21-victory-detection-fix">
     <meta name="version" content="2.6-victory-detection-fix">
     <!-- Minimal CSS fallback only -->
     <style>
       /* MINIMAL CSS - Only keyframes that Tailwind can't do */
       
-      /* Confetti falling animation - Required for Tailwind confetti */
+      /* ULTIMATE CONFETTI FIX - Enhanced visibility and timing */
       @keyframes confetti-fall {
         0% { 
-          transform: translateY(-100vh) rotate(0deg);
+          transform: translateY(-10px) rotate(0deg);
+          opacity: 1;
+          background-color: inherit !important;
+        }
+        25% {
+          transform: translateY(25vh) rotate(180deg);
           opacity: 1;
         }
+        50% {
+          transform: translateY(50vh) rotate(360deg);
+          opacity: 0.9;
+        }
+        75% {
+          transform: translateY(75vh) rotate(540deg);
+          opacity: 0.7;
+        }
         100% { 
-          transform: translateY(100vh) rotate(720deg);
+          transform: translateY(110vh) rotate(720deg);
           opacity: 0;
         }
       }
@@ -857,7 +870,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">v2.6-VICTORY-FIX • Victory Detection Fixed • Konfetti Ready!</p>
+          <p class="text-lg md:text-xl text-white opacity-90">v2.7-ULTIMATE-CONFETTI • 150 Particles • 8s Duration • 40px Size!</p>
         </div>
       </header>
 
@@ -1380,39 +1393,42 @@
                   ['#fde047', '#facc15', '#eab308', '#ca8a04'] : 
                   ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
                 
-                console.log('🎊 Creating 100 ENHANCED confetti particles...');
-                for (let i = 0; i < 100; i++) {
+                console.log('🎊 Creating 150 ULTIMATE confetti particles...');
+                for (let i = 0; i < 150; i++) {
                   const confetti = document.createElement('div');
                   const startX = Math.random() * 100;
-                  const delay = Math.random() * 800;
-                  const duration = 3000 + Math.random() * 2000; // 3-5 seconds instead of 2-3
-                  const size = 15 + Math.random() * 15; // 15-30px instead of 10-22px
+                  const delay = Math.random() * 1000;
+                  const duration = 5000 + Math.random() * 3000; // 5-8 seconds for maximum visibility
+                  const size = 20 + Math.random() * 20; // 20-40px for enhanced visibility
                   const color = colors[Math.floor(Math.random() * colors.length)];
                   
                   confetti.style.cssText = 
                     'left: ' + startX + '% !important;' +
-                    'top: -20px !important;' +
+                    'top: -10px !important;' +
                     'width: ' + size + 'px !important;' +
                     'height: ' + size + 'px !important;' +
-                    'background-color: ' + color + ' !important;' +
+                    'background: linear-gradient(45deg, ' + color + ', ' + color + '80) !important;' +
+                    'border: 2px solid ' + color + ' !important;' +
                     'border-radius: 50% !important;' +
                     'position: absolute !important;' +
-                    'animation: confetti-fall ' + duration + 'ms ease-out ' + delay + 'ms forwards !important;' +
+                    'animation: confetti-fall ' + duration + 'ms ease-in-out ' + delay + 'ms forwards !important;' +
                     'opacity: 1 !important;' +
                     'z-index: 999999 !important;' +
-                    'box-shadow: 0 0 8px rgba(0,0,0,0.3) !important;';
+                    'box-shadow: 0 0 12px ' + color + '80, 0 4px 8px rgba(0,0,0,0.4) !important;' +
+                    'transform: scale(1) !important;' +
+                    'display: block !important;';
                   
                   confettiContainer.appendChild(confetti);
                   if (i < 5) console.log('🎊 Confetti ' + i + ': ' + color + ' at ' + startX + '%');
                 }
                 
-                // Extended cleanup time to match longer victory sequence
+                // Extended cleanup time for 8-second confetti
                 setTimeout(() => {
-                  console.log('🧹 Cleaning up confetti container');
+                  console.log('🧹 Cleaning up confetti container after 10 seconds');
                   if (confettiContainer.parentNode) {
                     confettiContainer.parentNode.removeChild(confettiContainer);
                   }
-                }, 6000); // 6 seconds cleanup instead of 3
+                }, 10000); // 10 seconds cleanup for 8-second animation
               }
               
               newGame() {

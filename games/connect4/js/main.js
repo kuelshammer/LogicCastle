@@ -560,16 +560,16 @@ class ModularConnect4Game extends BaseGameUI {
     `;
     document.body.appendChild(confettiContainer);
     
-    console.log(`🎆 Confetti container created, now creating 50 pieces...`);
+    console.log(`🎆 Confetti container created, now creating 150 ULTIMATE pieces...`);
 
-    // Create 50 confetti pieces with enhanced visibility
-    for (let i = 0; i < 50; i++) {
+    // Create 150 ULTIMATE confetti pieces for maximum visibility
+    for (let i = 0; i < 150; i++) {
       const confetti = document.createElement('div');
       
-      // Random position and timing
+      // Enhanced random position and timing
       const startX = Math.random() * 100;
-      const duration = 1500 + Math.random() * 1000;
-      const delay = Math.random() * 200;
+      const duration = 5000 + Math.random() * 3000; // 5-8 seconds
+      const delay = Math.random() * 1000;
       
       // FIXED: Use inline CSS instead of Tailwind classes for dynamic confetti
       const colorValues = winnerColor === 'yellow' ? [
@@ -580,10 +580,10 @@ class ModularConnect4Game extends BaseGameUI {
       
       const randomColor = colorValues[Math.floor(Math.random() * colorValues.length)];
       const sizes = [
-        {width: 12, height: 12}, 
-        {width: 16, height: 16}, 
-        {width: 8, height: 24}, 
-        {width: 24, height: 8}
+        {width: 20, height: 20}, 
+        {width: 25, height: 25}, 
+        {width: 15, height: 35}, 
+        {width: 35, height: 15}
       ];
       const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
       
@@ -591,33 +591,39 @@ class ModularConnect4Game extends BaseGameUI {
       confetti.className = '';
       confetti.style.cssText = `
         left: ${startX}% !important;
-        top: -20px !important;
+        top: -10px !important;
         width: ${randomSize.width}px !important;
         height: ${randomSize.height}px !important;
-        background-color: ${randomColor} !important;
+        background: linear-gradient(45deg, ${randomColor}, ${randomColor}80) !important;
+        border: 2px solid ${randomColor} !important;
         border-radius: 50% !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 0 12px ${randomColor}80, 0 4px 8px rgba(0, 0, 0, 0.4) !important;
         z-index: 10000 !important;
         position: absolute !important;
-        animation: confetti-fall ${duration}ms ease-out ${delay}ms forwards !important;
-        transform: rotate(${Math.random() * 360}deg) !important;
-        opacity: 0.9 !important;
+        animation: confetti-fall ${duration}ms ease-in-out ${delay}ms forwards !important;
+        transform: rotate(${Math.random() * 360}deg) scale(1) !important;
+        opacity: 1 !important;
         display: block !important;
         pointer-events: none !important;
       `;
       
       confettiContainer.appendChild(confetti);
+      
+      // Debug first 5 confetti pieces
+      if (i < 5) {
+        console.log(`🎊 ULTIMATE Confetti ${i}: ${randomColor} (${randomSize.width}x${randomSize.height}px) at ${startX}%, duration: ${duration}ms`);
+      }
     }
 
-    console.log(`🎆 All 50 confetti pieces created and animated`);
+    console.log(`🎆 All 150 ULTIMATE confetti pieces created and animated!`);
 
-    // Clean up confetti after animation
+    // Extended cleanup for 8-second confetti animation
     setTimeout(() => {
       if (confettiContainer && confettiContainer.parentNode) {
         confettiContainer.parentNode.removeChild(confettiContainer);
-        console.log(`🎆 Tailwind confetti cleanup complete!`);
+        console.log(`🎆 ULTIMATE confetti cleanup complete after 10 seconds!`);
       }
-    }, 2500);
+    }, 10000);
   }
 
   updateScoreWithAnimation() {
