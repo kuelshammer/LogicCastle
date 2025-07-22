@@ -1,11 +1,12 @@
 # 📋 TODO - LogicCastle Projekt
 
-## 🏆 CONNECT4: LIGHTNING-FAST GOLDSTANDARD ✅ (v3.1 - 2025-07-22)
+## 🚨 CONNECT4: AUTO-RESET CRITICAL FIX ✅ (v3.2 - 2025-07-22)
 
-### ⚡ LIGHTNING-FAST ULTIMATE VICTORY + SMART UX - ALLE PROBLEME GELÖST:
+### 🚨 CRITICAL BUG FIXED + LIGHTNING-FAST ULTIMATE VICTORY + SMART UX:
 - **🎆 JavaScript Confetti Animation**: RequestAnimationFrame-based physics system (v3.1)
 - **⚡ Ultra-Fast Victory Sequence**: 3s Lightning-Fast 3-Phasen (v3.1-LIGHTNING-FAST)  
 - **🚀 Speed Optimized**: 4x schneller fallendes Konfetti (12-20px/Frame, 2s max)
+- **🚨 Auto-Reset CRITICAL FIX**: clearBoard() → resetBoard() TypeError behoben (v3.2)
 - **🔄 Auto-Reset Perfected**: Perfect 3s timing (1s Highlight + 2s Confetti + Reset)
 - **🎯 Smart Hover Preview**: Zeigt Drop-Position mit Player-spezifischen Farben (Gelb/Rot)
 - **✅ Complete Flow**: Victory → Ultra-Fast Confetti → Instant Auto-Reset → New Game
@@ -53,6 +54,32 @@ Solution:
 4. Visual Feedback: Soft Glow + Scale 0.95 + smooth transitions
 ```
 - **Benefits**: Strategische Planungshilfe + intuitive UX + Clean Cleanup
+
+#### 🚨 **CRITICAL BUG FIX: clearBoard() TypeError (v3.2)**
+```
+Problem: main.js:906 ruft this.boardRenderer.clearBoard() auf, aber BoardRenderer hat nur resetBoard()
+Root Cause: Zwei parallele Animationssysteme (Goldstandard vs. inline main.js)
+Solution: 
+1. IMMEDIATE: clearBoard() → resetBoard() Tippfehler Fix ✅
+2. STRATEGIC: Redundante Animation aus main.js entfernen, AnimationManager integrieren
+```
+- **Gemini Reports**: 3 Reports identifizierten Architecture Problem + Solution Strategy
+- **Result**: Auto-Reset funktioniert wieder, aber Code-Drift muss behoben werden
+
+#### 🏗️ **STRATEGIC REFACTORING: Architecture Consolidation (Phase 2)**
+```
+Current State: Zwei parallele Animationssysteme
+- System 1 (Goldstandard): AnimationManager + ParticleEngine (ungenutzt)
+- System 2 (Aktiv): showWin/showVictoryPhase in main.js (fehlerhaft)
+
+Strategic Solution:
+1. Remove: showWin, showVictoryPhase1/2/3, createTailwindConfetti aus main.js
+2. Import: AnimationManager + ParticleEngine 
+3. Integrate: Goldstandard Architektur wiederherstellen
+4. Result: Saubere, wartbare Codebase ohne Code-Drift
+```
+- **Gemini Recommendation**: Option B (Strategic Refactoring) dringend empfohlen
+- **Benefits**: Architecture Integrity + Goldstandard Compliance + Reduced Complexity
 
 ---
 
