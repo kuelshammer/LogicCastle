@@ -396,41 +396,290 @@
         </div>
     </div>
 
-    <!-- Modern Trio Game System -->
-    <script type="module" src="js/TrioModern.js"></script>
-    
-    <!-- Fallback for module loading failures -->
+    <!-- Trio Fallback System (Connect4 Goldstandard Pattern) -->
     <script>
-        // Simple fallback if modules fail to load
+        // Hide loading screen and implement simple Trio game
         setTimeout(() => {
-            if (!window.trioGame) {
-                console.error('❌ TrioModern failed to load, showing error message');
-                const errorDiv = document.createElement('div');
-                errorDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: rgba(239, 68, 68, 0.95);
-                    color: white;
-                    padding: 2rem;
-                    border-radius: 1rem;
-                    text-align: center;
-                    z-index: 10000;
-                    max-width: 400px;
-                    backdrop-filter: blur(10px);
-                `;
-                errorDiv.innerHTML = `
-                    <h3 style="margin: 0 0 1rem 0;">⚠️ Trio Loading Error</h3>
-                    <p style="margin: 0;">Das moderne Trio-System konnte nicht geladen werden.</p>
-                    <button onclick="location.reload()" style="
-                        margin-top: 1rem; padding: 0.75rem 1.5rem; background: white; 
-                        color: #ef4444; border: none; border-radius: 0.5rem; cursor: pointer;
-                    ">Seite neu laden</button>
-                `;
-                document.body.appendChild(errorDiv);
+            const loadingScreen = document.getElementById('loadingScreen');
+            if (loadingScreen) {
+                loadingScreen.style.display = 'none';
             }
-        }, 3000);
+            
+            console.log('🎮 Starting Trio Fallback System...');
+            
+            // Simple Trio Game Class (Connect4 Goldstandard Pattern)
+            class SimpleTrio {
+              constructor() {
+                this.board = this.generateTrioBoard();
+                this.target = this.generateTarget();
+                this.selectedCells = [];
+                this.solutionsFound = 0;
+                this.totalMoves = 0;
+                
+                this.init();
+              }
+              
+              init() {
+                this.createBoard();
+                this.updateTargetDisplay();
+                this.updateUI();
+                console.log('✅ Simple Trio initialized');
+              }
+              
+              generateTrioBoard() {
+                // Generate 7x7 board with numbers 1-49
+                const board = [];
+                const numbers = Array.from({length: 49}, (_, i) => i + 1);
+                
+                // Shuffle numbers
+                for (let i = numbers.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1));
+                  [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+                }
+                
+                // Fill 7x7 board
+                for (let row = 0; row < 7; row++) {
+                  board[row] = [];
+                  for (let col = 0; col < 7; col++) {
+                    board[row][col] = numbers[row * 7 + col];
+                  }
+                }
+                
+                return board;
+              }
+              
+              generateTarget() {
+                return Math.floor(Math.random() * 100) + 50; // 50-149
+              }
+              
+              createBoard() {
+                const gridElement = document.getElementById('numberGrid');
+                if (!gridElement) return;
+                
+                gridElement.innerHTML = '';
+                gridElement.className = 'trio-game-board';
+                
+                for (let row = 0; row < 7; row++) {
+                  for (let col = 0; col < 7; col++) {
+                    const cell = this.createCell(row, col, this.board[row][col]);
+                    gridElement.appendChild(cell);
+                  }
+                }
+              }
+              
+              createCell(row, col, number) {
+                const cell = document.createElement('div');
+                cell.className = 'trio-cell ' + this.getNumberRange(number);
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                cell.textContent = number;
+                
+                cell.addEventListener('click', () => this.handleCellClick(row, col));
+                
+                return cell;
+              }
+              
+              getNumberRange(number) {
+                if (number <= 14) return 'range-1';
+                if (number <= 28) return 'range-2';
+                if (number <= 42) return 'range-3';
+                return 'range-4';
+              }
+              
+              handleCellClick(row, col) {
+                const cellIndex = this.selectedCells.findIndex(pos => pos.row === row && pos.col === col);
+                
+                if (cellIndex >= 0) {
+                  // Deselect
+                  this.selectedCells.splice(cellIndex, 1);
+                  this.updateCellSelection(row, col, false);
+                } else {
+                  // Select
+                  if (this.selectedCells.length >= 3) {
+                    this.showMessage('Maximal 3 Zellen auswählen', 'warning');
+                    return;
+                  }
+                  
+                  this.selectedCells.push({ row, col });
+                  this.updateCellSelection(row, col, true);
+                }
+                
+                this.updateSelectedDisplay();
+                
+                if (this.selectedCells.length === 3) {
+                  setTimeout(() => this.checkSolution(), 300);
+                }
+              }
+              
+              updateCellSelection(row, col, selected) {
+                const cell = document.querySelector(\`[data-row="\${row}"][data-col="\${col}"]\`);
+                if (!cell) return;
+                
+                if (selected) {
+                  cell.classList.add('trio-selected');
+                } else {
+                  cell.classList.remove('trio-selected');
+                }
+              }
+              
+              updateSelectedDisplay() {
+                const display = document.getElementById('selectedDisplay');
+                if (!display) return;
+                
+                if (this.selectedCells.length === 0) {
+                  display.innerHTML = '<span class="text-gray-400">Keine Auswahl</span>';
+                  return;
+                }
+                
+                const numbers = this.selectedCells.map(pos => this.board[pos.row][pos.col]);
+                display.innerHTML = \`Ausgewählt: \${numbers.join(', ')}\`;
+                
+                // Update individual slots
+                for (let i = 1; i <= 3; i++) {
+                  const slot = document.getElementById(\`selected\${i}\`);
+                  if (slot) {
+                    slot.textContent = i <= numbers.length ? numbers[i - 1] : '?';
+                  }
+                }
+                
+                // Calculate result
+                if (numbers.length === 3) {
+                  const [a, b, c] = numbers;
+                  const addResult = a * b + c;
+                  const subResult = a * b - c;
+                  
+                  const resultElement = document.getElementById('calculatedResult');
+                  if (resultElement) {
+                    if (addResult === this.target) {
+                      resultElement.innerHTML = \`<span class="text-green-400 font-bold">\${addResult}</span>\`;
+                    } else if (subResult === this.target) {
+                      resultElement.innerHTML = \`<span class="text-green-400 font-bold">\${subResult}</span>\`;
+                    } else {
+                      resultElement.innerHTML = \`<span class="text-red-400">\${addResult}/\${subResult}</span>\`;
+                    }
+                  }
+                }
+              }
+              
+              checkSolution() {
+                if (this.selectedCells.length !== 3) return;
+                
+                const numbers = this.selectedCells.map(pos => this.board[pos.row][pos.col]);
+                const [a, b, c] = numbers;
+                const addResult = a * b + c;
+                const subResult = a * b - c;
+                
+                if (addResult === this.target || subResult === this.target) {
+                  this.solutionsFound++;
+                  this.showMessage(\`🎉 Lösung gefunden: \${addResult === this.target ? addResult : subResult}\`, 'success');
+                  this.animateCorrectSolution();
+                } else {
+                  this.showMessage('Nicht korrekt. Versuchen Sie es erneut.', 'warning');
+                }
+                
+                this.totalMoves++;
+                this.updateGameStats();
+              }
+              
+              animateCorrectSolution() {
+                this.selectedCells.forEach(pos => {
+                  const cell = document.querySelector(\`[data-row="\${pos.row}"][data-col="\${pos.col}"]\`);
+                  if (cell) {
+                    cell.classList.add('trio-solution');
+                  }
+                });
+                
+                setTimeout(() => {
+                  this.clearSelection();
+                }, 2000);
+              }
+              
+              clearSelection() {
+                this.selectedCells.forEach(pos => {
+                  this.updateCellSelection(pos.row, pos.col, false);
+                  const cell = document.querySelector(\`[data-row="\${pos.row}"][data-col="\${pos.col}"]\`);
+                  if (cell) {
+                    cell.classList.remove('trio-solution');
+                  }
+                });
+                
+                this.selectedCells = [];
+                this.updateSelectedDisplay();
+              }
+              
+              newGame() {
+                this.board = this.generateTrioBoard();
+                this.target = this.generateTarget();
+                this.clearSelection();
+                this.createBoard();
+                this.updateTargetDisplay();
+                this.updateGameStats();
+                this.showMessage('Neues Spiel gestartet', 'success');
+              }
+              
+              updateTargetDisplay() {
+                const targetElement = document.getElementById('targetNumber');
+                if (targetElement) {
+                  targetElement.textContent = this.target;
+                }
+              }
+              
+              updateGameStats() {
+                const solvedElement = document.getElementById('realizedCount');
+                const movesElement = document.getElementById('moveCounter');
+                const statusElement = document.getElementById('gameStatus');
+                
+                if (solvedElement) solvedElement.textContent = this.solutionsFound;
+                if (movesElement) movesElement.textContent = this.totalMoves;
+                if (statusElement) {
+                  statusElement.textContent = this.solutionsFound > 0 ? 
+                    \`\${this.solutionsFound} Lösung\${this.solutionsFound === 1 ? '' : 'en'} gefunden\` : 
+                    'Bereit zum Spielen';
+                }
+              }
+              
+              showMessage(text, type) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 z-50 px-6 py-3 rounded-xl shadow-lg text-white font-semibold transition-all duration-300 transform translate-x-full';
+                
+                switch(type) {
+                  case 'success': toast.classList.add('bg-green-500'); break;
+                  case 'warning': toast.classList.add('bg-yellow-500'); break;
+                  default: toast.classList.add('bg-blue-500');
+                }
+                
+                toast.textContent = text;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+                setTimeout(() => {
+                  toast.classList.add('translate-x-full');
+                  setTimeout(() => document.body.removeChild(toast), 300);
+                }, 3000);
+              }
+              
+              updateUI() {
+                // Setup button handlers
+                const buttons = {
+                  newGameBtn: () => this.newGame(),
+                  clearSelectionBtn: () => this.clearSelection(),
+                  submitSolutionBtn: () => this.checkSolution()
+                };
+                
+                Object.entries(buttons).forEach(([id, handler]) => {
+                  const element = document.getElementById(id);
+                  if (element) {
+                    element.addEventListener('click', handler);
+                  }
+                });
+              }
+            }
+            
+            // Create the game
+            window.trioGame = new SimpleTrio();
+            console.log('🎉 Trio Fallback System loaded successfully!');
+          }
+        }, 1000);
     </script>
 </body>
 </html>
