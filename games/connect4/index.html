@@ -1233,12 +1233,11 @@
                     'linear-gradient(135deg, #fde047 0%, #facc15 50%, #eab308 100%)' :
                     'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)';
                   
-                  cell.style.cssText += \`
-                    background: \${gradient} !important;
-                    opacity: 1 !important;
-                    visibility: visible !important;
-                    z-index: 10 !important;
-                  \`;
+                  cell.style.cssText += 
+                    'background: ' + gradient + ' !important;' +
+                    'opacity: 1 !important;' +
+                    'visibility: visible !important;' +
+                    'z-index: 10 !important;';
                   
                   console.log(\`🎨 Updated cell (\${row}, \${col}) with \${color} styling\`);
                 }
