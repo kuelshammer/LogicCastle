@@ -319,7 +319,7 @@ export class BoardRenderer {
     clearBoard() {
         for (const disc of this.discs) {
             // CRITICAL FIX: Use classList instead of className = to preserve positioning classes
-            disc.classList.remove('yellow', 'red', 'preview', 'winning-disc');
+            disc.classList.remove('yellow', 'red', 'preview', 'winning-disc', 'victory-piece', 'victory-glow');
             disc.classList.add('empty');
             
             // Ensure base disc class is present

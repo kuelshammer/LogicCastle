@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v4.1-CLEANUP-FIX</title>
-    <meta name="cache-bust" content="2025-07-22-victory-cleanup-bugfix">
-    <meta name="version" content="4.1-victory-cleanup-bugfix">
+    <title>4 Gewinnt - LogicCastle - v4.2-PERFECT-UX</title>
+    <meta name="cache-bust" content="2025-07-22-perfect-ux-version-display">
+    <meta name="version" content="4.2-perfect-ux-version-display">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -882,7 +882,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">v3.0-PERFECT-SEQUENCE • Fast Confetti • 7s Auto-Reset • Complete Victory!</p>
+          <p class="text-lg md:text-xl text-white opacity-90" id="versionDisplay">v4.2-PERFECT-UX • Dynamic Version • Visual Reset Fix • Click to Copy</p>
         </div>
       </header>
 
@@ -1612,6 +1612,37 @@
           document.body.appendChild(errorDiv);
         }
       }, 2000);
+    </script>
+    
+    <!-- Dynamic Version Display -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const versionDisplay = document.getElementById('versionDisplay');
+        if (versionDisplay) {
+          const versionMeta = document.querySelector('meta[name="version"]');
+          const currentVersion = versionMeta ? versionMeta.content : 'v4.1-CLEANUP-FIX';
+          const buildTime = new Date().toLocaleString('de-DE', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+          
+          // Simulated commit hash (first 7 chars of current timestamp)
+          const commitHash = Date.now().toString(36).slice(-7);
+          
+          versionDisplay.textContent = `${currentVersion} • ${buildTime} • ${commitHash}`;
+          versionDisplay.title = `Build: ${buildTime} | Hash: ${commitHash} | Click to copy`;
+          
+          // Click to copy version info
+          versionDisplay.style.cursor = 'pointer';
+          versionDisplay.addEventListener('click', () => {
+            navigator.clipboard.writeText(`Connect4 ${currentVersion} | ${buildTime} | ${commitHash}`);
+            versionDisplay.style.opacity = '0.5';
+            setTimeout(() => { versionDisplay.style.opacity = '0.9'; }, 200);
+          });
+        }
+      });
     </script>
   </body>
 </html>

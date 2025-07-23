@@ -725,7 +725,7 @@ class ModularConnect4Game extends BaseGameUI {
 
   updateBoardVisual() {
     if (this.boardRenderer) {
-      this.boardRenderer.resetBoard();
+      this.boardRenderer.clearBoard(); // Fixed: Use clearBoard() not resetBoard()
     } else {
       const cells = document.querySelectorAll('.game-slot');
       cells.forEach(cell => {
