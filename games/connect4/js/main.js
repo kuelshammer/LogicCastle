@@ -689,7 +689,17 @@ class ModularConnect4Game extends BaseGameUI {
       this.legacyResetGame();
     }
 
-    // Remove victory background effect
+    // Clear all victory effects using proper AnimationManager architecture
+    if (this.animationManager) {
+      try {
+        this.animationManager.clearAllEffects();
+        console.log('🧹 Victory effects cleared via AnimationManager');
+      } catch (error) {
+        console.error('❌ AnimationManager cleanup failed:', error);
+      }
+    }
+    
+    // Legacy fallback: Remove any remaining victory background
     const victoryBg = document.getElementById('victoryBackground');
     if (victoryBg) {
       victoryBg.remove();
