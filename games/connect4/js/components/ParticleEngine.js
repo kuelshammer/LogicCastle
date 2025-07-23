@@ -24,7 +24,7 @@ export class ParticleEngine {
             gravity: options.gravity || 0.3,
             airResistance: options.airResistance || 0.99,
             bounceDecay: options.bounceDecay || 0.7,
-            particleLifespan: options.particleLifespan || 4000, // ms
+            particleLifespan: options.particleLifespan || 2000, // ms - Reduced for faster game analysis
             ...options
         };
         
@@ -41,6 +41,14 @@ export class ParticleEngine {
         this.particlePool = [];
         this.isAnimating = false;
         this.animationId = null;
+        
+        // Glassmorphism victory background
+        this.victoryBackground = {
+            enabled: false,
+            playerColor: null, // 'yellow' or 'red'
+            intensity: 0.02,   // Reduced for subtlety
+            fadeSpeed: 0.002   // Faster fade for quicker game analysis
+        };
         
         // Reduced motion support
         this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -95,6 +103,27 @@ export class ParticleEngine {
         
         this.canvas.style.width = this.logicalWidth + 'px';
         this.canvas.style.height = this.logicalHeight + 'px';
+    }
+    
+    /**
+     * Enable glassmorphism victory background
+     * @param {string} playerColor - 'yellow' or 'red'
+     */
+    enableVictoryBackground(playerColor) {
+        this.victoryBackground.enabled = true;
+        this.victoryBackground.playerColor = playerColor;
+        this.victoryBackground.intensity = 0.02;
+        console.log(`🎨 Victory glassmorphism background enabled for ${playerColor}`);
+    }
+    
+    /**
+     * Disable victory background
+     */
+    disableVictoryBackground() {
+        this.victoryBackground.enabled = false;
+        this.victoryBackground.playerColor = null;
+        this.victoryBackground.intensity = 0.02;
+        console.log(`🎨 Victory background disabled`);
     }
     
     /**
@@ -218,9 +247,25 @@ export class ParticleEngine {
         // Performance monitoring
         this.updatePerformanceMetrics(deltaTime);
         
-        // Clear canvas with subtle trail effect
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Clear canvas with glassmorphism victory background or subtle trail
+        if (this.victoryBackground.enabled && this.victoryBackground.playerColor) {
+            // Player-specific glassmorphism background
+            const baseColor = this.victoryBackground.playerColor === 'yellow' ? 
+                `rgba(255, 215, 0, ${this.victoryBackground.intensity})` :   // Golden glow
+                `rgba(244, 67, 54, ${this.victoryBackground.intensity})`;    // Red glow
+            
+            this.ctx.fillStyle = baseColor;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Gradually fade the background intensity for smooth disappearance
+            if (this.victoryBackground.intensity > 0.005) {
+                this.victoryBackground.intensity -= this.victoryBackground.fadeSpeed;
+            }
+        } else {
+            // Default subtle trail effect when no victory
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
         
         // Update and render particles
         this.updateParticles(deltaTime);
@@ -440,6 +485,7 @@ export class ParticleEngine {
      */
     clearCanvas() {
         this.clearAllParticles();
+        this.disableVictoryBackground(); // Reset glassmorphism background
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         console.log('🧹 Canvas completely cleared for new game');
     }

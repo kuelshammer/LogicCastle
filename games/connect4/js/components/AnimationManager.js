@@ -42,7 +42,7 @@ export class AnimationManager {
             dropVariation: 50,
             victoryReveal: 800,
             victoryStagger: 150,
-            confettiDuration: 3000,
+            confettiDuration: 1500, // Reduced for faster game analysis
             microInteraction: 200
         };
         
@@ -683,8 +683,11 @@ export class AnimationManager {
                 this.soundManager.playVictory();
             }
             
-            // Trigger confetti particles
+            // Enable glassmorphism victory background
             if (this.particleEngine) {
+                console.log('🎨 Enabling glassmorphism victory background...');
+                this.particleEngine.enableVictoryBackground(playerColor);
+                
                 console.log('🎊 ParticleEngine available, creating celebration burst...');
                 const gameBoard = document.querySelector('.game-board');
                 if (gameBoard) {

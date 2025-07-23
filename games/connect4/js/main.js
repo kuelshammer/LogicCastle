@@ -488,28 +488,19 @@ class ModularConnect4Game extends BaseGameUI {
     const winningPositions = this.winningLine.map(([row, col]) => ({ row, col }));
     
     if (this.animationManager) {
-      // Use Goldstandard AnimationManager with callback for reset
+      // Use Goldstandard AnimationManager WITHOUT auto-reset for game analysis
       this.animationManager.triggerPremiumCelebration(winnerColor, winningPositions)
         .then(() => {
-          console.log('🎬 Goldstandard victory sequence completed, starting new game');
-          // Auto-reset after victory sequence
-          setTimeout(() => {
-            this.resetGame();
-          }, 1000);
+          console.log('🎬 Victory sequence completed - game ready for analysis');
+          console.log('💡 Press N or click New Game button to start next game');
         })
         .catch(error => {
           console.error('❌ AnimationManager error:', error);
-          // Fallback: reset immediately
-          setTimeout(() => {
-            this.resetGame();
-          }, 2000);
+          console.log('💡 Press N or click New Game button to start next game');
         });
     } else {
-      console.warn('⚠️ AnimationManager not available, using simple fallback');
-      // Simple fallback: just reset after delay
-      setTimeout(() => {
-        this.resetGame();
-      }, 3000);
+      console.warn('⚠️ AnimationManager not available');
+      console.log('💡 Press N or click New Game button to start next game');
     }
   }
 
