@@ -34,13 +34,29 @@
   --lc-shadow-inset-hover: inset 0 1px 0 rgba(255, 255, 255, 0.3);
   
   /* Game-Specific Color Themes */
-  /* Connect4 Theme: Blue-Purple */
-  --lc-connect4-bg-from: #1e1b4b; /* blue-900 */
-  --lc-connect4-bg-via: #581c87;  /* purple-900 */
+  /* Connect4 Theme: Premium Blue-Purple Gaming */
+  --lc-connect4-bg-from: #1e293b; /* slate-800 (deeper) */
+  --lc-connect4-bg-via: #7c3aed;  /* violet-600 (vibrant) */
   --lc-connect4-bg-to: #312e81;   /* indigo-900 */
-  --lc-connect4-accent: #3b82f6;  /* blue-500 */
-  --lc-connect4-player1: #fbbf24; /* amber-400 (yellow) */
-  --lc-connect4-player2: #ef4444; /* red-500 */
+  --lc-connect4-accent: #06b6d4;  /* cyan-500 (premium highlight) */
+  --lc-connect4-player1: #fbbf24; /* amber-400 (golden yellow) */
+  --lc-connect4-player2: #dc2626; /* red-600 (crimson) */
+  
+  /* Connect4 Premium Glassmorphism */
+  --lc-connect4-glass-bg: rgba(139, 92, 246, 0.15); /* violet-tinted */
+  --lc-connect4-glass-border: rgba(6, 182, 212, 0.3); /* cyan-tinted */
+  --lc-connect4-glass-shadow: 0 8px 32px rgba(124, 58, 237, 0.2); /* violet shadow */
+  
+  /* Connect4 Board Styling */
+  --lc-connect4-board-bg: rgba(30, 41, 59, 0.8); /* deep slate with alpha */
+  --lc-connect4-cell-bg: rgba(255, 255, 255, 0.1); /* subtle cell background */
+  --lc-connect4-cell-border: rgba(6, 182, 212, 0.2); /* cyan cell borders */
+  --lc-connect4-cell-hover: rgba(6, 182, 212, 0.4); /* cyan hover effect */
+  
+  /* Connect4 Stone Premium Effects */
+  --lc-connect4-stone-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --lc-connect4-stone-glow: 0 0 16px rgba(251, 191, 36, 0.4); /* golden glow */
+  --lc-connect4-stone-crimson-glow: 0 0 16px rgba(220, 38, 38, 0.4); /* crimson glow */
   
   /* Gomoku Theme: Warm Amber */
   --lc-gomoku-bg-from: #78350f;   /* amber-900 */

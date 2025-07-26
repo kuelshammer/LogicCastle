@@ -95,22 +95,61 @@
 
 /**
  * Connect4 Theme Glassmorphism
- * Blue-purple tinted glass effects
+ * Premium blue-purple-cyan tinted glass effects
  */
 .theme-connect4 .lc-glass {
   background: linear-gradient(135deg, 
-    var(--lc-glass-bg-light), 
-    rgba(59, 130, 246, 0.1)
+    var(--lc-connect4-glass-bg), 
+    rgba(6, 182, 212, 0.1)
   );
-  border-color: rgba(59, 130, 246, 0.2);
+  border-color: var(--lc-connect4-glass-border);
+  box-shadow: var(--lc-connect4-glass-shadow);
 }
 
 .theme-connect4 .lc-glass-hover:hover {
   background: linear-gradient(135deg, 
-    var(--lc-glass-bg-hover), 
-    rgba(59, 130, 246, 0.15)
+    rgba(139, 92, 246, 0.22), 
+    rgba(6, 182, 212, 0.15)
   );
-  border-color: rgba(59, 130, 246, 0.3);
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 
+    var(--lc-connect4-glass-shadow),
+    0 0 24px rgba(6, 182, 212, 0.3);
+}
+
+/* Connect4 Premium Gaming Classes */
+.theme-connect4 .lc-glass-gaming {
+  background: linear-gradient(135deg, 
+    var(--lc-connect4-glass-bg),
+    rgba(6, 182, 212, 0.12),
+    rgba(124, 58, 237, 0.08)
+  );
+  border-color: var(--lc-connect4-glass-border);
+  box-shadow: 
+    var(--lc-connect4-glass-shadow),
+    0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+.theme-connect4 .lc-glass-board {
+  background: var(--lc-connect4-board-bg);
+  border: 2px solid var(--lc-connect4-glass-border);
+  box-shadow: 
+    0 16px 48px rgba(124, 58, 237, 0.25),
+    0 8px 24px rgba(6, 182, 212, 0.15),
+    inset 0 2px 0 rgba(6, 182, 212, 0.3);
+}
+
+.theme-connect4 .lc-glass-cell {
+  background: var(--lc-connect4-cell-bg);
+  border: 1px solid var(--lc-connect4-cell-border);
+}
+
+.theme-connect4 .lc-glass-cell:hover {
+  background: var(--lc-connect4-cell-hover);
+  border: 1px solid rgba(6, 182, 212, 0.6);
+  box-shadow: 
+    0 4px 16px rgba(6, 182, 212, 0.2),
+    inset 0 1px 0 rgba(6, 182, 212, 0.4);
 }
 
 /**
@@ -220,6 +259,117 @@
   border: 1px solid var(--lc-glass-border-light);
   box-shadow: var(--lc-shadow-md), var(--lc-shadow-sm);
   /* No backdrop-filter for better performance */
+}
+
+/* ===============================
+   🎮 PREMIUM GAMING GLASSMORPHISM
+   =============================== */
+
+/**
+ * .lc-glass-premium - Enhanced glassmorphism for premium gaming UI
+ */
+.lc-glass-premium {
+  backdrop-filter: var(--lc-blur-lg) saturate(220%) brightness(110%);
+  -webkit-backdrop-filter: var(--lc-blur-lg) saturate(220%) brightness(110%);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.1)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  will-change: backdrop-filter, transform, box-shadow;
+  transform: translateZ(0);
+}
+
+/**
+ * .lc-glass-gaming - Gaming-specific glass effects with enhanced depth
+ */
+.lc-glass-gaming {
+  backdrop-filter: var(--lc-blur-xl) saturate(250%) brightness(115%);
+  -webkit-backdrop-filter: var(--lc-blur-xl) saturate(250%) brightness(115%);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.08)
+  );
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.lc-glass-gaming::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  transition: left var(--lc-duration-slow) var(--lc-ease-out);
+}
+
+.lc-glass-gaming:hover::before {
+  left: 100%;
+}
+
+/**
+ * .lc-glass-board - Specialized glassmorphism for game boards
+ */
+.lc-glass-board {
+  backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.08)
+  );
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.18),
+    0 6px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border-radius: var(--lc-radius-2xl);
+  position: relative;
+}
+
+/**
+ * .lc-glass-cell - Individual cell glassmorphism for interactive elements
+ */
+.lc-glass-cell {
+  backdrop-filter: var(--lc-blur-sm) saturate(150%);
+  -webkit-backdrop-filter: var(--lc-blur-sm) saturate(150%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all var(--lc-duration-fast) var(--lc-ease-out);
+  cursor: pointer;
+}
+
+.lc-glass-cell:hover {
+  backdrop-filter: var(--lc-blur-md) saturate(180%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px) scale(1.02);
 }
 
 /* ===============================
