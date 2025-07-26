@@ -82,13 +82,30 @@
   --lc-gomoku-stone-black-glow: 0 0 16px rgba(0, 0, 0, 0.6); /* subtle black glow */
   --lc-gomoku-stone-white-glow: 0 0 16px rgba(255, 255, 255, 0.8); /* bright white glow */
   
-  /* Trio Theme: Purple-Blue */
-  --lc-trio-bg-from: #581c87;     /* purple-900 */
-  --lc-trio-bg-via: #1e3a8a;      /* blue-900 */
-  --lc-trio-bg-to: #312e81;       /* indigo-900 */
-  --lc-trio-accent: #8b5cf6;      /* violet-500 */
-  --lc-trio-number: #fbbf24;      /* amber-400 */
-  --lc-trio-target: #10b981;      /* emerald-500 */
+  /* Trio Theme: Premium Purple-Violet Gaming */
+  --lc-trio-bg-from: #581c87;     /* purple-900 (deep foundation) */
+  --lc-trio-bg-via: #1e3a8a;      /* blue-900 (rich middle) */
+  --lc-trio-bg-to: #312e81;       /* indigo-900 (vibrant accent) */
+  --lc-trio-accent: #8b5cf6;      /* violet-500 (primary highlight) */
+  --lc-trio-number: #fbbf24;      /* amber-400 (number glow) */
+  --lc-trio-target: #10b981;      /* emerald-500 (target indicator) */
+  
+  /* Trio Premium Glassmorphism */
+  --lc-trio-glass-bg: rgba(139, 92, 246, 0.15); /* violet-tinted glass */
+  --lc-trio-glass-border: rgba(49, 46, 129, 0.3); /* indigo-tinted borders */
+  --lc-trio-glass-shadow: 0 8px 32px rgba(88, 28, 135, 0.2); /* purple shadow */
+  
+  /* Trio Grid Premium Styling */
+  --lc-trio-grid-bg: rgba(88, 28, 135, 0.8); /* deep purple with alpha */
+  --lc-trio-cell-bg: rgba(255, 255, 255, 0.08); /* subtle cell background */
+  --lc-trio-cell-border: rgba(139, 92, 246, 0.2); /* violet cell borders */
+  --lc-trio-cell-hover: rgba(139, 92, 246, 0.3); /* violet hover effect */
+  
+  /* Trio Number Premium Effects */
+  --lc-trio-number-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --lc-trio-number-glow: 0 0 16px rgba(251, 191, 36, 0.6); /* amber number glow */
+  --lc-trio-target-glow: 0 0 20px rgba(16, 185, 129, 0.8); /* emerald target glow */
+  --lc-trio-selected-glow: 0 0 18px rgba(139, 92, 246, 0.7); /* violet selection glow */
 }
 
 /* ===============================

@@ -1,0 +1,587 @@
+/**
+ * Trio Premium Gaming UI - Tailwind CSS Built File
+ * 
+ * Production build with LogicCastle design system and Trio-specific premium styling.
+ * Generated from assets/css/tailwind-source.css with premium gaming enhancements.
+ * 
+ * Version: Premium Gaming Enhancement v1.0
+ */
+
+/* ===============================
+   🎨 SHARED DESIGN SYSTEM IMPORTS
+   =============================== */
+
+/* Import LogicCastle Design Tokens */
+@import '../../../shared/css/design-tokens.css';
+
+/* Import Unified Glassmorphism System */
+@import '../../../shared/css/glassmorphism-system.css';
+
+/* ===============================
+   🎯 TRIO PREMIUM GAMING STYLES  
+   =============================== */
+
+/* Apply Trio theme to body */
+body {
+  background: linear-gradient(to bottom right, var(--lc-trio-bg-from), var(--lc-trio-bg-via), var(--lc-trio-bg-to));
+  min-height: 100vh;
+  font-family: var(--lc-font-sans);
+  color: var(--lc-white);
+}
+
+.theme-trio {
+  --lc-game-bg-from: var(--lc-trio-bg-from);
+  --lc-game-bg-via: var(--lc-trio-bg-via);
+  --lc-game-bg-to: var(--lc-trio-bg-to);
+  --lc-game-accent: var(--lc-trio-accent);
+  --lc-game-number: var(--lc-trio-number);
+  --lc-game-target: var(--lc-trio-target);
+}
+
+/* ===============================
+   🎮 PREMIUM TRIO GAME GRID
+   =============================== */
+
+/* Game Grid Premium Design */
+.trio-game-board,
+.trio-number-grid {
+  /* Core Layout */
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: var(--lc-space-2);
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--lc-space-4);
+  border-radius: var(--lc-radius-2xl);
+  position: relative;
+  
+  /* Premium Gaming Background */
+  background: var(--lc-trio-grid-bg);
+  backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  
+  /* Gaming Glass Effect */
+  border: 2px solid var(--lc-trio-glass-border);
+  box-shadow: 
+    var(--lc-trio-glass-shadow),
+    0 16px 48px rgba(88, 28, 135, 0.25),
+    0 8px 24px rgba(49, 46, 129, 0.15),
+    inset 0 2px 0 rgba(139, 92, 246, 0.3);
+  
+  /* Hardware Acceleration */
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+}
+
+/* Number Cells (Premium) */
+.trio-cell,
+.number-cell {
+  /* Core Glass Effect */
+  background: var(--lc-trio-cell-bg);
+  backdrop-filter: var(--lc-blur-sm) saturate(150%);
+  -webkit-backdrop-filter: var(--lc-blur-sm) saturate(150%);
+  border: 1px solid var(--lc-trio-cell-border);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  /* Shape & Layout */
+  aspect-ratio: 1;
+  border-radius: var(--lc-radius-lg);
+  position: relative;
+  cursor: pointer;
+  
+  /* Flexbox for Number Centering */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Typography */
+  font-size: var(--lc-text-lg);
+  font-weight: var(--lc-font-bold);
+  color: var(--lc-white);
+  
+  /* Smooth Gaming Transitions */
+  transition: all var(--lc-duration-fast) var(--lc-ease-out);
+}
+
+.trio-cell:hover,
+.number-cell:hover {
+  /* Enhanced Hover Effect */
+  background: var(--lc-trio-cell-hover);
+  backdrop-filter: var(--lc-blur-md) saturate(180%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%);
+  border: 1px solid rgba(139, 92, 246, 0.6);
+  box-shadow: 
+    0 4px 16px rgba(139, 92, 246, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(139, 92, 246, 0.4);
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* ===============================
+   💎 PREMIUM NUMBER STYLING
+   =============================== */
+
+/* Number Range Colors with Premium Effects */
+.trio-cell[data-number],
+.number-cell[data-number] {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Red Range (1-14) */
+.trio-cell[data-number="1"], .trio-cell[data-number="2"], .trio-cell[data-number="3"], .trio-cell[data-number="4"],
+.trio-cell[data-number="5"], .trio-cell[data-number="6"], .trio-cell[data-number="7"], .trio-cell[data-number="8"],
+.trio-cell[data-number="9"], .trio-cell[data-number="10"], .trio-cell[data-number="11"], .trio-cell[data-number="12"],
+.trio-cell[data-number="13"], .trio-cell[data-number="14"] {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.8),
+    rgba(220, 38, 38, 0.9),
+    rgba(185, 28, 28, 0.7)
+  );
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 
+    var(--lc-trio-number-shadow),
+    0 0 12px rgba(239, 68, 68, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Blue Range (15-28) */
+.trio-cell[data-number="15"], .trio-cell[data-number="16"], .trio-cell[data-number="17"], .trio-cell[data-number="18"],
+.trio-cell[data-number="19"], .trio-cell[data-number="20"], .trio-cell[data-number="21"], .trio-cell[data-number="22"],
+.trio-cell[data-number="23"], .trio-cell[data-number="24"], .trio-cell[data-number="25"], .trio-cell[data-number="26"],
+.trio-cell[data-number="27"], .trio-cell[data-number="28"] {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.8),
+    rgba(37, 99, 235, 0.9),
+    rgba(29, 78, 216, 0.7)
+  );
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 
+    var(--lc-trio-number-shadow),
+    0 0 12px rgba(59, 130, 246, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Green Range (29-42) */
+.trio-cell[data-number="29"], .trio-cell[data-number="30"], .trio-cell[data-number="31"], .trio-cell[data-number="32"],
+.trio-cell[data-number="33"], .trio-cell[data-number="34"], .trio-cell[data-number="35"], .trio-cell[data-number="36"],
+.trio-cell[data-number="37"], .trio-cell[data-number="38"], .trio-cell[data-number="39"], .trio-cell[data-number="40"],
+.trio-cell[data-number="41"], .trio-cell[data-number="42"] {
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.8),
+    rgba(22, 163, 74, 0.9),
+    rgba(21, 128, 61, 0.7)
+  );
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 
+    var(--lc-trio-number-shadow),
+    0 0 12px rgba(34, 197, 94, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+/* Gold Range (43-49) */
+.trio-cell[data-number="43"], .trio-cell[data-number="44"], .trio-cell[data-number="45"], .trio-cell[data-number="46"],
+.trio-cell[data-number="47"], .trio-cell[data-number="48"], .trio-cell[data-number="49"] {
+  background: linear-gradient(135deg, 
+    rgba(251, 191, 36, 0.8),
+    rgba(245, 158, 11, 0.9),
+    rgba(217, 119, 6, 0.7)
+  );
+  border-color: rgba(251, 191, 36, 0.6);
+  color: rgba(0, 0, 0, 0.9); /* Dark text for gold background */
+  box-shadow: 
+    var(--lc-trio-number-shadow),
+    var(--lc-trio-number-glow),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+/* ===============================
+   🎯 PREMIUM GAME STATES
+   =============================== */
+
+/* Selected Numbers */
+.trio-cell.selected,
+.number-cell.selected {
+  background: linear-gradient(135deg, 
+    rgba(139, 92, 246, 0.9),
+    rgba(124, 58, 237, 1),
+    rgba(109, 40, 217, 0.8)
+  );
+  border: 2px solid rgba(139, 92, 246, 0.8);
+  box-shadow: 
+    var(--lc-trio-number-shadow),
+    var(--lc-trio-selected-glow),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+/* Target Display */
+.target-display {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.9),
+    rgba(5, 150, 105, 1),
+    rgba(4, 120, 87, 0.8)
+  );
+  border: 2px solid rgba(16, 185, 129, 0.8);
+  box-shadow: 
+    var(--lc-trio-number-shadow),
+    var(--lc-trio-target-glow),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  font-size: var(--lc-text-6xl);
+  font-weight: var(--lc-font-extrabold);
+  color: var(--lc-white);
+}
+
+/* Solution Highlighting */
+.trio-cell.solution,
+.number-cell.solution {
+  animation: solution-pulse 1s ease-in-out infinite;
+  z-index: 15;
+}
+
+@keyframes solution-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 
+      var(--lc-trio-number-shadow),
+      0 0 20px rgba(16, 185, 129, 0.8),
+      inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  }
+  50% { 
+    transform: scale(1.1);
+    box-shadow: 
+      var(--lc-trio-number-shadow),
+      0 0 30px rgba(16, 185, 129, 1),
+      inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Keyboard Navigation */
+.trio-cell.keyboard-focus,
+.number-cell.keyboard-focus {
+  border: 4px solid var(--lc-trio-accent);
+  animation: keyboard-pulse 2s ease-in-out infinite;
+  transform: scale(1.05);
+  box-shadow: 
+    0 0 20px rgba(139, 92, 246, 0.6),
+    var(--lc-trio-glass-shadow);
+  z-index: 10;
+}
+
+@keyframes keyboard-pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(139, 92, 246, 0.6),
+      var(--lc-trio-glass-shadow);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(139, 92, 246, 0.8),
+      var(--lc-trio-glass-shadow);
+  }
+}
+
+/* Focus Styles for Accessibility */
+.trio-cell:focus,
+.number-cell:focus {
+  outline: 3px solid var(--lc-trio-accent);
+  outline-offset: 2px;
+}
+
+/* ===============================
+   🎨 PREMIUM UI COMPONENTS
+   =============================== */
+
+/* Game Header */
+.game-header {
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md);
+  border-radius: var(--lc-radius-xl);
+  padding: var(--lc-space-4);
+  margin-bottom: var(--lc-space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Game Statistics Display */
+.game-stats {
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md);
+  border-radius: var(--lc-radius-xl);
+  padding: var(--lc-space-4);
+  text-align: center;
+}
+
+/* Game Controls */
+.game-controls,
+button.lc-glass {
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md);
+  border-radius: var(--lc-radius-lg);
+  padding: var(--lc-space-3) var(--lc-space-4);
+  margin: var(--lc-space-2);
+  cursor: pointer;
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+  color: var(--lc-white);
+  font-weight: var(--lc-font-semibold);
+}
+
+.game-controls:hover,
+button.lc-glass:hover {
+  background: var(--lc-glass-bg-hover);
+  backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  -webkit-backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  border: 1px solid var(--lc-glass-border-hover);
+  box-shadow: var(--lc-shadow-lg);
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* Selected Numbers Display */
+.selected-numbers-display {
+  background: var(--lc-trio-glass-bg);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-trio-glass-border);
+  box-shadow: var(--lc-trio-glass-shadow);
+  border-radius: var(--lc-radius-xl);
+  padding: var(--lc-space-6);
+}
+
+.selected-number-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--lc-radius-xl);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--lc-text-lg);
+  font-weight: var(--lc-font-bold);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===============================
+   🎆 VICTORY CELEBRATION STYLES
+   =============================== */
+
+/* Confetti Particles */
+.trio-confetti {
+  position: fixed;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.trio-confetti.red { 
+  background: rgba(239, 68, 68, 0.9);
+  border: 1px solid rgba(220, 38, 38, 0.8);
+}
+
+.trio-confetti.blue { 
+  background: rgba(59, 130, 246, 0.9);
+  border: 1px solid rgba(37, 99, 235, 0.8);
+}
+
+.trio-confetti.green { 
+  background: rgba(34, 197, 94, 0.9);
+  border: 1px solid rgba(22, 163, 74, 0.8);
+}
+
+.trio-confetti.gold { 
+  background: rgba(251, 191, 36, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.8);
+}
+
+.trio-confetti.violet { 
+  background: rgba(139, 92, 246, 0.9);
+  border: 1px solid rgba(124, 58, 237, 0.8);
+}
+
+/* Victory Background Effects */
+.victory-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--lc-radius-2xl);
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity var(--lc-duration-normal) var(--lc-ease-out);
+}
+
+.victory-background.trio-success {
+  background: linear-gradient(135deg, 
+    rgba(16, 185, 129, 0.02), 
+    rgba(5, 150, 105, 0.03)
+  );
+}
+
+/* ===============================
+   🔧 UTILITY CLASSES
+   =============================== */
+
+/* Trio-specific utility classes */
+.trio-text-number {
+  color: var(--lc-trio-number);
+}
+
+.trio-text-target {
+  color: var(--lc-trio-target);
+}
+
+.trio-text-accent {
+  color: var(--lc-trio-accent);
+}
+
+.trio-border-accent {
+  border-color: var(--lc-trio-accent);
+}
+
+.trio-bg-accent {
+  background-color: var(--lc-trio-accent);
+}
+
+/* ===============================
+   📱 RESPONSIVE DESIGN
+   =============================== */
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .trio-game-board,
+  .trio-number-grid {
+    max-width: 350px;
+    gap: var(--lc-space-1);
+    padding: var(--lc-space-3);
+  }
+  
+  .trio-cell,
+  .number-cell {
+    font-size: var(--lc-text-sm);
+    border-width: 0.5px;
+  }
+  
+  .selected-number-box {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Tablet Optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .trio-game-board,
+  .trio-number-grid {
+    max-width: 480px;
+  }
+}
+
+/* Desktop Enhancements */
+@media (min-width: 1025px) {
+  .trio-game-board,
+  .trio-number-grid {
+    max-width: 600px;
+  }
+  
+  .trio-cell:hover,
+  .number-cell:hover {
+    box-shadow: 
+      0 4px 20px rgba(139, 92, 246, 0.3),
+      0 8px 32px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(139, 92, 246, 0.4);
+  }
+}
+
+/* Widescreen Optimizations */
+@media (min-width: 1441px) {
+  .trio-game-board,
+  .trio-number-grid {
+    max-width: 700px;
+  }
+  
+  /* Enhanced effects for large screens */
+  .trio-cell:hover,
+  .number-cell:hover {
+    box-shadow: 
+      0 6px 24px rgba(139, 92, 246, 0.4),
+      0 12px 40px rgba(0, 0, 0, 0.2),
+      inset 0 2px 0 rgba(139, 92, 246, 0.5);
+  }
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY SUPPORT
+   =============================== */
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .trio-cell,
+  .number-cell,
+  .game-controls,
+  button.lc-glass {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .trio-cell:hover,
+  .number-cell:hover {
+    transform: none !important;
+  }
+  
+  .trio-confetti {
+    display: none !important;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .trio-cell,
+  .number-cell {
+    border: 2px solid var(--lc-trio-accent);
+  }
+  
+  .trio-cell.selected,
+  .number-cell.selected {
+    border: 3px solid var(--lc-white);
+    background: var(--lc-trio-accent);
+  }
+  
+  .target-display {
+    border: 3px solid var(--lc-white);
+    background: var(--lc-trio-target);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .game-header, .game-stats, .game-controls {
+    background: white !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    color: black !important;
+  }
+  
+  .trio-confetti {
+    display: none !important;
+  }
+}

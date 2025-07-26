@@ -213,22 +213,61 @@
 
 /**
  * Trio Theme Glassmorphism
- * Purple-violet tinted glass effects  
+ * Premium purple-violet tinted glass effects  
  */
 .theme-trio .lc-glass {
   background: linear-gradient(135deg, 
-    var(--lc-glass-bg-light), 
-    rgba(139, 92, 246, 0.1)
+    var(--lc-trio-glass-bg), 
+    rgba(49, 46, 129, 0.1)
   );
-  border-color: rgba(139, 92, 246, 0.2);
+  border-color: var(--lc-trio-glass-border);
+  box-shadow: var(--lc-trio-glass-shadow);
 }
 
 .theme-trio .lc-glass-hover:hover {
   background: linear-gradient(135deg, 
-    var(--lc-glass-bg-hover), 
-    rgba(139, 92, 246, 0.15)
+    rgba(139, 92, 246, 0.22), 
+    rgba(49, 46, 129, 0.15)
   );
-  border-color: rgba(139, 92, 246, 0.3);
+  border-color: rgba(49, 46, 129, 0.4);
+  box-shadow: 
+    var(--lc-trio-glass-shadow),
+    0 0 24px rgba(139, 92, 246, 0.3);
+}
+
+/* Trio Premium Gaming Classes */
+.theme-trio .lc-glass-gaming {
+  background: linear-gradient(135deg, 
+    var(--lc-trio-glass-bg),
+    rgba(49, 46, 129, 0.12),
+    rgba(88, 28, 135, 0.08)
+  );
+  border-color: var(--lc-trio-glass-border);
+  box-shadow: 
+    var(--lc-trio-glass-shadow),
+    0 0 20px rgba(88, 28, 135, 0.15);
+}
+
+.theme-trio .lc-glass-grid {
+  background: var(--lc-trio-grid-bg);
+  border: 2px solid var(--lc-trio-glass-border);
+  box-shadow: 
+    0 16px 48px rgba(88, 28, 135, 0.25),
+    0 8px 24px rgba(49, 46, 129, 0.15),
+    inset 0 2px 0 rgba(139, 92, 246, 0.3);
+}
+
+.theme-trio .lc-glass-cell {
+  background: var(--lc-trio-cell-bg);
+  border: 1px solid var(--lc-trio-cell-border);
+}
+
+.theme-trio .lc-glass-cell:hover {
+  background: var(--lc-trio-cell-hover);
+  border: 1px solid rgba(139, 92, 246, 0.6);
+  box-shadow: 
+    0 4px 16px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(139, 92, 246, 0.4);
 }
 
 /* ===============================
