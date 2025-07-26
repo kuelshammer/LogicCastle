@@ -3,11 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>5 Gewinnt (Gomoku) - LogicCastle Production</title>
-    <script type="module" crossorigin src="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js"></script>
-    <script type="module" crossorigin src="/LogicCastle/assets/DOMUtils-C6fb_Htl.js"></script>
+    <title>5 Gewinnt (Gomoku) - LogicCastle</title>
+    <meta name="cache-bust" content="2025-07-26-zero-build-migration">
+    <meta name="version" content="gomoku-zero-build">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Tailwind CSS v4.x Direct Import -->
+    <link rel="stylesheet" href="assets/css/tailwind-source.css">
   </head>
-  <body>
+  <body class="theme-gomoku min-h-screen bg-gradient-to-br from-amber-900 via-amber-800 to-orange-700">
     <div class="game-container">
       <!-- Game Header -->
       <div class="game-header">
@@ -255,5 +260,25 @@
     </div>
 
     <!-- Game Scripts -->
+    <script type="module">
+      // Import modern Gomoku implementation with zero-build CSS
+      import { GomokuModernized } from './js/GomokuModernized.js';
+      
+      // Initialize game when DOM is ready
+      document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🎮 Initializing Gomoku with zero-build Tailwind CSS v4...');
+        
+        try {
+          const game = new GomokuModernized();
+          await game.init();
+          window.gomokuLoaded = true;
+          console.log('✅ Gomoku zero-build migration successful!');
+        } catch (error) {
+          console.error('❌ Gomoku initialization failed:', error);
+          console.log('🔄 Falling back to simple implementation...');
+          // Add fallback logic here if needed
+        }
+      });
+    </script>
   </body>
 </html>

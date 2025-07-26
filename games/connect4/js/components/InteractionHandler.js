@@ -22,6 +22,11 @@ export class InteractionHandler {
         this.previewDisc = null;
         this.isProcessingMove = false;
         
+        // Enhanced Keyboard Navigation
+        this.selectedColumn = null;     // Currently selected column via keyboard
+        this.keyboardMode = false;      // true = keyboard active, prevents mouse conflicts
+        this.keyboardPreviewDisc = null; // Selected disc element for keyboard preview
+        
         // Event listeners for cleanup
         this.eventListeners = [];
         
@@ -188,7 +193,7 @@ export class InteractionHandler {
      * Extracted from Connect4UINew.onColumnHover()
      */
     handleColumnHover(col) {
-        if (this.isProcessingMove) return;
+        if (this.isProcessingMove || this.keyboardMode) return; // Prevent mouse hover during keyboard mode
         
         this.hoveredColumn = col;
         this.showDropPreview(col);
@@ -207,6 +212,8 @@ export class InteractionHandler {
      * Extracted from Connect4UINew.onColumnHoverLeave()
      */
     handleColumnHoverLeave() {
+        if (this.keyboardMode) return; // Don't clear during keyboard mode
+        
         this.hoveredColumn = null;
         this.hideDropPreview();
         
@@ -282,6 +289,84 @@ export class InteractionHandler {
             
             this.previewDisc = null;
         }
+    }
+
+    // === ENHANCED KEYBOARD NAVIGATION ===
+    
+    /**
+     * Show keyboard selection preview (different from mouse hover)
+     * @param {number} col - Column index (0-6)
+     */
+    showKeyboardSelection(col) {
+        this.clearKeyboardSelection(); // Clear any existing keyboard selection
+        
+        // Enter keyboard mode
+        this.keyboardMode = true;
+        this.selectedColumn = col;
+        
+        // Temporarily disable mouse hover if active
+        if (this.previewDisc) {
+            this.hideDropPreview();
+        }
+        
+        // Find the lowest empty slot in the column
+        const slot = this._findLowestEmptySlot(col);
+        if (!slot) return; // Column is full
+        
+        const disc = slot.querySelector('.disc');
+        if (disc && disc.classList.contains('empty')) {
+            // Add enhanced keyboard selection styling
+            disc.classList.add('keyboard-selected', 'ring-4', 'ring-blue-400', 'ring-opacity-80', 'animate-pulse');
+            this.keyboardPreviewDisc = disc;
+            
+            // Enhanced keyboard selection styling with blue theme
+            disc.style.background = 'radial-gradient(circle, rgba(59, 130, 246, 0.4), rgba(59, 130, 246, 0.2))';
+            disc.style.backdropFilter = 'blur(12px)';
+            disc.style.border = '3px solid rgba(59, 130, 246, 0.8)';
+            disc.style.boxShadow = '0 0 25px rgba(59, 130, 246, 0.6), inset 0 2px 6px rgba(59, 130, 246, 0.3)';
+            disc.style.transform = 'scale(1.05)';
+            
+            console.log(`⌨️ Keyboard selection shown for column ${col + 1}`);
+        }
+    }
+    
+    /**
+     * Clear keyboard selection preview
+     */
+    clearKeyboardSelection() {
+        if (this.keyboardPreviewDisc) {
+            // Remove keyboard selection classes
+            this.keyboardPreviewDisc.classList.remove('keyboard-selected', 'ring-4', 'ring-blue-400', 'ring-opacity-80', 'animate-pulse');
+            
+            // Reset to original glassmorphism styling
+            this.keyboardPreviewDisc.style.background = 'radial-gradient(circle, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))';
+            this.keyboardPreviewDisc.style.backdropFilter = 'blur(8px)';
+            this.keyboardPreviewDisc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            this.keyboardPreviewDisc.style.boxShadow = 'inset 0 1px 2px rgba(255, 255, 255, 0.1)';
+            this.keyboardPreviewDisc.style.transform = 'scale(1.0)';
+            
+            this.keyboardPreviewDisc = null;
+            console.log(`⌨️ Keyboard selection cleared`);
+        }
+        
+        // Reset keyboard mode
+        this.keyboardMode = false;
+        this.selectedColumn = null;
+    }
+    
+    /**
+     * Set keyboard interaction mode (prevents mouse conflicts)
+     * @param {boolean} active - true to enable keyboard mode
+     */
+    setKeyboardMode(active) {
+        this.keyboardMode = active;
+        
+        if (active && this.previewDisc) {
+            // Hide mouse preview when keyboard becomes active
+            this.hideDropPreview();
+        }
+        
+        console.log(`⌨️ Keyboard mode: ${active ? 'ACTIVE' : 'INACTIVE'}`);
     }
 
     /**

@@ -25,6 +25,10 @@ class ModularConnect4Game extends BaseGameUI {
     this.gameMode = 'two-player';
     this.isBot = false;
     this.isProcessingMove = false;
+    
+    // Enhanced Keyboard Navigation
+    this.selectedColumn = null;      // Currently selected column via keyboard (null = no selection)
+    this.keyboardMode = false;       // true = keyboard interaction active, prevents mouse conflicts
 
     console.log('🎮 ModularConnect4Game created with BaseGameUI + BoardRenderer + WASM');
   }
@@ -206,10 +210,22 @@ class ModularConnect4Game extends BaseGameUI {
     });
 
     document.addEventListener('keydown', (e) => {
+      // Enhanced Keyboard Navigation: Column Selection (1-7)
       if (e.key >= '1' && e.key <= '7' && !this.gameOver) {
         const col = parseInt(e.key) - 1;
-        this.makeMove(col);
-      } else if (e.key === 'n' || e.key === 'N') {
+        this.selectColumn(col); // NEW: Select column instead of immediate move
+      } 
+      // Enhanced Keyboard Navigation: Execute Move (Space)
+      else if (e.key === ' ' && this.selectedColumn !== null && !this.gameOver) {
+        e.preventDefault(); // Prevent page scroll
+        this.executeSelectedMove();
+      }
+      // Enhanced Keyboard Navigation: Clear Selection (ESC)
+      else if (e.key === 'Escape' && !this.gameOver) {
+        this.clearColumnSelection();
+      }
+      // Existing shortcuts preserved
+      else if (e.key === 'n' || e.key === 'N') {
         this.resetGame();
       } else if (e.key === 'u' || e.key === 'U') {
         this.undoMove();
@@ -533,6 +549,77 @@ class ModularConnect4Game extends BaseGameUI {
     console.log('🤝 Unentschieden!');
   }
 
+  // === ENHANCED KEYBOARD NAVIGATION ===
+  
+  /**
+   * Select column via keyboard (1-7 keys) - shows preview without executing move
+   * @param {number} col - Column index (0-6)
+   */
+  selectColumn(col) {
+    // Validate column
+    if (col < 0 || col > 6 || this.gameOver || this.isProcessingMove) {
+      return;
+    }
+    
+    // Check if column is full
+    if (this.board[0][col] !== 0) {
+      console.log(`⚠️ Column ${col + 1} is full, cannot select`);
+      return;
+    }
+    
+    console.log(`⌨️ Keyboard: Selected column ${col + 1}`);
+    
+    // Update state
+    this.selectedColumn = col;
+    this.keyboardMode = true;
+    
+    // Show visual preview via InteractionHandler
+    if (this.interactionHandler) {
+      this.interactionHandler.showKeyboardSelection(col);
+    } else {
+      // Fallback: use existing drop preview system
+      this.showDropPreview(col);
+    }
+  }
+  
+  /**
+   * Execute move in currently selected column (Space key)
+   */
+  executeSelectedMove() {
+    if (this.selectedColumn === null || this.gameOver || this.isProcessingMove) {
+      console.log('⚠️ No column selected or game not ready for move');
+      return;
+    }
+    
+    console.log(`⌨️ Keyboard: Executing move in column ${this.selectedColumn + 1}`);
+    
+    // Execute the move
+    const col = this.selectedColumn;
+    this.clearColumnSelection(); // Clear selection first
+    this.makeMove(col);
+  }
+  
+  /**
+   * Clear current column selection (ESC key)
+   */
+  clearColumnSelection() {
+    if (this.selectedColumn === null) return;
+    
+    console.log(`⌨️ Keyboard: Clearing column ${this.selectedColumn + 1} selection`);
+    
+    // Clear visual preview
+    if (this.interactionHandler) {
+      this.interactionHandler.clearKeyboardSelection();
+    } else {
+      // Fallback: use existing hide preview
+      this.hideDropPreview();
+    }
+    
+    // Reset state
+    this.selectedColumn = null;
+    this.keyboardMode = false;
+  }
+
   updateScore() {
     if (this.winner === 1) {
       this.scores.yellow++;
@@ -698,6 +785,9 @@ class ModularConnect4Game extends BaseGameUI {
         console.error('❌ AnimationManager cleanup failed:', error);
       }
     }
+    
+    // Clear keyboard selection state
+    this.clearColumnSelection();
     
     // Legacy fallback: Remove any remaining victory background
     const victoryBg = document.getElementById('victoryBackground');

@@ -3,861 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle - v4.2-PERFECT-UX</title>
-    <meta name="cache-bust" content="2025-07-22-perfect-ux-version-display">
-    <meta name="version" content="4.2-perfect-ux-version-display">
+    <title>4 Gewinnt - LogicCastle - v4.3-KEYBOARD-NAVIGATION</title>
+    <meta name="cache-bust" content="2025-07-22-enhanced-keyboard-navigation">
+    <meta name="version" content="4.3-enhanced-keyboard-navigation">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <!-- Minimal CSS fallback only -->
-    <style>
-      /* MINIMAL CSS - Only keyframes that Tailwind can't do */
-      
-      /* SIMPLIFIED CONFETTI ANIMATION - Maximum Browser Compatibility */
-      @keyframes confetti-fall {
-        0% { 
-          transform: translateY(-20px) rotate(0deg) translateZ(0);
-          opacity: 1;
-        }
-        100% { 
-          transform: translateY(calc(100vh + 50px)) rotate(360deg) translateZ(0);
-          opacity: 0;
-        }
-      }
-      
-      
-      /* OPTIMIZED GLASSMORPHISM - Separated from Layout */
-      .glass {
-        /* Core Glass Effect */
-        backdrop-filter: blur(16px) saturate(180%) brightness(105%);
-        background: rgba(255, 255, 255, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        
-        /* Enhanced Shadow System */
-        box-shadow: 
-          0 8px 32px rgba(0, 0, 0, 0.12),
-          0 2px 8px rgba(0, 0, 0, 0.08),
-          inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        
-        /* Performance Optimization */
-        will-change: backdrop-filter, transform;
-      }
-
-      .glass-hover {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .glass-hover:hover {
-        background: rgba(255, 255, 255, 0.22);
-        backdrop-filter: blur(20px) saturate(200%) brightness(110%);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        
-        box-shadow: 
-          0 12px 48px rgba(0, 0, 0, 0.15),
-          0 4px 12px rgba(0, 0, 0, 0.1),
-          inset 0 1px 0 rgba(255, 255, 255, 0.3),
-          0 0 20px rgba(255, 255, 255, 0.1);
-        
-        transform: translateY(-1px);
-      }
-
-      .glass-dark {
-        backdrop-filter: blur(16px) saturate(160%) brightness(85%);
-        background: rgba(0, 0, 0, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        
-        box-shadow: 
-          0 8px 32px rgba(0, 0, 0, 0.2),
-          0 2px 8px rgba(0, 0, 0, 0.15),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      }
-
-      .glass-dark:hover {
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(20px) saturate(180%) brightness(90%);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        
-        box-shadow: 
-          0 12px 48px rgba(0, 0, 0, 0.25),
-          0 4px 12px rgba(0, 0, 0, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.15),
-          0 0 16px rgba(255, 255, 255, 0.05);
-        
-        transform: translateY(-1px);
-      }
-      
-      /* CONNECT4 GAME BOARD - Optimized for 7x6 Grid */
-      .game-board {
-        /* Grid Layout - Perfect 7x6 Connect4 */
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: repeat(6, 1fr);
-        gap: 8px;
-        
-        /* Board Container */
-        background: linear-gradient(135deg, 
-          rgba(37, 99, 235, 0.85) 0%, 
-          rgba(29, 78, 216, 0.90) 50%, 
-          rgba(30, 64, 175, 0.85) 100%);
-        
-        /* Dimensions & Aspect Ratio */
-        aspect-ratio: 7 / 6;
-        max-width: min(70vw, 560px);
-        padding: 12px;
-        margin: 0 auto;
-        
-        /* Visual Polish */
-        border-radius: 16px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        position: relative;
-        
-        /* Glassmorphism for Board */
-        backdrop-filter: blur(12px) saturate(150%);
-        box-shadow: 
-          0 12px 40px rgba(0, 0, 0, 0.25),
-          0 4px 12px rgba(0, 0, 0, 0.15),
-          inset 0 1px 0 rgba(255, 255, 255, 0.2),
-          0 0 0 1px rgba(255, 255, 255, 0.1);
-        
-        /* Performance */
-        will-change: transform;
-      }
-      
-      /* Board Inner Glow Effect */
-      .game-board::before {
-        content: '';
-        position: absolute;
-        inset: 8px;
-        background: linear-gradient(135deg, 
-          rgba(59, 130, 246, 0.1) 0%, 
-          rgba(29, 78, 216, 0.15) 50%, 
-          rgba(37, 99, 235, 0.1) 100%);
-        border-radius: 8px;
-        pointer-events: none;
-        z-index: -1;
-      }
-      
-      /* Ultra Sidebar Background Enhancement */
-      body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background: linear-gradient(135deg, 
-          rgba(30, 58, 138, 0.8) 0%,
-          rgba(88, 28, 135, 0.85) 35%,
-          rgba(49, 46, 129, 0.8) 70%,
-          rgba(30, 58, 138, 0.75) 100%);
-        z-index: -2;
-        pointer-events: none;
-      }
-      
-      /* GAME-SLOT SYSTEM - Fixed Dimensions & Proper Connect4 Grid */
-      .game-slot {
-        /* Core Layout - Fixed size with aspect ratio */
-        width: 100%;
-        height: 100%;
-        min-width: 35px;
-        min-height: 35px;
-        max-width: 70px;
-        max-height: 70px;
-        aspect-ratio: 1;
-        
-        /* Visual Styling */
-        background: rgba(59, 130, 246, 0.8);
-        border: 2px solid rgba(29, 78, 216, 0.9);
-        border-radius: 50%;
-        
-        /* Layout */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        
-        /* Interaction */
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        
-        /* Subtle Glass Effect */
-        backdrop-filter: blur(4px);
-        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2), 
-                    0 2px 8px rgba(0, 0, 0, 0.15);
-      }
-      
-      .game-slot:hover {
-        transform: scale(1.08);
-        background: rgba(79, 156, 246, 0.9);
-        border-color: rgba(37, 99, 235, 1);
-        backdrop-filter: blur(6px) saturate(120%);
-        box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.25), 
-                    0 4px 16px rgba(0, 0, 0, 0.2),
-                    0 0 0 1px rgba(255, 255, 255, 0.3),
-                    0 0 12px rgba(59, 130, 246, 0.4);
-      }
-      
-      .disc {
-        transition: all 0.5s ease;
-      }
-      
-      /* Old disc styles removed - using enhanced versions below */
-      
-      .disc.empty {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(2px);
-      }
-      
-      /* VISUAL POLISH - Enhanced Disc Effects */
-      .disc {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        border-radius: 50%;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: transform, box-shadow;
-        
-        /* Ensure perfect centering */
-        width: 85%;
-        height: 85%;
-        aspect-ratio: 1;
-      }
-      
-      /* CRITICAL CSS SPECIFICITY FIX - Enhanced Yellow Player Disc - REAL YELLOW */
-      .disc.yellow,
-      .game-slot .disc.yellow,
-      div.disc.yellow {
-        background: linear-gradient(135deg, 
-          #fde047 0%, 
-          #facc15 50%, 
-          #eab308 100%) !important;
-        border: 2px solid #ca8a04 !important;
-        box-shadow: 
-          0 4px 12px rgba(250, 204, 21, 0.7),
-          0 2px 6px rgba(0, 0, 0, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-      }
-      
-      /* CRITICAL CSS SPECIFICITY FIX - Enhanced Red Player Disc */
-      .disc.red,
-      .game-slot .disc.red,
-      div.disc.red {
-        background: linear-gradient(135deg, 
-          #ef4444 0%, 
-          #dc2626 50%, 
-          #b91c1c 100%) !important;
-        border: 2px solid #991b1b !important;
-        box-shadow: 
-          0 4px 12px rgba(239, 68, 68, 0.6),
-          0 2px 6px rgba(0, 0, 0, 0.2),
-          inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-      }
-      
-      /* ULTRA HIGH SPECIFICITY - FINAL OVERRIDE FOR ANY EXTERNAL CSS */
-      #gameBoard .game-slot .disc.yellow,
-      #gameBoard div.game-slot div.disc.yellow,
-      .game-board .game-slot .disc.yellow {
-        background: linear-gradient(135deg, 
-          #fde047 0%, 
-          #facc15 50%, 
-          #eab308 100%) !important;
-        border: 2px solid #ca8a04 !important;
-        /* Ensure perfect positioning is maintained */
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 85% !important;
-        height: 85% !important;
-      }
-      
-      #gameBoard .game-slot .disc.red,
-      #gameBoard div.game-slot div.disc.red,
-      .game-board .game-slot .disc.red {
-        background: linear-gradient(135deg, 
-          #ef4444 0%, 
-          #dc2626 50%, 
-          #b91c1c 100%) !important;
-        border: 2px solid #991b1b !important;
-        /* Ensure perfect positioning is maintained */
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 85% !important;
-        height: 85% !important;
-      }
-      
-      /* Disc Hover Effects for Empty Slots */
-      .game-slot:hover .disc.empty {
-        background: rgba(255, 255, 255, 0.15);
-        border-color: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%) scale(1.05);
-        backdrop-filter: blur(4px);
-      }
-      
-      /* CRITICAL DISC POSITIONING FIX */
-      .disc.empty {
-        /* Force exact centering regardless of other CSS */
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 85% !important;
-        height: 85% !important;
-      }
-      
-      .disc.yellow,
-      .disc.red {
-        /* Ensure player discs are also perfectly centered */
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 85% !important;
-        height: 85% !important;
-      }
-      
-      /* RESPONSIVE COORDINATE LABELS */
-      .coord {
-        transition: all 0.2s ease;
-        border-radius: 8px;
-        font-weight: 600;
-      }
-      
-      .coord:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: scale(1.05);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-      
-      /* RESPONSIVE GAME-SLOT SCALING - Proper Connect4 Dimensions */
-      
-      /* Mobile Portrait (320px-479px) */
-      @media (max-width: 479px) {
-        .game-slot { 
-          min-width: 25px; min-height: 25px; 
-          max-width: 35px; max-height: 35px;
-          border-width: 1px; 
-        }
-        .disc { 
-          width: 80%; height: 80%; 
-          min-width: 18px; min-height: 18px; 
-        }
-      }
-      
-      /* Mobile Landscape (480px-767px) */
-      @media (min-width: 480px) and (max-width: 767px) {
-        .game-slot { 
-          min-width: 30px; min-height: 30px; 
-          max-width: 45px; max-height: 45px;
-        }
-        .disc { 
-          width: 85%; height: 85%; 
-          min-width: 25px; min-height: 25px; 
-        }
-      }
-      
-      /* Tablet (768px-1023px) */
-      @media (min-width: 768px) and (max-width: 1023px) {
-        .game-slot { 
-          min-width: 40px; min-height: 40px; 
-          max-width: 55px; max-height: 55px;
-        }
-        .disc { 
-          width: 85%; height: 85%; 
-          min-width: 32px; min-height: 32px; 
-        }
-      }
-      
-      /* Desktop Small (1024px-1279px) */
-      @media (min-width: 1024px) and (max-width: 1279px) {
-        .game-slot { 
-          min-width: 45px; min-height: 45px; 
-          max-width: 60px; max-height: 60px;
-        }
-        .disc { 
-          width: 85%; height: 85%; 
-          min-width: 38px; min-height: 38px; 
-        }
-      }
-      
-      /* Desktop Large (1280px-1535px) */
-      @media (min-width: 1280px) and (max-width: 1535px) {
-        .game-slot { 
-          min-width: 50px; min-height: 50px; 
-          max-width: 70px; max-height: 70px;
-          border-width: 3px; 
-        }
-        .disc { 
-          width: 85%; height: 85%; 
-          min-width: 42px; min-height: 42px; 
-        }
-      }
-
-      /* Desktop Ultra-Wide (1536px+) */
-      @media (min-width: 1536px) {
-        .game-slot { 
-          min-width: 55px; min-height: 55px; 
-          max-width: 80px; max-height: 80px;
-          border-width: 3px; 
-        }
-        .disc { 
-          width: 85%; height: 85%; 
-          min-width: 48px; min-height: 48px; 
-        }
-      }
-      
-      /* Mobile Glassmorphism Optimizations */
-      @media (max-width: 768px) {
-        .glass {
-          backdrop-filter: blur(16px) saturate(150%);
-          background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .game-board {
-          backdrop-filter: blur(12px) saturate(130%);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25),
-                      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
-        
-        .game-slot {
-          backdrop-filter: blur(6px);
-          box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2), 
-                      0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .game-slot:hover {
-          backdrop-filter: blur(8px) saturate(130%);
-          box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.25), 
-                      0 4px 16px rgba(0, 0, 0, 0.15),
-                      0 0 12px rgba(59, 130, 246, 0.2);
-        }
-      }
-      
-      /* Reduced Motion Support */
-      @media (prefers-reduced-motion: reduce) {
-        .glass, .glass-hover, .glass-dark, .game-slot {
-          transition: none;
-        }
-        
-        .glass-hover:hover, .glass-dark:hover, .game-slot:hover {
-          transform: none;
-        }
-      }
-      
-      /* CRITICAL HORIZONTAL LAYOUT ENFORCEMENT */
-      /* Force horizontal coordinates layout at ALL screen sizes */
-      #topCoords, #bottomCoords {
-        display: grid !important;
-        grid-template-columns: repeat(7, 1fr) !important;
-        grid-template-rows: 1fr !important;
-        gap: 8px !important;
-        width: 100% !important;
-        max-width: min(70vw, 560px) !important;
-        margin: 0 auto !important;
-        padding: 8px !important; /* Reduced from 12px to 8px */
-      }
-
-      /* PERFECT COORDINATE BUTTON ALIGNMENT */
-      /* Ensure perfect text centering in coordinate buttons */
-      .coord {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        font-size: 16px !important;
-        font-weight: 700 !important;
-        border-radius: 6px !important;
-        transition: all 0.2s ease !important;
-        cursor: pointer !important;
-      }
-
-      .coord:hover {
-        background: rgba(255, 255, 255, 0.25) !important;
-        transform: scale(1.05) !important;
-      }
-
-      /* CRITICAL LAYOUT FIX - Missing Tailwind Classes */
-      /* Production build is missing essential responsive utilities */
-      
-      /* Max-width utilities */
-      .max-w-7xl {
-        max-width: 80rem; /* 1280px */
-      }
-      
-      /* Padding utilities */
-      .p-6 {
-        padding: 1.5rem; /* 24px */
-      }
-      
-      /* Gap utilities */
-      .gap-6 {
-        gap: 1.5rem; /* 24px */
-      }
-      
-      .gap-2 {
-        gap: 0.5rem; /* 8px */
-      }
-      
-      /* SMART HOVER PREVIEW SYSTEM */
-      /* Player-specific drop preview colors */
-      .drop-preview.preview-player1 {
-        background: linear-gradient(135deg, rgba(253, 224, 71, 0.5), rgba(251, 191, 36, 0.4)) !important;
-        border: 2px solid rgba(253, 224, 71, 0.7) !important;
-        box-shadow: 
-          0 0 12px rgba(253, 224, 71, 0.4) !important,
-          inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
-        transform: translate(-50%, -50%) scale(0.95) !important;
-        transition: all 0.2s ease !important;
-      }
-      
-      .drop-preview.preview-player2 {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.5), rgba(220, 38, 38, 0.4)) !important;
-        border: 2px solid rgba(239, 68, 68, 0.7) !important;
-        box-shadow: 
-          0 0 12px rgba(239, 68, 68, 0.4) !important,
-          inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
-        transform: translate(-50%, -50%) scale(0.95) !important;
-        transition: all 0.2s ease !important;
-      }
-      
-      /* Responsive Grid Columns - XL Breakpoint (1280px+) */
-      @media (min-width: 1280px) {
-        .xl\:grid-cols-4 {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-      }
-      
-      /* Responsive Grid Columns - 2XL Breakpoint (1536px+) */
-      @media (min-width: 1536px) {
-        .2xl\:grid-cols-5 {
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-        }
-        
-        .2xl\:col-span-1 {
-          grid-column: span 1 / span 1;
-        }
-        
-        .2xl\:col-span-3 {
-          grid-column: span 3 / span 3;
-        }
-      }
-      
-      /* XL Grid Columns */
-      @media (min-width: 1280px) {
-        .xl\:col-span-3 {
-          grid-column: span 3 / span 3;
-        }
-      }
-      
-      /* Container utilities */
-      .container-ultra-wide {
-        max-width: 90rem; /* 1440px */
-      }
-      
-      @media (min-width: 1536px) {
-        .2xl\:container-ultra-wide {
-          max-width: 90rem; /* 1440px */
-        }
-        
-        .2xl\:block {
-          display: block;
-        }
-      }
-      
-      /* Hidden/Block utilities */
-      .hidden {
-        display: none;
-      }
-      
-      /* Responsive Display utilities */
-      @media (min-width: 1280px) {
-        .xl\:block {
-          display: block;
-        }
-      }
-      
-      /* Space utilities */
-      .space-y-6 > * + * {
-        margin-top: 1.5rem;
-      }
-      
-      /* Text utilities */
-      .text-white {
-        color: rgb(255 255 255);
-      }
-      
-      .text-xl {
-        font-size: 1.25rem;
-        line-height: 1.75rem;
-      }
-      
-      .text-2xl {
-        font-size: 1.5rem;
-        line-height: 2rem;
-      }
-      
-      .font-bold {
-        font-weight: 700;
-      }
-      
-      .font-semibold {
-        font-weight: 600;
-      }
-      
-      /* Rounded utilities */
-      .rounded-2xl {
-        border-radius: 1rem;
-      }
-      
-      .rounded-xl {
-        border-radius: 0.75rem;
-      }
-      
-      /* Shadow utilities */
-      .shadow-xl {
-        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-      }
-      
-      /* Margin utilities */
-      .mb-4 {
-        margin-bottom: 1rem;
-      }
-      
-      .mr-3 {
-        margin-right: 0.75rem;
-      }
-      
-      .mr-2 {
-        margin-right: 0.5rem;
-      }
-      
-      /* Size utilities */
-      .w-8 {
-        width: 2rem;
-      }
-      
-      .h-8 {
-        height: 2rem;
-      }
-      
-      .w-4 {
-        width: 1rem;
-      }
-      
-      .h-4 {
-        height: 1rem;
-      }
-      
-      /* Display utilities */
-      .flex {
-        display: flex;
-      }
-      
-      .items-center {
-        align-items: center;
-      }
-      
-      .justify-center {
-        justify-content: center;
-      }
-      
-      .justify-between {
-        justify-content: space-between;
-      }
-      
-      /* Background utilities */
-      .bg-gradient-to-br {
-        background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-      }
-      
-      .bg-gradient-to-r {
-        background-image: linear-gradient(to right, var(--tw-gradient-stops));
-      }
-      
-      .from-yellow-400 {
-        --tw-gradient-from: #facc15;
-        --tw-gradient-to: rgb(250 204 21 / 0);
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-      }
-      
-      .to-yellow-600 {
-        --tw-gradient-to: #ca8a04;
-      }
-      
-      .from-red-500 {
-        --tw-gradient-from: #ef4444;
-        --tw-gradient-to: rgb(239 68 68 / 0);
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-      }
-      
-      .to-red-700 {
-        --tw-gradient-to: #b91c1c;
-      }
-      
-      /* Color utilities */
-      .text-yellow-400 {
-        color: #facc15;
-      }
-      
-      .text-red-400 {
-        color: #f87171;
-      }
-      
-      /* BUTTON & UI CONTROL UTILITIES */
-      
-      /* Padding utilities for buttons */
-      .py-3 {
-        padding-top: 0.75rem;
-        padding-bottom: 0.75rem;
-      }
-      
-      .px-4 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-      
-      .py-2 {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-      }
-      
-      /* Width utilities */
-      .w-full {
-        width: 100%;
-      }
-      
-      /* Button styling */
-      button {
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      
-      button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      
-      /* Green Button Gradients */
-      .from-green-500 {
-        --tw-gradient-from: #10b981;
-        --tw-gradient-to: rgb(16 185 129 / 0);
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-      }
-      
-      .to-emerald-600 {
-        --tw-gradient-to: #059669;
-      }
-      
-      .hover\:from-green-600:hover {
-        --tw-gradient-from: #059669;
-      }
-      
-      .hover\:to-emerald-700:hover {
-        --tw-gradient-to: #047857;
-      }
-      
-      /* Orange/Red Button Gradients */
-      .from-orange-500 {
-        --tw-gradient-from: #f97316;
-        --tw-gradient-to: rgb(249 115 22 / 0);
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-      }
-      
-      .to-red-600 {
-        --tw-gradient-to: #dc2626;
-      }
-      
-      .hover\:from-orange-600:hover {
-        --tw-gradient-from: #ea580c;
-      }
-      
-      .hover\:to-red-700:hover {
-        --tw-gradient-to: #b91c1c;
-      }
-      
-      /* Blue Button Gradients */
-      .from-blue-500 {
-        --tw-gradient-from: #3b82f6;
-        --tw-gradient-to: rgb(59 130 246 / 0);
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-      }
-      
-      .to-cyan-600 {
-        --tw-gradient-to: #0891b2;
-      }
-      
-      .hover\:from-blue-600:hover {
-        --tw-gradient-from: #2563eb;
-      }
-      
-      .hover\:to-cyan-700:hover {
-        --tw-gradient-to: #0e7490;
-      }
-      
-      /* Purple Button Gradients */
-      .from-purple-500 {
-        --tw-gradient-from: #a855f7;
-        --tw-gradient-to: rgb(168 85 247 / 0);
-        --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-      }
-      
-      .to-pink-600 {
-        --tw-gradient-to: #db2777;
-      }
-      
-      .hover\:from-purple-600:hover {
-        --tw-gradient-from: #9333ea;
-      }
-      
-      .hover\:to-pink-700:hover {
-        --tw-gradient-to: #be185d;
-      }
-      
-      /* Additional text colors */
-      .text-green-400 {
-        color: #4ade80;
-      }
-      
-      .text-gray-400 {
-        color: #9ca3af;
-      }
-      
-      /* Hover background utilities */
-      .hover\:bg-white:hover {
-        background-color: rgb(255 255 255);
-      }
-      
-      .hover\:bg-opacity-20:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-      }
-      
-      .hover\:bg-opacity-10:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-      
-      /* Transition utilities */
-      .transition-all {
-        transition: all 0.2s ease;
-      }
-      
-      .duration-200 {
-        transition-duration: 0.2s;
-      }
-      
-      /* Shadow utilities for buttons */
-      .shadow-lg {
-        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      }
-    </style>
+    <!-- Tailwind CSS v4.x Direct Import -->
+    <link rel="stylesheet" href="assets/css/tailwind-source.css">
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-version="2.3-perfect" data-cache-bust="2025-07-21">
+  <body class="theme-connect4 min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-version="2.3-perfect" data-cache-bust="2025-07-21">
     <!-- Background decoration -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 1s;"></div>
         <div class="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 2s;"></div>
+        <div class="absolute -top-20 left-1/4 w-60 h-60 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse" style="animation-delay: 0.5s;"></div>
+        <div class="absolute bottom-20 right-1/4 w-60 h-60 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse" style="animation-delay: 1.5s;"></div>
     </div>
 
     <div class="relative z-10" data-current-player="1">
@@ -865,10 +27,10 @@
       <header class="p-6 text-center">
         <div class="max-w-6xl mx-auto">
           <div class="flex items-center justify-between mb-4">
-            <a href="../../index.html" class="glass px-4 py-2 rounded-xl text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+            <a href="../../index.html" class="lc-glass lc-lc-glass-hover px-4 py-2 rounded-xl text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200">
               ← Zurück zu LogicCastle
             </a>
-            <div class="glass px-4 py-2 rounded-xl">
+            <div class="lc-glass px-4 py-2 rounded-xl">
               <label for="gameMode" class="text-white text-sm mr-2">Modus:</label>
               <select id="gameMode" class="bg-transparent text-white border-none focus:outline-none">
                 <option value="two-player" class="text-gray-900">2 Spieler</option>
@@ -882,7 +44,7 @@
             <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90" id="versionDisplay">v4.2-PERFECT-UX • Dynamic Version • Visual Reset Fix • Click to Copy</p>
+          <p class="text-lg md:text-xl text-white opacity-90" id="versionDisplay">v4.3-KEYBOARD-NAVIGATION • 1-7 Select • Space Execute • ESC Clear</p>
         </div>
       </header>
 
@@ -893,7 +55,7 @@
           <!-- Left Sidebar (2XL+ only) -->
           <div class="hidden 2xl:block 2xl:col-span-1 space-y-6">
             <!-- Current Player Status -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Aktueller Spieler</h3>
               <div class="flex items-center justify-center">
                 <span class="player-indicator flex items-center" id="currentPlayerIndicator2xl">
@@ -904,7 +66,7 @@
             </div>
 
             <!-- Score Board -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Spielstand</h3>
               <div class="space-y-4">
                 <div class="flex items-center justify-between text-white">
@@ -927,7 +89,7 @@
           
           <!-- Game Board Section (responsive width) -->
           <div class="xl:col-span-3 2xl:col-span-3">
-            <div class="glass rounded-3xl p-8 shadow-2xl" data-current-player="1">
+            <div class="lc-glass rounded-3xl p-8 shadow-2xl" data-current-player="1">
               <!-- Column Coordinates Top - PERFECT ALIGNMENT -->
               <div class="max-w-2xl mx-auto mb-2">
                 <div class="grid grid-cols-7 gap-2 p-2 bg-black bg-opacity-20 rounded-lg" id="topCoords">
@@ -970,7 +132,7 @@
           <!-- Game Info Sidebar (1/4 width) -->
           <div class="space-y-6">
             <!-- Current Player Status -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Aktueller Spieler</h3>
               <div class="flex items-center justify-center">
                 <span class="player-indicator flex items-center" id="currentPlayerIndicator">
@@ -981,7 +143,7 @@
             </div>
 
             <!-- Score Board -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Spielstand</h3>
               <div class="space-y-4">
                 <div class="flex items-center justify-between text-white">
@@ -1002,7 +164,7 @@
             </div>
 
             <!-- Game Status -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Spiel-Info</h3>
               <div class="space-y-3 text-white">
                 <div class="flex justify-between">
@@ -1017,22 +179,22 @@
             </div>
 
             <!-- Game Controls -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Steuerung</h3>
               <div class="space-y-3">
-                <button id="newGameBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="newGameBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🆕 Neues Spiel (N)
                 </button>
-                <button id="undoBtn" class="w-full glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200 disabled:opacity-50" disabled>
+                <button id="undoBtn" class="w-full lc-glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200 disabled:opacity-50" disabled>
                   ↶ Rückgängig (U)
                 </button>
-                <button id="resetScoreBtn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="resetScoreBtn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🔄 Score zurücksetzen (F3)
                 </button>
-                <button id="assistanceBtn" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="assistanceBtn" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🎛️ Spielerhilfen (F2)
                 </button>
-                <button id="helpBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="helpBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   ❓ Spielanleitung (F1)
                 </button>
               </div>
@@ -1042,7 +204,7 @@
           <!-- Right Sidebar (2XL+ only) -->
           <div class="hidden 2xl:block 2xl:col-span-1 space-y-6">
             <!-- Game Status -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Spiel-Info</h3>
               <div class="space-y-3 text-white">
                 <div class="flex justify-between">
@@ -1057,22 +219,22 @@
             </div>
 
             <!-- Game Controls -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Steuerung</h3>
               <div class="space-y-3">
-                <button id="newGameBtn2xl" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="newGameBtn2xl" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🆕 Neues Spiel (N)
                 </button>
-                <button id="undoBtn2xl" class="w-full glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200 disabled:opacity-50" disabled>
+                <button id="undoBtn2xl" class="w-full lc-glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200 disabled:opacity-50" disabled>
                   ↶ Rückgängig (U)
                 </button>
-                <button id="resetScoreBtn2xl" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="resetScoreBtn2xl" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🔄 Score zurücksetzen (F3)
                 </button>
-                <button id="assistanceBtn2xl" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="assistanceBtn2xl" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🎛️ Spielerhilfen (F2)
                 </button>
-                <button id="helpBtn2xl" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="helpBtn2xl" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   ❓ Spielanleitung (F1)
                 </button>
               </div>
@@ -1085,10 +247,10 @@
 
     <!-- Modern Player Assistance Modal -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="assistanceModal">
-      <div class="glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="lc-glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-3xl font-bold text-white">🎛️ Spielerhilfen</h2>
-          <button class="glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeAssistanceModal">
+          <button class="lc-glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeAssistanceModal">
             ✕
           </button>
         </div>
@@ -1100,10 +262,10 @@
 
     <!-- Help Modal -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="helpModal">
-      <div class="glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="lc-glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-3xl font-bold text-white">❓ Spielanleitung</h2>
-          <button class="glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeHelpModal">
+          <button class="lc-glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeHelpModal">
             ✕
           </button>
         </div>
@@ -1170,17 +332,17 @@
                 const boardContainer = document.querySelector('.game-board-container');
                 if (!boardContainer) return;
                 
-                boardContainer.innerHTML = \`
+                boardContainer.innerHTML = `
                   <div class="game-board grid grid-cols-7 grid-rows-6 gap-2 p-6 rounded-2xl" id="gameBoard">
-                    \${Array(42).fill(0).map((_, i) => {
+                    ${Array(42).fill(0).map((_, i) => {
                       const row = Math.floor(i / 7);
                       const col = i % 7;
-                      return \`<div class="game-slot glass relative rounded-full aspect-square cursor-pointer hover:scale-105 transition-transform" data-row="\${row}" data-col="\${col}" onclick="window.game.makeMove(\${col})">
+                      return `<div class="game-slot lc-glass relative rounded-full aspect-square cursor-pointer hover:scale-105 transition-transform" data-row="${row}" data-col="${col}" onclick="window.game.makeMove(${col})">
                         <div class="disc empty absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4/5 h-4/5 rounded-full"></div>
-                      </div>\`;
+                      </div>`;
                     }).join('')}
                   </div>
-                \`;
+                `;
                 
                 // Update scores display
                 document.getElementById('yellowScore').textContent = this.scores.yellow;
@@ -1241,8 +403,8 @@
               }
               
               makeMove(col) {
-                console.log(\`🎮 makeMove called: Player \${this.currentPlayer} to column \${col}\`);
-                console.log(\`🎮 makeMove: gameOver status = \${this.gameOver}\`);
+                console.log(`🎮 makeMove called: Player ${this.currentPlayer} to column ${col}`);
+                console.log(`🎮 makeMove: gameOver status = ${this.gameOver}`);
                 
                 // CRITICAL FIX: Prevent moves during game over state
                 if (this.gameOver) {
@@ -1271,23 +433,23 @@
                 }
                 
                 if (row === -1) {
-                  console.log(\`❌ Column \${col} full, move rejected\`);
+                  console.log(`❌ Column ${col} full, move rejected`);
                   return; // Column full
                 }
                 
                 // Place piece
                 this.board[row][col] = this.currentPlayer;
-                console.log(\`✅ Piece placed at (\${row}, \${col}) for player \${this.currentPlayer}\`);
+                console.log(`✅ Piece placed at (${row}, ${col}) for player ${this.currentPlayer}`);
                 console.log('📋 Current board state:');
                 for (let r = 0; r < 6; r++) {
-                  console.log(\`Row \${r}: \`, this.board[r]);
+                  console.log(`Row ${r}: `, this.board[r]);
                 }
                 this.updateCell(row, col);
                 
                 // Check for win
                 console.log('🔍 About to check win...');
                 const winResult = this.checkWin(row, col);
-                console.log(\`🔍 checkWin result: \${winResult}\`);
+                console.log(`🔍 checkWin result: ${winResult}`);
                 if (winResult) {
                   console.log('🏆 CALLING showWin()...');
                   this.showWin(row, col);
@@ -1302,7 +464,7 @@
               }
               
               updateCell(row, col) {
-                const cell = document.querySelector(\`[data-row="\${row}"][data-col="\${col}"] .disc\`);
+                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"] .disc`);
                 if (cell) {
                   // CRITICAL FIX: Use proper sizing and ensure visibility
                   cell.className = 'disc w-[85%] h-[85%] min-w-[25px] min-h-[25px] rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 aspect-square transition-all duration-500';
@@ -1320,12 +482,12 @@
                     'visibility: visible !important;' +
                     'z-index: 10 !important;';
                   
-                  console.log(\`🎨 Updated cell (\${row}, \${col}) with \${color} styling\`);
+                  console.log(`🎨 Updated cell (${row}, ${col}) with ${color} styling`);
                 }
               }
               
               checkWin(row, col) {
-                console.log(\`🔍 Checking win for player \${this.currentPlayer} at (\${row}, \${col})\`);
+                console.log(`🔍 Checking win for player ${this.currentPlayer} at (${row}, ${col})`);
                 const directions = [
                   [0, 1], [1, 0], [1, 1], [1, -1]
                 ];
@@ -1334,7 +496,7 @@
                   let count = 1;
                   const line = [[row, col]];
                   const directionName = dr === 0 ? 'horizontal' : (dc === 0 ? 'vertical' : (dr === dc ? 'diagonal-down' : 'diagonal-up'));
-                  console.log(\`🔍 Checking \${directionName} direction [${dr},${dc}] from (\${row}, \${col})\`);
+                  console.log(`🔍 Checking ${directionName} direction [${dr},${dc}] from (${row}, ${col})`);
                   
                   // Check positive direction (FIX: i < 7 instead of i < 4)
                   for (let i = 1; i < 7; i++) {
@@ -1356,17 +518,17 @@
                     } else break;
                   }
                   
-                  console.log(\`📊 \${directionName}: Found \${count} in a row\`, line);
+                  console.log(`📊 ${directionName}: Found ${count} in a row`, line);
                   
                   if (count >= 4) {
-                    console.log(\`🏆 WIN DETECTED! Player \${this.currentPlayer} has \${count} in a row (\${directionName}): \`, line.slice(0, 4));
+                    console.log(`🏆 WIN DETECTED! Player ${this.currentPlayer} has ${count} in a row (${directionName}): `, line.slice(0, 4));
                     this.winningLine = line.slice(0, 4);
                     this.winner = this.currentPlayer;
                     this.gameOver = true;
                     return true;
                   }
                 }
-                console.log(\`❌ No win detected for player \${this.currentPlayer} at (\${row}, \${col})\`);
+                console.log(`❌ No win detected for player ${this.currentPlayer} at (${row}, ${col})`);
                 return false;
               }
 
@@ -1382,7 +544,7 @@
                 const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
                 const winnerHex = this.currentPlayer === 1 ? '#fde047' : '#ef4444';
 
-                console.log(\`🏆 \${winnerName} gewinnt! Starting 3-phase victory sequence...\`);
+                console.log(`🏆 ${winnerName} gewinnt! Starting 3-phase victory sequence...`);
 
                 // Update score immediately 
                 this.scores[winnerColor]++;
@@ -1403,14 +565,14 @@
               }
               
               showVictoryPhase1(winnerColor, winnerName) {
-                console.log(\`🎯 PHASE 1: Highlighting winning line...\`);
-                document.getElementById('gameStatus').textContent = \`🏆 \${winnerName} gewinnt!\`;
+                console.log(`🎯 PHASE 1: Highlighting winning line...`);
+                document.getElementById('gameStatus').textContent = `🏆 ${winnerName} gewinnt!`;
                 
                 // Highlight winning discs
                 this.winningLine.forEach(([r, c]) => {
-                  const disc = document.querySelector(\`[data-row="\${r}"][data-col="\${c}"] .disc\`);
+                  const disc = document.querySelector(`[data-row="${r}"][data-col="${c}"] .disc`);
                   if (disc) {
-                    disc.style.boxShadow = \`0 0 20px \${winnerColor === 'yellow' ? '#fde047' : '#ef4444'}\`;
+                    disc.style.boxShadow = `0 0 20px ${winnerColor === 'yellow' ? '#fde047' : '#ef4444'}`;
                     disc.style.transform = 'translate(-50%, -50%) scale(1.2)';
                     disc.style.zIndex = '100';
                   }
@@ -1418,13 +580,13 @@
               }
               
               showVictoryPhase2(winnerColor, winnerHex) {
-                console.log(\`🎆 PHASE 2: Creating confetti...\`);
+                console.log(`🎆 PHASE 2: Creating confetti...`);
                 console.log('🎆 Confetti system triggered! Winner:', winnerColor);
                 this.createConfetti(winnerColor);
               }
               
               showVictoryPhase3(winnerName, winnerColor) {
-                console.log(\`✨ PHASE 3: Auto-Reset - Cleaning victory effects and starting new game\`);
+                console.log(`✨ PHASE 3: Auto-Reset - Cleaning victory effects and starting new game`);
                 
                 // Clean up visual effects immediately
                 document.querySelectorAll('.disc').forEach(disc => {
@@ -1580,7 +742,7 @@
               updateUI() {
                 const status = document.getElementById('gameStatus');
                 if (status && !this.gameOver) {
-                  status.textContent = \`Spieler \${this.currentPlayer} (\${this.currentPlayer === 1 ? 'Gelb' : 'Rot'}) ist dran\`;
+                  status.textContent = `Spieler ${this.currentPlayer} (${this.currentPlayer === 1 ? 'Gelb' : 'Rot'}) ist dran`;
                 }
               }
             }

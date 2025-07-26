@@ -421,7 +421,8 @@
     
     <!-- FALLBACK: Simple Gomoku for testing when modules fail -->
     <script>
-      if (!window.gomokuLoaded) {
+      // Wait for DOMContentLoaded AND module loading attempt, especially on file:// protocol
+      document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           if (!window.gomokuLoaded) {
             console.log('🔄 Module loading failed, creating simple fallback game...');
@@ -610,8 +611,8 @@
             window.gomokuGame = new SimpleGomoku();
             window.gomokuLoaded = true;
           }
-        }, 1000);
-      }
+        }, 3000); // Wait 3 seconds after DOM loaded for modules to fail
+      });
     </script>
     
     <!-- Module loading failure detection -->

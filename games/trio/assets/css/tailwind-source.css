@@ -16,12 +16,10 @@
 @import '../../../shared/css/glassmorphism-system.css';
 
 /* ===============================
-   🌊 TAILWIND CSS IMPORTS
+   🌊 TAILWIND CSS v4.x IMPORT
    =============================== */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ===============================
    🎯 TRIO-SPECIFIC STYLES

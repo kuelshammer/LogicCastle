@@ -1,34 +1,33 @@
-/* Tailwind CSS Source - Gomoku Production Build */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/**
+ * Gomoku Tailwind CSS Source File
+ * 
+ * Main CSS entry point for Gomoku game build process.
+ * Imports shared LogicCastle design system and Gomoku-specific styles.
+ */
 
-/* GLASSMORPHISM SYSTEM (Connect4 Pattern) */
-@layer components {
-  .glass {
-    backdrop-filter: blur(16px) saturate(180%) brightness(105%);
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.12),
-      0 2px 8px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    will-change: backdrop-filter, transform;
-  }
+/* ===============================
+   🎨 SHARED DESIGN SYSTEM IMPORTS
+   =============================== */
 
-  .glass-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* Import LogicCastle Design Tokens */
+@import '../../../shared/css/design-tokens.css';
 
-  .glass-hover:hover {
-    background: rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(20px) saturate(200%) brightness(110%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 
-      0 16px 48px rgba(0, 0, 0, 0.15),
-      0 4px 12px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
+/* Import Unified Glassmorphism System */
+@import '../../../shared/css/glassmorphism-system.css';
+
+/* ===============================
+   🌊 TAILWIND CSS v4.x IMPORT
+   =============================== */
+
+@import "tailwindcss";
+
+/* ===============================
+   🎯 GOMOKU-SPECIFIC STYLES  
+   =============================== */
+
+/* Apply Gomoku theme to body */
+body {
+  @apply theme-gomoku;
 }
 
 /* KEYFRAMES for Victory Sequence */
@@ -91,71 +90,197 @@
   }
 }
 
-/* ULTRA-HIGH SPECIFICITY for CSS conflicts (Connect4 Pattern) */
-@layer utilities {
-  #gameBoard .intersection .stone.black {
-    background: radial-gradient(circle at 30% 30%, #444, #000) !important;
-    border: 2px solid #222 !important;
-  }
+/* ===============================
+   🎮 GOMOKU GAME-SPECIFIC CSS
+   =============================== */
 
-  #gameBoard .intersection .stone.white {
-    background: radial-gradient(circle at 30% 30%, #fff, #ddd) !important;
-    border: 2px solid #ccc !important;
-  }
+/* Game Board Styling */
+.gomoku-board {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(15, 1fr);
+  gap: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, 
+    var(--lc-gomoku-bg-from), 
+    var(--lc-gomoku-bg-to)
+  );
+  border-radius: var(--lc-radius-2xl);
+  padding: var(--lc-space-4);
+  box-shadow: var(--lc-shadow-xl);
+}
 
-  #gameBoard .intersection.winning-stone {
-    animation: victory-pulse 1s ease-in-out infinite !important;
-  }
+/* Board Intersections */
+.intersection {
+  @apply lc-glass;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  #gameBoard .intersection.threat-highlight {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5) !important;
-    background-color: rgba(239, 68, 68, 0.1) !important;
-  }
+.intersection:hover {
+  background: var(--lc-glass-bg-hover);
+  transform: var(--lc-scale-hover);
+}
 
-  #gameBoard .intersection.assistance-highlight {
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5) !important;
-    background-color: rgba(34, 197, 94, 0.1) !important;
-  }
+/* Stones */
+.stone {
+  width: 85%;
+  height: 85%;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+  animation: stone-place var(--lc-duration-normal) var(--lc-ease-out);
+}
 
-  #gameBoard .intersection.keyboard-focus {
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5) !important;
-    border: 2px solid #3b82f6 !important;
-    z-index: 10 !important;
+.stone.black {
+  background: radial-gradient(circle at 30% 30%, #444, #000);
+  border: 2px solid #222;
+  box-shadow: 
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.stone.white {
+  background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+  border: 2px solid #ccc;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Game States */
+.intersection.winning-stone {
+  animation: victory-pulse 1s ease-in-out infinite;
+  z-index: 10;
+}
+
+.intersection.threat-highlight {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.intersection.assistance-highlight {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.5);
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.intersection.keyboard-focus {
+  box-shadow: 0 0 0 3px var(--lc-gomoku-accent);
+  border: 2px solid var(--lc-gomoku-accent);
+  z-index: 10;
+}
+
+/* Game UI Components */
+.game-header {
+  @apply lc-glass;
+  border-radius: var(--lc-radius-xl);
+  padding: var(--lc-space-4);
+  margin-bottom: var(--lc-space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-stats {
+  @apply lc-glass;
+  border-radius: var(--lc-radius-lg);
+  padding: var(--lc-space-4);
+  text-align: center;
+}
+
+.game-controls {
+  @apply lc-glass lc-glass-hover;
+  border-radius: var(--lc-radius-lg);
+  padding: var(--lc-space-3) var(--lc-space-4);
+  margin: var(--lc-space-2);
+  cursor: pointer;
+}
+
+/* ===============================
+   📱 RESPONSIVE DESIGN
+   =============================== */
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .gomoku-board {
+    max-width: 350px;
+    padding: var(--lc-space-3);
+  }
+  
+  .stone {
+    width: 80%;
+    height: 80%;
   }
 }
 
+/* Tablet Optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .gomoku-board {
+    max-width: 480px;
+  }
+}
+
+/* Desktop Enhancements */
+@media (min-width: 1025px) {
+  .gomoku-board {
+    max-width: 600px;
+  }
+  
+  .intersection:hover {
+    box-shadow: 
+      0 0 15px var(--lc-gomoku-accent),
+      var(--lc-shadow-lg);
+  }
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY SUPPORT
+   =============================== */
+
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
-  .glass-hover, .stone, .intersection {
+  .lc-glass-hover, .stone, .intersection {
     animation: none !important;
     transition: none !important;
   }
-  .glass-hover:hover {
+  
+  .intersection:hover {
     transform: none !important;
   }
   
-  /* Disable confetti animation for reduced motion */
   .confetti-particle {
     display: none !important;
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .intersection {
+    border: 2px solid var(--lc-gomoku-accent);
   }
   
-  .glass-hover:hover {
-    background: rgba(255, 255, 255, 0.18);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+  .stone.black {
+    border: 3px solid #000000;
+  }
+  
+  .stone.white {
+    border: 3px solid #ffffff;
   }
 }
 
-/* Print styles */
+/* Print Styles */
 @media print {
-  .glass, .glass-hover {
+  .lc-glass, .lc-glass-hover {
     background: white !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
