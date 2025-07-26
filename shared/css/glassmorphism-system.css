@@ -1,0 +1,356 @@
+/**
+ * LogicCastle Unified Glassmorphism System
+ * 
+ * Replaces game-specific .glass implementations with unified .lc-glass classes.
+ * Provides consistent glassmorphism effects across all games while supporting
+ * game-specific theme overlays.
+ * 
+ * Version: 1.0 (2025-07-24)
+ * Replaces: Connect4/.glass, Gomoku/.glass, Trio/.glass variants
+ */
+
+/* Import design tokens */
+@import url('./design-tokens.css');
+
+/* ===============================
+   🪟 CORE GLASSMORPHISM CLASSES
+   =============================== */
+
+/**
+ * .lc-glass - Primary glassmorphism effect
+ * Replaces all game-specific .glass classes
+ */
+.lc-glass {
+  /* Core Glass Effect */
+  backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  
+  /* Background & Border */
+  background: var(--lc-glass-bg-light);
+  border: 1px solid var(--lc-glass-border-light);
+  
+  /* Enhanced Shadow System */
+  box-shadow: 
+    var(--lc-shadow-md),
+    var(--lc-shadow-sm),
+    var(--lc-shadow-inset);
+  
+  /* Performance Optimization */
+  will-change: backdrop-filter, transform;
+  transform: translateZ(0); /* Hardware acceleration */
+}
+
+/**
+ * .lc-glass-hover - Interactive hover states
+ * Provides consistent hover feedback across all components
+ */
+.lc-glass-hover {
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+}
+
+.lc-glass-hover:hover {
+  /* Enhanced Glass Effect on Hover */
+  backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  -webkit-backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  
+  /* Stronger Background & Border */
+  background: var(--lc-glass-bg-hover);
+  border: 1px solid var(--lc-glass-border-hover);
+  
+  /* Enhanced Shadow on Hover */
+  box-shadow: 
+    var(--lc-shadow-lg),
+    var(--lc-shadow-md),
+    var(--lc-shadow-inset-hover);
+  
+  /* Subtle Lift Effect */
+  transform: translateY(-2px) translateZ(0);
+}
+
+/**
+ * .lc-glass-dark - Dark context glassmorphism
+ * For use on lighter backgrounds or in dark mode
+ */
+.lc-glass-dark {
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  background: var(--lc-glass-bg-dark);
+  border: 1px solid var(--lc-glass-border-dark);
+  box-shadow: 
+    var(--lc-shadow-md),
+    var(--lc-shadow-sm);
+  will-change: backdrop-filter, transform;
+  transform: translateZ(0);
+}
+
+.lc-glass-dark.lc-glass-hover:hover {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* ===============================
+   🎨 THEME-SPECIFIC OVERLAYS
+   =============================== */
+
+/**
+ * Connect4 Theme Glassmorphism
+ * Blue-purple tinted glass effects
+ */
+.theme-connect4 .lc-glass {
+  background: linear-gradient(135deg, 
+    var(--lc-glass-bg-light), 
+    rgba(59, 130, 246, 0.1)
+  );
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.theme-connect4 .lc-glass-hover:hover {
+  background: linear-gradient(135deg, 
+    var(--lc-glass-bg-hover), 
+    rgba(59, 130, 246, 0.15)
+  );
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/**
+ * Gomoku Theme Glassmorphism  
+ * Warm amber tinted glass effects
+ */
+.theme-gomoku .lc-glass {
+  background: linear-gradient(135deg, 
+    var(--lc-glass-bg-light), 
+    rgba(245, 158, 11, 0.08)
+  );
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.theme-gomoku .lc-glass-hover:hover {
+  background: linear-gradient(135deg, 
+    var(--lc-glass-bg-hover), 
+    rgba(245, 158, 11, 0.12)
+  );
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/**
+ * Trio Theme Glassmorphism
+ * Purple-violet tinted glass effects  
+ */
+.theme-trio .lc-glass {
+  background: linear-gradient(135deg, 
+    var(--lc-glass-bg-light), 
+    rgba(139, 92, 246, 0.1)
+  );
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.theme-trio .lc-glass-hover:hover {
+  background: linear-gradient(135deg, 
+    var(--lc-glass-bg-hover), 
+    rgba(139, 92, 246, 0.15)
+  );
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+/* ===============================
+   📱 RESPONSIVE GLASSMORPHISM
+   =============================== */
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .lc-glass {
+    backdrop-filter: var(--lc-blur-sm) saturate(150%) brightness(103%);
+    -webkit-backdrop-filter: var(--lc-blur-sm) saturate(150%) brightness(103%);
+  }
+  
+  .lc-glass-hover:hover {
+    backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(108%);
+    -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(108%);
+  }
+}
+
+/* High-end Desktop Enhancements */
+@media (min-width: 1536px) {
+  .lc-glass {
+    backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(108%);
+    -webkit-backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(108%);
+  }
+  
+  .lc-glass-hover:hover {
+    backdrop-filter: var(--lc-blur-xl) saturate(220%) brightness(112%);
+    -webkit-backdrop-filter: var(--lc-blur-xl) saturate(220%) brightness(112%);
+  }
+}
+
+/* ===============================
+   🛠️ UTILITY CLASSES
+   =============================== */
+
+/**
+ * .lc-glass-subtle - Lighter glassmorphism for nested elements
+ */
+.lc-glass-subtle {
+  backdrop-filter: var(--lc-blur-sm) saturate(120%);
+  -webkit-backdrop-filter: var(--lc-blur-sm) saturate(120%);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--lc-shadow-sm);
+}
+
+/**
+ * .lc-glass-strong - Stronger glassmorphism for important elements
+ */
+.lc-glass-strong {
+  backdrop-filter: var(--lc-blur-xl) saturate(220%) brightness(115%);
+  -webkit-backdrop-filter: var(--lc-blur-xl) saturate(220%) brightness(115%);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    var(--lc-shadow-xl),
+    var(--lc-shadow-lg),
+    var(--lc-shadow-inset);
+}
+
+/**
+ * .lc-glass-no-blur - Glassmorphism without backdrop blur (performance)
+ */
+.lc-glass-no-blur {
+  background: var(--lc-glass-bg-light);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md), var(--lc-shadow-sm);
+  /* No backdrop-filter for better performance */
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY SUPPORT
+   =============================== */
+
+/**
+ * Reduced Motion Support
+ * Disable transitions for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  .lc-glass-hover {
+    transition: none;
+  }
+  
+  .lc-glass-hover:hover {
+    transform: none;
+  }
+}
+
+/**
+ * High Contrast Support  
+ * Stronger borders for better visibility
+ */
+@media (prefers-contrast: high) {
+  .lc-glass {
+    border: 2px solid var(--lc-glass-border-light);
+    background: rgba(255, 255, 255, 0.25);
+  }
+  
+  .lc-glass-hover:hover {
+    border: 2px solid var(--lc-glass-border-hover);
+    background: rgba(255, 255, 255, 0.35);
+  }
+  
+  .lc-glass-dark {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+/**
+ * Forced Colors Mode Support
+ * Fallback for Windows High Contrast mode
+ */
+@media (forced-colors: active) {
+  .lc-glass,
+  .lc-glass-hover,
+  .lc-glass-dark {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: Canvas;
+    border: 1px solid ButtonText;
+    color: ButtonText;
+  }
+}
+
+/* ===============================
+   🔧 BROWSER COMPATIBILITY
+   =============================== */
+
+/**
+ * Safari Specific Fixes
+ * Enhanced -webkit-backdrop-filter support
+ */
+@supports (-webkit-backdrop-filter: blur(1px)) and (not (backdrop-filter: blur(1px))) {
+  .lc-glass {
+    -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  }
+  
+  .lc-glass-hover:hover {
+    -webkit-backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  }
+}
+
+/**
+ * Fallback for browsers without backdrop-filter support
+ * Provides basic glassmorphism using background only
+ */
+@supports not (backdrop-filter: blur(1px)) and not (-webkit-backdrop-filter: blur(1px)) {
+  .lc-glass {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+  
+  .lc-glass-hover:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .lc-glass-dark {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ===============================
+   🚀 PERFORMANCE OPTIMIZATIONS
+   =============================== */
+
+/**
+ * Layer Promotion for Hardware Acceleration
+ * Promotes glassmorphism elements to GPU layer
+ */
+.lc-glass,
+.lc-glass-hover,
+.lc-glass-dark {
+  /* Force GPU acceleration */
+  transform: translateZ(0);
+  
+  /* Optimize repaints */
+  will-change: backdrop-filter, transform, opacity;
+  
+  /* Contain layout and paint */
+  contain: layout style paint;
+}
+
+/**
+ * Optimized Hover States
+ * Only enable will-change during interactions
+ */
+.lc-glass-hover {
+  will-change: auto;
+}
+
+.lc-glass-hover:hover {
+  will-change: backdrop-filter, transform, opacity;
+}
+
+/* Reset will-change after transition */
+.lc-glass-hover {
+  transition: all var(--lc-duration-normal) var(--lc-ease-out),
+              will-change 0s var(--lc-duration-normal);
+}

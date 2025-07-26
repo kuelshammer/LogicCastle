@@ -1,0 +1,327 @@
+/**
+ * Trio Tailwind CSS Source File
+ * 
+ * Main CSS entry point for Trio game build process.
+ * Imports shared LogicCastle design system and Trio-specific styles.
+ */
+
+/* ===============================
+   🎨 SHARED DESIGN SYSTEM IMPORTS
+   =============================== */
+
+/* Import LogicCastle Design Tokens */
+@import '../../../shared/css/design-tokens.css';
+
+/* Import Unified Glassmorphism System */
+@import '../../../shared/css/glassmorphism-system.css';
+
+/* ===============================
+   🌊 TAILWIND CSS IMPORTS
+   =============================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===============================
+   🎯 TRIO-SPECIFIC STYLES
+   =============================== */
+
+/* Apply Trio theme to body */
+body {
+  @apply theme-trio;
+}
+
+/* Trio Number Grid Styling */
+.trio-number-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--lc-space-2);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.trio-cell {
+  @apply lc-glass lc-glass-hover;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--lc-radius-lg);
+  cursor: pointer;
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+  font-family: var(--lc-font-mono);
+  font-size: var(--lc-text-xl);
+  font-weight: var(--lc-font-bold);
+  color: var(--lc-trio-number);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.trio-cell:hover {
+  background: var(--lc-trio-cell-hover);
+  transform: var(--lc-scale-hover);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.trio-cell.selected {
+  background: var(--lc-trio-cell-selected);
+  border: 2px solid var(--lc-trio-accent);
+  transform: var(--lc-scale-hover);
+  animation: cell-select var(--lc-duration-normal) var(--lc-ease-out);
+}
+
+.trio-cell.valid-trio {
+  background: var(--lc-trio-cell-valid);
+  border: 2px solid var(--lc-trio-target);
+  animation: trio-validate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trio-cell.invalid-trio {
+  background: var(--lc-trio-cell-invalid);
+  border: 2px solid #ef4444;
+  animation: shake var(--lc-duration-normal) ease-in-out;
+}
+
+/* Target Display Styling */
+.trio-target {
+  @apply lc-glass;
+  background: var(--lc-trio-target-bg);
+  border: 2px solid var(--lc-trio-target-border);
+  border-radius: var(--lc-radius-xl);
+  padding: var(--lc-space-4);
+  text-align: center;
+  font-family: var(--lc-font-mono);
+  font-size: var(--lc-text-3xl);
+  font-weight: var(--lc-font-extrabold);
+  color: var(--lc-trio-target);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: number-glow 2s ease-in-out infinite;
+}
+
+/* Calculation Display */
+.trio-calculation {
+  @apply lc-glass;
+  border-radius: var(--lc-radius-lg);
+  padding: var(--lc-space-3);
+  font-family: var(--lc-font-mono);
+  font-size: var(--lc-text-lg);
+  font-weight: var(--lc-font-medium);
+  color: var(--lc-white);
+  text-align: center;
+  background: linear-gradient(135deg, 
+    rgba(34, 197, 94, 0.2), 
+    rgba(16, 185, 129, 0.1)
+  );
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  animation: calculation-reveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Solution Celebration Effects */
+.solution-found {
+  animation: solution-celebration 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Difficulty Indicator Styling */
+.difficulty-indicator {
+  @apply lc-glass;
+  border-radius: var(--lc-radius-lg);
+  padding: var(--lc-space-2) var(--lc-space-4);
+  font-size: var(--lc-text-sm);
+  font-weight: var(--lc-font-medium);
+  text-transform: capitalize;
+}
+
+.difficulty-kinderfreundlich {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.1));
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.difficulty-vollspektrum {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #3b82f6;
+}
+
+.difficulty-strategisch {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1));
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.difficulty-analytisch {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+/* Game Statistics Styling */
+.trio-stats {
+  @apply lc-glass;
+  border-radius: var(--lc-radius-xl);
+  padding: var(--lc-space-4);
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--lc-space-2) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-value {
+  font-weight: var(--lc-font-bold);
+  color: var(--lc-trio-accent);
+}
+
+/* ===============================
+   📱 RESPONSIVE DESIGN
+   =============================== */
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .trio-number-grid {
+    max-width: 280px;
+    gap: var(--lc-space-1);
+  }
+  
+  .trio-cell {
+    font-size: var(--lc-text-lg);
+  }
+  
+  .trio-target {
+    font-size: var(--lc-text-2xl);
+    padding: var(--lc-space-3);
+  }
+}
+
+/* Tablet Optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .trio-number-grid {
+    max-width: 350px;
+  }
+}
+
+/* Desktop Enhancements */
+@media (min-width: 1025px) {
+  .trio-number-grid {
+    max-width: 400px;
+  }
+  
+  .trio-cell:hover {
+    box-shadow: 
+      0 0 20px rgba(139, 92, 246, 0.4),
+      0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY SUPPORT
+   =============================== */
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .trio-cell {
+    border: 2px solid var(--lc-trio-accent);
+  }
+  
+  .trio-cell.selected {
+    border: 3px solid var(--lc-trio-accent);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .trio-cell,
+  .trio-target,
+  .trio-calculation,
+  .solution-found {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .trio-cell:hover {
+    transform: none !important;
+  }
+}
+
+/* Focus Styles for Keyboard Navigation */
+.trio-cell:focus {
+  outline: 2px solid var(--lc-trio-accent);
+  outline-offset: 2px;
+}
+
+/* ===============================
+   🎆 VICTORY CELEBRATION STYLES
+   =============================== */
+
+/* Confetti particles for Trio celebrations */
+.trio-confetti {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--lc-trio-accent);
+  pointer-events: none;
+  z-index: 1000;
+  border-radius: 50%;
+}
+
+.trio-confetti.purple { background: #8b5cf6; }
+.trio-confetti.blue { background: #3b82f6; }
+.trio-confetti.emerald { background: #10b981; }
+.trio-confetti.amber { background: #f59e0b; }
+
+/* Loading spinner for WASM initialization */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(139, 92, 246, 0.2);
+  border-top: 4px solid var(--lc-trio-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===============================
+   🔧 UTILITY CLASSES
+   =============================== */
+
+/* Trio-specific utility classes */
+.trio-text-number {
+  font-family: var(--lc-font-mono);
+  font-weight: var(--lc-font-bold);
+  color: var(--lc-trio-number);
+}
+
+.trio-text-target {
+  font-family: var(--lc-font-mono);
+  font-weight: var(--lc-font-extrabold);
+  color: var(--lc-trio-target);
+}
+
+.trio-border-accent {
+  border-color: var(--lc-trio-accent);
+}
+
+.trio-bg-accent {
+  background-color: var(--lc-trio-accent);
+}
+
+/* Mathematical operation symbols */
+.math-symbol {
+  display: inline-block;
+  font-family: var(--lc-font-mono);
+  font-weight: var(--lc-font-bold);
+  font-size: 1.2em;
+  color: var(--lc-white);
+  margin: 0 0.5em;
+}

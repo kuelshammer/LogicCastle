@@ -1,0 +1,22 @@
+{
+  "name": "connect4-production",
+  "version": "4.3.0",
+  "description": "Connect4 game with Tailwind CSS v4.x - Zero Build Time Architecture",
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "test": "echo 'Connect4 using Tailwind CSS v4.x - No build step required!'"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.11"
+  },
+  "keywords": [
+    "connect4",
+    "vier-gewinnt",
+    "logiccastle",
+    "wasm",
+    "tailwindcss",
+    "goldstandard"
+  ],
+  "author": "LogicCastle",
+  "license": "MIT"
+}

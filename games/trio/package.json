@@ -1,0 +1,23 @@
+{
+  "name": "trio-production",
+  "version": "1.0.0",
+  "description": "Production build system for Trio mathematical puzzle game",
+  "scripts": {
+    "build:css": "tailwindcss -i assets/css/tailwind-source.css -o css/tailwind-built.css --config tailwind.config.js --minify",
+    "watch:css": "tailwindcss -i assets/css/tailwind-source.css -o css/tailwind-built.css --config tailwind.config.js --watch",
+    "dev": "npm run watch:css",
+    "build": "npm run build:css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.11"
+  },
+  "keywords": [
+    "trio",
+    "mathematical-puzzle",
+    "logiccastle",
+    "wasm",
+    "tailwindcss"
+  ],
+  "author": "LogicCastle",
+  "license": "MIT"
+}

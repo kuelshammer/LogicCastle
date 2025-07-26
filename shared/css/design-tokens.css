@@ -1,0 +1,249 @@
+/**
+ * LogicCastle Design Tokens
+ * 
+ * Unified design system foundation providing consistent variables
+ * across all games while maintaining distinct visual identity.
+ * 
+ * Usage: Import this file first in all game CSS builds
+ */
+
+/* ===============================
+   🎨 COLOR PALETTE TOKENS
+   =============================== */
+
+:root {
+  /* Base Colors */
+  --lc-white: #ffffff;
+  --lc-black: #000000;
+  --lc-transparent: transparent;
+  
+  /* Glassmorphism Foundation */
+  --lc-glass-bg-light: rgba(255, 255, 255, 0.15);
+  --lc-glass-bg-hover: rgba(255, 255, 255, 0.22);
+  --lc-glass-bg-dark: rgba(0, 0, 0, 0.1);
+  --lc-glass-border-light: rgba(255, 255, 255, 0.2);
+  --lc-glass-border-hover: rgba(255, 255, 255, 0.3);
+  --lc-glass-border-dark: rgba(255, 255, 255, 0.1);
+  
+  /* Shadow System */
+  --lc-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --lc-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --lc-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.15);
+  --lc-shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.18);
+  --lc-shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --lc-shadow-inset-hover: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  
+  /* Game-Specific Color Themes */
+  /* Connect4 Theme: Blue-Purple */
+  --lc-connect4-bg-from: #1e1b4b; /* blue-900 */
+  --lc-connect4-bg-via: #581c87;  /* purple-900 */
+  --lc-connect4-bg-to: #312e81;   /* indigo-900 */
+  --lc-connect4-accent: #3b82f6;  /* blue-500 */
+  --lc-connect4-player1: #fbbf24; /* amber-400 (yellow) */
+  --lc-connect4-player2: #ef4444; /* red-500 */
+  
+  /* Gomoku Theme: Warm Amber */
+  --lc-gomoku-bg-from: #78350f;   /* amber-900 */
+  --lc-gomoku-bg-via: #92400e;    /* amber-800 */
+  --lc-gomoku-bg-to: #c2410c;     /* orange-700 */
+  --lc-gomoku-accent: #f59e0b;    /* amber-500 */
+  --lc-gomoku-player1: #000000;   /* black stones */  
+  --lc-gomoku-player2: #ffffff;   /* white stones */
+  
+  /* Trio Theme: Purple-Blue */
+  --lc-trio-bg-from: #581c87;     /* purple-900 */
+  --lc-trio-bg-via: #1e3a8a;      /* blue-900 */
+  --lc-trio-bg-to: #312e81;       /* indigo-900 */
+  --lc-trio-accent: #8b5cf6;      /* violet-500 */
+  --lc-trio-number: #fbbf24;      /* amber-400 */
+  --lc-trio-target: #10b981;      /* emerald-500 */
+}
+
+/* ===============================
+   📏 SPACING & SIZING TOKENS
+   =============================== */
+
+:root {
+  /* Spacing Scale (following Tailwind convention) */
+  --lc-space-1: 0.25rem;  /* 4px */
+  --lc-space-2: 0.5rem;   /* 8px */
+  --lc-space-3: 0.75rem;  /* 12px */
+  --lc-space-4: 1rem;     /* 16px */
+  --lc-space-5: 1.25rem;  /* 20px */
+  --lc-space-6: 1.5rem;   /* 24px */
+  --lc-space-8: 2rem;     /* 32px */
+  --lc-space-10: 2.5rem;  /* 40px */
+  --lc-space-12: 3rem;    /* 48px */
+  --lc-space-16: 4rem;    /* 64px */
+  --lc-space-20: 5rem;    /* 80px */
+  --lc-space-24: 6rem;    /* 96px */
+  
+  /* Border Radius Scale */
+  --lc-radius-sm: 0.375rem;  /* 6px */
+  --lc-radius-md: 0.5rem;    /* 8px */
+  --lc-radius-lg: 0.75rem;   /* 12px */
+  --lc-radius-xl: 1rem;      /* 16px */
+  --lc-radius-2xl: 1.5rem;   /* 24px */
+  --lc-radius-full: 9999px; 
+  
+  /* Game Board Dimensions */
+  --lc-cell-size-sm: 40px;   /* Mobile cell size */
+  --lc-cell-size-md: 48px;   /* Tablet cell size */
+  --lc-cell-size-lg: 56px;   /* Desktop cell size */
+  --lc-gap-size: 0.5rem;     /* Standard grid gap */
+}
+
+/* ===============================
+   🔤 TYPOGRAPHY TOKENS
+   =============================== */
+
+:root {
+  /* Font Families */
+  --lc-font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --lc-font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", "Roboto Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Font Sizes */
+  --lc-text-xs: 0.75rem;     /* 12px */
+  --lc-text-sm: 0.875rem;    /* 14px */  
+  --lc-text-base: 1rem;      /* 16px */
+  --lc-text-lg: 1.125rem;    /* 18px */
+  --lc-text-xl: 1.25rem;     /* 20px */
+  --lc-text-2xl: 1.5rem;     /* 24px */
+  --lc-text-3xl: 1.875rem;   /* 30px */
+  --lc-text-4xl: 2.25rem;    /* 36px */
+  --lc-text-5xl: 3rem;       /* 48px */
+  --lc-text-6xl: 3.75rem;    /* 60px */
+  
+  /* Font Weights */
+  --lc-font-normal: 400;
+  --lc-font-medium: 500;
+  --lc-font-semibold: 600;
+  --lc-font-bold: 700;
+  --lc-font-extrabold: 800;
+  
+  /* Line Heights */
+  --lc-leading-tight: 1.25;
+  --lc-leading-snug: 1.375;
+  --lc-leading-normal: 1.5;
+  --lc-leading-relaxed: 1.625;
+}
+
+/* ===============================
+   ⚡ ANIMATION TOKENS
+   =============================== */
+
+:root {
+  /* Duration Scale */
+  --lc-duration-fast: 150ms;
+  --lc-duration-normal: 300ms;
+  --lc-duration-slow: 500ms;
+  --lc-duration-slower: 750ms;
+  
+  /* Easing Functions */
+  --lc-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --lc-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --lc-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --lc-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Backdrop Filter Values */
+  --lc-blur-sm: blur(8px);
+  --lc-blur-md: blur(16px);
+  --lc-blur-lg: blur(20px);
+  --lc-blur-xl: blur(24px);
+  
+  /* Transform Values */
+  --lc-scale-hover: scale(1.05);
+  --lc-scale-press: scale(0.95);
+  --lc-scale-small: scale(0.9);
+}
+
+/* ===============================
+   📱 BREAKPOINT TOKENS
+   =============================== */
+
+:root {
+  /* Responsive Breakpoints (matching Tailwind defaults) */
+  --lc-screen-sm: 640px;   /* Mobile landscape */
+  --lc-screen-md: 768px;   /* Tablet portrait */
+  --lc-screen-lg: 1024px;  /* Tablet landscape */
+  --lc-screen-xl: 1280px;  /* Desktop */
+  --lc-screen-2xl: 1536px; /* Large desktop */
+}
+
+/* ===============================
+   🎯 GAME-SPECIFIC OVERRIDES
+   =============================== */
+
+/* Connect4 Specific Tokens */
+.theme-connect4 {
+  --lc-game-bg-from: var(--lc-connect4-bg-from);
+  --lc-game-bg-via: var(--lc-connect4-bg-via);
+  --lc-game-bg-to: var(--lc-connect4-bg-to);
+  --lc-game-accent: var(--lc-connect4-accent);
+  --lc-game-player1: var(--lc-connect4-player1);
+  --lc-game-player2: var(--lc-connect4-player2);
+}
+
+/* Gomoku Specific Tokens */
+.theme-gomoku {
+  --lc-game-bg-from: var(--lc-gomoku-bg-from);
+  --lc-game-bg-via: var(--lc-gomoku-bg-via);
+  --lc-game-bg-to: var(--lc-gomoku-bg-to);
+  --lc-game-accent: var(--lc-gomoku-accent);
+  --lc-game-player1: var(--lc-gomoku-player1);
+  --lc-game-player2: var(--lc-gomoku-player2);
+}
+
+/* Trio Specific Tokens */
+.theme-trio {
+  --lc-game-bg-from: var(--lc-trio-bg-from);
+  --lc-game-bg-via: var(--lc-trio-bg-via);
+  --lc-game-bg-to: var(--lc-trio-bg-to);
+  --lc-game-accent: var(--lc-trio-accent);
+  --lc-game-number: var(--lc-trio-number);
+  --lc-game-target: var(--lc-trio-target);
+}
+
+/* ===============================
+   🌗 DARK MODE TOKENS  
+   =============================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode adjustments */
+    --lc-glass-bg-light: rgba(255, 255, 255, 0.08);
+    --lc-glass-bg-hover: rgba(255, 255, 255, 0.12);
+    --lc-glass-border-light: rgba(255, 255, 255, 0.12);
+    --lc-glass-border-hover: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* Manual dark mode class */
+.dark {
+  --lc-glass-bg-light: rgba(255, 255, 255, 0.08);
+  --lc-glass-bg-hover: rgba(255, 255, 255, 0.12);
+  --lc-glass-border-light: rgba(255, 255, 255, 0.12);
+  --lc-glass-border-hover: rgba(255, 255, 255, 0.18);
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY TOKENS
+   =============================== */
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --lc-duration-fast: 0ms;
+    --lc-duration-normal: 0ms;
+    --lc-duration-slow: 0ms;
+    --lc-duration-slower: 0ms;
+  }
+}
+
+/* High contrast preferences */
+@media (prefers-contrast: high) {
+  :root {
+    --lc-glass-border-light: rgba(255, 255, 255, 0.6);
+    --lc-glass-border-hover: rgba(255, 255, 255, 0.8);
+  }
+}

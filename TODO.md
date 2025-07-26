@@ -1,17 +1,17 @@
 # 📋 TODO - LogicCastle Projekt
 
-## 🚨 CONNECT4: AUTO-RESET CRITICAL FIX ✅ (v3.2 - 2025-07-22)
+## 🎮 CONNECT4 v4.3-KEYBOARD-NAVIGATION ✅ COMPLETE (2025-07-22)
 
-### 🚨 CRITICAL BUG FIXED + LIGHTNING-FAST ULTIMATE VICTORY + SMART UX:
-- **🎆 JavaScript Confetti Animation**: RequestAnimationFrame-based physics system (v3.1)
-- **⚡ Ultra-Fast Victory Sequence**: 3s Lightning-Fast 3-Phasen (v3.1-LIGHTNING-FAST)  
-- **🚀 Speed Optimized**: 4x schneller fallendes Konfetti (12-20px/Frame, 2s max)
-- **🚨 Auto-Reset CRITICAL FIX**: clearBoard() → resetBoard() TypeError behoben (v3.2)
-- **🔄 Auto-Reset Perfected**: Perfect 3s timing (1s Highlight + 2s Confetti + Reset)
-- **🎯 Smart Hover Preview**: Zeigt Drop-Position mit Player-spezifischen Farben (Gelb/Rot)
-- **✅ Complete Flow**: Victory → Ultra-Fast Confetti → Instant Auto-Reset → New Game
-- **🦀 Rust-WASM Integration**: Performance Backend mit JavaScript Fallback
+### 🎯 ULTIMATE KEYBOARD NAVIGATION + GAME ANALYSIS SYSTEM:
+- **⌨️ Enhanced 2-Phase Navigation**: 1-7 Select → Space Execute → ESC Clear
+- **🎨 Glassmorphism Victory Background**: Player-spezifische golden/rote Tönung statt schwarzer Hintergrund
+- **🏆 Persistent Winning Line**: Gewinn-Viererlinie bleibt für Post-Victory Analysis sichtbar  
+- **⚡ Optimized Confetti**: 1.5s statt 3s für schnellere Victory Sequence
+- **🔄 Manual Reset Control**: Kein Auto-Reset, nur N-Taste/Button für Game Analysis
+- **📱 Dynamic Version Display**: Live Version + Timestamp + Click-to-Copy
+- **🧹 Perfect Cleanup**: Victory effects + keyboard selection proper reset
 - **🎨 Hybrid CSS Mastery**: Tailwind + Inline CSS für dynamische Elemente
+- **🦀 Rust-WASM Integration**: Performance Backend mit JavaScript Fallback
 
 ### 📚 ARCHITECTURE LESSONS LEARNED:
 
@@ -81,21 +81,145 @@ Strategic Solution:
 - **Gemini Recommendation**: Option B (Strategic Refactoring) dringend empfohlen
 - **Benefits**: Architecture Integrity + Goldstandard Compliance + Reduced Complexity
 
+#### ⌨️ **ENHANCED KEYBOARD NAVIGATION (v4.3 BREAKTHROUGH - 2025-07-22)**
+```javascript
+// 2-PHASE SELECTION SYSTEM: Professional Desktop-App UX
+// PHASE 1: Column Selection (1-7 keys)
+selectColumn(col) {
+  this.selectedColumn = col;                    // State tracking
+  this.keyboardMode = true;                     // Prevent mouse conflicts  
+  this.interactionHandler.showKeyboardSelection(col); // Blue preview
+}
+
+// PHASE 2: Move Execution (Space key)  
+executeSelectedMove() {
+  const col = this.selectedColumn;
+  this.clearColumnSelection();                  // Clean state first
+  this.makeMove(col);                          // Execute move
+}
+```
+
+**Key Insights:**
+- **2-Phase System**: Eliminiert accidental moves, ermöglicht Überlegungszeit
+- **Visual Distinction**: Mouse hover (white) vs. Keyboard selection (blue + scale)
+- **Mode Separation**: `keyboardMode` flag verhindert Mouse/Keyboard Konflikte  
+- **Enhanced Styling**: Blue ring-4 + animate-pulse + transform scale(1.05)
+- **Professional UX**: Matches Desktop-App expectations (Select → Execute pattern)
+- **Conflict Prevention**: Mouse hover deaktiviert während Keyboard-Mode
+- **Complete Integration**: Funktioniert mit Victory Analysis + Manual Reset
+
+#### 🎨 **GLASSMORPHISM VICTORY BACKGROUNDS (v4.0-4.2)**
+```javascript
+// PLAYER-SPECIFIC VICTORY BACKGROUNDS statt schwarzer Overlay
+enableVictoryBackground(playerColor) {
+  const baseColor = playerColor === 'yellow' ? 
+    'rgba(255, 215, 0, 0.02)' :      // Golden glow
+    'rgba(244, 67, 54, 0.02)';       // Red glow
+  
+  this.ctx.fillStyle = baseColor;
+  this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+}
+```
+
+**Benefits:** Elegante Victory-Indication ohne harte schwarze Overlays + schnelles Fade-out
+
 ---
 
-## 🎯 IMPLEMENTIERUNGS-ROADMAP
+## 🎨 UNIFIED DESIGN SYSTEM - PHASE 2: COMPONENT LIBRARY (2025-07-24)
 
-### **TRIO UI → Connect4 Pattern (Nächster Schritt)**
-Trio hat bereits solide 3-Layer Backend Architecture - benötigt nur UI Modernisierung:
-- **Hybrid CSS Pattern anwenden** (Tailwind + Inline CSS)
-- **3-Phasen Victory Sequence** implementieren
-- **Module Loading Robustness** hinzufügen
+### 🚨 **PROBLEM ANALYSIS: UI INCONSISTENCIES IDENTIFIED**
 
-### **GOMOKU → Complete Rewrite Strategy**  
-Gomoku benötigt vollständigen Neuaufbau nach Connect4 + Trio Lessons:
-- **Backend**: 3-Layer Architecture (Data/Geometry/AI) 
-- **Frontend**: Intersektions-System + Hybrid CSS
-- **Integration**: Rust-WASM + JavaScript Fallback
+**Critical Issues Found:**
+- **3 Different CSS Build Systems**: Connect4 (inline) vs Gomoku (production build) vs Trio (CDN)
+- **Fragmented Glassmorphism**: `.glass` classes duplicated with variations across games
+- **Inconsistent Grid Systems**: Different responsive breakpoints (1/3/4/5 vs 4-col vs 3-col)
+- **Color Scheme Divergence**: Similar but incompatible gradient themes
+- **Duplicate Code**: Same functionality implemented 3 times with slight variations
+
+**Impact:** Despite sharing 11-component architecture, games look and feel different
+
+### 🎯 **UNIFIED DESIGN SYSTEM IMPLEMENTATION PLAN**
+
+#### **Phase 2A: Foundation Infrastructure ⚡ HIGH PRIORITY** ✅ COMPLETE
+- [x] **Analysis Complete**: UI inconsistencies documented
+- [x] **Create `shared/` directory structure**: Design system foundation
+- [x] **Design Tokens**: Unified color variables, spacing scales, typography
+- [x] **Glassmorphism System**: `.lc-glass` standard classes replacing game-specific variants
+- [ ] **Layout Patterns**: Standard responsive grid system (1col → 2+1 → 1+2+1)
+- [ ] **Animation Keyframes**: Shared animation library
+
+#### **Phase 2B: CSS Build Standardization 🔧 HIGH PRIORITY** ✅ CRITICAL STEPS COMPLETE
+- [x] **Step 1**: Create shared/tailwind.config.base.js + game-specific configs
+- [x] **Step 2**: Standardize CSS source structure (assets/css/ for all games)
+- [x] **Step 3**: Create unified package.json with build scripts for all games
+- [x] **Step 4**: Migrate Trio from CDN to production build (CRITICAL) ✅ **BREAKTHROUGH**
+- [ ] **Step 5**: Extract Connect4 inline CSS to proper build system
+- [ ] **Step 6**: Update Gomoku to extend shared base configuration
+- [x] **Step 7**: Replace all .glass classes with .lc-glass system (Trio ✅, Connect4/Gomoku pending)
+- [x] **Step 8**: Add theme classes to HTML (theme-trio ✅, others pending)
+- [ ] **Step 9**: Test and validate visual consistency across games
+
+### 🚨 **MAJOR SUCCESS: Trio CDN Elimination Complete!**
+- **Removed:** External CDN dependency from Trio
+- **Added:** Production-optimized CSS build (tailwind-built.css)
+- **Performance:** Eliminated network dependency + improved loading speed
+- **Theme System:** Applied theme-trio class for unified styling
+
+#### **Phase 2C: Component Library Extraction 📦 MEDIUM PRIORITY**
+- [ ] **GameHeader.js**: Unified header component with theme variants
+- [ ] **GameControls.js**: Standardized button groups and control panels
+- [ ] **GameStats.js**: Consistent statistics display components
+- [ ] **ModalManager.js**: Unified modal system across games
+- [ ] **ParticleEngine.js**: Shared victory celebration system
+
+#### **Phase 2D: Theme System Implementation 🎨 LOW PRIORITY**
+- [ ] **LogicCastleTheme.js**: Dynamic theme switching system
+- [ ] **Game-Specific Themes**: Connect4 (blue-purple), Gomoku (amber), Trio (purple-blue)
+- [ ] **Dark Mode Support**: Unified dark theme across all games
+- [ ] **Accessibility Enhancement**: Color contrast and reduced motion support
+
+### 🏗️ **ARCHITECTURE PRESERVATION STRATEGY**
+
+**✅ MAINTAIN EXISTING EXCELLENCE:**
+- **11-Component Architecture**: Keep modular component system intact
+- **Connect4 Goldstandard**: Preserve as architectural template
+- **3-Phase Victory Sequence**: Maintain across all games
+- **WASM Integration Patterns**: Keep performance optimizations
+- **Module Loading Robustness**: Preserve fallback systems
+
+**🎨 ACHIEVE VISUAL CONSISTENCY:**
+- **Unified CSS Build Process**: All games use production Tailwind builds
+- **Standard Glassmorphism**: Consistent glass effects with theme overlays
+- **Responsive Grid Patterns**: Unified layout system (mobile → tablet → desktop)
+- **Shared Component Library**: Reduce code duplication
+
+**🎯 RESPECT GAME IDENTITY:**
+- **Game-Specific Color Themes**: Preserve distinct visual identities
+- **Unique Game Mechanics**: Keep interaction patterns specific to each game
+- **Custom Visual Elements**: Maintain game-specific decorations and branding
+
+### 📊 **SUCCESS METRICS**
+
+1. **Code Reduction**: Target 30-40% reduction in duplicate CSS code
+2. **Visual Consistency**: Unified glassmorphism and layout patterns
+3. **Build System**: Single CSS build process for all games  
+4. **Component Reuse**: 80%+ component sharing between games
+5. **Theme Switching**: Dynamic theme system working across all games
+
+---
+
+## 🎯 LEGACY IMPLEMENTATION ROADMAP (BACKGROUND TASKS)
+
+### **GOMOKU AI INTEGRATION** (Background - Connect4 Pattern nachahmen)
+Gomoku hat UI Goldstandard erreicht aber benötigt AI Integration:
+- **AI Move Generation**: `get_ai_move()` API nutzen
+- **Single-Player Mode**: UI Dropdown "Gegen KI" aktivieren
+- **Assistance System**: Threat/Winning move highlighting
+
+### **L-GAME ENHANCEMENT** (LOW PRIORITY)
+- [ ] **API Documentation erstellen** - Backend API Reference + Usage Analysis 
+- [ ] **WASM Backend überprüfen** - Prüfen ob vollständig implementiert
+- [ ] **Connect4 Pattern Application** - UI Modernisierung
 
 ## ✅ ABGESCHLOSSEN
 
@@ -152,7 +276,14 @@ Gomoku benötigt vollständigen Neuaufbau nach Connect4 + Trio Lessons:
 - [x] **Phase 4B**: Production CSS Build Setup (Tailwind optimiert, CDN entfernt)
 - [x] **Phase 5**: Integration & Testing + Goldstandard Validation
 
-**🏆 STATUS: CONNECT4 GOLDSTANDARD COMPLIANCE ERREICHT**
+### **🚨 GOMOKU CRITICAL DISCOVERY (2025-07-22)**
+- [x] **Root Cause Analysis**: Stone placement UI functionally PERFECT
+- [x] **Architecture Validation**: 15x15 intersection grid, coordinate mapping, click handlers work flawlessly
+- [x] **ES6 Module Loading Issue**: file:// protocol blocks ES6 imports (CORS restriction)
+- [x] **Fallback System Status**: Correctly configured (3000ms timeout) but needs HTTP deployment
+- [ ] **Production Verification**: GitHub Pages testing required for HTTP environment validation
+
+**⚠️ STATUS UPDATE: UI Architecture = GOLDSTANDARD ✅ | Deployment = file:// Protocol Issue**
 - **Components**: 11/11 vollständig (BoardRenderer, InteractionHandler, AssistanceManager, AnimationManager, MemoryManager, SoundManager, ParticleEngine, ModalManager, MessageSystem, KeyboardController, GameState)
 - **UI Standards**: Hybrid CSS, Glassmorphism, Responsive Design, Accessibility
 - **Production**: Optimized Build, ES6 + Fallback, Memory Management
