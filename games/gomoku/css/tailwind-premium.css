@@ -1,8 +1,10 @@
 /**
- * Gomoku Tailwind CSS Source File
+ * Gomoku Premium Gaming UI - Tailwind CSS Built File
  * 
- * Main CSS entry point for Gomoku game build process.
- * Imports shared LogicCastle design system and Gomoku-specific styles.
+ * Production build with LogicCastle design system and Gomoku-specific premium styling.
+ * Generated from assets/css/tailwind-source.css with premium gaming enhancements.
+ * 
+ * Version: Premium Gaming Enhancement v1.0
  */
 
 /* ===============================
@@ -16,78 +18,24 @@
 @import '../../../shared/css/glassmorphism-system.css';
 
 /* ===============================
-   🌊 TAILWIND CSS v4.x IMPORT
-   =============================== */
-
-@import "tailwindcss";
-
-/* ===============================
    🎯 GOMOKU PREMIUM GAMING STYLES  
    =============================== */
 
 /* Apply Gomoku theme to body */
 body {
-  @apply theme-gomoku;
+  background: linear-gradient(to bottom right, var(--lc-gomoku-bg-from), var(--lc-gomoku-bg-via), var(--lc-gomoku-bg-to));
+  min-height: 100vh;
+  font-family: var(--lc-font-sans);
+  color: var(--lc-white);
 }
 
-/* KEYFRAMES for Victory Sequence */
-@keyframes confetti-fall {
-  0% { 
-    transform: translateY(-100vh) rotate(0deg);
-    opacity: 1;
-  }
-  100% { 
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
-  }
-}
-
-@keyframes stone-place {
-  0% { 
-    transform: scale(0.8);
-    opacity: 0.7;
-  }
-  50% { 
-    transform: scale(1.1);
-    opacity: 0.9;
-  }
-  100% { 
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes victory-pulse {
-  0%, 100% { 
-    transform: scale(1);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-  }
-  50% { 
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 1);
-  }
-}
-
-@keyframes game-over-overlay {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes board-entrance {
-  0% {
-    opacity: 0;
-    transform: scale(0.95) translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+.theme-gomoku {
+  --lc-game-bg-from: var(--lc-gomoku-bg-from);
+  --lc-game-bg-via: var(--lc-gomoku-bg-via);
+  --lc-game-bg-to: var(--lc-gomoku-bg-to);
+  --lc-game-accent: var(--lc-gomoku-accent);
+  --lc-game-player1: var(--lc-gomoku-player1);
+  --lc-game-player2: var(--lc-gomoku-player2);
 }
 
 /* ===============================
@@ -244,6 +192,22 @@ body {
   }
 }
 
+/* Stone Placement Animation */
+@keyframes stone-place {
+  0% { 
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.9;
+  }
+  100% { 
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
 /* Threat Highlighting */
 .intersection.threat-highlight {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
@@ -282,40 +246,64 @@ body {
   }
 }
 
+/* Focus Styles for Accessibility */
+.intersection:focus {
+  outline: 3px solid var(--lc-gomoku-accent);
+  outline-offset: 2px;
+}
+
 /* ===============================
    🎨 PREMIUM UI COMPONENTS
    =============================== */
 
 /* Game Header */
 .game-header {
-  @apply lc-glass;
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md);
   border-radius: var(--lc-radius-xl);
   padding: var(--lc-space-4);
   margin-bottom: var(--lc-space-6);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: var(--lc-blur-md);
-  -webkit-backdrop-filter: var(--lc-blur-md);
 }
 
 /* Game Statistics Display */
 .game-stats {
-  @apply lc-glass;
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md);
   border-radius: var(--lc-radius-xl);
   padding: var(--lc-space-4);
   text-align: center;
-  backdrop-filter: var(--lc-blur-md);
-  -webkit-backdrop-filter: var(--lc-blur-md);
 }
 
 /* Game Controls */
 .game-controls {
-  @apply lc-glass lc-glass-hover;
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  box-shadow: var(--lc-shadow-md);
   border-radius: var(--lc-radius-lg);
   padding: var(--lc-space-3) var(--lc-space-4);
   margin: var(--lc-space-2);
   cursor: pointer;
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+}
+
+.game-controls:hover {
+  background: var(--lc-glass-bg-hover);
+  backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  -webkit-backdrop-filter: var(--lc-blur-lg) saturate(200%) brightness(110%);
+  border: 1px solid var(--lc-glass-border-hover);
+  box-shadow: var(--lc-shadow-lg);
+  transform: translateY(-2px) translateZ(0);
 }
 
 /* Player Indicator */
@@ -487,16 +475,19 @@ body {
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
-  .lc-glass-hover, .stone, .intersection {
+  .stone,
+  .intersection,
+  .game-controls {
     animation: none !important;
     transition: none !important;
   }
   
-  .intersection:hover {
+  .intersection:hover,
+  .stone.winning {
     transform: none !important;
   }
   
-  .confetti-particle {
+  .gomoku-confetti {
     display: none !important;
   }
 }
@@ -520,14 +511,14 @@ body {
 
 /* Print Styles */
 @media print {
-  .lc-glass, .lc-glass-hover {
+  .game-header, .game-stats, .game-controls {
     background: white !important;
     backdrop-filter: none !important;
     box-shadow: none !important;
     border: 1px solid #ccc !important;
   }
   
-  .confetti-particle {
+  .gomoku-confetti {
     display: none !important;
   }
 }

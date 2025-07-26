@@ -154,22 +154,61 @@
 
 /**
  * Gomoku Theme Glassmorphism  
- * Warm amber tinted glass effects
+ * Premium amber-gold tinted glass effects
  */
 .theme-gomoku .lc-glass {
   background: linear-gradient(135deg, 
-    var(--lc-glass-bg-light), 
-    rgba(245, 158, 11, 0.08)
+    var(--lc-gomoku-glass-bg), 
+    rgba(194, 65, 12, 0.1)
   );
-  border-color: rgba(245, 158, 11, 0.2);
+  border-color: var(--lc-gomoku-glass-border);
+  box-shadow: var(--lc-gomoku-glass-shadow);
 }
 
 .theme-gomoku .lc-glass-hover:hover {
   background: linear-gradient(135deg, 
-    var(--lc-glass-bg-hover), 
-    rgba(245, 158, 11, 0.12)
+    rgba(245, 158, 11, 0.22), 
+    rgba(194, 65, 12, 0.15)
   );
-  border-color: rgba(245, 158, 11, 0.3);
+  border-color: rgba(194, 65, 12, 0.4);
+  box-shadow: 
+    var(--lc-gomoku-glass-shadow),
+    0 0 24px rgba(245, 158, 11, 0.3);
+}
+
+/* Gomoku Premium Gaming Classes */
+.theme-gomoku .lc-glass-gaming {
+  background: linear-gradient(135deg, 
+    var(--lc-gomoku-glass-bg),
+    rgba(194, 65, 12, 0.12),
+    rgba(146, 64, 14, 0.08)
+  );
+  border-color: var(--lc-gomoku-glass-border);
+  box-shadow: 
+    var(--lc-gomoku-glass-shadow),
+    0 0 20px rgba(146, 64, 14, 0.15);
+}
+
+.theme-gomoku .lc-glass-board {
+  background: var(--lc-gomoku-board-bg);
+  border: 2px solid var(--lc-gomoku-glass-border);
+  box-shadow: 
+    0 16px 48px rgba(146, 64, 14, 0.25),
+    0 8px 24px rgba(194, 65, 12, 0.15),
+    inset 0 2px 0 rgba(245, 158, 11, 0.3);
+}
+
+.theme-gomoku .lc-glass-intersection {
+  background: var(--lc-gomoku-intersection-bg);
+  border: 1px solid var(--lc-gomoku-intersection-border);
+}
+
+.theme-gomoku .lc-glass-intersection:hover {
+  background: var(--lc-gomoku-intersection-hover);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  box-shadow: 
+    0 4px 16px rgba(245, 158, 11, 0.2),
+    inset 0 1px 0 rgba(245, 158, 11, 0.4);
 }
 
 /**

@@ -58,13 +58,29 @@
   --lc-connect4-stone-glow: 0 0 16px rgba(251, 191, 36, 0.4); /* golden glow */
   --lc-connect4-stone-crimson-glow: 0 0 16px rgba(220, 38, 38, 0.4); /* crimson glow */
   
-  /* Gomoku Theme: Warm Amber */
-  --lc-gomoku-bg-from: #78350f;   /* amber-900 */
-  --lc-gomoku-bg-via: #92400e;    /* amber-800 */
-  --lc-gomoku-bg-to: #c2410c;     /* orange-700 */
-  --lc-gomoku-accent: #f59e0b;    /* amber-500 */
+  /* Gomoku Theme: Premium Amber-Gold Gaming */
+  --lc-gomoku-bg-from: #78350f;   /* amber-900 (deep foundation) */
+  --lc-gomoku-bg-via: #92400e;    /* amber-800 (warm middle) */
+  --lc-gomoku-bg-to: #c2410c;     /* orange-700 (vibrant accent) */
+  --lc-gomoku-accent: #f59e0b;    /* amber-500 (primary highlight) */
   --lc-gomoku-player1: #000000;   /* black stones */  
   --lc-gomoku-player2: #ffffff;   /* white stones */
+  
+  /* Gomoku Premium Glassmorphism */
+  --lc-gomoku-glass-bg: rgba(245, 158, 11, 0.15); /* amber-tinted glass */
+  --lc-gomoku-glass-border: rgba(194, 65, 12, 0.3); /* orange-tinted borders */
+  --lc-gomoku-glass-shadow: 0 8px 32px rgba(146, 64, 14, 0.2); /* amber shadow */
+  
+  /* Gomoku Board Premium Styling */
+  --lc-gomoku-board-bg: rgba(120, 53, 15, 0.8); /* deep amber with alpha */
+  --lc-gomoku-intersection-bg: rgba(255, 255, 255, 0.08); /* subtle intersection background */
+  --lc-gomoku-intersection-border: rgba(245, 158, 11, 0.2); /* amber intersection borders */
+  --lc-gomoku-intersection-hover: rgba(245, 158, 11, 0.3); /* amber hover effect */
+  
+  /* Gomoku Stone Premium Effects */
+  --lc-gomoku-stone-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --lc-gomoku-stone-black-glow: 0 0 16px rgba(0, 0, 0, 0.6); /* subtle black glow */
+  --lc-gomoku-stone-white-glow: 0 0 16px rgba(255, 255, 255, 0.8); /* bright white glow */
   
   /* Trio Theme: Purple-Blue */
   --lc-trio-bg-from: #581c87;     /* purple-900 */
