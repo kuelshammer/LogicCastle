@@ -98,6 +98,524 @@ body {
   justify-content: center;
   
   /* Smooth Gaming Transitions */
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+}
+
+/* Game Cell Hover Effects */
+.game-slot:hover {
+  background: var(--lc-connect4-cell-hover);
+  border: 1px solid rgba(6, 182, 212, 0.6);
+  box-shadow: 
+    0 4px 16px rgba(6, 182, 212, 0.2),
+    inset 0 1px 0 rgba(6, 182, 212, 0.4);
+  transform: scale(1.05);
+}
+
+/* ===============================
+   🎯 DISC STYLES (Premium Metallic)
+   =============================== */
+
+/* Base Disc Styling */
+.disc {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 85% !important;
+  height: 85% !important;
+  min-width: 25px !important;
+  min-height: 25px !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 !important;
+  transition: all var(--lc-duration-slow) var(--lc-ease-out) !important;
+  z-index: 10 !important;
+}
+
+/* Empty Disc State */
+.disc.empty {
+  background: transparent !important;
+  opacity: 0.3 !important;
+  visibility: visible !important;
+}
+
+/* Yellow Player Disc (Premium Metallic Gold) */
+.disc.yellow {
+  background: linear-gradient(135deg, #fde047, #facc15, #eab308) !important;
+  border: 2px solid #ca8a04 !important;
+  box-shadow: 
+    var(--lc-connect4-stone-shadow),
+    var(--lc-connect4-stone-glow),
+    inset 0 2px 0 rgba(253, 224, 71, 0.8),
+    inset 0 -2px 0 rgba(202, 138, 4, 0.6) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Red Player Disc (Premium Metallic Crimson) */
+.disc.red {
+  background: linear-gradient(135deg, #ef4444, #dc2626, #b91c1c) !important;
+  border: 2px solid #991b1b !important;
+  box-shadow: 
+    var(--lc-connect4-stone-shadow),
+    var(--lc-connect4-stone-crimson-glow),
+    inset 0 2px 0 rgba(239, 68, 68, 0.8),
+    inset 0 -2px 0 rgba(153, 27, 27, 0.6) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* ===============================
+   🎯 SMART HOVER PREVIEW SYSTEM
+   =============================== */
+
+/* Drop Preview Base */
+.disc.drop-preview {
+  opacity: 0.7 !important;
+  transform: translate(-50%, -50%) scale(0.95) !important;
+  animation: pulse 1.5s ease-in-out infinite !important;
+}
+
+/* Player 1 Preview (Yellow) */
+.disc.preview-player1 {
+  background: linear-gradient(135deg, rgba(253, 224, 71, 0.6), rgba(250, 204, 21, 0.6)) !important;
+  border: 2px solid rgba(202, 138, 4, 0.7) !important;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5) !important;
+}
+
+/* Player 2 Preview (Red) */
+.disc.preview-player2 {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.6), rgba(220, 38, 38, 0.6)) !important;
+  border: 2px solid rgba(153, 27, 27, 0.7) !important;
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.5) !important;
+}
+
+/* ===============================
+   🏆 VICTORY EFFECTS
+   =============================== */
+
+/* Winning Disc Highlight */
+.disc.winning-disc {
+  animation: animate-winning-line 1s ease-in-out infinite !important;
+  z-index: 100 !important;
+}
+
+/* Victory Background (Subtle Glassmorphism) */
+#victoryBackground {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(255, 215, 0, 0.1) !important;
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+  border: 3px solid rgba(255, 215, 0, 0.3) !important;
+  z-index: 999998 !important;
+  pointer-events: none !important;
+}
+
+/* ===============================
+   🎊 CONFETTI SYSTEM (JavaScript Animated)
+   =============================== */
+
+/* Confetti Container */
+#confetti-container,
+.confetti-container {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  pointer-events: none !important;
+  z-index: 999999 !important;
+  background: rgba(255, 215, 0, 0.1) !important;
+  border: 3px solid rgba(255, 215, 0, 0.3) !important;
+}
+
+/* Individual Confetti Particles */
+.confetti-particle {
+  position: absolute !important;
+  border-radius: 50% !important;
+  display: block !important;
+  will-change: transform !important;
+  z-index: 999999 !important;
+}
+
+/* ===============================
+   📱 RESPONSIVE GAMING UI
+   =============================== */
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .game-board {
+    max-width: 350px;
+    gap: var(--lc-space-1);
+    padding: var(--lc-space-3);
+  }
+  
+  .disc {
+    min-width: 20px !important;
+    min-height: 20px !important;
+  }
+}
+
+/* Tablet Optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .game-board {
+    max-width: 480px;
+  }
+}
+
+/* Desktop Optimizations */
+@media (min-width: 1025px) {
+  .game-board {
+    max-width: 600px;
+  }
+}
+
+/* Widescreen Optimizations */
+@media (min-width: 1536px) {
+  .game-board {
+    max-width: 700px;
+  }
+}
+
+/* ===============================
+   🎮 SIDEBAR & UI COMPONENTS
+   =============================== */
+
+/* Sidebar Glass Boxes */
+.sidebar-glass-box {
+  background: var(--lc-glass-bg-light);
+  backdrop-filter: var(--lc-blur-md);
+  -webkit-backdrop-filter: var(--lc-blur-md);
+  border: 1px solid var(--lc-glass-border-light);
+  border-radius: var(--lc-radius-2xl);
+  padding: var(--lc-space-6);
+  box-shadow: var(--lc-shadow-xl);
+}
+
+/* Sidebar Headers */
+.sidebar-header {
+  font-size: var(--lc-text-xl);
+  font-weight: var(--lc-font-bold);
+  color: var(--lc-white);
+  margin-bottom: var(--lc-space-4);
+}
+
+/* Player Indicators */
+.player-indicator-enhanced {
+  display: flex;
+  align-items: center;
+  padding: var(--lc-space-3);
+  border-radius: var(--lc-radius-xl);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.player-disc-enhanced {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  margin-right: var(--lc-space-3);
+  box-shadow: var(--lc-shadow-lg);
+}
+
+.player-disc-enhanced.yellow {
+  background: linear-gradient(135deg, var(--lc-connect4-player1), #facc15);
+}
+
+.player-disc-enhanced.red {
+  background: linear-gradient(135deg, var(--lc-connect4-player2), #dc2626);
+}
+
+.player-name-enhanced {
+  font-weight: var(--lc-font-semibold);
+  color: var(--lc-white);
+}
+
+/* Score Components */
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--lc-space-3);
+}
+
+.score-label {
+  display: flex;
+  align-items: center;
+  color: var(--lc-white);
+}
+
+.score-color-indicator {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  margin-right: var(--lc-space-2);
+}
+
+.score-color-indicator.yellow {
+  background: var(--lc-connect4-player1);
+}
+
+.score-color-indicator.red {
+  background: var(--lc-connect4-player2);
+}
+
+.score-number {
+  font-weight: var(--lc-font-bold);
+  font-size: var(--lc-text-lg);
+}
+
+.score-number.yellow {
+  color: var(--lc-connect4-player1);
+}
+
+.score-number.red {
+  color: var(--lc-connect4-player2);
+}
+
+/* Game Info Components */
+.game-info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--lc-space-3);
+  color: var(--lc-white);
+}
+
+.game-info-label {
+  opacity: 0.8;
+}
+
+.game-info-value {
+  font-weight: var(--lc-font-semibold);
+}
+
+.status-running {
+  color: #10b981; /* emerald-500 */
+}
+
+/* ===============================
+   🔘 PREMIUM BUTTONS
+   =============================== */
+
+/* Base Premium Button */
+.premium-button {
+  width: 100%;
+  font-weight: var(--lc-font-semibold);
+  padding: var(--lc-space-3) var(--lc-space-4);
+  border-radius: var(--lc-radius-xl);
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+  box-shadow: var(--lc-shadow-lg);
+  margin-bottom: var(--lc-space-3);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--lc-shadow-xl);
+}
+
+.premium-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Button Variants */
+.premium-button.new-game {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.premium-button.undo {
+  background: var(--lc-glass-bg-light);
+  color: white;
+  border: 1px solid var(--lc-glass-border-light);
+}
+
+.premium-button.reset-score {
+  background: linear-gradient(135deg, #f97316, #dc2626);
+  color: white;
+}
+
+.premium-button.assistance {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
+}
+
+.premium-button.help {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: white;
+}
+
+/* ===============================
+   🎯 HEADER & NAVIGATION
+   =============================== */
+
+/* Back Button */
+.back-button {
+  color: var(--lc-white);
+  text-decoration: none;
+  padding: var(--lc-space-2) var(--lc-space-4);
+  border-radius: var(--lc-radius-lg);
+  background: var(--lc-glass-bg-light);
+  border: 1px solid var(--lc-glass-border-light);
+  transition: all var(--lc-duration-normal) var(--lc-ease-out);
+}
+
+.back-button:hover {
+  background: var(--lc-glass-bg-hover);
+  transform: translateX(-2px);
+}
+
+/* Mode Selector */
+.mode-selector-container {
+  display: flex;
+  align-items: center;
+  gap: var(--lc-space-2);
+}
+
+.mode-selector-label {
+  color: var(--lc-white);
+  font-weight: var(--lc-font-medium);
+}
+
+.mode-selector {
+  background: var(--lc-glass-bg-light);
+  border: 1px solid var(--lc-glass-border-light);
+  border-radius: var(--lc-radius-lg);
+  padding: var(--lc-space-2) var(--lc-space-3);
+  color: var(--lc-white);
+  font-weight: var(--lc-font-medium);
+}
+
+/* Game Title */
+.game-title {
+  background: linear-gradient(135deg, var(--lc-connect4-accent), var(--lc-white));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.game-title-icon::before {
+  content: '🔴';
+  margin-right: var(--lc-space-2);
+}
+
+/* Version Display */
+.version-display {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--lc-text-sm);
+  text-align: center;
+  cursor: pointer;
+  transition: opacity var(--lc-duration-fast) var(--lc-ease-out);
+}
+
+.version-display:hover {
+  opacity: 1;
+}
+
+/* ===============================
+   🎯 COORDINATE LABELS
+   =============================== */
+
+.coord {
+  color: var(--lc-white);
+  text-align: center;
+  font-size: var(--lc-text-sm);
+  font-weight: var(--lc-font-bold);
+  cursor: pointer;
+  padding: var(--lc-space-1);
+  border-radius: var(--lc-radius-sm);
+  transition: all var(--lc-duration-fast) var(--lc-ease-out);
+}
+
+.coord:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY ENHANCEMENTS
+   =============================== */
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .disc,
+  .premium-button,
+  .coord,
+  .game-slot {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .disc.drop-preview {
+    animation: none !important;
+  }
+  
+  .disc.winning-disc {
+    animation: none !important;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .disc.yellow {
+    border: 3px solid #ca8a04 !important;
+  }
+  
+  .disc.red {
+    border: 3px solid #991b1b !important;
+  }
+  
+  .sidebar-glass-box {
+    border: 2px solid var(--lc-glass-border-light);
+  }
+}
+
+/* Focus Styles for Keyboard Navigation */
+.game-slot:focus,
+.coord:focus,
+.premium-button:focus {
+  outline: 2px solid var(--lc-connect4-accent);
+  outline-offset: 2px;
+}
+
+/* ===============================
+   🔧 PERFORMANCE OPTIMIZATIONS
+   =============================== */
+
+/* Hardware Acceleration */
+.disc,
+.game-slot,
+.confetti-particle {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Contain Layout and Paint */
+.game-board {
+  contain: layout style paint;
+}
+
+/* Game Board Container for SimpleConnect4 Fallback */
+.game-board-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--lc-space-4);
+}
+
+.game-board-container .game-board {
+  /* Use all existing game-board styles */
+}
+
+.sidebar-glass-box {
+  contain: layout style;
   transition: all var(--lc-duration-fast) var(--lc-ease-out);
 }
 
