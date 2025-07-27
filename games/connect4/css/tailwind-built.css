@@ -1471,7 +1471,9 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1;
+  aspect-ratio: auto;
+  min-height: 32px;
+  min-width: 40px;
   font-family: var(--lc-font-mono);
   font-weight: var(--lc-font-bold);
   font-size: var(--lc-text-sm);
