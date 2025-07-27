@@ -1926,10 +1926,18 @@ const LGameFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_lgame_free(ptr >>> 0, 1));
 /**
- * L-Game implementation using 3 separate BitPackedBoard<4,4,1>
- * Following Connect4 pattern: separate boards for each piece type
+ * L-Game implementation using the Three-Layer Architecture
+ * Composes geometry and data layers for clean separation of concerns
  */
 export class LGame {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(LGame.prototype);
+        obj.__wbg_ptr = ptr;
+        LGameFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
 
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
@@ -1950,6 +1958,16 @@ export class LGame {
         this.__wbg_ptr = ret >>> 0;
         LGameFinalization.register(this, this.__wbg_ptr, this);
         return this;
+    }
+    /**
+     * Create a new L-Game with a specific starting player
+     * This is essential for game series where "loser starts next game"
+     * @param {Player} starting_player
+     * @returns {LGame}
+     */
+    static new_with_starting_player(starting_player) {
+        const ret = wasm.lgame_new_with_starting_player(starting_player);
+        return LGame.__wrap(ret);
     }
     /**
      * Get current player
@@ -1982,12 +2000,6 @@ export class LGame {
     get winner() {
         const ret = wasm.lgame_winner(this.__wbg_ptr);
         return ret === 0 ? undefined : ret;
-    }
-    /**
-     * Reset game to initial state
-     */
-    reset() {
-        wasm.lgame_reset(this.__wbg_ptr);
     }
     /**
      * Get cell value at position (for JavaScript interface)
@@ -2090,6 +2102,188 @@ export class LGame {
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
             wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Get memory usage of the game state (for performance monitoring)
+     * @returns {number}
+     */
+    memory_usage() {
+        const ret = wasm.lgame_memory_usage(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get current player (frontend naming convention)
+     * @returns {Player}
+     */
+    get_current_player() {
+        const ret = wasm.lgame_get_current_player(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Get move count (frontend naming convention)
+     * @returns {number}
+     */
+    get_move_count() {
+        const ret = wasm.lgame_get_move_count(this.__wbg_ptr);
+        return ret >>> 0;
+    }
+    /**
+     * Get winner (frontend naming convention)
+     * @returns {Player | undefined}
+     */
+    get_winner() {
+        const ret = wasm.lgame_get_winner(this.__wbg_ptr);
+        return ret === 0 ? undefined : ret;
+    }
+    /**
+     * Check if game is over (frontend naming convention)
+     * @returns {boolean}
+     */
+    is_game_over() {
+        const ret = wasm.lgame_is_game_over(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get board state as flat array for frontend (4 rows × 4 cols = 16 elements)
+     * Returns: 0=empty, 1=player1, 2=player2, 3=neutral
+     * @returns {Uint8Array}
+     */
+    get_board() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_get_board(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Check if undo is possible
+     * @returns {boolean}
+     */
+    can_undo() {
+        const ret = wasm.lgame_can_undo(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Undo the last move
+     * @returns {boolean}
+     */
+    undo_move() {
+        const ret = wasm.lgame_undo_move(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Analyze current position comprehensively
+     * @returns {PositionAnalysis}
+     */
+    analyze_position() {
+        const ret = wasm.lgame_analyze_position(this.__wbg_ptr);
+        return PositionAnalysis.__wrap(ret);
+    }
+    /**
+     * Get current game phase for AI strategy
+     * @returns {GamePhase}
+     */
+    get_game_phase() {
+        const ret = wasm.lgame_get_game_phase(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * Reset game with a specific starting player
+     * @param {Player} starting_player
+     */
+    reset_with_starting_player(starting_player) {
+        wasm.lgame_reset_with_starting_player(this.__wbg_ptr, starting_player);
+    }
+    /**
+     * Reset game to initial state
+     */
+    reset() {
+        wasm.lgame_newGame(this.__wbg_ptr);
+    }
+    /**
+     * Frontend-friendly method aliases (Connect4 compatibility)
+     */
+    newGame() {
+        wasm.lgame_newGame(this.__wbg_ptr);
+    }
+    /**
+     * @returns {boolean}
+     */
+    undoMove() {
+        const ret = wasm.lgame_undoMove(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * Get valid L-piece moves for current player (for frontend)
+     * @returns {string}
+     */
+    get_valid_l_moves_json() {
+        let deferred1_0;
+        let deferred1_1;
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_get_valid_l_moves_json(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            deferred1_0 = r0;
+            deferred1_1 = r1;
+            return getStringFromWasm0(r0, r1);
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+            wasm.__wbindgen_export_1(deferred1_0, deferred1_1, 1);
+        }
+    }
+    /**
+     * Check if a specific L-piece move is valid
+     * @param {number} row
+     * @param {number} col
+     * @param {number} orientation
+     * @returns {boolean}
+     */
+    is_valid_l_move(row, col, orientation) {
+        const ret = wasm.lgame_is_valid_l_move(this.__wbg_ptr, row, col, orientation);
+        return ret !== 0;
+    }
+    /**
+     * Get neutral piece positions
+     * @returns {Uint8Array}
+     */
+    get_neutral_positions() {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_get_neutral_positions(retptr, this.__wbg_ptr);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * Get L-piece position for a specific player
+     * @param {Player} player
+     * @returns {Uint8Array}
+     */
+    get_l_piece_position(player) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.lgame_get_l_piece_position(retptr, this.__wbg_ptr, player);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var v1 = getArrayU8FromWasm0(r0, r1).slice();
+            wasm.__wbindgen_export_1(r0, r1 * 1, 1);
+            return v1;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
         }
     }
 }

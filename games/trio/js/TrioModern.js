@@ -626,7 +626,9 @@ export class TrioModern {
         }
 
         // Update component with latest statistics
-        this.components.assistanceManager?.stats = { ...this.stats };
+        if (this.components.assistanceManager) {
+            this.components.assistanceManager.stats = { ...this.stats };
+        }
     }
 
     /**

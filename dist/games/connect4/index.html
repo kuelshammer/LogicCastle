@@ -3,82 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>4 Gewinnt - LogicCastle</title>
-    <!-- Fallback if CSS fails to load -->
-    <style>
-      .connect4-board {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: repeat(6, 1fr);
-        gap: 4px;
-        background: #1e40af;
-        padding: 20px;
-        border-radius: 12px;
-        margin: 20px auto;
-        max-width: 600px;
-      }
-      .game-slot {
-        background: white;
-        border-radius: 50%;
-        aspect-ratio: 1;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .game-slot:hover {
-        transform: scale(1.05);
-        background: #fbbf24;
-      }
-      .game-piece {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-      }
-      .game-piece.player-yellow {
-        background: #fbbf24;
-        border: 2px solid #d97706;
-      }
-      .game-piece.player-red {
-        background: #ef4444;
-        border: 2px solid #dc2626;
-      }
-    </style>
-    <style>
-      /* Essential Connect4 styles */
-      .game-slot {
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .game-slot:hover {
-        transform: scale(1.05);
-      }
-      .disc {
-        transition: all 0.5s ease;
-      }
-      .disc.yellow {
-        background: linear-gradient(135deg, #FFD700, #FFA000) !important;
-        border: 3px solid #FF8F00 !important;
-        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6) !important;
-      }
-      .disc.red {
-        background: linear-gradient(135deg, #F44336, #D32F2F) !important;
-        border: 3px solid #C62828 !important;
-        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.6) !important;
-      }
-      .disc.empty {
-        background: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-      }
-    </style>
-    <script type="module" crossorigin src="/LogicCastle/assets/connect4-CUfPBd9w.js"></script>
-    <link rel="modulepreload" crossorigin href="/LogicCastle/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <title>4 Gewinnt - LogicCastle - Premium Gaming UI v5.0</title>
+    <meta name="cache-bust" content="2025-07-26-premium-gaming-production">
+    <meta name="version" content="connect4-premium-v5.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Connect4 Premium Gaming CSS (Production Build) -->
+    <script type="module" crossorigin src="/LogicCastle/assets/connect4-e7Y0BYJL.js"></script>
+    <link rel="modulepreload" crossorigin href="/LogicCastle/assets/game_engine-3k7GKb2a.js">
+    <link rel="modulepreload" crossorigin href="/LogicCastle/assets/preload-helper-DDWtIbF5.js">
+    <link rel="stylesheet" crossorigin href="/LogicCastle/assets/connect4-BgZ7H8Ed.css">
   </head>
-  <body class="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+  <body class="theme-connect4 min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-version="2.3-perfect" data-cache-bust="2025-07-21">
     <!-- Background decoration -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 1s;"></div>
         <div class="absolute top-40 left-1/2 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse" style="animation-delay: 2s;"></div>
+        <div class="absolute -top-20 left-1/4 w-60 h-60 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse" style="animation-delay: 0.5s;"></div>
+        <div class="absolute bottom-20 right-1/4 w-60 h-60 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-60 animate-pulse" style="animation-delay: 1.5s;"></div>
     </div>
 
     <div class="relative z-10" data-current-player="1">
@@ -86,12 +30,12 @@
       <header class="p-6 text-center">
         <div class="max-w-6xl mx-auto">
           <div class="flex items-center justify-between mb-4">
-            <a href="../../index.html" class="glass px-4 py-2 rounded-xl text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+            <a href="../../index.html" class="back-button">
               ← Zurück zu LogicCastle
             </a>
-            <div class="glass px-4 py-2 rounded-xl">
-              <label for="gameMode" class="text-white text-sm mr-2">Modus:</label>
-              <select id="gameMode" class="bg-transparent text-white border-none focus:outline-none">
+            <div class="mode-selector-container">
+              <label for="gameMode" class="mode-selector-label">Modus:</label>
+              <select id="gameMode" class="mode-selector">
                 <option value="two-player" class="text-gray-900">2 Spieler</option>
                 <option value="vs-bot-easy" class="text-gray-900">vs Einfache KI</option>
                 <option value="vs-bot-medium" class="text-gray-900">vs Mittlere KI</option>
@@ -99,52 +43,88 @@
               </select>
             </div>
           </div>
-          <h1 class="text-4xl md:text-6xl font-bold text-white mb-2">
-            <span class="inline-block w-8 h-8 bg-gradient-to-br from-red-500 to-yellow-500 rounded-full mr-3 align-middle"></span>
+          <h1 class="game-title text-4xl md:text-6xl font-bold mb-2">
+            <span class="game-title-icon"></span>
             4 Gewinnt
           </h1>
-          <p class="text-lg md:text-xl text-white opacity-90">Modular • BitPacked • KI-Enhanced</p>
+          <p class="version-display" id="versionDisplay">connect4-premium-v5.0 • 1-7 Select • Space Execute • ESC Clear</p>
         </div>
       </header>
 
       <!-- Main Game Container with Responsive Grid -->
-      <main class="relative z-10 max-w-7xl mx-auto p-6">
-        <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+      <main class="relative z-10 max-w-7xl 2xl:container-ultra-wide mx-auto p-6">
+        <div class="grid grid-cols-1 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           
-          <!-- Game Board Section (3/4 width on large screens) -->
-          <div class="xl:col-span-3">
-            <div class="glass rounded-3xl p-8 shadow-2xl" data-current-player="1">
-              <!-- Column Coordinates Top -->
-              <div class="grid grid-cols-7 gap-2 mb-4 px-4" id="topCoords">
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">1</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">2</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">3</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">4</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">5</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">6</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">7</div>
+          <!-- Left Sidebar (2XL+ only) -->
+          <div class="hidden 2xl:block 2xl:col-span-1 space-y-6">
+            <!-- Current Player Status -->
+            <div class="sidebar-glass-box">
+              <h3 class="sidebar-header">Aktueller Spieler</h3>
+              <div class="player-indicator-enhanced" id="currentPlayerIndicator2xl">
+                <span class="player-disc-enhanced yellow"></span>
+                <span class="player-name-enhanced">Spieler 1</span>
               </div>
-              
-              <!-- Game Board Container -->
-              <div class="relative">
-                <div class="game-board grid grid-cols-7 grid-rows-6 gap-2 p-4 rounded-2xl shadow-2xl bg-gradient-to-br from-blue-600 to-blue-800 aspect-[7/6] max-w-2xl mx-auto" id="gameBoard">
-                  <!-- 42 cells will be generated by JavaScript -->
+            </div>
+
+            <!-- Score Board -->
+            <div class="sidebar-glass-box">
+              <h3 class="sidebar-header">Spielstand</h3>
+              <div class="score-item">
+                <div class="score-label">
+                  <div class="score-color-indicator yellow"></div>
+                  <span>Gelb</span>
                 </div>
-                <!-- Particle Engine Canvas for Victory Celebrations -->
-                <canvas id="particleCanvas" 
-                        class="absolute inset-0 w-full h-full pointer-events-none z-50">
-                </canvas>
+                <span id="yellowScore2xl" class="score-number yellow">0</span>
               </div>
-              
-              <!-- Column Coordinates Bottom -->
-              <div class="grid grid-cols-7 gap-2 mt-4 px-4" id="bottomCoords">
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">1</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">2</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">3</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">4</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">5</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">6</div>
-                <div class="coord text-center text-white font-bold cursor-pointer hover:bg-white hover:bg-opacity-20 py-2 rounded">7</div>
+              <div class="score-item">
+                <div class="score-label">
+                  <div class="score-color-indicator red"></div>
+                  <span>Rot</span>
+                </div>
+                <span id="redScore2xl" class="score-number red">0</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Game Board Section (responsive width) -->
+          <div class="xl:col-span-3 2xl:col-span-3">
+            <div class="lc-glass rounded-3xl p-8 shadow-2xl" data-current-player="1">
+              <!-- Unified Game Board Container with Perfect Column Alignment -->
+              <div class="relative max-w-2xl mx-auto">
+                
+                <!-- Column Coordinates Top - PERFECTLY ALIGNED -->
+                <div class="grid grid-cols-7 gap-2 px-4 py-2 mb-1" id="topCoords">
+                  <div class="coord text-white text-center text-sm font-bold">1</div>
+                  <div class="coord text-white text-center text-sm font-bold">2</div>
+                  <div class="coord text-white text-center text-sm font-bold">3</div>
+                  <div class="coord text-white text-center text-sm font-bold">4</div>
+                  <div class="coord text-white text-center text-sm font-bold">5</div>
+                  <div class="coord text-white text-center text-sm font-bold">6</div>
+                  <div class="coord text-white text-center text-sm font-bold">7</div>
+                </div>
+                
+                <!-- Game Board Container with Particle Engine -->
+                <div class="relative">
+                  <div class="game-board grid grid-cols-7 grid-rows-6 gap-2 p-4 rounded-2xl shadow-2xl bg-gradient-to-br from-blue-600 to-blue-800 aspect-[7/6]" id="gameBoard">
+                    <!-- 42 cells will be generated by JavaScript -->
+                  </div>
+                  <!-- Particle Engine Canvas for Victory Celebrations -->
+                  <canvas id="particleCanvas" 
+                          class="absolute inset-0 w-full h-full pointer-events-none z-50">
+                  </canvas>
+                </div>
+                
+                <!-- Column Coordinates Bottom - PERFECTLY ALIGNED -->
+                <div class="grid grid-cols-7 gap-2 px-4 py-2 mt-1" id="bottomCoords">
+                  <div class="coord text-white text-center text-sm font-bold">1</div>
+                  <div class="coord text-white text-center text-sm font-bold">2</div>
+                  <div class="coord text-white text-center text-sm font-bold">3</div>
+                  <div class="coord text-white text-center text-sm font-bold">4</div>
+                  <div class="coord text-white text-center text-sm font-bold">5</div>
+                  <div class="coord text-white text-center text-sm font-bold">6</div>
+                  <div class="coord text-white text-center text-sm font-bold">7</div>
+                </div>
+                
               </div>
             </div>
           </div>
@@ -152,69 +132,101 @@
           <!-- Game Info Sidebar (1/4 width) -->
           <div class="space-y-6">
             <!-- Current Player Status -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
-              <h3 class="text-xl font-bold text-white mb-4">Aktueller Spieler</h3>
-              <div class="flex items-center justify-center">
-                <span class="player-indicator flex items-center" id="currentPlayerIndicator">
-                  <span class="player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg"></span>
-                  <span class="player-name text-white font-semibold">Spieler 1</span>
-                </span>
+            <div class="sidebar-glass-box">
+              <h3 class="sidebar-header">Aktueller Spieler</h3>
+              <div class="player-indicator-enhanced" id="currentPlayerIndicator">
+                <span class="player-disc-enhanced yellow"></span>
+                <span class="player-name-enhanced">Spieler 1</span>
               </div>
             </div>
 
             <!-- Score Board -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
-              <h3 class="text-xl font-bold text-white mb-4">Spielstand</h3>
-              <div class="space-y-4">
-                <div class="flex items-center justify-between text-white">
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 mr-2"></div>
-                    <span>Gelb</span>
-                  </div>
-                  <span id="yellowScore" class="text-2xl font-bold text-yellow-400">0</span>
+            <div class="sidebar-glass-box">
+              <h3 class="sidebar-header">Spielstand</h3>
+              <div class="score-item">
+                <div class="score-label">
+                  <div class="score-color-indicator yellow"></div>
+                  <span>Gelb</span>
                 </div>
-                <div class="flex items-center justify-between text-white">
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 rounded-full bg-gradient-to-br from-red-500 to-red-700 mr-2"></div>
-                    <span>Rot</span>
-                  </div>
-                  <span id="redScore" class="text-2xl font-bold text-red-400">0</span>
+                <span id="yellowScore" class="score-number yellow">0</span>
+              </div>
+              <div class="score-item">
+                <div class="score-label">
+                  <div class="score-color-indicator red"></div>
+                  <span>Rot</span>
                 </div>
+                <span id="redScore" class="score-number red">0</span>
               </div>
             </div>
 
             <!-- Game Status -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="sidebar-glass-box">
+              <h3 class="sidebar-header">Spiel-Info</h3>
+              <div class="game-info-item">
+                <span class="game-info-label">Status:</span>
+                <span id="gameStatus" class="game-info-value status-running">Spiel läuft</span>
+              </div>
+              <div class="game-info-item">
+                <span class="game-info-label">Züge:</span>
+                <span id="moveCounter" class="game-info-value">0</span>
+              </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="sidebar-glass-box">
+              <h3 class="sidebar-header">Steuerung</h3>
+              <button id="newGameBtn" class="premium-button new-game">
+                🆕 Neues Spiel (N)
+              </button>
+              <button id="undoBtn" class="premium-button undo" disabled>
+                ↶ Rückgängig (U)
+              </button>
+              <button id="resetScoreBtn" class="premium-button reset-score">
+                🔄 Score zurücksetzen (F3)
+              </button>
+              <button id="assistanceBtn" class="premium-button assistance">
+                🎛️ Spielerhilfen (F2)
+              </button>
+              <button id="helpBtn" class="premium-button help">
+                ❓ Spielanleitung (F1)
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Sidebar (2XL+ only) -->
+          <div class="hidden 2xl:block 2xl:col-span-1 space-y-6">
+            <!-- Game Status -->
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Spiel-Info</h3>
               <div class="space-y-3 text-white">
                 <div class="flex justify-between">
                   <span>Status:</span>
-                  <span id="gameStatus" class="font-semibold text-green-400">Spiel läuft</span>
+                  <span id="gameStatus2xl" class="font-semibold text-green-400">Spiel läuft</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Züge:</span>
-                  <span id="moveCounter" class="font-bold">0</span>
+                  <span id="moveCounter2xl" class="font-bold">0</span>
                 </div>
               </div>
             </div>
 
             <!-- Game Controls -->
-            <div class="glass rounded-2xl p-6 shadow-xl">
+            <div class="lc-glass rounded-2xl p-6 shadow-xl">
               <h3 class="text-xl font-bold text-white mb-4">Steuerung</h3>
               <div class="space-y-3">
-                <button id="newGameBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="newGameBtn2xl" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🆕 Neues Spiel (N)
                 </button>
-                <button id="undoBtn" class="w-full glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200 disabled:opacity-50" disabled>
+                <button id="undoBtn2xl" class="w-full lc-glass-dark text-white font-semibold py-3 px-4 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all duration-200 disabled:opacity-50" disabled>
                   ↶ Rückgängig (U)
                 </button>
-                <button id="resetScoreBtn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="resetScoreBtn2xl" class="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🔄 Score zurücksetzen (F3)
                 </button>
-                <button id="assistanceBtn" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="assistanceBtn2xl" class="w-full bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   🎛️ Spielerhilfen (F2)
                 </button>
-                <button id="helpBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg glass-hover">
+                <button id="helpBtn2xl" class="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg lc-glass-hover">
                   ❓ Spielanleitung (F1)
                 </button>
               </div>
@@ -227,10 +239,10 @@
 
     <!-- Modern Player Assistance Modal -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="assistanceModal">
-      <div class="glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="lc-glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-3xl font-bold text-white">🎛️ Spielerhilfen</h2>
-          <button class="glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeAssistanceModal">
+          <button class="lc-glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeAssistanceModal">
             ✕
           </button>
         </div>
@@ -242,10 +254,10 @@
 
     <!-- Help Modal -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="helpModal">
-      <div class="glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="lc-glass rounded-3xl p-8 max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-3xl font-bold text-white">❓ Spielanleitung</h2>
-          <button class="glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeHelpModal">
+          <button class="lc-glass-hover rounded-xl p-2 text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200" id="closeHelpModal">
             ✕
           </button>
         </div>
@@ -273,853 +285,488 @@
       </div>
     </div>
 
-    <!-- VEREINFACHTES CDN-ONLY SYSTEM -->
+    <!-- Load our modular Connect4 system -->
+    
+    <!-- FALLBACK: Simple Connect4 for testing when modules fail -->
     <script>
-      console.log('🚀 CDN-ONLY SYSTEM INITIALIZATION...');
-      
-      // Local Module URLs (Relative Paths für GitHub Pages Kompatibilität)
-      const LOCAL_MODULES = {
-        'BaseGameUI': './js/modules/core/BaseGameUI.js',
-        'ElementBinder': './js/modules/core/ElementBinder.js',
-        'EventDispatcher': './js/modules/core/EventDispatcher.js',
-        'BoardRenderer': './js/components/BoardRenderer.js',
-        'Connect4Config': './js/connect4-config.js'
-      };
-      
-      // Lokaler Module Loader
-      async function loadLocalModule(moduleName) {
-        const localUrl = LOCAL_MODULES[moduleName];
-        console.log(`📦 Loading ${moduleName} from local: ${localUrl}`);
-        
-        try {
-          const module = await import(localUrl);
-          console.log(`✅ Local import success for ${moduleName}`);
-          return module;
-        } catch (error) {
-          console.error(`❌ Local import failed for ${moduleName}:`, error.message);
-          throw error;
-        }
-      }
-      
-      // Initialize modular Connect4 with lokalen Modulen
-      async function initializeLocalConnect4() {
-        console.log('🎮 Initializing Local Connect4...');
-        
-        try {
-          // Load modules from local paths
-          const baseGameUI = await loadLocalModule('BaseGameUI');
-          const boardRenderer = await loadLocalModule('BoardRenderer');
-          const connect4Config = await loadLocalModule('Connect4Config');
-          
-          const BaseGameUI = baseGameUI.BaseGameUI;
-          const BoardRenderer = boardRenderer.BoardRenderer;
-          const configModule = connect4Config;
-          
-          console.log('✅ All local modules loaded successfully');
-          
-          // Create configuration
-          const config = configModule.createConnect4Config ? 
-            configModule.createConnect4Config('two-player') : 
-            configModule.CONNECT4_UI_CONFIG;
-          
-          // Create modular game class
-          class LocalConnect4Game extends BaseGameUI {
+      if (!window.game) {
+        setTimeout(() => {
+          if (!window.game) {
+            console.log('🔄 Module loading failed, creating simple fallback game...');
+            
+            // Hide the error message
+            const errorDiv = document.querySelector('.bg-red-500');
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            // Simple Connect4 Game Class
+            class SimpleConnect4 {
               constructor() {
-                super(null, config);
-                this.boardRenderer = null;
-                
-                // Game state
                 this.board = Array(6).fill(null).map(() => Array(7).fill(0));
                 this.currentPlayer = 1;
                 this.gameOver = false;
                 this.winner = null;
-                this.moveCount = 0;
-                this.gameHistory = [];
+                this.winningLine = [];
                 this.scores = { yellow: 0, red: 0 };
+                this.processingMove = false;
                 
-                console.log('🎮 LocalConnect4Game created with modular architecture');
+                this.init();
               }
               
-              async init() {
-                console.log('🔄 Initializing Local Connect4...');
-                
-                try {
-                  await super.init();
-                  console.log('✅ BaseGameUI initialized');
-                } catch (error) {
-                  console.warn('⚠️ BaseGameUI init failed, continuing anyway:', error);
-                }
-                
-                // Initialize BoardRenderer if available
-                if (BoardRenderer) {
-                  this.initializeBoardRenderer();
-                }
-                
-                // Initialize game
+              init() {
                 this.createBoard();
-                this.setupEventListeners();
+                this.setupColumnHover();
                 this.updateUI();
-                
-                console.log('✅ Local Connect4 initialized successfully');
-                return true;
-              }
-              
-              initializeBoardRenderer() {
-                const gameBoard = document.getElementById('gameBoard');
-                const topCoords = document.getElementById('topCoords');
-                const bottomCoords = document.getElementById('bottomCoords');
-                
-                if (gameBoard && BoardRenderer) {
-                  this.boardRenderer = new BoardRenderer(gameBoard, topCoords, bottomCoords);
-                  console.log('🎯 BoardRenderer initialized from local modules');
-                } else {
-                  console.warn('⚠️ BoardRenderer not available or gameBoard not found');
-                }
+                console.log('✅ Simple Connect4 initialized');
               }
               
               createBoard() {
-                // Use BoardRenderer if available
-                if (this.boardRenderer) {
-                  const success = this.boardRenderer.initializeBoard();
-                  if (success) {
-                    this.boardRenderer.createCoordinateLabels();
-                    console.log('🎯 Board created using local BoardRenderer');
-                    return;
-                  }
-                }
+                const boardContainer = document.querySelector('.game-board-container');
+                if (!boardContainer) return;
                 
-                // Fallback to manual board creation
-                this.createBoardManually();
+                boardContainer.innerHTML = `
+                  <div class="game-board grid grid-cols-7 grid-rows-6 gap-2 p-6 rounded-2xl" id="gameBoard">
+                    ${Array(42).fill(0).map((_, i) => {
+                      const row = Math.floor(i / 7);
+                      const col = i % 7;
+                      return `<div class="game-slot" data-row="${row}" data-col="${col}" onclick="window.game.makeMove(${col})">
+                        <div class="disc empty"></div>
+                      </div>`;
+                    }).join('')}
+                  </div>
+                `;
+                
+                // Update scores display
+                document.getElementById('yellowScore').textContent = this.scores.yellow;
+                document.getElementById('redScore').textContent = this.scores.red;
+                document.getElementById('gameStatus').textContent = 'Spieler 1 (Gelb) ist dran';
               }
               
-              createBoardManually() {
-                const gameBoard = document.getElementById('gameBoard');
-                if (!gameBoard) {
-                  console.error('❌ Game board element not found');
-                  return;
+              // SMART HOVER PREVIEW SYSTEM
+              setupColumnHover() {
+                console.log('🎯 Setting up smart column hover preview system');
+                for (let col = 0; col < 7; col++) {
+                  const columnCells = document.querySelectorAll(`[data-col="${col}"]`);
+                  columnCells.forEach(cell => {
+                    cell.addEventListener('mouseenter', () => this.showDropPreview(col));
+                    cell.addEventListener('mouseleave', () => this.hideDropPreview());
+                  });
                 }
-                
-                gameBoard.innerHTML = '';
-                
-                // Create 42 cells
-                for (let row = 0; row < 6; row++) {
-                  for (let col = 0; col < 7; col++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'game-slot relative bg-blue-500 rounded-full border-2 border-blue-700 cursor-pointer aspect-square flex items-center justify-center';
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    
-                    const disc = document.createElement('div');
-                    disc.className = 'disc empty w-[85%] h-[85%] rounded-full';
-                    disc.style.background = 'rgba(255, 255, 255, 0.1)';
-                    disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-                    
-                    cell.appendChild(disc);
-                    gameBoard.appendChild(cell);
-                  }
-                }
-                
-                console.log('🎯 Board created manually (42 cells)');
               }
               
-              setupEventListeners() {
-                // Board click handler
-                const gameBoard = document.getElementById('gameBoard');
-                if (gameBoard) {
-                  gameBoard.addEventListener('click', (e) => {
-                    const cell = e.target.closest('.game-slot');
-                    if (cell && !this.gameOver) {
-                      const col = parseInt(cell.dataset.col);
-                      this.makeMove(col);
-                    }
-                  });
-                }
-                
-                // Column coordinates click handler
-                document.querySelectorAll('.coord').forEach((coord, index) => {
-                  coord.addEventListener('click', () => {
-                    if (!this.gameOver) {
-                      this.makeMove(index);
-                    }
-                  });
-                });
-                
-                // Button handlers
-                const newGameBtn = document.getElementById('newGameBtn');
-                if (newGameBtn) {
-                  newGameBtn.addEventListener('click', () => this.resetGame());
-                }
-                
-                const undoBtn = document.getElementById('undoBtn');
-                if (undoBtn) {
-                  undoBtn.addEventListener('click', () => this.undoMove());
-                }
-                
-                const resetScoreBtn = document.getElementById('resetScoreBtn');
-                if (resetScoreBtn) {
-                  resetScoreBtn.addEventListener('click', () => this.resetScore());
-                }
-                
-                // Modal handlers
-                const helpBtn = document.getElementById('helpBtn');
-                if (helpBtn) {
-                  helpBtn.addEventListener('click', () => this.showModal('helpModal'));
-                }
-                
-                const assistanceBtn = document.getElementById('assistanceBtn');
-                if (assistanceBtn) {
-                  assistanceBtn.addEventListener('click', () => this.showModal('assistanceModal'));
-                }
-                
-                // Close modal handlers
-                const closeHelpModal = document.getElementById('closeHelpModal');
-                if (closeHelpModal) {
-                  closeHelpModal.addEventListener('click', () => this.hideModal('helpModal'));
-                }
-                
-                const closeAssistanceModal = document.getElementById('closeAssistanceModal');
-                if (closeAssistanceModal) {
-                  closeAssistanceModal.addEventListener('click', () => this.hideModal('assistanceModal'));
-                }
-                
-                // Keyboard controls
-                document.addEventListener('keydown', (e) => {
-                  if (e.key >= '1' && e.key <= '7' && !this.gameOver) {
-                    const col = parseInt(e.key) - 1;
-                    this.makeMove(col);
-                  } else if (e.key === 'n' || e.key === 'N') {
-                    this.resetGame();
-                  } else if (e.key === 'u' || e.key === 'U') {
-                    this.undoMove();
-                  } else if (e.key === 'F1') {
-                    e.preventDefault();
-                    this.toggleModal('helpModal');
-                  } else if (e.key === 'F2') {
-                    e.preventDefault();
-                    this.toggleModal('assistanceModal');
-                  } else if (e.key === 'F3') {
-                    e.preventDefault();
-                    this.resetScore();
-                  } else if (e.key === 'Escape') {
-                    this.hideModal('helpModal');
-                    this.hideModal('assistanceModal');
+              findDropRow(col) {
+                // Find the lowest empty row in the column (where disc would land)
+                for (let row = 5; row >= 0; row--) {
+                  if (this.board[row][col] === 0) {
+                    return row;
                   }
-                });
+                }
+                return -1; // Column is full
+              }
+              
+              showDropPreview(col) {
+                if (this.gameOver) return;
                 
-                console.log('🎮 Event listeners set up for Local Connect4');
+                // Clear any existing preview
+                this.hideDropPreview();
+                
+                // Find where the disc would land
+                const dropRow = this.findDropRow(col);
+                if (dropRow === -1) return; // Column full
+                
+                // Show preview at drop position
+                const cell = document.querySelector(`[data-row="${dropRow}"][data-col="${col}"]`);
+                if (!cell) return;
+                
+                const disc = cell.querySelector('.disc');
+                if (!disc) return;
+                
+                // Add preview classes based on current player
+                disc.classList.add('drop-preview', `preview-player${this.currentPlayer}`);
+                
+                console.log(`🎯 Showing drop preview: Player ${this.currentPlayer}, Col ${col}, Row ${dropRow}`);
+              }
+              
+              hideDropPreview() {
+                // Remove all preview classes from all discs
+                document.querySelectorAll('.drop-preview').forEach(disc => {
+                  disc.classList.remove('drop-preview', 'preview-player1', 'preview-player2');
+                });
               }
               
               makeMove(col) {
-                if (this.gameOver || col < 0 || col >= 7) return false;
+                console.log(`🎮 makeMove called: Player ${this.currentPlayer} to column ${col}`);
+                console.log(`🎮 makeMove: gameOver status = ${this.gameOver}`);
+                
+                // CRITICAL FIX: Prevent moves during game over state
+                if (this.gameOver) {
+                  console.log('❌ Game already over, move rejected');
+                  return;
+                }
+                
+                // CRITICAL FIX: Prevent multiple simultaneous moves 
+                if (this.processingMove) {
+                  console.log('⏳ Move already in progress, ignoring');
+                  return;
+                }
+                
+                this.processingMove = true;
+                
+                // Clear any hover preview when move is made
+                this.hideDropPreview();
                 
                 // Find lowest empty row in column
-                let targetRow = -1;
-                for (let row = 5; row >= 0; row--) {
-                  if (this.board[row][col] === 0) {
-                    targetRow = row;
+                let row = -1;
+                for (let r = 5; r >= 0; r--) {
+                  if (this.board[r][col] === 0) {
+                    row = r;
                     break;
                   }
                 }
                 
-                if (targetRow === -1) return false; // Column full
-                
-                // Save move for undo
-                this.gameHistory.push({
-                  row: targetRow,
-                  col: col,
-                  player: this.currentPlayer,
-                  board: this.board.map(row => [...row])
-                });
-                
-                // Make the move
-                this.board[targetRow][col] = this.currentPlayer;
-                this.moveCount++;
-                
-                // Update visual
-                this.updateCell(targetRow, col, this.currentPlayer);
-                
-                // Check for win
-                if (this.checkWin(targetRow, col)) {
-                  this.gameOver = true;
-                  this.winner = this.currentPlayer;
-                  this.showWin(targetRow, col);
-                  this.updateScore();
-                } else if (this.moveCount === 42) {
-                  this.gameOver = true;
-                  this.winner = 0; // Draw
-                  this.showDraw();
-                } else {
-                  // Switch player
-                  this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                if (row === -1) {
+                  console.log(`❌ Column ${col} full, move rejected`);
+                  return; // Column full
                 }
                 
+                // Place piece
+                this.board[row][col] = this.currentPlayer;
+                console.log(`✅ Piece placed at (${row}, ${col}) for player ${this.currentPlayer}`);
+                console.log('📋 Current board state:');
+                for (let r = 0; r < 6; r++) {
+                  console.log(`Row ${r}: `, this.board[r]);
+                }
+                this.updateCell(row, col);
+                
+                // Check for win
+                console.log('🔍 About to check win...');
+                const winResult = this.checkWin(row, col);
+                console.log(`🔍 checkWin result: ${winResult}`);
+                if (winResult) {
+                  console.log('🏆 CALLING showWin()...');
+                  this.showWin(row, col);
+                  // Note: processingMove stays true during victory sequence
+                  return;
+                }
+                
+                // Switch player and reset processing flag
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                this.processingMove = false;
                 this.updateUI();
-                return true;
               }
               
-              updateCell(row, col, player) {
-                // Use BoardRenderer if available
-                if (this.boardRenderer && this.boardRenderer.updateBoardVisual) {
-                  this.boardRenderer.updateBoardVisual(row, col, player);
-                } else {
-                  // Fallback to direct DOM manipulation
-                  const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                  if (cell) {
-                    const disc = cell.querySelector('.disc');
-                    if (disc) {
-                      disc.classList.remove('empty', 'yellow', 'red');
-                      disc.classList.add(player === 1 ? 'yellow' : 'red');
-                      
-                      if (player === 1) {
-                        disc.style.background = 'linear-gradient(135deg, #FFD700, #FFA000)';
-                        disc.style.border = '3px solid #FF8F00';
-                        disc.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.6)';
-                      } else {
-                        disc.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
-                        disc.style.border = '3px solid #C62828';
-                        disc.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.6)';
-                      }
-                    }
-                  }
+              updateCell(row, col) {
+                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"] .disc`);
+                if (cell) {
+                  // Use CSS classes instead of inline styles
+                  cell.className = 'disc';
+                  cell.classList.add(this.currentPlayer === 1 ? 'yellow' : 'red');
+                  console.log(`🎨 Updated cell (${row}, ${col}) with ${this.currentPlayer === 1 ? 'yellow' : 'red'} styling`);
                 }
               }
               
               checkWin(row, col) {
-                const player = this.board[row][col];
+                console.log(`🔍 Checking win for player ${this.currentPlayer} at (${row}, ${col})`);
                 const directions = [
-                  [0, 1],  // horizontal
-                  [1, 0],  // vertical
-                  [1, 1],  // diagonal /
-                  [1, -1]  // diagonal \
+                  [0, 1], [1, 0], [1, 1], [1, -1]
                 ];
                 
                 for (const [dr, dc] of directions) {
                   let count = 1;
                   const line = [[row, col]];
+                  const directionName = dr === 0 ? 'horizontal' : (dc === 0 ? 'vertical' : (dr === dc ? 'diagonal-down' : 'diagonal-up'));
+                  console.log(`🔍 Checking ${directionName} direction [${dr},${dc}] from (${row}, ${col})`);
                   
-                  // Check positive direction
-                  for (let i = 1; i < 4; i++) {
-                    const r = row + i * dr;
-                    const c = col + i * dc;
-                    if (r >= 0 && r < 6 && c >= 0 && c < 7 && this.board[r][c] === player) {
+                  // Check positive direction (FIX: i < 7 instead of i < 4)
+                  for (let i = 1; i < 7; i++) {
+                    const nr = row + dr * i;
+                    const nc = col + dc * i;
+                    if (nr >= 0 && nr < 6 && nc >= 0 && nc < 7 && this.board[nr][nc] === this.currentPlayer) {
                       count++;
-                      line.push([r, c]);
-                    } else {
-                      break;
-                    }
+                      line.push([nr, nc]);
+                    } else break;
                   }
                   
-                  // Check negative direction
-                  for (let i = 1; i < 4; i++) {
-                    const r = row - i * dr;
-                    const c = col - i * dc;
-                    if (r >= 0 && r < 6 && c >= 0 && c < 7 && this.board[r][c] === player) {
+                  // Check negative direction (FIX: i < 7 instead of i < 4)
+                  for (let i = 1; i < 7; i++) {
+                    const nr = row - dr * i;
+                    const nc = col - dc * i;
+                    if (nr >= 0 && nr < 6 && nc >= 0 && nc < 7 && this.board[nr][nc] === this.currentPlayer) {
                       count++;
-                      line.push([r, c]);
-                    } else {
-                      break;
-                    }
+                      line.unshift([nr, nc]);
+                    } else break;
                   }
+                  
+                  console.log(`📊 ${directionName}: Found ${count} in a row`, line);
                   
                   if (count >= 4) {
-                    this.winningLine = line;
+                    console.log(`🏆 WIN DETECTED! Player ${this.currentPlayer} has ${count} in a row (${directionName}): `, line.slice(0, 4));
+                    this.winningLine = line.slice(0, 4);
+                    this.winner = this.currentPlayer;
+                    this.gameOver = true;
                     return true;
                   }
                 }
-                
+                console.log(`❌ No win detected for player ${this.currentPlayer} at (${row}, ${col})`);
                 return false;
+              }
+
+              // MANUAL CONFETTI TEST FUNCTION
+              testConfetti() {
+                console.log('🧪 MANUAL CONFETTI TEST TRIGGERED');
+                this.createConfetti('yellow');
               }
               
               showWin(row, col) {
+                console.log('🎯 showWin() CALLED! Starting victory sequence...');
                 const winnerName = this.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
+                const winnerColor = this.currentPlayer === 1 ? 'yellow' : 'red';
+                const winnerHex = this.currentPlayer === 1 ? '#fde047' : '#ef4444';
+
+                console.log(`🏆 ${winnerName} gewinnt! Starting 3-phase victory sequence...`);
+
+                // Update score immediately 
+                this.scores[winnerColor]++;
+                document.getElementById(winnerColor + 'Score').textContent = this.scores[winnerColor];
+
+                // PHASE 1: Highlight winning line for 1 second
+                this.showVictoryPhase1(winnerColor, winnerName);
+
+                // PHASE 2: Confetti fireworks for 3 seconds  
+                setTimeout(() => {
+                  this.showVictoryPhase2(winnerColor, winnerHex);
+                }, 1000);
+
+                // PHASE 3: Auto-Reset after confetti (ultra-fast 2s timing)
+                setTimeout(() => {
+                  this.showVictoryPhase3(winnerName, winnerColor);
+                }, 3000); // 3s total: 1s phase1 + 2s confetti time
+              }
+              
+              showVictoryPhase1(winnerColor, winnerName) {
+                console.log(`🎯 PHASE 1: Highlighting winning line...`);
+                document.getElementById('gameStatus').textContent = `🏆 ${winnerName} gewinnt!`;
                 
-                // Highlight winning pieces
-                if (this.winningLine) {
-                  this.winningLine.forEach(([r, c]) => {
-                    const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    if (cell) {
-                      const disc = cell.querySelector('.disc');
-                      if (disc) {
-                        disc.classList.add('winning-disc');
+                // Highlight winning discs
+                this.winningLine.forEach(([r, c]) => {
+                  const disc = document.querySelector(`[data-row="${r}"][data-col="${c}"] .disc`);
+                  if (disc) {
+                    disc.style.boxShadow = `0 0 20px ${winnerColor === 'yellow' ? '#fde047' : '#ef4444'}`;
+                    disc.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    disc.style.zIndex = '100';
+                  }
+                });
+              }
+              
+              showVictoryPhase2(winnerColor, winnerHex) {
+                console.log(`🎆 PHASE 2: Creating confetti...`);
+                console.log('🎆 Confetti system triggered! Winner:', winnerColor);
+                this.createConfetti(winnerColor);
+              }
+              
+              showVictoryPhase3(winnerName, winnerColor) {
+                console.log(`✨ PHASE 3: Auto-Reset - Cleaning victory effects and starting new game`);
+                
+                // Clean up visual effects immediately
+                document.querySelectorAll('.disc').forEach(disc => {
+                  disc.style.boxShadow = '';
+                  disc.style.transform = 'translate(-50%, -50%)';
+                  disc.style.zIndex = '';
+                });
+                
+                // Start new game immediately (confetti will continue independently)
+                console.log('🔄 PHASE 3: Auto-starting new game NOW');
+                this.newGame();
+              }
+              
+              createConfetti(winnerColor) {
+                console.log('🎊 CREATING JAVASCRIPT ANIMATED CONFETTI for', winnerColor);
+                const confettiContainer = document.createElement('div');
+                confettiContainer.id = 'confetti-container';
+                confettiContainer.className = 'confetti-container';
+                document.body.appendChild(confettiContainer);
+                console.log('🎊 Confetti container added to body');
+                
+                const colors = winnerColor === 'yellow' ? 
+                  ['#fde047', '#facc15', '#eab308', '#ca8a04'] : 
+                  ['#ef4444', '#dc2626', '#b91c1c', '#991b1b'];
+                
+                console.log('🎊 Creating 150 ULTIMATE confetti particles...');
+                for (let i = 0; i < 150; i++) {
+                  const confetti = document.createElement('div');
+                  const startX = Math.random() * 100;
+                  const delay = Math.random() * 1000;
+                  const duration = 1500 + Math.random() * 500; // 1.5-2 seconds ultra-fast
+                  const size = 20 + Math.random() * 20; // 20-40px for enhanced visibility
+                  const color = colors[Math.floor(Math.random() * colors.length)];
+                  
+                  confetti.className = 'confetti-particle';
+                  confetti.style.left = startX + '%';
+                  confetti.style.top = '-20px';
+                  confetti.style.width = size + 'px';
+                  confetti.style.height = size + 'px';
+                  confetti.style.background = `linear-gradient(45deg, ${color}, ${color}80)`;
+                  confetti.style.border = `2px solid ${color}`;
+                  confetti.style.boxShadow = `0 0 12px ${color}80, 0 4px 8px rgba(0,0,0,0.4)`;
+                  
+                  confettiContainer.appendChild(confetti);
+                  if (i < 5) console.log('🎊 Confetti ' + i + ': ' + color + ' at ' + startX + '%');
+                  
+                  // Store for JavaScript animation
+                  confetti.animData = {
+                    startX: parseFloat(startX),
+                    y: -20,
+                    fallSpeed: 12 + Math.random() * 8,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 8,
+                    drift: (Math.random() - 0.5) * 2,
+                    opacity: 1
+                  };
+                }
+                
+                // JavaScript Animation Loop
+                console.log('🎆 Starting JavaScript confetti animation...');
+                const confettiElements = Array.from(confettiContainer.children);
+                let animationId;
+                let frameCount = 0;
+                
+                const animateConfetti = () => {
+                  frameCount++;
+                  let activeParticles = 0;
+                  
+                  confettiElements.forEach(confetti => {
+                    if (confetti.animData && confetti.animData.y < window.innerHeight + 50 && confetti.animData.opacity > 0) {
+                      // Update position
+                      confetti.animData.y += confetti.animData.fallSpeed;
+                      confetti.animData.startX += confetti.animData.drift;
+                      confetti.animData.rotation += confetti.animData.rotationSpeed;
+                      
+                      // Fade out near bottom
+                      if (confetti.animData.y > window.innerHeight - 100) {
+                        confetti.animData.opacity -= 0.02;
                       }
+                      
+                      // Apply transform
+                      confetti.style.transform = 
+                        'translate(' + confetti.animData.startX + '%, ' + confetti.animData.y + 'px) rotate(' + confetti.animData.rotation + 'deg)';
+                      confetti.style.opacity = Math.max(0, confetti.animData.opacity);
+                      
+                      activeParticles++;
                     }
                   });
-                }
-                
-                // Update status
-                const gameStatus = document.getElementById('gameStatus');
-                if (gameStatus) {
-                  gameStatus.textContent = `${winnerName} gewinnt!`;
-                  gameStatus.className = 'font-semibold text-yellow-400';
-                }
-                
-                console.log(`🏆 ${winnerName} gewinnt!`);
-              }
-              
-              showDraw() {
-                const gameStatus = document.getElementById('gameStatus');
-                if (gameStatus) {
-                  gameStatus.textContent = 'Unentschieden!';
-                  gameStatus.className = 'font-semibold text-gray-400';
-                }
-                
-                console.log('🤝 Unentschieden!');
-              }
-              
-              updateScore() {
-                if (this.winner === 1) {
-                  this.scores.yellow++;
-                } else if (this.winner === 2) {
-                  this.scores.red++;
-                }
-                
-                const yellowScore = document.getElementById('yellowScore');
-                const redScore = document.getElementById('redScore');
-                
-                if (yellowScore) yellowScore.textContent = this.scores.yellow;
-                if (redScore) redScore.textContent = this.scores.red;
-              }
-              
-              resetScore() {
-                this.scores = { yellow: 0, red: 0 };
-                
-                const yellowScore = document.getElementById('yellowScore');
-                const redScore = document.getElementById('redScore');
-                
-                if (yellowScore) yellowScore.textContent = '0';
-                if (redScore) redScore.textContent = '0';
-                
-                console.log('🔄 Score reset');
-              }
-              
-              undoMove() {
-                if (this.gameHistory.length === 0) return false;
-                
-                const lastMove = this.gameHistory.pop();
-                this.board = lastMove.board;
-                this.currentPlayer = lastMove.player;
-                this.moveCount--;
-                this.gameOver = false;
-                this.winner = null;
-                
-                // Update all cells
-                for (let row = 0; row < 6; row++) {
-                  for (let col = 0; col < 7; col++) {
-                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                    if (cell) {
-                      const disc = cell.querySelector('.disc');
-                      if (disc) {
-                        disc.classList.remove('empty', 'yellow', 'red', 'winning-disc');
-                        if (this.board[row][col] === 0) {
-                          disc.classList.add('empty');
-                          disc.style.background = 'rgba(255, 255, 255, 0.1)';
-                          disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-                          disc.style.boxShadow = 'none';
-                        } else if (this.board[row][col] === 1) {
-                          disc.classList.add('yellow');
-                          disc.style.background = 'linear-gradient(135deg, #FFD700, #FFA000)';
-                          disc.style.border = '3px solid #FF8F00';
-                          disc.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.6)';
-                        } else if (this.board[row][col] === 2) {
-                          disc.classList.add('red');
-                          disc.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
-                          disc.style.border = '3px solid #C62828';
-                          disc.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.6)';
-                        }
-                      }
-                    }
+                  
+                  if (frameCount % 120 === 0) { // Log every 2 seconds instead of every second
+                    console.log('🎊 Frame ' + frameCount + ': ' + activeParticles + ' active particles');
                   }
-                }
+                  
+                  if (activeParticles > 0) {
+                    animationId = requestAnimationFrame(animateConfetti);
+                  } else {
+                    console.log('🎊 All confetti particles completed animation');
+                    setTimeout(() => {
+                      if (confettiContainer.parentNode) {
+                        confettiContainer.parentNode.removeChild(confettiContainer);
+                        console.log('🧹 JavaScript confetti cleaned up');
+                      }
+                    }, 1000);
+                  }
+                };
                 
-                this.updateUI();
-                return true;
+                // Start animation
+                animationId = requestAnimationFrame(animateConfetti);
+                
+                // Failsafe cleanup (ultra-fast 3s timing)
+                setTimeout(() => {
+                  if (animationId) cancelAnimationFrame(animationId);
+                  if (confettiContainer.parentNode) {
+                    confettiContainer.parentNode.removeChild(confettiContainer);
+                    console.log('🧹 Failsafe confetti cleanup after 3s');
+                  }
+                }, 3000);
               }
               
-              resetGame() {
+              newGame() {
                 this.board = Array(6).fill(null).map(() => Array(7).fill(0));
                 this.currentPlayer = 1;
                 this.gameOver = false;
                 this.winner = null;
-                this.moveCount = 0;
-                this.gameHistory = [];
-                this.winningLine = null;
+                this.winningLine = [];
+                this.processingMove = false;
                 
-                // Use BoardRenderer if available
-                if (this.boardRenderer && this.boardRenderer.clearBoard) {
-                  this.boardRenderer.clearBoard();
-                } else {
-                  // Fallback to direct DOM manipulation
-                  const cells = document.querySelectorAll('.game-slot');
-                  cells.forEach(cell => {
-                    const disc = cell.querySelector('.disc');
-                    if (disc) {
-                      disc.classList.remove('yellow', 'red', 'winning-disc');
-                      disc.classList.add('empty');
-                      disc.style.background = 'rgba(255, 255, 255, 0.1)';
-                      disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-                      disc.style.boxShadow = 'none';
-                    }
-                  });
-                }
+                // Clear board visually
+                document.querySelectorAll('.disc').forEach(disc => {
+                  disc.className = 'disc empty';
+                });
                 
                 this.updateUI();
                 console.log('🔄 New game started');
               }
               
               updateUI() {
-                // Update current player indicator
-                const indicator = document.getElementById('currentPlayerIndicator');
-                if (indicator) {
-                  const disc = indicator.querySelector('.player-disc');
-                  const name = indicator.querySelector('.player-name');
-                  if (disc && name) {
-                    if (this.currentPlayer === 1) {
-                      disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg';
-                      name.textContent = 'Spieler 1';
-                    } else {
-                      disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-red-500 to-red-700 shadow-lg';
-                      name.textContent = 'Spieler 2';
-                    }
-                  }
-                }
-                
-                // Update move counter
-                const moveCounter = document.getElementById('moveCounter');
-                if (moveCounter) {
-                  moveCounter.textContent = this.moveCount;
-                }
-                
-                // Update game status if not game over
-                if (!this.gameOver) {
-                  const gameStatus = document.getElementById('gameStatus');
-                  if (gameStatus) {
-                    gameStatus.textContent = 'Spiel läuft';
-                    gameStatus.className = 'font-semibold text-green-400';
-                  }
-                }
-                
-                // Update undo button
-                const undoBtn = document.getElementById('undoBtn');
-                if (undoBtn) {
-                  undoBtn.disabled = this.gameHistory.length === 0;
-                }
-              }
-              
-              showModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                  modal.classList.remove('hidden');
-                  document.body.style.overflow = 'hidden';
-                }
-              }
-              
-              hideModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                  modal.classList.add('hidden');
-                  document.body.style.overflow = '';
-                }
-              }
-              
-              toggleModal(modalId) {
-                const modal = document.getElementById(modalId);
-                if (modal) {
-                  if (modal.classList.contains('hidden')) {
-                    this.showModal(modalId);
-                  } else {
-                    this.hideModal(modalId);
-                  }
+                const status = document.getElementById('gameStatus');
+                if (status && !this.gameOver) {
+                  status.textContent = `Spieler ${this.currentPlayer} (${this.currentPlayer === 1 ? 'Gelb' : 'Rot'}) ist dran`;
                 }
               }
             }
             
-          // Create and initialize Local game
-          const game = new LocalConnect4Game();
-          await game.init();
-          
-          window.game = game; // For debugging
-          
-          console.log('✅ Local Connect4 Game initialized successfully!');
-          return true;
-          
-        } catch (error) {
-          console.error('❌ Local module initialization failed:', error);
-          throw error;
-        }
+            // Create the game
+            window.game = new SimpleConnect4();
+          }
+        }, 1000);
       }
+    </script>
+    
+    <!-- Simple fallback for older browsers -->
+    <script>
+      console.log('🚀 CONNECT4 MODULAR SYSTEM LOADING...');
       
-      // EMERGENCY MINIMAL IMPLEMENTATION (SAME AS BEFORE)
-      console.log('🚨 DEFINING MINIMAL CONNECT4 FALLBACK...');
-      
-      // DIRECT MINIMAL IMPLEMENTATION - NO MODULE IMPORTS
-      function initializeMinimalConnect4() {
-        console.log('🔧 Emergency minimal Connect4 initialization...');
-        
-        // Simple game state
-        const gameState = {
-          board: Array(6).fill(null).map(() => Array(7).fill(0)),
-          currentPlayer: 1,
-          gameOver: false,
-          winner: null,
-          moveCount: 0
-        };
-        
-        // Create board
-        const gameBoard = document.getElementById('gameBoard');
-        if (gameBoard) {
-          gameBoard.innerHTML = '';
-          
-          // Create 42 cells
-          for (let row = 0; row < 6; row++) {
-            for (let col = 0; col < 7; col++) {
-              const cell = document.createElement('div');
-              cell.className = 'game-slot relative bg-blue-500 rounded-full border-2 border-blue-700 cursor-pointer aspect-square flex items-center justify-center';
-              cell.dataset.row = row;
-              cell.dataset.col = col;
-              
-              const disc = document.createElement('div');
-              disc.className = 'disc empty w-[85%] h-[85%] rounded-full';
-              disc.style.background = 'rgba(255, 255, 255, 0.1)';
-              disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-              
-              cell.appendChild(disc);
-              gameBoard.appendChild(cell);
-              
-              // Add click handler
-              cell.addEventListener('click', () => makeMove(col));
-            }
-          }
-          
-          console.log('✅ Emergency board created with 42 cells');
+      // Check if main.js loaded successfully
+      setTimeout(() => {
+        if (!window.game) {
+          console.error('❌ Modular system failed to load');
+          const errorDiv = document.createElement('div');
+          errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(244, 67, 54, 0.9); color: white; padding: 15px; border-radius: 12px; z-index: 10000; max-width: 350px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); backdrop-filter: blur(10px);';
+          errorDiv.innerHTML = `
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
+              <strong>Module Loading Failed</strong>
+            </div>
+            <p style="margin: 0; font-size: 14px; opacity: 0.9;">Please refresh the page or try again later.</p>
+          `;
+          document.body.appendChild(errorDiv);
         }
-        
-        // Make move function
-        function makeMove(col) {
-          if (gameState.gameOver || col < 0 || col >= 7) return;
+      }, 2000);
+    </script>
+    
+    <!-- Dynamic Version Display -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const versionDisplay = document.getElementById('versionDisplay');
+        if (versionDisplay) {
+          const versionMeta = document.querySelector('meta[name="version"]');
+          const currentVersion = versionMeta ? versionMeta.content : 'v4.1-CLEANUP-FIX';
+          const buildTime = new Date().toLocaleString('de-DE', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
           
-          // Find lowest empty row
-          let targetRow = -1;
-          for (let row = 5; row >= 0; row--) {
-            if (gameState.board[row][col] === 0) {
-              targetRow = row;
-              break;
-            }
-          }
+          // Simulated commit hash (first 7 chars of current timestamp)
+          const commitHash = Date.now().toString(36).slice(-7);
           
-          if (targetRow === -1) return; // Column full
+          versionDisplay.textContent = `${currentVersion} • ${buildTime} • ${commitHash}`;
+          versionDisplay.title = `Build: ${buildTime} | Hash: ${commitHash} | Click to copy`;
           
-          // Make move
-          gameState.board[targetRow][col] = gameState.currentPlayer;
-          gameState.moveCount++;
-          
-          // Update visual
-          const cell = document.querySelector(`[data-row="${targetRow}"][data-col="${col}"]`);
-          if (cell) {
-            const disc = cell.querySelector('.disc');
-            if (disc) {
-              disc.classList.remove('empty');
-              disc.classList.add(gameState.currentPlayer === 1 ? 'yellow' : 'red');
-              
-              if (gameState.currentPlayer === 1) {
-                disc.style.background = 'linear-gradient(135deg, #FFD700, #FFA000)';
-                disc.style.border = '3px solid #FF8F00';
-                disc.style.boxShadow = '0 4px 12px rgba(255, 215, 0, 0.6)';
-              } else {
-                disc.style.background = 'linear-gradient(135deg, #F44336, #D32F2F)';
-                disc.style.border = '3px solid #C62828';
-                disc.style.boxShadow = '0 4px 12px rgba(244, 67, 54, 0.6)';
-              }
-            }
-          }
-          
-          // Check win
-          if (checkWin(targetRow, col)) {
-            gameState.gameOver = true;
-            gameState.winner = gameState.currentPlayer;
-            const winnerName = gameState.currentPlayer === 1 ? 'Spieler 1 (Gelb)' : 'Spieler 2 (Rot)';
-            
-            const statusEl = document.getElementById('gameStatus');
-            if (statusEl) {
-              statusEl.textContent = `${winnerName} gewinnt!`;
-              statusEl.className = 'font-semibold text-yellow-400';
-            }
-            
-            console.log(`🏆 ${winnerName} gewinnt!`);
-          } else if (gameState.moveCount === 42) {
-            gameState.gameOver = true;
-            gameState.winner = 0;
-            
-            const statusEl = document.getElementById('gameStatus');
-            if (statusEl) {
-              statusEl.textContent = 'Unentschieden!';
-              statusEl.className = 'font-semibold text-gray-400';
-            }
-            
-            console.log('🤝 Unentschieden!');
-          } else {
-            // Switch player
-            gameState.currentPlayer = gameState.currentPlayer === 1 ? 2 : 1;
-            updatePlayerIndicator();
-          }
-        }
-        
-        // Check win function
-        function checkWin(row, col) {
-          const player = gameState.board[row][col];
-          const directions = [
-            [0, 1], [1, 0], [1, 1], [1, -1]
-          ];
-          
-          for (const [dr, dc] of directions) {
-            let count = 1;
-            
-            // Check positive direction
-            for (let i = 1; i < 4; i++) {
-              const r = row + i * dr;
-              const c = col + i * dc;
-              if (r >= 0 && r < 6 && c >= 0 && c < 7 && gameState.board[r][c] === player) {
-                count++;
-              } else {
-                break;
-              }
-            }
-            
-            // Check negative direction
-            for (let i = 1; i < 4; i++) {
-              const r = row - i * dr;
-              const c = col - i * dc;
-              if (r >= 0 && r < 6 && c >= 0 && c < 7 && gameState.board[r][c] === player) {
-                count++;
-              } else {
-                break;
-              }
-            }
-            
-            if (count >= 4) return true;
-          }
-          
-          return false;
-        }
-        
-        // Update player indicator
-        function updatePlayerIndicator() {
-          const indicator = document.getElementById('currentPlayerIndicator');
-          if (indicator) {
-            const disc = indicator.querySelector('.player-disc');
-            const name = indicator.querySelector('.player-name');
-            if (disc && name) {
-              if (gameState.currentPlayer === 1) {
-                disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg';
-                name.textContent = 'Spieler 1';
-              } else {
-                disc.className = 'player-disc w-8 h-8 rounded-full mr-3 bg-gradient-to-br from-red-500 to-red-700 shadow-lg';
-                name.textContent = 'Spieler 2';
-              }
-            }
-          }
-        }
-        
-        // Set up new game button
-        const newGameBtn = document.getElementById('newGameBtn');
-        if (newGameBtn) {
-          newGameBtn.addEventListener('click', () => {
-            // Reset game state
-            gameState.board = Array(6).fill(null).map(() => Array(7).fill(0));
-            gameState.currentPlayer = 1;
-            gameState.gameOver = false;
-            gameState.winner = null;
-            gameState.moveCount = 0;
-            
-            // Reset all cells
-            const cells = document.querySelectorAll('.game-slot');
-            cells.forEach(cell => {
-              const disc = cell.querySelector('.disc');
-              if (disc) {
-                disc.classList.remove('yellow', 'red');
-                disc.classList.add('empty');
-                disc.style.background = 'rgba(255, 255, 255, 0.1)';
-                disc.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-                disc.style.boxShadow = 'none';
-              }
-            });
-            
-            // Reset UI
-            const statusEl = document.getElementById('gameStatus');
-            if (statusEl) {
-              statusEl.textContent = 'Spiel läuft';
-              statusEl.className = 'font-semibold text-green-400';
-            }
-            
-            updatePlayerIndicator();
-            console.log('🔄 New game started');
+          // Click to copy version info
+          versionDisplay.style.cursor = 'pointer';
+          versionDisplay.addEventListener('click', () => {
+            navigator.clipboard.writeText(`Connect4 ${currentVersion} | ${buildTime} | ${commitHash}`);
+            versionDisplay.style.opacity = '0.5';
+            setTimeout(() => { versionDisplay.style.opacity = '0.9'; }, 200);
           });
         }
-        
-        // Initialize UI
-        updatePlayerIndicator();
-        
-        // Make available for debugging
-        window.game = {
-          state: gameState,
-          makeMove: makeMove,
-          checkWin: checkWin
-        };
-        
-        console.log('✅ Emergency minimal Connect4 initialized successfully!');
-      }
-      
-      // SYSTEM INITIALIZATION - LOCAL MODULES mit Error Fallback
-      async function initializeConnect4System() {
-        console.log('🚀 Starting Connect4 System Initialization...');
-        
-        try {
-          // Try local modules system
-          await initializeLocalConnect4();
-          console.log('✅ Local Connect4 system activated successfully!');
-        } catch (error) {
-          console.error('❌ Local modules system failed:', error);
-          
-          // Show user-friendly error message
-          showModuleError(error);
-          
-          // Fallback to minimal system
-          console.log('🔄 Falling back to minimal implementation...');
-          initializeMinimalConnect4();
-        }
-      }
-      
-      // Show module loading error to user
-      function showModuleError(error) {
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(244, 67, 54, 0.9); color: white; padding: 15px; border-radius: 12px; z-index: 10000; max-width: 350px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); backdrop-filter: blur(10px);';
-        errorDiv.innerHTML = `
-          <div style="display: flex; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 18px; margin-right: 8px;">⚠️</span>
-            <strong>Module Loading Failed</strong>
-          </div>
-          <p style="margin: 0; font-size: 14px; opacity: 0.9;">Using simplified version. Some features may be limited.</p>
-        `;
-        document.body.appendChild(errorDiv);
-        
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-          errorDiv.style.opacity = '0';
-          errorDiv.style.transform = 'translateX(100%)';
-          setTimeout(() => errorDiv.remove(), 300);
-        }, 5000);
-      }
-      
-      // IMMEDIATE INITIALIZATION
-      document.addEventListener('DOMContentLoaded', () => {
-        console.log('🚨 DOM LOADED - STARTING CONNECT4 SYSTEM');
-        initializeConnect4System();
       });
-      
-      // If DOM already loaded, run immediately
-      if (document.readyState !== 'loading') {
-        console.log('🚨 DOM ALREADY LOADED - STARTING CONNECT4 SYSTEM NOW');
-        initializeConnect4System();
-      }
     </script>
   </body>
 </html>

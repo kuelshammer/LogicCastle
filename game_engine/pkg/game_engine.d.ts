@@ -591,8 +591,8 @@ export class GomokuGame {
   create_hypothetical_state(hypothetical_player: Player): GomokuGame | undefined;
 }
 /**
- * L-Game implementation using 3 separate BitPackedBoard<4,4,1>
- * Following Connect4 pattern: separate boards for each piece type
+ * L-Game implementation using the Three-Layer Architecture
+ * Composes geometry and data layers for clean separation of concerns
  */
 export class LGame {
   free(): void;
@@ -601,9 +601,10 @@ export class LGame {
    */
   constructor();
   /**
-   * Reset game to initial state
+   * Create a new L-Game with a specific starting player
+   * This is essential for game series where "loser starts next game"
    */
-  reset(): void;
+  static new_with_starting_player(starting_player: Player): LGame;
   /**
    * Get cell value at position (for JavaScript interface)
    * Returns: 0=empty, 1=player1, 2=player2, 3=neutral
@@ -633,6 +634,76 @@ export class LGame {
    * Get game status summary for debugging
    */
   get_status_summary(): string;
+  /**
+   * Get memory usage of the game state (for performance monitoring)
+   */
+  memory_usage(): number;
+  /**
+   * Get current player (frontend naming convention)
+   */
+  get_current_player(): Player;
+  /**
+   * Get move count (frontend naming convention)
+   */
+  get_move_count(): number;
+  /**
+   * Get winner (frontend naming convention)
+   */
+  get_winner(): Player | undefined;
+  /**
+   * Check if game is over (frontend naming convention)
+   */
+  is_game_over(): boolean;
+  /**
+   * Get board state as flat array for frontend (4 rows × 4 cols = 16 elements)
+   * Returns: 0=empty, 1=player1, 2=player2, 3=neutral
+   */
+  get_board(): Uint8Array;
+  /**
+   * Check if undo is possible
+   */
+  can_undo(): boolean;
+  /**
+   * Undo the last move
+   */
+  undo_move(): boolean;
+  /**
+   * Analyze current position comprehensively
+   */
+  analyze_position(): PositionAnalysis;
+  /**
+   * Get current game phase for AI strategy
+   */
+  get_game_phase(): GamePhase;
+  /**
+   * Reset game with a specific starting player
+   */
+  reset_with_starting_player(starting_player: Player): void;
+  /**
+   * Reset game to initial state
+   */
+  reset(): void;
+  /**
+   * Frontend-friendly method aliases (Connect4 compatibility)
+   */
+  newGame(): void;
+  undoMove(): boolean;
+  /**
+   * Get valid L-piece moves for current player (for frontend)
+   */
+  get_valid_l_moves_json(): string;
+  /**
+   * Check if a specific L-piece move is valid
+   */
+  is_valid_l_move(row: number, col: number, orientation: number): boolean;
+  /**
+   * Get neutral piece positions
+   */
+  get_neutral_positions(): Uint8Array;
+  /**
+   * Get L-piece position for a specific player
+   */
+  get_l_piece_position(player: Player): Uint8Array;
   /**
    * Get current player
    */
@@ -897,11 +968,11 @@ export interface InitOutput {
   readonly gomokugame_create_hypothetical_state: (a: number, b: number) => number;
   readonly __wbg_lgame_free: (a: number, b: number) => void;
   readonly lgame_new: () => number;
+  readonly lgame_new_with_starting_player: (a: number) => number;
   readonly lgame_current_player: (a: number) => number;
   readonly lgame_move_count: (a: number) => number;
   readonly lgame_game_over: (a: number) => number;
   readonly lgame_winner: (a: number) => number;
-  readonly lgame_reset: (a: number) => void;
   readonly lgame_get_cell: (a: number, b: number, c: number) => number;
   readonly lgame_get_board_state: (a: number, b: number) => void;
   readonly lgame_get_valid_moves_count: (a: number) => number;
@@ -909,6 +980,23 @@ export interface InitOutput {
   readonly lgame_make_move: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly lgame_move_neutral_piece: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly lgame_get_status_summary: (a: number, b: number) => void;
+  readonly lgame_memory_usage: (a: number) => number;
+  readonly lgame_get_current_player: (a: number) => number;
+  readonly lgame_get_move_count: (a: number) => number;
+  readonly lgame_get_winner: (a: number) => number;
+  readonly lgame_is_game_over: (a: number) => number;
+  readonly lgame_get_board: (a: number, b: number) => void;
+  readonly lgame_can_undo: (a: number) => number;
+  readonly lgame_undo_move: (a: number) => number;
+  readonly lgame_analyze_position: (a: number) => number;
+  readonly lgame_get_game_phase: (a: number) => number;
+  readonly lgame_reset_with_starting_player: (a: number, b: number) => void;
+  readonly lgame_newGame: (a: number) => void;
+  readonly lgame_undoMove: (a: number) => number;
+  readonly lgame_get_valid_l_moves_json: (a: number, b: number) => void;
+  readonly lgame_is_valid_l_move: (a: number, b: number, c: number, d: number) => number;
+  readonly lgame_get_neutral_positions: (a: number, b: number) => void;
+  readonly lgame_get_l_piece_position: (a: number, b: number, c: number) => void;
   readonly __wbg_triogame_free: (a: number, b: number) => void;
   readonly triogame_new: (a: number) => number;
   readonly triogame_get_number: (a: number, b: number, c: number) => number;
@@ -1046,6 +1134,7 @@ export interface InitOutput {
   readonly connect4game_get_ai_move: (a: number) => number;
   readonly connect4game_reset: (a: number) => void;
   readonly gomokugame_reset: (a: number) => void;
+  readonly lgame_reset: (a: number) => void;
   readonly __wbindgen_export_0: (a: number) => void;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_2: (a: number, b: number) => number;

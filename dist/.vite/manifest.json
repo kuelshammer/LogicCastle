@@ -1,31 +1,35 @@
 {
-  "_DOMUtils-C6fb_Htl.js": {
-    "file": "assets/DOMUtils-C6fb_Htl.js",
-    "name": "DOMUtils"
+  "_game_engine-3k7GKb2a.js": {
+    "file": "assets/game_engine-3k7GKb2a.js",
+    "name": "game_engine",
+    "assets": [
+      "assets/game_engine_bg-CN31xC9M.wasm"
+    ]
   },
-  "_modulepreload-polyfill-B5Qt9EMX.js": {
-    "file": "assets/modulepreload-polyfill-B5Qt9EMX.js",
-    "name": "modulepreload-polyfill"
+  "_preload-helper-DDWtIbF5.js": {
+    "file": "assets/preload-helper-DDWtIbF5.js",
+    "name": "preload-helper"
   },
   "game_engine/pkg/game_engine_bg.wasm": {
-    "file": "assets/game_engine_bg-BVGesn8u.wasm",
+    "file": "assets/game_engine_bg-CN31xC9M.wasm",
     "src": "game_engine/pkg/game_engine_bg.wasm"
   },
   "games/connect4/index.html": {
-    "file": "assets/connect4-CUfPBd9w.js",
+    "file": "assets/connect4-e7Y0BYJL.js",
     "name": "connect4",
     "src": "games/connect4/index.html",
     "isEntry": true,
     "imports": [
-      "_modulepreload-polyfill-B5Qt9EMX.js"
+      "_game_engine-3k7GKb2a.js",
+      "_preload-helper-DDWtIbF5.js"
     ],
     "dynamicImports": [
       "games/connect4/js/components/ModalManager.js",
       "games/connect4/js/components/MessageSystem.js",
       "games/connect4/js/components/KeyboardController.js"
     ],
-    "assets": [
-      "assets/game_engine_bg-BVGesn8u.wasm"
+    "css": [
+      "assets/connect4-BgZ7H8Ed.css"
     ]
   },
   "games/connect4/js/components/KeyboardController.js": {
@@ -46,27 +50,37 @@
     "src": "games/connect4/js/components/ModalManager.js",
     "isDynamicEntry": true
   },
-  "games/hex/index.html": {
-    "file": "assets/hex-491yMeGG.js",
-    "name": "hex",
-    "src": "games/hex/index.html",
+  "games/gomoku/index.html": {
+    "file": "assets/gomoku-BFudNo4y.js",
+    "name": "gomoku",
+    "src": "games/gomoku/index.html",
     "isEntry": true,
     "imports": [
-      "_modulepreload-polyfill-B5Qt9EMX.js",
-      "_DOMUtils-C6fb_Htl.js"
+      "_game_engine-3k7GKb2a.js"
+    ],
+    "css": [
+      "assets/gomoku-DR6j7rWE.css"
     ]
   },
   "games/lgame/index.html": {
-    "file": "assets/lgame-D_jdj3Aj.js",
-    "name": "lgame",
-    "src": "games/lgame/index.html",
+    "file": "assets/lgame-BTz2uAsz.css",
+    "src": "games/lgame/index.html"
+  },
+  "games/trio/index.html": {
+    "file": "assets/trio-CtHrgics.js",
+    "name": "trio",
+    "src": "games/trio/index.html",
     "isEntry": true,
     "imports": [
-      "_modulepreload-polyfill-B5Qt9EMX.js"
+      "_game_engine-3k7GKb2a.js",
+      "_preload-helper-DDWtIbF5.js"
+    ],
+    "css": [
+      "assets/trio-DGSux_OI.css"
     ]
   },
-  "manifest.json": {
-    "file": "assets/manifest-BI0hwqpo.json",
-    "src": "manifest.json"
+  "index.html": {
+    "file": "assets/main-C6ZknHFZ.css",
+    "src": "index.html"
   }
 }

@@ -1,0 +1,222 @@
+/**
+ * L-Game Tailwind CSS Source File
+ * 
+ * This file imports Tailwind CSS directives and L-Game specific styles.
+ * Build with: npm run build:css
+ */
+
+/* Import Tailwind CSS Base, Components, and Utilities */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* ===== LGAME PREMIUM GLASSMORPHISM COMPONENTS ===== */
+
+@layer components {
+  /* L-Game Board Glassmorphism */
+  .lc-glass {
+    @apply backdrop-blur-md backdrop-saturate-180 backdrop-brightness-110;
+    @apply bg-white/15 border border-white/20;
+    @apply shadow-xl shadow-black/20;
+  }
+  
+  .lc-glass:hover {
+    @apply backdrop-blur-lg backdrop-saturate-200;
+    @apply bg-white/22 border-white/30;
+    @apply transform -translate-y-1;
+  }
+
+  /* L-Game Premium Button Styles */
+  .lgame-btn-primary {
+    @apply lc-glass px-6 py-3 rounded-xl font-semibold text-white;
+    @apply bg-gradient-to-r from-lgame-accent to-purple-600;
+    @apply hover:from-purple-600 hover:to-lgame-accent;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25;
+  }
+  
+  .lgame-btn-secondary {
+    @apply lc-glass px-4 py-2 rounded-lg font-medium text-gray-200;
+    @apply hover:text-white transition-all duration-200;
+  }
+
+  /* L-Game Board Container */
+  .lgame-board-container {
+    @apply lc-glass p-8 rounded-2xl;
+    @apply bg-gradient-to-br from-lgame-bg-from via-lgame-bg-via to-lgame-bg-to;
+    @apply border-2 border-lgame-board-border;
+    @apply shadow-2xl shadow-purple-900/40;
+  }
+
+  /* L-Game 4x4 Grid */
+  .lgame-board {
+    @apply grid grid-cols-4 grid-rows-4 gap-2;
+    @apply aspect-square max-w-sm mx-auto;
+    @apply p-4 rounded-xl;
+    @apply bg-gradient-to-br from-lgame-board-bg to-violet-800;
+    @apply border border-lgame-board-border;
+  }
+
+  /* L-Game Board Cells */
+  .lgame-cell {
+    @apply aspect-square rounded-lg;
+    @apply bg-gradient-to-br from-amber-50 to-amber-100;
+    @apply border-2 border-amber-300;
+    @apply flex items-center justify-center;
+    @apply cursor-pointer transition-all duration-200;
+    @apply hover:bg-gradient-to-br hover:from-amber-100 hover:to-amber-200;
+    @apply hover:border-amber-400 hover:shadow-md;
+    @apply relative overflow-hidden;
+  }
+
+  /* L-Piece Styles */
+  .lpiece {
+    @apply w-full h-full rounded-md;
+    @apply flex items-center justify-center;
+    @apply transition-all duration-300;
+    @apply shadow-lg border-2;
+    @apply relative overflow-hidden;
+  }
+
+  .lpiece-player1 {
+    @apply bg-gradient-to-br from-lgame-player1-400 to-lgame-player1-600;
+    @apply border-lgame-player1-700;
+    @apply shadow-lg shadow-pink-500/30;
+  }
+
+  .lpiece-player2 {
+    @apply bg-gradient-to-br from-lgame-player2-400 to-lgame-player2-600;
+    @apply border-lgame-player2-700;
+    @apply shadow-lg shadow-amber-500/30;
+  }
+
+  /* Neutral Piece Styles */
+  .neutral-piece {
+    @apply w-4/5 h-4/5 rounded-full;
+    @apply bg-gradient-to-br from-lgame-neutral-400 to-lgame-neutral-600;
+    @apply border-2 border-lgame-neutral-700;
+    @apply shadow-md shadow-gray-500/30;
+    @apply transition-all duration-200;
+  }
+
+  /* Game State Indicators */
+  .valid-move {
+    @apply ring-2 ring-emerald-400 ring-opacity-75;
+    @apply bg-gradient-to-br from-emerald-100 to-emerald-200;
+    @apply animate-pulse;
+  }
+
+  .invalid-move {
+    @apply ring-2 ring-red-400 ring-opacity-75;
+    @apply bg-gradient-to-br from-red-100 to-red-200;
+    @apply animate-bounce;
+  }
+
+  .selected-piece {
+    @apply ring-4 ring-yellow-400 ring-opacity-90;
+    @apply transform scale-105;
+    @apply shadow-2xl shadow-yellow-500/40;
+  }
+
+  .blockade-threat {
+    @apply animate-blockade-warning;
+    @apply ring-2 ring-red-500;
+  }
+
+  .winning-position {
+    @apply animate-victory-pulse;
+    @apply ring-4 ring-lgame-victory-glow;
+    @apply shadow-2xl shadow-purple-500/60;
+  }
+
+  /* L-Game Modal Styles */
+  .lgame-modal {
+    @apply lc-glass rounded-2xl p-8;
+    @apply bg-gradient-to-br from-lgame-bg-from/95 to-lgame-bg-to/95;
+    @apply border border-white/30;
+    @apply shadow-2xl shadow-black/50;
+    @apply backdrop-blur-xl;
+  }
+
+  /* L-Game Toast Notifications */
+  .lgame-toast {
+    @apply lc-glass px-6 py-4 rounded-xl;
+    @apply bg-gradient-to-r from-lgame-accent/90 to-purple-600/90;
+    @apply text-white font-medium;
+    @apply border border-white/20;
+    @apply shadow-lg shadow-purple-500/25;
+  }
+
+  /* L-Game Info Cards */
+  .lgame-info-card {
+    @apply lc-glass rounded-xl p-6;
+    @apply bg-white/10 border border-white/20;
+    @apply backdrop-blur-md;
+  }
+
+  /* Responsive L-Game Board */
+  @media (max-width: 640px) {
+    .lgame-board {
+      @apply gap-1 p-2;
+      @apply max-w-xs;
+    }
+    
+    .lgame-cell {
+      @apply rounded-md;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .lgame-board {
+      @apply gap-3 p-6;
+      @apply max-w-lg;
+    }
+  }
+}
+
+/* ===== LGAME CUSTOM UTILITIES ===== */
+
+@layer utilities {
+  /* L-Game Victory Confetti Colors */
+  .confetti-lgame-player1 {
+    background-color: theme('colors.lgame.player1.500');
+  }
+  
+  .confetti-lgame-player2 {
+    background-color: theme('colors.lgame.player2.500');
+  }
+  
+  .confetti-lgame-accent {
+    background-color: theme('colors.lgame.accent');
+  }
+
+  /* L-Game Piece Placement Animation Triggers */
+  .placing {
+    @apply animate-lpiece-place;
+  }
+  
+  .rotating {
+    @apply animate-lpiece-rotate;
+  }
+  
+  .neutral-placing {
+    @apply animate-neutral-place;
+  }
+
+  /* L-Game Accessibility Enhancements */
+  .focus-visible {
+    @apply ring-2 ring-lgame-accent ring-opacity-75;
+    @apply ring-offset-2 ring-offset-lgame-bg-from;
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    .placing,
+    .rotating,
+    .neutral-placing,
+    .animate-blockade-warning,
+    .animate-victory-pulse {
+      @apply animate-none;
+    }
+  }
+}
