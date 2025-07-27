@@ -28,6 +28,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Install Rust and wasm-pack
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source $HOME/.cargo/env
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
       - name: Install dependencies
         run: |
           echo "Installing dependencies with platform-specific optimizations..."
@@ -37,6 +43,7 @@ jobs:
       - name: Build with Vite
         run: |
           echo "Building LogicCastle with Vite..."
+          source $HOME/.cargo/env
           npm run build
         continue-on-error: false
 
