@@ -1,0 +1,462 @@
+/**
+ * L-Game Premium Gaming UI - Production CSS Build
+ * 
+ * Purple-themed Premium Gaming UI following Connect4 Goldstandard.
+ * Includes glassmorphism, L-piece mechanics, and victory effects.
+ * 
+ * Version: Premium Gaming UI v1.0 (L-Game Purple Theme)
+ */
+
+/* ===============================
+   🎨 L-GAME DESIGN TOKENS
+   =============================== */
+
+:root {
+  /* L-Game Purple Theme Colors */
+  --lgame-bg-from: #581c87;     /* purple-900 */
+  --lgame-bg-via: #7c3aed;      /* violet-600 */
+  --lgame-bg-to: #312e81;       /* indigo-900 */
+  --lgame-accent: #8b5cf6;      /* violet-500 */
+  
+  /* L-Piece Colors */
+  --lgame-player1: #d946ef;     /* magenta-500 */
+  --lgame-player2: #f59e0b;     /* amber-500 */
+  
+  /* Board Colors */
+  --lgame-board-bg: #4c1d95;    /* violet-900 */
+  --lgame-board-border: #7c3aed; /* violet-600 */
+  --lgame-cell-bg: rgba(255, 255, 255, 0.1);
+  --lgame-cell-border: rgba(255, 255, 255, 0.2);
+  
+  /* Neutral Pieces */
+  --lgame-neutral: #64748b;     /* slate-500 */
+  
+  /* Victory Effects */
+  --lgame-victory-glow: rgba(139, 92, 246, 0.8);
+  
+  /* Glassmorphism Effects */
+  --lgame-glass-bg: rgba(255, 255, 255, 0.15);
+  --lgame-glass-border: rgba(255, 255, 255, 0.2);
+  --lgame-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* Spacing & Sizing */
+  --lgame-board-size: 320px;
+  --lgame-cell-size: 72px;
+  --lgame-gap: 8px;
+  
+  /* Common Values */
+  --lc-white: #ffffff;
+  --lc-black: #000000;
+  --lc-space-2: 0.5rem;
+  --lc-space-4: 1rem;
+  --lc-space-6: 1.5rem;
+  --lc-space-8: 2rem;
+  --lc-radius-lg: 0.5rem;
+  --lc-radius-xl: 0.75rem;
+  --lc-radius-2xl: 1rem;
+  --lc-blur-sm: blur(8px);
+  --lc-blur-md: blur(16px);
+  --lc-blur-lg: blur(20px);
+}
+
+/* ===============================
+   🎮 L-GAME BODY & LAYOUT
+   =============================== */
+
+body {
+  background: linear-gradient(
+    to bottom right, 
+    var(--lgame-bg-from), 
+    var(--lgame-bg-via), 
+    var(--lgame-bg-to)
+  );
+  min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--lc-white);
+  margin: 0;
+  padding: 0;
+}
+
+/* ===============================
+   🧩 L-GAME BOARD DESIGN
+   =============================== */
+
+/* Main L-Game Board Container */
+.lgame-board {
+  /* Core Layout - 4x4 Grid */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--lgame-gap);
+  
+  /* Sizing */
+  width: var(--lgame-board-size);
+  height: var(--lgame-board-size);
+  aspect-ratio: 1;
+  margin: var(--lc-space-4) auto;
+  padding: var(--lc-space-6);
+  
+  /* Premium Gaming Background */
+  background: linear-gradient(
+    135deg,
+    var(--lgame-board-bg) 0%,
+    #6d28d9 50%,
+    var(--lgame-board-bg) 100%
+  );
+  
+  /* Glassmorphism Effect */
+  backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(105%);
+  
+  /* Gaming Glass Border & Shadow */
+  border: 2px solid var(--lgame-board-border);
+  border-radius: var(--lc-radius-2xl);
+  box-shadow: 
+    var(--lgame-glass-shadow),
+    0 16px 48px rgba(139, 92, 246, 0.25),
+    0 8px 24px rgba(124, 58, 237, 0.15),
+    inset 0 2px 0 rgba(124, 58, 237, 0.3);
+  
+  /* Hardware Acceleration */
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lgame-board:hover {
+  box-shadow: 
+    var(--lgame-glass-shadow),
+    0 20px 56px rgba(139, 92, 246, 0.35),
+    0 12px 28px rgba(124, 58, 237, 0.25),
+    inset 0 2px 0 rgba(124, 58, 237, 0.4);
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* ===============================
+   🔳 L-GAME BOARD CELLS
+   =============================== */
+
+.board-cell {
+  /* Core Glass Effect */
+  background: var(--lgame-cell-bg);
+  backdrop-filter: var(--lc-blur-sm) saturate(150%);
+  -webkit-backdrop-filter: var(--lc-blur-sm) saturate(150%);
+  border: 1px solid var(--lgame-cell-border);
+  
+  /* Shape & Layout */
+  aspect-ratio: 1;
+  border-radius: var(--lc-radius-lg);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  
+  /* Flexbox for Piece Centering */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Smooth Gaming Transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.board-cell:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+/* ===============================
+   🧩 L-PIECE STYLES
+   =============================== */
+
+.lpiece {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--lc-radius-lg);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid;
+  overflow: hidden;
+}
+
+/* Player 1 L-Piece (Magenta/Pink) */
+.lpiece.player1 {
+  background: linear-gradient(
+    135deg,
+    #f0abfc 0%,
+    var(--lgame-player1) 50%,
+    #c026d3 100%
+  );
+  border-color: #a21caf;
+  box-shadow: 
+    0 4px 12px rgba(212, 70, 239, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Player 2 L-Piece (Amber/Gold) */
+.lpiece.player2 {
+  background: linear-gradient(
+    135deg,
+    #fde68a 0%,
+    var(--lgame-player2) 50%,
+    #d97706 100%
+  );
+  border-color: #b45309;
+  box-shadow: 
+    0 4px 12px rgba(245, 158, 11, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* L-Piece Hover Effects */
+.lpiece:hover {
+  transform: scale(1.05);
+  box-shadow: 
+    0 6px 16px rgba(139, 92, 246, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Corner Indicator for L-Pieces */
+.corner-indicator {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ===============================
+   ⚫ NEUTRAL PIECE STYLES
+   =============================== */
+
+.neutral-piece {
+  width: 70%;
+  height: 70%;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #94a3b8 0%,
+    var(--lgame-neutral) 50%,
+    #475569 100%
+  );
+  border: 2px solid #334155;
+  box-shadow: 
+    0 3px 8px rgba(100, 116, 139, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neutral-piece:hover {
+  transform: scale(1.1);
+  box-shadow: 
+    0 4px 12px rgba(100, 116, 139, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ===============================
+   🎯 GAME STATE INDICATORS
+   =============================== */
+
+/* Valid Move Highlights */
+.board-cell.valid-move {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  animation: valid-pulse 1s ease-in-out infinite;
+}
+
+/* Invalid Move Feedback */
+.board-cell.invalid-move {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  animation: invalid-shake 0.5s ease-in-out;
+}
+
+/* Selected Piece */
+.board-cell.selected {
+  background: rgba(255, 193, 7, 0.3);
+  border-color: #ffc107;
+  box-shadow: 
+    0 0 0 2px #ffc107,
+    0 0 20px rgba(255, 193, 7, 0.4);
+  transform: scale(1.05);
+}
+
+/* Blockade Threat Warning */
+.board-cell.blockade-threat {
+  animation: blockade-warning 1s ease-in-out infinite;
+}
+
+/* Winning Position */
+.board-cell.winning-position {
+  animation: victory-pulse 1s ease-in-out infinite;
+  box-shadow: 
+    0 0 0 3px var(--lgame-victory-glow),
+    0 0 24px var(--lgame-victory-glow);
+}
+
+/* ===============================
+   🎆 KEYFRAME ANIMATIONS
+   =============================== */
+
+@keyframes valid-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  50% { 
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes invalid-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes blockade-warning {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes victory-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* L-Piece Placement Animation */
+@keyframes lpiece-place {
+  0% { 
+    transform: scale(0) rotate(180deg) translateY(-50px);
+    opacity: 0;
+  }
+  60% { 
+    transform: scale(1.2) rotate(90deg) translateY(10px);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(1) rotate(0deg) translateY(0);
+    opacity: 1;
+  }
+}
+
+.lpiece.placing {
+  animation: lpiece-place 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Neutral Piece Placement Animation */
+@keyframes neutral-place {
+  0% { 
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% { 
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.neutral-piece.placing {
+  animation: neutral-place 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===============================
+   🎨 GLASSMORPHISM UTILITIES
+   =============================== */
+
+.lc-glass {
+  backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(110%);
+  -webkit-backdrop-filter: var(--lc-blur-md) saturate(180%) brightness(110%);
+  background: var(--lgame-glass-bg);
+  border: 1px solid var(--lgame-glass-border);
+  box-shadow: var(--lgame-glass-shadow);
+}
+
+.lc-glass:hover {
+  backdrop-filter: var(--lc-blur-lg) saturate(200%);
+  -webkit-backdrop-filter: var(--lc-blur-lg) saturate(200%);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   📱 RESPONSIVE DESIGN
+   =============================== */
+
+@media (max-width: 640px) {
+  .lgame-board {
+    width: 280px;
+    height: 280px;
+    gap: 6px;
+    padding: var(--lc-space-4);
+  }
+  
+  .board-cell {
+    border-radius: 6px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .lgame-board {
+    width: 360px;
+    height: 360px;
+    gap: 10px;
+    padding: var(--lc-space-8);
+  }
+}
+
+/* ===============================
+   ♿ ACCESSIBILITY ENHANCEMENTS
+   =============================== */
+
+.board-cell:focus-visible {
+  outline: 2px solid var(--lgame-accent);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .lpiece.placing,
+  .neutral-piece.placing,
+  .board-cell.valid-move,
+  .board-cell.blockade-threat,
+  .board-cell.winning-position {
+    animation: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+  .board-cell {
+    border-width: 2px;
+  }
+  
+  .lpiece {
+    border-width: 3px;
+  }
+}
